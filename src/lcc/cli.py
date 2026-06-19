@@ -100,6 +100,19 @@ def _load_config(path: str | None) -> dict[str, Any]:
     return data
 
 
+def _same_existing_or_resolved_path(left: Path, right: Path) -> bool:
+    """Return True when two paths refer to the same target without creating either path."""
+    try:
+        if left.exists() and right.exists() and left.samefile(right):
+            return True
+    except OSError:
+        pass
+    try:
+        return left.expanduser().resolve() == right.expanduser().resolve()
+    except OSError:
+        return False
+
+
 @app.command("optimize")
 def optimize_command(
     input_path: str = typer.Argument(
@@ -337,6 +350,11 @@ def inspect_command(
     source_type = "stdin" if input_path == "-" else "file"
     raw = _read_input(input_path)
     effective_model = model or "gpt-4.1"
+
+    if input_path != "-" and report_path is not None:
+        input_file = Path(input_path)
+        if _same_existing_or_resolved_path(input_file, report_path):
+            _fail("--report must not point to the input file; inspect never modifies its input.")
 
     report = run_inspection(
         InspectionRequest(raw_text=raw, source_type=source_type, model=effective_model)

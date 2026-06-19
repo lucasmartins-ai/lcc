@@ -148,6 +148,17 @@ def test_inspect_does_not_modify_input_file(tmp_path: Path) -> None:
     assert src.read_bytes() == before
 
 
+def test_cli_inspect_rejects_report_path_that_is_input_file(tmp_path: Path) -> None:
+    src = tmp_path / "in.txt"
+    src.write_text(SAMPLE, encoding="utf-8")
+    before = src.read_bytes()
+
+    result = runner.invoke(app, ["inspect", str(src), "--report", str(src)])
+
+    assert result.exit_code == 1
+    assert src.read_bytes() == before
+
+
 # ------------------------------------------------------------------------------- cli
 
 
