@@ -15,6 +15,18 @@ All notable changes to this project are documented here. The format is based on
   per-case thresholds and a versioned (`schema_version` 1.0), deterministic JSON/Markdown
   report. See ADR 0007. It does **not** measure LLM answer quality.
 
+### Changed
+
+- **No indirect network via `tiktoken`.** Exact token counting now runs inside a tightly
+  scoped no-network guard: if `tiktoken` would download encoding assets (its first-use fetch),
+  the attempt is blocked and counting falls back to a clearly labelled approximate count whose
+  warning explains why. `lcc` blocks runtime network access by default — including indirectly
+  through `tiktoken` — and no CLI command makes an internet request by default. Exact counting
+  requires tokenizer encoding assets to be available locally. See
+  [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md). Approximate-count warnings now
+  include the specific reason (tiktoken not installed, model/encoding unknown, encoding
+  unavailable offline, or another tiktoken failure).
+
 ## [0.1.0] - 2026-06-19
 
 ### Added

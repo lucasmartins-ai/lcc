@@ -13,5 +13,6 @@ public / cross-module contracts that are expensive to change after release.
 | [0005](0005-tokenization-boundary.md) | Exact vs approximate token counting |
 | [0006](0006-determinism-boundary.md) | Cleaning/dedup stay free of LLM and network |
 | [0007](0007-deterministic-benchmark-harness.md) | Deterministic, fixture-based benchmark harness |
+| [0008](0008-tokenizer-network-boundary.md) | Tokenizer network boundary (no indirect network via tiktoken) |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.

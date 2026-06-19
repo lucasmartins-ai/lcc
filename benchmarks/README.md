@@ -23,8 +23,12 @@ lcc bench benchmarks/cases --output bench_report.json --markdown bench_report.md
   path is invalid).
 
 > Exact-mode cases (`allow_approximate_token_count: false`) require `tiktoken`
-> (`pip install ".[tiktoken]"`). Without it, counting falls back to approximate and those
-> cases fail honestly rather than report an approximation as exact (ADR 0005).
+> (`pip install ".[tiktoken]"`) **and** its encoding assets to be cached locally — `lcc`
+> blocks runtime network access by default and never downloads them (ADR 0008). Without
+> tiktoken, or when the assets are unavailable offline, counting falls back to approximate and
+> those cases fail honestly rather than report an approximation as exact (ADR 0005). To run
+> exact-mode cases offline, pre-cache the tokenizer once (for example, by setting
+> `TIKTOKEN_CACHE_DIR` to a populated directory).
 
 ## Layout
 

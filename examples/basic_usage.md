@@ -75,5 +75,8 @@ python -c "import json; r=json.load(open('report.json')); print(r['token_savings
 
 - If `tiktoken` is not installed, counts are **approximate** and the report's
   `token_count_method` will say so. Install with `pip install ".[tiktoken]"` for exact counts.
+  `lcc` never downloads tokenizer assets at runtime, so exact counting also needs the
+  encoding cached locally; if it is unavailable offline, counting falls back to approximate
+  with a warning explaining why (see [ADR 0008](../docs/adr/0008-tokenizer-network-boundary.md)).
 - Pricing values are **editable examples**, not guaranteed current prices. Edit
   `config/pricing.yaml` (or pass your own via `--pricing`) and verify against your provider.

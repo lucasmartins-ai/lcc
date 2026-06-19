@@ -6,7 +6,10 @@ How to measure whether `lcc` is actually helping — on both **cost** and **qual
 
 `lcc` reports token counts for the original input and the cleaned context, using the same
 counter and model for both so the comparison is fair. The report records whether counting
-was `exact` (tiktoken recognized the model) or `approximate`.
+was `exact` (tiktoken recognized the model **and** its encoding assets were available from a
+local cache) or `approximate`. `lcc` never downloads tokenizer assets during normal operation:
+if exact tokenization is unavailable offline, it falls back to approximate counting and labels
+it, with a warning explaining why (see [ADR 0008](adr/0008-tokenizer-network-boundary.md)).
 
 ### Compression ratio
 
@@ -116,8 +119,10 @@ required_marker_recall = required_markers_found / required_markers_total   (1.0 
 
 - **token_savings_percent / compression_ratio / char_reduction_percent** — how much the
   deterministic cleaning shrank the context.
-- **token_count_mode** — `exact` when `tiktoken` recognized the model, else `approximate`
-  (ADR 0005). Exact-mode cases fail if counting falls back to approximate.
+- **token_count_mode** — `exact` when `tiktoken` recognized the model and its encoding assets
+  were available locally, else `approximate` (ADR 0005, ADR 0008). Exact-mode cases fail
+  honestly if counting falls back to approximate, so they **may require cached tokenizer
+  assets to pass as exact** — `lcc` will not download them.
 - **required_marker_recall** — the fraction of required literal evidence markers still present
   in the optimized prompt (a basic preservation proxy).
 - **forbidden_markers_found** — forbidden literal markers (e.g. boilerplate lines) that

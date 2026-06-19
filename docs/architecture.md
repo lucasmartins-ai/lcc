@@ -66,7 +66,7 @@ file/stdin IO, config, and terminal rendering.
 | `lcc.cleaning.normalize` | text → text + steps | whitespace/line-ending normalization |
 | `lcc.cleaning.boilerplate` | text → text + actions | conservative whole-line removal |
 | `lcc.cleaning.deduplicate` | text → text + metrics | exact + near-duplicate paragraphs |
-| `lcc.token_budget.counters` | text, model → `TokenCount` | tiktoken exact, else heuristic |
+| `lcc.token_budget.counters` | text, model → `TokenCount` | tiktoken exact (guarded, no network), else heuristic |
 | `lcc.token_budget.pricing` | pricing doc, model → cost | editable, example pricing |
 | `lcc.prompt_builder` | `PromptSpec` → str | extensible template registry |
 | `lcc.reporting.report` | parts → `OptimizationReport` + JSON | depends only on `schemas` |
@@ -78,7 +78,12 @@ file/stdin IO, config, and terminal rendering.
 ## Current MVP architecture
 
 - Pure-stdlib deterministic core; `tiktoken` is an **optional** native dependency used only
-  for local token counting (with a graceful fallback).
+  for local token counting (with a graceful fallback). The exact path runs inside a tightly
+  scoped no-network guard, so `lcc` performs **no network access during normal operation** —
+  including indirectly through `tiktoken`. Exact counting requires the tokenizer's encoding
+  assets to be available locally; if they would need to be downloaded, the guard blocks the
+  fetch and counting falls back to a clearly labelled approximation (see
+  [adr/0008](adr/0008-tokenizer-network-boundary.md)).
 - The report is a stdlib dataclass serialized to JSON via a small recursive normalizer.
 - The CLI is a thin Typer app; all logic is unit-testable without Typer or Rich.
 - A deterministic **benchmark harness** (`lcc.benchmarking`, ADR 0007) runs the pipeline

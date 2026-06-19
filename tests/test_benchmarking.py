@@ -21,12 +21,25 @@ from lcc.benchmarking import (
     suite_to_json,
 )
 from lcc.cli import app
+from lcc.schemas import TokenCountMethod
+from lcc.token_budget.counters import count_tokens
 
 HAS_TIKTOKEN = importlib.util.find_spec("tiktoken") is not None
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BUNDLED_CASES = REPO_ROOT / "benchmarks" / "cases"
 
 runner = CliRunner()
+
+
+def _exact_available_offline() -> bool:
+    """True only when tiktoken can build gpt-4.1's encoding from a local cache (no network).
+
+    Exact-mode benchmark cases require cached tokenizer assets (ADR 0008); lcc never fetches
+    them over the network, so without a populated cache counting falls back to approximate.
+    """
+    if not HAS_TIKTOKEN:
+        return False
+    return count_tokens("probe", model="gpt-4.1").method is TokenCountMethod.EXACT
 
 
 def _write_case(case_dir: Path, *, case_yaml: str, input_text: str = "x\n") -> Path:
@@ -321,8 +334,31 @@ def test_bundled_suite_is_deterministic() -> None:
     assert suite_to_json(run_suite(cases)) == suite_to_json(run_suite(cases))
 
 
-@pytest.mark.skipif(not HAS_TIKTOKEN, reason="exact-mode cases require tiktoken")
+@pytest.mark.skipif(
+    not _exact_available_offline(),
+    reason="exact-mode benchmark cases require tiktoken encoding assets cached offline (ADR 0008)",
+)
 def test_bundled_suite_passes_with_tiktoken() -> None:
     suite = run_suite(load_suite(BUNDLED_CASES))
     failed = [(c.id, c.failure_reasons) for c in suite.cases if not c.passed]
     assert suite.failed_cases == 0, failed
+
+
+def test_bundled_exact_case_fails_honestly_when_counting_is_approximate(monkeypatch) -> None:
+    # Exact-required bundled cases (model gpt-4.1, allow_approximate_token_count: false) must
+    # FAIL — not silently pass as exact — when token counting degrades to approximate (e.g.
+    # tiktoken assets are unavailable offline). Forcing the fallback proves the honest gate.
+    from lcc.token_budget import counters
+
+    monkeypatch.setattr(counters, "_HAS_TIKTOKEN", False)
+    exact_cases = [
+        case
+        for case in load_suite(BUNDLED_CASES)
+        if not case.expectations.allow_approximate_token_count
+    ]
+    assert exact_cases, "expected at least one exact-required bundled case"
+    for case in exact_cases:
+        result = run_case(case)
+        assert result.token_count_mode == "approximate"
+        assert not result.passed
+        assert any("approximate" in reason for reason in result.failure_reasons)

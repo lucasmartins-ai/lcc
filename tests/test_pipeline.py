@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import types
+
+import pytest
 
 from lcc.pipeline import OptimizationRequest, optimize
 from lcc.reporting.report import report_to_dict, report_to_json
@@ -88,3 +91,42 @@ def test_pipeline_warns_when_token_counts_are_approximate():
     ).report
     assert report.token_count_method.value == "approximate"
     assert any("approximate" in warning.lower() for warning in report.warnings)
+
+
+def test_pipeline_blocks_tiktoken_network_and_warns_honestly(monkeypatch):
+    # Regression (ADR 0008): if tiktoken would fetch encoding assets, `lcc optimize`'s token
+    # counting must block the attempt, fall back to approximate, and explain why in a warning
+    # -- without propagating the network error or reaching the real network.
+    requests = pytest.importorskip("requests")
+    from lcc.token_budget import counters
+
+    def _tripwire(*_args, **_kwargs):
+        raise AssertionError("a real network call escaped the no-network guard")
+
+    monkeypatch.setattr(requests, "get", _tripwire)
+
+    class _FakeEncoding:
+        name = "fake-enc"
+
+        def encode(self, text):
+            return list(text)
+
+    def _encoding_for_model(_model):
+        import requests as _r
+
+        _r.get("https://openaipublic.blob.core.windows.net/encodings/fake.tiktoken")
+        return _FakeEncoding()
+
+    fake = types.SimpleNamespace(
+        encoding_for_model=_encoding_for_model,
+        get_encoding=lambda _name: _encoding_for_model(_name),
+    )
+    monkeypatch.setattr(counters, "tiktoken", fake)
+    monkeypatch.setattr(counters, "_HAS_TIKTOKEN", True)
+
+    report = optimize(OptimizationRequest(raw_text=SAMPLE, question="Q", model="gpt-4.1")).report
+    assert report.token_count_method.value == "approximate"
+    assert any(
+        "approximate" in warning.lower() and "offline" in warning.lower()
+        for warning in report.warnings
+    )

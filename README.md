@@ -85,7 +85,11 @@ pip install ".[tiktoken]"
 ```
 
 `tiktoken` is optional. Without it, `lcc` still runs and clearly marks token counts as
-approximate. `lcc` makes **no network calls** and requires **no API key**.
+approximate. `lcc` **blocks runtime network access by default** and requires **no API key**:
+it never calls the network during normal operation, including indirectly through `tiktoken`.
+Exact token counting uses `tiktoken` only when the encoding assets are **locally available**;
+if they would have to be downloaded, `lcc` blocks the fetch and falls back to a clearly
+labelled approximate count (see [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)).
 
 ## Usage
 
@@ -211,7 +215,11 @@ MIT — see [LICENSE](LICENSE).
 
 ## Disclaimer
 
-Token counts are **exact only** when `tiktoken` recognizes the model; otherwise they are
-**approximate** and the report says so. Bundled pricing in `config/pricing.yaml` and the
-built-in table are **editable EXAMPLES, not guaranteed current prices** — always verify
-against your provider before relying on cost figures.
+Token counts are **exact only** when `tiktoken` recognizes the model **and** its encoding
+assets are available from a local cache; otherwise they are **approximate** and the report
+says so (with a warning explaining why). `lcc` never downloads tokenizer assets during normal
+operation — if exact tokenization is unavailable offline, it falls back to approximate
+counting and labels it (see [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)). Bundled
+pricing in `config/pricing.yaml` and the built-in table are **editable EXAMPLES, not
+guaranteed current prices** — always verify against your provider before relying on cost
+figures.

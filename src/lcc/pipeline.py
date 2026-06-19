@@ -94,7 +94,11 @@ def optimize(request: OptimizationRequest) -> OptimizationResult:
         )
 
     if TokenCountMethod.APPROXIMATE in (original_tokens.method, optimized_tokens.method):
-        warnings.append("Token counts are approximate; treat token and cost figures as estimates.")
+        message = "Token counts are approximate; treat token and cost figures as estimates."
+        reason = optimized_tokens.note or original_tokens.note
+        if reason:
+            message = f"{message} {reason}"
+        warnings.append(message)
 
     pricing_doc = request.pricing if request.pricing is not None else BUILTIN_PRICING
     pricing = get_model_pricing(pricing_doc, request.model)

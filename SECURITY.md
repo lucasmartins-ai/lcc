@@ -4,12 +4,16 @@
 
 `lcc` is designed to run entirely on your machine.
 
-- **No network calls.** The MVP never sends your text anywhere.
+- **No network calls.** `lcc` blocks runtime network access by default — including indirect
+  access — and never sends your text anywhere.
 - **No API keys.** Nothing in `lcc` requires credentials; `.env.example` documents that.
 - **No telemetry.** `lcc` does not collect or transmit usage data.
-- The optional `tiktoken` dependency is used **locally** for token counting. If it ever
-  attempts or fails any network access (e.g. a vocabulary download), `lcc` catches the error
-  and falls back to an approximate counter rather than failing or hanging.
+- The optional `tiktoken` dependency is used **locally** for token counting, and its first-use
+  encoding download is actively blocked: the exact path runs inside a no-network guard, so if
+  `tiktoken` would fetch encoding assets, `lcc` blocks the attempt and falls back to a clearly
+  labelled approximate counter rather than downloading, failing, or hanging. Exact counting
+  therefore requires the encoding assets to be cached locally. See
+  [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md).
 
 Because everything is local, the privacy of your input is in your hands: treat the text you
 feed to `lcc` and the prompts/reports it writes with the same care as the source documents.

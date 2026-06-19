@@ -21,9 +21,16 @@ deterministic cleaning; preserve user intent and evidence provenance.
   `docs/adr/0002`.
 - The JSON report carries `schema_version`. Additive fields keep it at `1.0`; a breaking
   change bumps it. See `docs/adr/0004`.
-- Token counts are `exact` only when `tiktoken` maps the model; otherwise `approximate`,
-  and the report must say so honestly. Never present an approximation as exact. See
-  `docs/adr/0005`.
+- Token counts are `exact` only when `tiktoken` maps the model **and** its encoding assets
+  load from a local cache; otherwise `approximate`, and the report must say so honestly (with
+  a warning explaining why). Never present an approximation as exact. See `docs/adr/0005`.
+- `lcc` blocks runtime network access by default — including the indirect first-use encoding
+  download `tiktoken` would otherwise perform. The exact path runs inside a tightly scoped
+  no-network guard (`lcc.token_budget.counters._no_network_guard`); if tiktoken would fetch
+  assets, the guard blocks it and counting falls back to a labelled approximation. Do not
+  weaken this guard or soften the message to "local-ish": the claim is "blocks runtime network
+  by default, falls back honestly when exact tokenizer assets are unavailable". See
+  `docs/adr/0008`.
 - Schemas are stdlib `dataclasses`, not Pydantic (keeps the core dependency-free). See
   `docs/adr/0001`.
 - The benchmark harness (`lcc.benchmarking`, ADR 0007; run via `lcc bench benchmarks/cases`)

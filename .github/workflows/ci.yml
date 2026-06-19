@@ -12,6 +12,12 @@ jobs:
   checks:
     name: Checks (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    # lcc never fetches tokenizer assets at runtime (ADR 0008). We pre-populate a local
+    # tiktoken cache here as an explicit, one-time setup step so the exact-mode benchmark
+    # cases and tests can verify *exact* counting offline; lcc reads from this cache and
+    # never downloads on its own.
+    env:
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.tiktoken-cache
     strategy:
       fail-fast: false
       matrix:
@@ -30,6 +36,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+
+      - name: Pre-cache tiktoken encodings (explicit setup; enables exact-mode tests offline)
+        run: python -c "import tiktoken; tiktoken.encoding_for_model('gpt-4.1'); tiktoken.get_encoding('cl100k_base')"
 
       - name: Lint (ruff)
         run: ruff check .

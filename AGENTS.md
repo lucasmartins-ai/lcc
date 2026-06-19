@@ -38,7 +38,13 @@ Run all four before reporting a task complete. Do not fabricate results.
 - Keep the deterministic core (`cleaning`, `token_budget`, `prompt_builder`, `reporting`,
   `pipeline`) free of network/LLM code. Only `pipeline` composes modules; only `cli`
   does IO and config loading. (See `docs/adr/`.)
-- Token counts must honestly report `exact` vs `approximate`.
+- Token counts must honestly report `exact` vs `approximate`. `lcc` blocks runtime network
+  access by default — including `tiktoken`'s indirect first-use encoding download — via a
+  tightly scoped no-network guard in `lcc.token_budget.counters`. Exact counting requires
+  tokenizer assets to be cached locally; otherwise counting falls back to a labelled
+  approximation. Keep the precise claim ("blocks runtime network by default, falls back
+  honestly when exact tokenizer assets are unavailable"), never a vague "local-ish". See
+  `docs/adr/0008`.
 - The JSON report has a `schema_version`; do not break it without bumping it.
 - **Do not add heavy dependencies** without justification.
 - **Do not implement roadmap features** (RAG, embeddings, local LLMs, routing, verification)
