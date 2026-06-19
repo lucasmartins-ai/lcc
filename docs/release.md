@@ -9,28 +9,23 @@ release is **v0.1.0**.
 > routing, or response verification. Those are roadmap items
 > (see [docs/roadmap.md](roadmap.md)) and must never be described as implemented.
 
-## 0. Outstanding repository-URL placeholder (do this first)
+## 0. Repository-URL placeholder (resolved)
 
-The repository is **not yet wired to a GitHub remote**, so the canonical project URL is
-unknown and must not be invented. The placeholder `your-org/local-context-compiler`
-currently appears in:
+The repository is wired to its GitHub remote at
+[`vetlucasmartins/lcc`](https://github.com/vetlucasmartins/lcc), and the
+`your-org/local-context-compiler` placeholder has been replaced with the real
+`vetlucasmartins/lcc` in:
 
 - `pyproject.toml` — `[project.urls]` (`Homepage`, `Repository`, `Issues`)
 - `CHANGELOG.md` — the `[Unreleased]` / `[0.1.0]` link references at the bottom
 - `CONTRIBUTING.md` — the `git clone` URL in **Development setup**
 
-**Maintainer action before publishing:**
+The CI status badge has been added near the top of `README.md` (see step 5). No
+repository-URL placeholders remain; confirm with:
 
-1. Create the GitHub repository and add the remote
-   (`git remote add origin https://github.com/<owner>/<repo>`).
-2. Replace every `your-org/local-context-compiler` occurrence above with the real
-   `<owner>/<repo>`. Find them with:
-
-   ```bash
-   grep -rn "your-org/local-context-compiler" --include='*.toml' --include='*.md' .
-   ```
-
-3. Add the CI status badge to `README.md` once the repo is known (see step 5).
+```bash
+grep -rn "your-org/local-context-compiler" --include='*.toml' --include='*.md' .
+```
 
 `benchmarks/README.md` contains `<case_id>` / `<your_id>` — those are intentional
 placeholders in user-facing instructions, **not** repository URLs. Leave them.
@@ -80,9 +75,9 @@ report says approximate.
 - [ ] Push the release branch.
 - [ ] Confirm the **CI workflow** (`.github/workflows/ci.yml`) passes on Python 3.11,
       3.12, and 3.13.
-- [ ] Replace the repository-URL placeholders (step 0).
-- [ ] Add the CI badge to `README.md` and confirm it renders and links correctly
-      (step 5).
+- [x] Replace the repository-URL placeholders (step 0).
+- [x] Add the CI badge to `README.md` (step 5); confirm it renders and links correctly
+      once CI has run.
 
 ## 3. CHANGELOG process
 
@@ -105,17 +100,16 @@ report says approximate.
 
 ## 5. README badge
 
-Once the GitHub `<owner>/<repo>` is known, add the CI badge near the top of `README.md`:
+The CI badge is present near the top of `README.md`, pointing at the real
+`vetlucasmartins/lcc`:
 
 ```markdown
-[![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/ci.yml)
+[![CI](https://github.com/vetlucasmartins/lcc/actions/workflows/ci.yml/badge.svg)](https://github.com/vetlucasmartins/lcc/actions/workflows/ci.yml)
 ```
 
-- [ ] Badge URL uses the real `<owner>/<repo>`.
-- [ ] Badge image renders and the link opens the Actions page.
-
-Until the repository URL is known, **do not** insert a placeholder/fake badge — leave this
-item open instead.
+- [x] Badge URL uses the real `vetlucasmartins/lcc`.
+- [ ] Badge image renders and the link opens the Actions page (verify after the first CI
+      run on GitHub).
 
 ## 6. Tag process
 

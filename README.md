@@ -1,5 +1,7 @@
 # Local Context Compiler (lcc)
 
+[![CI](https://github.com/vetlucasmartins/lcc/actions/workflows/ci.yml/badge.svg)](https://github.com/vetlucasmartins/lcc/actions/workflows/ci.yml)
+
 > Deterministic, local-first context optimization for LLM prompts: clean, dedupe,
 > structure, and **measure** token and cost savings *before* you call a large model.
 
@@ -10,8 +12,8 @@ package and tells you, in measurable numbers, how many tokens and how much money
 **Status: v0.1.0 release candidate.** Shipping today: a deterministic MVP, a deterministic
 benchmark harness (`lcc bench`), and a tokenizer network guard (runtime network blocked by
 default; exact token counting only from local `tiktoken` assets, otherwise an honestly
-labelled approximate count). A CI status badge will be added once the GitHub repository URL
-is known — see the [release checklist](docs/release.md).
+labelled approximate count). See the [release checklist](docs/release.md) for the full
+release process.
 
 ## Problem
 

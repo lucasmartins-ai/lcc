@@ -8,8 +8,8 @@ well-documented changes over large rewrites.
 Requires Python 3.11+.
 
 ```bash
-git clone https://github.com/your-org/local-context-compiler
-cd local-context-compiler
+git clone https://github.com/vetlucasmartins/lcc
+cd lcc
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
