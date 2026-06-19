@@ -1,0 +1,16 @@
+id: basic_redundancy
+description: Repeated paragraphs and a stray mobile signature should be removed safely.
+question: What are the key points?
+model: gpt-4.1
+max_input_tokens: 6000
+compression_level: safe
+required_markers:
+  - "ROLLBACK-7788"
+forbidden_markers:
+  - "Sent from my iPhone"
+expectations:
+  min_token_savings_percent: 20.0
+  max_token_savings_percent: 95.0
+  min_required_marker_recall: 1.0
+  allow_approximate_token_count: false
+  max_forbidden_markers_found: 0

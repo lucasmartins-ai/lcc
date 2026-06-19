@@ -1,0 +1,7 @@
+Incident INC-9001 began when the queue consumer stalled and backlog grew to 50k messages.
+
+Incident INC-9001 began when the queue consumer stalled and backlog grew to 50k messages.
+
+The on-call engineer restarted the consumer group and the backlog drained within twelve minutes.
+
+Incident INC-9001 began when the queue consumer stalled and backlog grew to 50k messages.

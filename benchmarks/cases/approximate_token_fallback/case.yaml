@@ -1,0 +1,16 @@
+id: approximate_token_fallback
+description: An unknown model name forces approximate token counting, which must be allowed.
+question: Summarize the incident.
+model: local-mystery-model-v0
+max_input_tokens: 6000
+compression_level: safe
+required_markers:
+  - "INC-9001"
+  - "twelve minutes"
+forbidden_markers: []
+expectations:
+  min_token_savings_percent: 20.0
+  max_token_savings_percent: 95.0
+  min_required_marker_recall: 1.0
+  allow_approximate_token_count: true
+  max_forbidden_markers_found: 0

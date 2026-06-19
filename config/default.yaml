@@ -1,0 +1,24 @@
+# lcc default configuration (optional).
+#
+# Pass with:  lcc optimize input.txt --config config/default.yaml
+# Explicit CLI flags always override values set here. Every key is optional.
+
+model: gpt-4.1            # model used for token counting and pricing
+task_type: general        # recorded in the prompt and report
+template: default         # prompt template name
+max_output_tokens: 600    # length guidance added to the prompt (null to omit)
+max_input_tokens: null    # warn if the optimized context exceeds this (null disables)
+
+# Cleaning behavior.
+# Note: the CLI flags --no-boilerplate / --no-near-dedup only DISABLE these. They cannot
+# be re-enabled from the CLI, so when such a flag is present it overrides these values.
+remove_boilerplate: true
+remove_near_duplicates: true
+similarity_threshold: 0.95   # near-duplicate cutoff in [0, 1]; higher = more conservative
+allow_external_knowledge: false
+
+# Optional path to a pricing file (null = built-in example pricing)
+pricing: null
+
+# Extra constraint lines appended to the prompt
+constraints: []

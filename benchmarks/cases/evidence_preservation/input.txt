@@ -1,0 +1,13 @@
+The service enforces INVARIANT-42: a single request must not exceed 512 MB of memory.
+
+The service enforces INVARIANT-42: a single request must not exceed 512 MB of memory.
+
+Background jobs are retried at most three times with exponential backoff.
+
+The audit log retains every write for ninety days and must never be truncated early.
+
+Background jobs are retried at most three times with exponential backoff.
+
+Sent from my Android
+
+The audit log retains every write for ninety days and must never be truncated early.

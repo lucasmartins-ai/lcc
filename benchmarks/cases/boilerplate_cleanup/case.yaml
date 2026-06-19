@@ -1,0 +1,19 @@
+id: boilerplate_cleanup
+description: Decorative rules, page markers, reply headers, and signatures should be stripped.
+question: What changed in the release?
+model: gpt-4.1
+max_input_tokens: 6000
+compression_level: safe
+required_markers:
+  - "p99 latency to 120 ms"
+  - "CACHE_V2"
+forbidden_markers:
+  - "Sent from my iPhone"
+  - "On Tuesday, Jane Okafor wrote:"
+  - "Page 1 of 3"
+expectations:
+  min_token_savings_percent: 15.0
+  max_token_savings_percent: 90.0
+  min_required_marker_recall: 1.0
+  allow_approximate_token_count: false
+  max_forbidden_markers_found: 0

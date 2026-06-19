@@ -1,0 +1,18 @@
+id: evidence_preservation
+description: Required evidence markers must survive cleaning while duplicates are dropped.
+question: What are the hard constraints?
+model: gpt-4.1
+max_input_tokens: 6000
+compression_level: safe
+required_markers:
+  - "INVARIANT-42"
+  - "must not exceed 512 MB"
+  - "ninety days"
+forbidden_markers:
+  - "Sent from my Android"
+expectations:
+  min_token_savings_percent: 25.0
+  max_token_savings_percent: 90.0
+  min_required_marker_recall: 1.0
+  allow_approximate_token_count: false
+  max_forbidden_markers_found: 0

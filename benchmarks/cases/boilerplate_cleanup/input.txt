@@ -1,0 +1,15 @@
+==========================================================
+
+Release 2.4 ships the new caching layer and reduces p99 latency to 120 ms.
+
+Sent from my iPhone
+
+The migration backfills the orders table; run it during the maintenance window.
+
+On Tuesday, Jane Okafor wrote:
+
+Page 1 of 3
+
+----------------------------------------------------------
+
+The feature flag CACHE_V2 must be enabled before the backfill starts.

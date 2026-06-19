@@ -1,0 +1,34 @@
+Project Phoenix — Internal Status Notes
+
+
+
+The migration to the new pipeline is now 80% complete. The remaining work is
+concentrated in the reporting service and the export workers.
+
+==============================
+
+The migration to the new pipeline is now 80% complete. The remaining work is
+concentrated in the reporting service and the export workers.
+
+Key risks: the export workers still time out on very large tenants, and the
+reporting backfill has not been validated against last quarter's numbers.
+
+
+
+Key risks: the export workers still time out on very large tenants, and the
+reporting backfill has not been validated against last quarter's numbers!
+
+Next steps for the team include finishing the backfill validation, adding
+retries to the export workers, and writing a short runbook for on-call.
+
+Page 1 of 2
+
+Sent from my iPhone
+
+Next steps for the team include finishing the backfill validation, adding
+retries to the export workers, and writing a short runbook for on-call.
+
+
+
+Open question: do we need a feature flag for the new reporting path, or can we
+cut over directly once the backfill is validated?
