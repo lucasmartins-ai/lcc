@@ -1,0 +1,113 @@
+name: Bug report
+description: Report incorrect, surprising, or broken behavior in lcc.
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve `lcc`. `lcc` is a **deterministic, local-first**
+        toolkit: identical input must produce identical output, the core makes **no
+        runtime network calls by default** and **no model/LLM calls**, and token counts
+        are either **exact** (local `tiktoken` assets) or an **honestly labelled
+        approximation**. The fields below help us reproduce determinism and tokenization
+        issues quickly. Please use synthetic or redacted samples — never paste private
+        documents, credentials, or customer data.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear, concise description of the bug.
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "e.g. macOS 15.5, Ubuntu 24.04, Windows 11"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "output of `python --version`, e.g. 3.11.9"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: lcc version / commit
+      description: Output of `lcc --version`, or the git commit hash if running from source.
+      placeholder: "e.g. 0.1.0 / a96dc7c"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command run
+      description: The exact `lcc optimize` / `lcc bench` command (redact any private paths).
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include any error message and the non-zero exit code if relevant.
+    validations:
+      required: true
+  - type: dropdown
+    id: tiktoken_cached
+    attributes:
+      label: Were tiktoken encoding assets cached locally?
+      description: >-
+        Exact counting needs `tiktoken` installed AND its encoding assets already in a
+        local cache (lcc never downloads them). If unsure, say so.
+      options:
+        - "Yes — tiktoken installed and assets cached locally"
+        - "No — tiktoken not installed"
+        - "No — installed, but assets were not cached (offline first use)"
+        - "Unsure"
+    validations:
+      required: true
+  - type: dropdown
+    id: token_count_mode
+    attributes:
+      label: Was token_count_method exact or approximate?
+      description: From the report JSON field `token_count_method` (or the terminal summary line).
+      options:
+        - "exact"
+        - "approximate"
+        - "Unsure / not reached"
+    validations:
+      required: true
+  - type: textarea
+    id: report_json
+    attributes:
+      label: Report JSON (if safe to share)
+      description: >-
+        Paste the JSON report if it contains no private context. Omit or redact if it
+        embeds sensitive text.
+      render: json
+    validations:
+      required: false
+  - type: dropdown
+    id: network_expected
+    attributes:
+      label: Was network access expected?
+      description: >-
+        lcc blocks runtime network by default. If you saw or expected any network
+        activity, tell us — that is itself a finding.
+      options:
+        - "No — I expected fully offline operation"
+        - "Yes — I expected network (please explain in the description)"
+        - "I observed unexpected network activity"
+    validations:
+      required: true

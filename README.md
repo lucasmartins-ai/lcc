@@ -7,6 +7,12 @@
 replace the model. It prepares a smaller, cleaner, more structured, evidence-aware prompt
 package and tells you, in measurable numbers, how many tokens and how much money you saved.
 
+**Status: v0.1.0 release candidate.** Shipping today: a deterministic MVP, a deterministic
+benchmark harness (`lcc bench`), and a tokenizer network guard (runtime network blocked by
+default; exact token counting only from local `tiktoken` assets, otherwise an honestly
+labelled approximate count). A CI status badge will be added once the GitHub repository URL
+is known — see the [release checklist](docs/release.md).
+
 ## Problem
 
 LLM input is billed per token, and noisy context hurts both cost and answer quality.

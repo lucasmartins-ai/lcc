@@ -11,9 +11,13 @@ documentation never describes a later phase as if it were.
 - Conservative boilerplate removal (whole-line matches).
 - Exact and conservative near-duplicate paragraph deduplication.
 - Exact token counting via `tiktoken` with an honest approximate fallback.
+- **Tokenizer network guard (completed hardening).** Runtime network access is blocked by
+  default, including the first-use encoding download `tiktoken` would otherwise perform; exact
+  counting requires locally cached encoding assets, and otherwise falls back to a clearly
+  labelled approximate count (ADR 0008).
 - Editable, configurable pricing and input-cost estimation.
 - Evidence-aware prompt builder with an extensible template registry.
-- JSON `OptimizationReport` (`schema_version` 1.0) and a `lcc` CLI.
+- JSON `OptimizationReport` (`schema_version` 1.0) and a `lcc` CLI (`optimize`, `bench`).
 
 ## Phase 1.5 — Deterministic benchmark harness (implemented)
 
@@ -56,6 +60,20 @@ documentation never describes a later phase as if it were.
 - The deterministic benchmark harness already landed as Phase 1.5 (above). Phase 7 extends
   it with **quality-preservation** measurement across representative datasets (requiring a
   downstream model you control) plus integrations (library API, framework adapters).
+
+## Other planned surfaces (not implemented)
+
+These are explicitly **not** in v0.1.0 and are listed here so the docs never imply they
+exist:
+
+- A standalone inspect / token-count command (counting and reporting without building a
+  prompt).
+- Transcript ingestion (importing and normalizing conversation/meeting transcripts).
+- An API server / hosted service.
+- Voice / audio adapters and ASR (speech-to-text).
+
+Each, if pursued, lands behind a new, clearly separated boundary; none touches the
+deterministic core.
 
 ## Guiding constraints for every phase
 

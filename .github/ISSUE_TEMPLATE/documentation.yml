@@ -1,0 +1,48 @@
+name: Documentation issue
+description: Report unclear, inaccurate, or overclaiming documentation.
+title: "[docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation honesty is a hard rule here: **the docs must never describe a
+        roadmap feature as implemented**, and they must keep the exact-vs-approximate
+        tokenization distinction honest. Use this template for anything that reads as
+        unclear, wrong, or overclaiming.
+  - type: input
+    id: page
+    attributes:
+      label: Page / file
+      description: Which document or section? A path and heading is ideal.
+      placeholder: "e.g. README.md → 'MVP scope', docs/roadmap.md → 'Phase 2'"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Unclear or inaccurate statement
+      description: Quote the exact wording that is confusing or wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction
+      description: How should it read instead?
+    validations:
+      required: false
+  - type: dropdown
+    id: overclaim
+    attributes:
+      label: Do the current docs overclaim implemented behavior?
+      description: >-
+        For example, describing RAG, embeddings, model calls, or semantic evaluation as
+        if they exist, or presenting an approximate token count as exact.
+      options:
+        - "No — just unclear or imprecise"
+        - "Yes — it describes a not-yet-implemented feature as done"
+        - "Yes — it blurs exact vs approximate tokenization"
+        - "Unsure"
+    validations:
+      required: true

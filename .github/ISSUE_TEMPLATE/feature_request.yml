@@ -1,0 +1,87 @@
+name: Feature request
+description: Propose a change or new capability for lcc.
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `lcc` deliberately stays small. The **deterministic core** (`cleaning`,
+        `token_budget`, `prompt_builder`, `reporting`, `pipeline`) must remain free of
+        network and model/LLM code, and roadmap features (RAG, embeddings, local LLMs,
+        model routing, response verification) live in
+        [docs/roadmap.md](../../docs/roadmap.md) until explicitly scheduled. These
+        questions help place your idea on the right side of those boundaries.
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What problem does this solve? Who benefits, and in what workflow?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: The smallest useful version of the change.
+    validations:
+      required: true
+  - type: dropdown
+    id: affects_core
+    attributes:
+      label: Does it affect the deterministic core?
+      description: >-
+        The core must stay deterministic (identical input → identical output). Changes
+        that touch it need extra care.
+      options:
+        - "No — CLI, docs, or an isolated adapter only"
+        - "Yes — it changes cleaning/token_budget/prompt_builder/reporting/pipeline"
+        - "Unsure"
+    validations:
+      required: true
+  - type: dropdown
+    id: network_or_model
+    attributes:
+      label: Does it introduce network or model/LLM calls?
+      description: >-
+        The core blocks runtime network by default and makes no model calls. Anything
+        that does must be optional and clearly isolated.
+      options:
+        - "No"
+        - "Yes — optional/isolated (e.g. an opt-in adapter)"
+        - "Yes — in the core (please justify heavily)"
+    validations:
+      required: true
+  - type: dropdown
+    id: new_dependencies
+    attributes:
+      label: Does it require new dependencies?
+      description: MVP runtime deps are `typer`, `rich`, `pyyaml`, plus optional `tiktoken`.
+      options:
+        - "No"
+        - "Yes — one or more new dependencies (list them below)"
+        - "Unsure"
+    validations:
+      required: true
+  - type: textarea
+    id: benchmark
+    attributes:
+      label: How can it be benchmarked?
+      description: >-
+        Optimization changes need mechanical evidence. Describe how `lcc bench` (or a new
+        deterministic fixture) could measure the impact. Note: the harness measures
+        mechanical behavior, not LLM answer quality.
+    validations:
+      required: false
+  - type: dropdown
+    id: placement
+    attributes:
+      label: Where does it belong?
+      options:
+        - "Deterministic core"
+        - "CLI / presentation layer"
+        - "Optional adapter (isolated, opt-in)"
+        - "Future plugin / roadmap phase"
+        - "Unsure"
+    validations:
+      required: true
