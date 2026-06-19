@@ -14,5 +14,6 @@ public / cross-module contracts that are expensive to change after release.
 | [0006](0006-determinism-boundary.md) | Cleaning/dedup stay free of LLM and network |
 | [0007](0007-deterministic-benchmark-harness.md) | Deterministic, fixture-based benchmark harness |
 | [0008](0008-tokenizer-network-boundary.md) | Tokenizer network boundary (no indirect network via tiktoken) |
+| [0009](0009-inspection-command-boundary.md) | `lcc inspect` is a diagnostic boundary (no prompt, no transform) |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.

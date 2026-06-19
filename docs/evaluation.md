@@ -43,6 +43,16 @@ Cost is omitted (and a warning is emitted) when the model has no pricing entry. 
 > rendered prompt (context + question + template) is reported separately as
 > `prompt_token_count` so you can see the real payload size you will send.
 
+### Previewing savings with `lcc inspect`
+
+To estimate savings **before** committing to optimization, run `lcc inspect INPUT`. It reports
+the input's token, structure, duplication, and cost profile and a `safe_cleanup_projection`
+(`projected_token_savings_percent`, `projected_character_savings_percent`) of what the same safe
+cleaning would remove — **without** building a prompt or calling anything. The projection is
+explicitly labelled as an estimate of what `optimize` would do, not a completed optimization,
+and it makes **no** claim about answer quality (ADR 0009). Token counts carry the same
+exact-vs-approximate honesty as the optimization report.
+
 ## Measuring quality preservation
 
 Token savings are only useful if the answer quality holds. Because the MVP does **not** call

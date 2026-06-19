@@ -74,6 +74,7 @@ file/stdin IO, config, and terminal rendering.
 | `lcc.cli` | argv/stdin → files + summary | Typer/Rich; the only IO layer |
 | `lcc.schemas` | — | shared dataclasses; the cross-module contract |
 | `lcc.benchmarking` | cases → suite report | runs the pipeline over fixtures; deterministic, no network (ADR 0007) |
+| `lcc.inspection` | text → diagnostic report | profiles an input + projects safe-cleaning savings; builds **no** prompt, deterministic, no network (ADR 0009) |
 
 ## Current MVP architecture
 
@@ -90,6 +91,12 @@ file/stdin IO, config, and terminal rendering.
   over committed fixtures and reports mechanical metrics (token savings, marker
   preservation, exact/approximate mode). Like the CLI it composes the pipeline and adds no
   core dependency; it makes no claim about LLM answer quality.
+- A deterministic **inspection command** (`lcc.inspection`, ADR 0009) profiles a single input
+  — tokens, structure, duplication, cleanup, and cost — and projects what `optimize`'s safe
+  cleaning would remove, **without** building a prompt. It sits above the pipeline like the CLI
+  and benchmark harness, composes the cleaning and token-budget utilities directly (it does not
+  import `prompt_builder`), is deterministic and network/model-free, and never modifies the
+  input. It is **diagnostic, not transformative**, and makes no claim about answer quality.
 
 The one-way-door decisions are recorded in [adr/](adr/).
 

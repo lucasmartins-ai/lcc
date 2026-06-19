@@ -68,6 +68,10 @@ non-meaningful text, and every action is recorded in the report.
 - A deterministic **benchmark harness** (`lcc bench`) that runs the pipeline over committed
   fixtures and reports mechanical savings/preservation metrics (it does **not** measure LLM
   answer quality). See [Benchmarking](#benchmarking).
+- A deterministic **inspection command** (`lcc inspect`) that profiles an input — tokens,
+  structure, duplication, cleanup, and cost — and **projects** what `optimize`'s safe cleaning
+  would remove, **without** generating a prompt. It is diagnostic only: no prompt, no network,
+  no model, and it never modifies the input. See [Inspecting an input](#inspecting-an-input).
 
 **Not yet supported (on the [roadmap](docs/roadmap.md), and intentionally *not* implemented
 here):**
@@ -182,6 +186,37 @@ The cleaning, token, prompt, and reporting modules contain **no network or LLM c
 are fully deterministic. See [docs/architecture.md](docs/architecture.md) and the decision
 records in [docs/adr/](docs/adr/).
 
+## Inspecting an input
+
+Before deciding whether to run `optimize`, use `lcc inspect` to profile an input and see how
+much the safe cleaning would plausibly save — **without** generating a prompt or calling
+anything:
+
+```bash
+# Inspect a file, writing the JSON diagnostic report
+lcc inspect examples/sample_input.txt --model gpt-4.1 --report inspect_report.json
+
+# Inspect from stdin; with no --report the JSON report prints to stdout
+cat examples/sample_input.txt | lcc inspect - --model gpt-4.1
+```
+
+The report (`schema_version` 1.0) covers four areas plus a projection:
+
+- **input** — `source_type` (`file`/`stdin`), character/line/paragraph counts.
+- **token_budget** — model, token count, `token_count_method` (`exact`/`approximate`),
+  tokenizer, and estimated input cost (honest exact-vs-approximate, per ADR 0005/0008).
+- **structure** — blank-line runs, longest line/paragraph, average paragraph length.
+- **duplication** — paragraphs before/after, exact and near-duplicate counts, duplicate ratio.
+- **safe_cleanup_projection** — original vs projected tokens and the projected token/character
+  savings if you ran `optimize`, with a `projection_note` making clear this is an **estimate of
+  what `optimize` would remove, not a completed optimization**.
+
+`lcc inspect` is **diagnostic, not transformative** (see
+[ADR 0009](docs/adr/0009-inspection-command-boundary.md)): it builds no prompt, makes no
+network or model call, measures **no** semantic quality, and never modifies the input. The
+report is deterministic (no timestamps, paths, or machine-specific values) and the
+human-readable summary and warnings print to stderr.
+
 ## Benchmarking
 
 `lcc` ships a deterministic, fixture-based benchmark harness (see
@@ -206,7 +241,8 @@ prints to stderr; the exit code is non-zero if any case fails or the path is inv
 ## Roadmap
 
 Phase 1 (this release) is the deterministic MVP, plus an early deterministic **benchmark
-harness** (Phase 1.5; see [Benchmarking](#benchmarking)). Later phases add local semantic
+harness** (Phase 1.5; see [Benchmarking](#benchmarking)) and a deterministic **inspection
+command** (Phase 1.6; see [Inspecting an input](#inspecting-an-input)). Later phases add local semantic
 retrieval, a local intent classifier, evidence extraction, model routing, response
 verification, and a richer semantic-quality benchmark suite — each behind a clearly
 separated boundary so the deterministic core stays intact. Full detail in

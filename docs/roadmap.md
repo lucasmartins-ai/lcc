@@ -1,8 +1,9 @@
 # Roadmap
 
-This roadmap is aspirational. **Only Phase 1 and the deterministic benchmark harness
-(Phase 1.5) are implemented today.** No other phase is present in the code, and the
-documentation never describes a later phase as if it were.
+This roadmap is aspirational. **Only Phase 1, the deterministic benchmark harness
+(Phase 1.5), and the deterministic inspection command (Phase 1.6) are implemented today.**
+No other phase is present in the code, and the documentation never describes a later phase
+as if it were.
 
 ## Phase 1 — Deterministic MVP (implemented)
 
@@ -28,6 +29,17 @@ documentation never describes a later phase as if it were.
   deterministic JSON/Markdown report (ADR 0007).
 - It measures deterministic optimization behavior only; it does **not** evaluate LLM answer
   quality. Semantic/quality benchmarking remains Phase 7.
+
+## Phase 1.6 — Deterministic inspection command (implemented)
+
+- `lcc inspect INPUT` analyzes a text input (file or stdin) and emits a deterministic JSON
+  diagnostic report (`schema_version` 1.0) covering its token, structure, duplication,
+  cleanup, and cost profile, plus a clearly-labelled **projection** of what the safe cleaning
+  in `lcc optimize` would remove (ADR 0009).
+- It is **diagnostic, not transformative**: it generates **no** prompt, makes no network or
+  model call, uses no embeddings/RAG, and never modifies the input. Token counts preserve the
+  exact-vs-approximate honesty of ADR 0005 and ADR 0008, and projected savings are labelled as
+  a projection, never as a completed optimization.
 
 ## Phase 2 — Local semantic retrieval (planned)
 
@@ -63,11 +75,9 @@ documentation never describes a later phase as if it were.
 
 ## Other planned surfaces (not implemented)
 
-These are explicitly **not** in v0.1.0 and are listed here so the docs never imply they
+These are explicitly **not** implemented and are listed here so the docs never imply they
 exist:
 
-- A standalone inspect / token-count command (counting and reporting without building a
-  prompt).
 - Transcript ingestion (importing and normalizing conversation/meeting transcripts).
 - An API server / hosted service.
 - Voice / audio adapters and ASR (speech-to-text).

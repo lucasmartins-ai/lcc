@@ -38,6 +38,14 @@ deterministic cleaning; preserve user intent and evidence provenance.
   but must stay deterministic and free of network/LLM/embedding calls, must not be imported
   by the deterministic core, and measures mechanical behavior only — never claim it
   evaluates LLM answer quality.
+- The inspection command (`lcc.inspection`, ADR 0009; run via `lcc inspect`) is a composition
+  layer **above** the pipeline. It is **diagnostic, not transformative**: it must not build or
+  write a prompt (do not import `lcc.prompt_builder`), must not call networks/LLMs/embeddings,
+  must stay deterministic, and must never modify the input. It may reuse the deterministic
+  cleaning utilities only to compute a **projection** of safe-cleaning savings, which must be
+  labelled a projection — never presented as a completed optimization — and it makes no claim
+  about semantic/answer quality. Its report carries `schema_version` and preserves the
+  exact-vs-approximate token honesty of ADR 0005 and ADR 0008.
 
 ## Coding standards
 

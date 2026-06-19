@@ -6,7 +6,19 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+
+- `lcc inspect` diagnostic command — analyzes a text input (from a file or stdin) and reports
+  its token, structure, duplication, cleanup, and cost profile, plus a clearly-labelled
+  projection of what `lcc optimize`'s safe cleaning would remove. It is diagnostic, not
+  transformative: it builds **no** prompt, makes no network or model call, and never modifies
+  the input. The JSON report goes to `--report` (or stdout); a human-readable summary and
+  warnings go to stderr.
+- Deterministic inspection reports (`lcc.inspection`, `schema_version` 1.0): identical input
+  produces a byte-identical report — no timestamps, random values, absolute paths, or
+  machine-specific values. Token counts preserve the exact-vs-approximate honesty of ADR 0005
+  and ADR 0008.
+- ADR 0009 — `lcc inspect` is a diagnostic boundary (no prompt, no transform).
 
 ## [0.1.0] - 2026-06-19
 

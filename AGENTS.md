@@ -53,4 +53,9 @@ Run all four before reporting a task complete. Do not fabricate results.
 - The benchmark harness (`lcc.benchmarking`, ADR 0007, run via `lcc bench benchmarks/cases`)
   stays deterministic and network/LLM-free and measures mechanical optimization behavior
   only; never claim it evaluates LLM answer quality.
+- The inspection command (`lcc.inspection`, ADR 0009, run via `lcc inspect`) is **diagnostic,
+  not transformative**: it builds no prompt (do not import `prompt_builder`), makes no
+  network/LLM/embedding call, stays deterministic, and never modifies the input. Projected
+  savings must be labelled projections, not completed optimizations; token counts keep the
+  exact-vs-approximate honesty of ADR 0005/0008.
 - Make the smallest safe change; do not rewrite large parts unprompted.

@@ -25,6 +25,10 @@ from lcc.benchmarking import (
     write_suite_json,
     write_suite_markdown,
 )
+from lcc.inspection import InspectionRequest
+from lcc.inspection import inspect as run_inspection
+from lcc.inspection.report import inspection_to_json, write_inspection_report
+from lcc.inspection.report import summary_rows as inspect_summary_rows
 from lcc.pipeline import OptimizationRequest
 from lcc.pipeline import optimize as run_pipeline
 from lcc.prompt_builder import available_templates
@@ -308,6 +312,59 @@ def _print_bench_summary(suite: Any, output_path: Path | None, markdown_path: Pa
             f"- [bold]{case.id}[/bold]: " + "; ".join(case.failure_reasons) for case in failed
         )
         err_console.print(Panel(body, title="Failed cases", border_style="red", expand=False))
+
+
+@app.command("inspect")
+def inspect_command(
+    input_path: str = typer.Argument(
+        ..., metavar="INPUT", help="Path to a UTF-8 text file, or '-' to read from stdin."
+    ),
+    model: str | None = typer.Option(
+        None, "--model", "-m", help="Model for token counting and pricing (default: gpt-4.1)."
+    ),
+    report_path: Path | None = typer.Option(
+        None, "--report", "-r", help="Write the JSON diagnostic report here (otherwise stdout)."
+    ),
+) -> None:
+    """Analyze INPUT and emit a deterministic diagnostic report -- no prompt is generated.
+
+    Reports the token, structure, duplication, cleanup, and cost profile of INPUT and projects
+    what ``lcc optimize``'s safe cleaning would remove, to help you decide whether to optimize.
+    It is diagnostic only (ADR 0009): it never builds or writes an optimized prompt, makes no
+    network or model call, and never modifies the input file. The JSON report goes to
+    ``--report`` (or stdout); the human-readable summary and warnings go to stderr.
+    """
+    source_type = "stdin" if input_path == "-" else "file"
+    raw = _read_input(input_path)
+    effective_model = model or "gpt-4.1"
+
+    report = run_inspection(
+        InspectionRequest(raw_text=raw, source_type=source_type, model=effective_model)
+    )
+
+    if report_path is not None:
+        try:
+            write_inspection_report(report, report_path)
+        except OSError as exc:
+            _fail(f"could not write report to {report_path}: {exc}")
+    else:
+        sys.stdout.write(inspection_to_json(report) + "\n")
+
+    _print_inspect_summary(report, report_path)
+
+
+def _print_inspect_summary(report: Any, report_path: Path | None) -> None:
+    table = Table(title="lcc -- inspection summary", show_header=False, box=None, pad_edge=False)
+    table.add_column("metric", style="bold cyan", no_wrap=True)
+    table.add_column("value")
+    for label, value in inspect_summary_rows(report):
+        table.add_row(label, value)
+    err_console.print(table)
+    if report_path is not None:
+        err_console.print(f"Report written to: [green]{report_path}[/green]")
+    if report.warnings:
+        body = "\n".join(f"- {warning}" for warning in report.warnings)
+        err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
 
 
 def cli_main() -> None:
