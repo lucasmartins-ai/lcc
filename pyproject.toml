@@ -1,26 +1,27 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "local-context-compiler"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic, local-first context optimization for LLM prompts: clean, dedupe, structure, and measure token and cost savings before calling a large model."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Local Context Compiler contributors" }]
 keywords = ["llm", "tokens", "prompt", "context", "optimization", "cost", "cli"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
   "Topic :: Text Processing :: General",
 ]
@@ -34,10 +35,12 @@ dependencies = [
 # tiktoken enables EXACT token counting; lcc falls back to a heuristic without it.
 tiktoken = ["tiktoken>=0.7"]
 dev = [
+  "build>=1.2",
   "pytest>=8.0",
   "ruff>=0.6",
   "mypy>=1.10",
   "tiktoken>=0.7",
+  "twine>=5.0",
   "types-PyYAML>=6.0",
 ]
 
@@ -51,6 +54,9 @@ lcc = "lcc.cli:cli_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+lcc = ["py.typed"]
 
 [tool.ruff]
 line-length = 100

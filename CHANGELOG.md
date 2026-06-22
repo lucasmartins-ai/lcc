@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+No changes yet.
+
+## [0.2.0] - 2026-06-22
+
 ### Added
 
 - `lcc inspect` diagnostic command — analyzes a text input (from a file or stdin) and reports
@@ -19,6 +23,19 @@ All notable changes to this project are documented here. The format is based on
   machine-specific values. Token counts preserve the exact-vs-approximate honesty of ADR 0005
   and ADR 0008.
 - ADR 0009 — `lcc inspect` is a diagnostic boundary (no prompt, no transform).
+- PyPI Trusted Publishing workflow for tag-triggered releases via GitHub Actions OIDC,
+  without long-lived PyPI tokens.
+- Explicit source distribution manifest covering docs, examples, benchmark fixtures, config
+  examples, and tests.
+- PEP 561 typing marker (`py.typed`) in the wheel.
+
+### Changed
+
+- Documented published-package installation with `pipx install local-context-compiler` and
+  `python -m pip install local-context-compiler`.
+- Updated the release checklist for building distributions, checking them with `twine`,
+  installing the wheel in a clean virtual environment, and publishing through PyPI Trusted
+  Publishing.
 
 ## [0.1.0] - 2026-06-19
 
@@ -64,5 +81,6 @@ response verification — those remain roadmap items (see `docs/roadmap.md`).
   `CODE_OF_CONDUCT.md`, the `docs/` set (architecture, evaluation, roadmap, release, ADRs),
   examples, and agent guidance (`CLAUDE.md`, `AGENTS.md`).
 
-[Unreleased]: https://github.com/vetlucasmartins/lcc/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/vetlucasmartins/lcc/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/vetlucasmartins/lcc/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/vetlucasmartins/lcc/releases/tag/v0.1.0
