@@ -9,10 +9,10 @@
 replace the model. It prepares a smaller, cleaner, more structured, evidence-aware prompt
 package and tells you, in measurable numbers, how many tokens and how much money you saved.
 
-**Status: v0.1.0. Initial public release of the deterministic MVP.** Shipping today: the
-deterministic MVP, a deterministic benchmark harness (`lcc bench`), and a tokenizer network
-guard (runtime network blocked by default; exact token counting only from local `tiktoken`
-assets, otherwise an honestly labelled approximate count). See the
+**Status: v0.2.0.** Current release scope: the deterministic MVP, a deterministic benchmark
+harness (`lcc bench`), a read-only diagnostic inspection command (`lcc inspect`), and a
+tokenizer network guard (runtime network blocked by default; exact token counting only from
+local `tiktoken` assets, otherwise an honestly labelled approximate count). See the
 [release checklist](docs/release.md) for the full release process.
 
 ## Problem
@@ -51,7 +51,7 @@ non-meaningful text, and every action is recorded in the report.
 
 ## MVP scope
 
-**Currently supported (v0.1):**
+**Currently supported (v0.2):**
 
 - Read text from a file or stdin.
 - Normalize whitespace, line endings, and blank-line runs (paragraph structure preserved).
@@ -87,21 +87,63 @@ never describe a roadmap feature as if it were implemented.
 
 Requires Python 3.11+.
 
-```bash
-# from the repository root
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"      # editable install with dev + tiktoken extras
+For the published CLI, prefer `pipx` so the command is isolated from your application
+environment:
 
-# minimal runtime install (exact token counting via the optional tiktoken extra)
-pip install ".[tiktoken]"
+```bash
+pipx install local-context-compiler
+lcc --version
 ```
 
-`tiktoken` is optional. Without it, `lcc` still runs and clearly marks token counts as
-approximate. `lcc` **blocks runtime network access by default** and requires **no API key**:
-it never calls the network during normal operation, including indirectly through `tiktoken`.
-Exact token counting uses `tiktoken` only when the encoding assets are **locally available**;
-if they would have to be downloaded, `lcc` blocks the fetch and falls back to a clearly
-labelled approximate count (see [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)).
+Or install into an environment you manage:
+
+```bash
+python -m pip install local-context-compiler
+lcc --version
+```
+
+`tiktoken` is optional. To include it at install time, use the optional extra:
+
+```bash
+pipx install "local-context-compiler[tiktoken]"
+python -m pip install "local-context-compiler[tiktoken]"
+```
+
+Without `tiktoken`, `lcc` still runs and clearly marks token counts as approximate. `lcc`
+**blocks runtime network access by default** and requires **no API key**: it never calls the
+network during normal operation, including indirectly through `tiktoken`. Exact token
+counting uses `tiktoken` only when the encoding assets are **locally available**; if they
+would have to be downloaded, `lcc` blocks the fetch and falls back to a clearly labelled
+approximate count (see [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)).
+
+For local development from a checkout:
+
+```bash
+git clone https://github.com/vetlucasmartins/lcc
+cd lcc
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -e ".[dev]"
+```
+
+Validate the installed console script with a small local input:
+
+```bash
+printf 'Alpha point.\n\nAlpha point.\n\nRegards,\nTeam\n' > /tmp/lcc_sample.txt
+
+lcc --version
+lcc optimize /tmp/lcc_sample.txt \
+  --question "What are the key points?" \
+  --output /tmp/lcc_prompt.md \
+  --report /tmp/lcc_report.json
+lcc inspect /tmp/lcc_sample.txt --report /tmp/lcc_inspect.json
+```
+
+`lcc bench` runs fixture directories. From a source checkout, validate it with the bundled
+deterministic cases:
+
+```bash
+lcc bench benchmarks/cases --output /tmp/lcc_bench.json
+```
 
 ## Usage
 
@@ -126,6 +168,8 @@ lcc optimize examples/sample_input.txt -q "Summarize." \
 
 lcc --version
 lcc optimize --help
+lcc inspect --help
+lcc bench --help
 ```
 
 The optimized prompt is written to `--output` (or printed to stdout if omitted). The
@@ -240,9 +284,9 @@ prints to stderr; the exit code is non-zero if any case fails or the path is inv
 
 ## Roadmap
 
-Phase 1 (this release) is the deterministic MVP, plus an early deterministic **benchmark
-harness** (Phase 1.5; see [Benchmarking](#benchmarking)) and a deterministic **inspection
-command** (Phase 1.6; see [Inspecting an input](#inspecting-an-input)). Later phases add local semantic
+Implemented today: Phase 1 (deterministic MVP), Phase 1.5 (deterministic **benchmark
+harness**; see [Benchmarking](#benchmarking)), and Phase 1.6 (deterministic **inspection
+command**; see [Inspecting an input](#inspecting-an-input)). Later phases add local semantic
 retrieval, a local intent classifier, evidence extraction, model routing, response
 verification, and a richer semantic-quality benchmark suite — each behind a clearly
 separated boundary so the deterministic core stays intact. Full detail in
