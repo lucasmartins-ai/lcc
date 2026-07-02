@@ -76,6 +76,21 @@ class DuplicationInfo:
 
 
 @dataclass
+class CleanupStageContribution:
+    """Approximate contribution from one safe-cleaning stage in the inspection projection."""
+
+    stage: str
+    tokens_before: int
+    tokens_after: int
+    projected_tokens_removed: int
+    projected_token_savings_percent: float
+    characters_before: int
+    characters_after: int
+    projected_characters_removed: int
+    projected_character_savings_percent: float
+
+
+@dataclass
 class SafeCleanupProjection:
     """Estimated effect of the deterministic safe cleaning, clearly labelled as a projection.
 
@@ -87,8 +102,21 @@ class SafeCleanupProjection:
     projected_tokens_after_safe_cleaning: int
     projected_token_savings_percent: float
     projected_character_savings_percent: float
+    estimated_cost_after_safe_cleaning: float | None = None
+    estimated_cost_savings: float | None = None
+    stage_contributions: list[CleanupStageContribution] = field(default_factory=list)
     cleaning_actions_considered: list[CleaningStep] = field(default_factory=list)
     projection_note: str = ""
+
+
+@dataclass
+class InspectionRecommendation:
+    """Deterministic recommendation for what to do after inspecting an input."""
+
+    action: str  # "skip" | "optimize_safe" | "optimize_with_flags" | "manual_review"
+    reason_codes: list[str]
+    summary: str
+    suggested_command: str | None = None
 
 
 @dataclass
@@ -107,4 +135,5 @@ class InspectionReport:
     structure: StructureInfo
     duplication: DuplicationInfo
     safe_cleanup_projection: SafeCleanupProjection
+    recommendation: InspectionRecommendation
     warnings: list[str]

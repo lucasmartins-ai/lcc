@@ -53,6 +53,18 @@ explicitly labelled as an estimate of what `optimize` would do, not a completed 
 and it makes **no** claim about answer quality (ADR 0009). Token counts carry the same
 exact-vs-approximate honesty as the optimization report.
 
+The inspection report also includes a deterministic `recommendation`:
+
+- `skip` when the input is small or projected savings are low;
+- `optimize_safe` when deterministic cleanup has a clear payoff;
+- `optimize_with_flags` when cleanup looks useful but extra configuration, such as pricing,
+  is needed before relying on cost output;
+- `manual_review` when the projected cleaned context is still very large.
+
+Use `lcc inspect INPUT --summary compact` for a short terminal summary with the decision,
+main reason, projected token/cost savings when pricing is available, and the next suggested
+command. The full JSON report remains available on stdout or via `--report`.
+
 ## Measuring quality preservation
 
 Token savings are only useful if the answer quality holds. Because the MVP does **not** call

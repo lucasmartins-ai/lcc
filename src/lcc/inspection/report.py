@@ -30,6 +30,12 @@ def write_inspection_report(report: InspectionReport, path: str | Path) -> None:
     Path(path).write_text(inspection_to_json(report) + "\n", encoding="utf-8")
 
 
+def _format_cost(value: float | None, currency: str) -> str | None:
+    if value is None:
+        return None
+    return f"{value:.6f} {currency}"
+
+
 def summary_rows(report: InspectionReport) -> list[tuple[str, str]]:
     """Produce ``(label, value)`` rows for a concise human-readable summary (used by the CLI)."""
     budget = report.token_budget
@@ -41,10 +47,19 @@ def summary_rows(report: InspectionReport) -> list[tuple[str, str]]:
         cost = "n/a (no pricing for model)"
     return [
         ("Source", report.input.source_type),
+        ("Decision", report.recommendation.action),
+        (
+            "Reason",
+            report.recommendation.reason_codes[0] if report.recommendation.reason_codes else "n/a",
+        ),
         ("Characters", f"{report.input.character_count:,}"),
         ("Model", budget.model),
         ("Token counting", f"{budget.token_count_method} ({budget.tokenizer})"),
         ("Input tokens", f"{budget.token_count:,}"),
+        (
+            "Projected tokens",
+            f"{projection.projected_tokens_after_safe_cleaning:,}",
+        ),
         ("Est. input cost", cost),
         (
             "Duplicate paragraphs (projection)",
@@ -53,4 +68,33 @@ def summary_rows(report: InspectionReport) -> list[tuple[str, str]]:
         ),
         ("Projected token savings", f"{projection.projected_token_savings_percent:.1f}%"),
         ("Projected char savings", f"{projection.projected_character_savings_percent:.1f}%"),
+    ]
+
+
+def compact_summary_lines(report: InspectionReport) -> list[str]:
+    """Return a short, actionable human summary for ``lcc inspect --summary compact``."""
+    projection = report.safe_cleanup_projection
+    recommendation = report.recommendation
+    tokens_saved = projection.original_tokens - projection.projected_tokens_after_safe_cleaning
+    reason = recommendation.reason_codes[0] if recommendation.reason_codes else "n/a"
+    cost_savings = _format_cost(
+        projection.estimated_cost_savings,
+        report.token_budget.pricing_currency,
+    )
+    cost_part = f", {cost_savings}" if cost_savings is not None else ""
+    next_command = recommendation.suggested_command or "none"
+    return [
+        f"Decision: {recommendation.action}",
+        f"Reason: {reason} - {recommendation.summary}",
+        (
+            "Tokens: "
+            f"{projection.original_tokens:,} -> "
+            f"{projection.projected_tokens_after_safe_cleaning:,} projected"
+        ),
+        (
+            "Projected savings: "
+            f"{tokens_saved:,} tokens "
+            f"({projection.projected_token_savings_percent:.1f}%){cost_part}"
+        ),
+        f"Next: {next_command}",
     ]

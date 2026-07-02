@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from lcc.inspection.inspector import InspectionRequest, inspect
 from lcc.inspection.report import (
+    compact_summary_lines,
     inspection_to_dict,
     inspection_to_json,
     summary_rows,
@@ -21,8 +22,10 @@ from lcc.inspection.report import (
 )
 from lcc.inspection.schemas import (
     INSPECT_SCHEMA_VERSION,
+    CleanupStageContribution,
     DuplicationInfo,
     InputInfo,
+    InspectionRecommendation,
     InspectionReport,
     SafeCleanupProjection,
     StructureInfo,
@@ -31,13 +34,16 @@ from lcc.inspection.schemas import (
 
 __all__ = [
     "INSPECT_SCHEMA_VERSION",
+    "CleanupStageContribution",
     "DuplicationInfo",
     "InputInfo",
+    "InspectionRecommendation",
     "InspectionReport",
     "InspectionRequest",
     "SafeCleanupProjection",
     "StructureInfo",
     "TokenBudgetInfo",
+    "compact_summary_lines",
     "inspect",
     "inspection_to_dict",
     "inspection_to_json",

@@ -140,6 +140,7 @@ Inspect the same input without generating a prompt:
 
 ```bash
 lcc inspect /tmp/lcc_sample.txt --model gpt-4.1 --report /tmp/lcc_inspect.json
+lcc inspect /tmp/lcc_sample.txt --model gpt-4.1 --summary compact
 ```
 
 Run the bundled deterministic benchmarks from a source checkout:
@@ -203,7 +204,16 @@ The report includes:
 - token count, counting method, tokenizer, and estimated input cost;
 - structure metrics such as blank-line runs and longest paragraph;
 - exact and near-duplicate paragraph counts;
-- a safe-cleanup projection of what `optimize` would remove.
+- a safe-cleanup projection of what `optimize` would remove, including per-stage projected
+  contributions for normalization, boilerplate removal, exact deduplication, and near-dedup;
+- a deterministic recommendation (`skip`, `optimize_safe`, `optimize_with_flags`, or
+  `manual_review`) with reason codes and a suggested next command when optimization is useful.
+
+For a short human summary, use:
+
+```bash
+lcc inspect examples/sample_input.txt --summary compact
+```
 
 `inspect` is diagnostic only. It builds no prompt, calls no model, makes no network request,
 and never modifies the input. Projected savings are labelled as projections, not completed

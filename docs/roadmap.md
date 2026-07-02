@@ -36,6 +36,11 @@ as if it were.
   diagnostic report (`schema_version` 1.0) covering its token, structure, duplication,
   cleanup, and cost profile, plus a clearly-labelled **projection** of what the safe cleaning
   in `lcc optimize` would remove (ADR 0009).
+- Inspection reports include deterministic recommendation fields (`action`, `reason_codes`,
+  `summary`, and `suggested_command` when applicable), compact human output via
+  `--summary compact`, projected cost savings when pricing is available, and per-stage safe
+  cleanup contributions for normalization, boilerplate removal, exact deduplication, and
+  near-deduplication.
 - It is **diagnostic, not transformative**: it generates **no** prompt, makes no network or
   model call, uses no embeddings/RAG, and never modifies the input. Token counts preserve the
   exact-vs-approximate honesty of ADR 0005 and ADR 0008, and projected savings are labelled as
