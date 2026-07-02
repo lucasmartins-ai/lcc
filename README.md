@@ -1,94 +1,89 @@
-# Local Context Compiler (lcc)
+# Local Context Compiler (`lcc`)
 
 [![CI](https://github.com/vetlucasmartins/lcc/actions/workflows/ci.yml/badge.svg)](https://github.com/vetlucasmartins/lcc/actions/workflows/ci.yml)
 
-> Deterministic, local-first context optimization for LLM prompts: clean, dedupe,
-> structure, and **measure** token and cost savings *before* you call a large model.
+Deterministic, local-first context optimization for LLM prompts.
 
-`lcc` is a middle layer between your application and a large language model. It does **not**
-replace the model. It prepares a smaller, cleaner, more structured, evidence-aware prompt
-package and tells you, in measurable numbers, how many tokens and how much money you saved.
+`lcc` cleans, deduplicates, structures, and measures text context before you send it to a
+large language model. It does not call a model, require an API key, or send your text over the
+network.
 
-**Status: v0.2.0.** Current release scope: the deterministic MVP, a deterministic benchmark
-harness (`lcc bench`), a read-only diagnostic inspection command (`lcc inspect`), and a
-tokenizer network guard (runtime network blocked by default; exact token counting only from
-local `tiktoken` assets, otherwise an honestly labelled approximate count). See the
-[release checklist](docs/release.md) for the full release process.
+## At a Glance
 
-## Problem
+| Question | Answer |
+| --- | --- |
+| What is it? | A local CLI and Python package for preparing cleaner LLM prompt context. |
+| What does it improve? | Token count, cost visibility, repeated text, boilerplate, and prompt structure. |
+| What does it preserve? | Original evidence, user intent, and an auditable JSON report of every step. |
+| What does it avoid? | Runtime network calls, API keys, LLM calls, embeddings, vector stores, and lossy summarization. |
+| Current version | `0.2.0`: `optimize`, `inspect`, `bench`, and the tokenizer network guard. |
 
-LLM input is billed per token, and noisy context hurts both cost and answer quality.
-Real-world context is full of duplicated paragraphs, boilerplate (signatures, page markers,
-decorative rules), inconsistent whitespace, and CRLF noise. Sending it raw wastes tokens and
-buries the signal. But blindly compressing context is dangerous: lossy summarization can drop
-the very evidence the model needs.
+## Why It Exists
 
-`lcc`'s philosophy:
+LLM context is often noisy: repeated paragraphs, email signatures, page markers, decorative
+rules, inconsistent whitespace, and copied boilerplate all waste tokens. Sending that raw
+context increases cost and can bury the evidence the model needs.
 
-- Do not send **more** context than necessary.
-- Do not send **less** context than sufficient.
-- Optimize for **measurable** token savings **without destructive compression**.
-- Prefer **deterministic** cleaning and traceable extraction before using any model.
-- Preserve the original user intent and evidence provenance.
+Blind compression is risky too. Summaries can remove the detail that makes an answer
+grounded. `lcc` takes a narrower approach:
 
-## What it does
+- remove only safe, redundant, or non-meaningful text;
+- never summarize, paraphrase, or rewrite the source content;
+- count tokens honestly as `exact` or `approximate`;
+- estimate cost from editable pricing data;
+- produce a deterministic report that explains what changed.
 
-Given raw text, a question, and a model name, `lcc` runs a deterministic pipeline:
+## What It Does Today
 
-```
+`lcc optimize` runs this deterministic pipeline:
+
+```text
 raw text
-  -> normalize        (line endings, whitespace, blank-line runs)
-  -> remove boilerplate (conservative, whole-line matches only)
-  -> deduplicate      (exact + conservative near-duplicate paragraphs)
-  -> count tokens     (exact via tiktoken, or an honest approximation)
-  -> build prompt     (evidence-aware template with explicit constraints)
-  -> estimate cost    (configurable, editable pricing)
-  -> emit report      (JSON) + optimized prompt (text)
+  -> normalize whitespace and line endings
+  -> remove conservative whole-line boilerplate
+  -> deduplicate exact and near-duplicate paragraphs
+  -> count tokens exactly or with a labelled approximation
+  -> build an evidence-aware prompt
+  -> estimate input cost
+  -> write a JSON report and optimized prompt
 ```
 
-Nothing is summarized or rewritten. Cleaning only removes safe, redundant, or
-non-meaningful text, and every action is recorded in the report.
+The current release supports:
 
-## MVP scope
+- file or stdin input;
+- whitespace and line-ending normalization;
+- conservative boilerplate removal;
+- exact and conservative near-duplicate paragraph deduplication;
+- exact token counting with locally available `tiktoken` assets;
+- approximate token counting when exact local counting is unavailable;
+- editable model pricing and input-cost estimates;
+- evidence-aware prompt rendering;
+- deterministic JSON reports with `schema_version: "1.0"`;
+- `lcc inspect` for read-only diagnostics;
+- `lcc bench` for deterministic fixture-based benchmark cases.
 
-**Currently supported (v0.2):**
+## What It Does Not Do
 
-- Read text from a file or stdin.
-- Normalize whitespace, line endings, and blank-line runs (paragraph structure preserved).
-- Remove obvious boilerplate lines with a conservative, whole-line match.
-- Deduplicate exact and (optionally) conservative near-duplicate paragraphs.
-- Count tokens **exactly** with `tiktoken` when available, with an **honest approximate
-  fallback** that is clearly flagged in the report.
-- Estimate input cost from **editable** model pricing.
-- Build an evidence-aware prompt (role, question, context, constraints, response format,
-  length guidance, anti-fabrication instructions).
-- Emit a JSON report with before/after characters, tokens, compression ratio, savings %,
-  cost before/after, cleaning steps, dedup metrics, and warnings.
-- A `lcc` CLI with readable terminal output and graceful, non-zero-exit error handling.
-- A deterministic **benchmark harness** (`lcc bench`) that runs the pipeline over committed
-  fixtures and reports mechanical savings/preservation metrics (it does **not** measure LLM
-  answer quality). See [Benchmarking](#benchmarking).
-- A deterministic **inspection command** (`lcc inspect`) that profiles an input — tokens,
-  structure, duplication, cleanup, and cost — and **projects** what `optimize`'s safe cleaning
-  would remove, **without** generating a prompt. It is diagnostic only: no prompt, no network,
-  no model, and it never modifies the input. See [Inspecting an input](#inspecting-an-input).
+These items are roadmap work and are not implemented in this repository:
 
-**Not yet supported (on the [roadmap](docs/roadmap.md), and intentionally *not* implemented
-here):**
+- semantic retrieval or RAG;
+- embeddings or vector stores;
+- local or remote LLM calls;
+- hosted API server;
+- model routing;
+- response verification;
+- transcript ingestion;
+- voice or audio adapters;
+- semantic answer-quality scoring.
 
-- Semantic retrieval / RAG, embeddings, vector stores (FAISS, Chroma, ...).
-- Local LLM integration (Ollama, llama.cpp) or any model calls.
-- Intent classification, evidence extraction, model routing, response verification.
-
-If a feature is listed above as "not yet supported," it is **not** in the code. The docs
-never describe a roadmap feature as if it were implemented.
+The deterministic core stays intentionally small. Future capabilities must live behind clear
+boundaries so the local-first behavior remains easy to audit.
 
 ## Install
 
 Requires Python 3.11+.
 
-For the published CLI, prefer `pipx` so the command is isolated from your application
-environment:
+For the published CLI, prefer `pipx`:
 
 ```bash
 pipx install local-context-compiler
@@ -102,21 +97,19 @@ python -m pip install local-context-compiler
 lcc --version
 ```
 
-`tiktoken` is optional. To include it at install time, use the optional extra:
+Optional exact token counting:
 
 ```bash
 pipx install "local-context-compiler[tiktoken]"
 python -m pip install "local-context-compiler[tiktoken]"
 ```
 
-Without `tiktoken`, `lcc` still runs and clearly marks token counts as approximate. `lcc`
-**blocks runtime network access by default** and requires **no API key**: it never calls the
-network during normal operation, including indirectly through `tiktoken`. Exact token
-counting uses `tiktoken` only when the encoding assets are **locally available**; if they
-would have to be downloaded, `lcc` blocks the fetch and falls back to a clearly labelled
-approximate count (see [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)).
+Without `tiktoken`, `lcc` still runs and marks token counts as approximate. With `tiktoken`,
+exact counting is used only when the required encoding assets are already available locally.
+`lcc` blocks runtime tokenizer downloads and falls back to an approximate count instead of
+making a network request. See [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md).
 
-For local development from a checkout:
+For local development:
 
 ```bash
 git clone https://github.com/vetlucasmartins/lcc
@@ -125,37 +118,60 @@ python -m venv .venv && source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-Validate the installed console script with a small local input:
+## Quick Start
+
+Create a small noisy input:
 
 ```bash
 printf 'Alpha point.\n\nAlpha point.\n\nRegards,\nTeam\n' > /tmp/lcc_sample.txt
-
-lcc --version
-lcc optimize /tmp/lcc_sample.txt \
-  --question "What are the key points?" \
-  --output /tmp/lcc_prompt.md \
-  --report /tmp/lcc_report.json
-lcc inspect /tmp/lcc_sample.txt --report /tmp/lcc_inspect.json
 ```
 
-`lcc bench` runs fixture directories. From a source checkout, validate it with the bundled
-deterministic cases:
+Optimize it:
+
+```bash
+lcc optimize /tmp/lcc_sample.txt \
+  --question "What are the key points?" \
+  --model gpt-4.1 \
+  --output /tmp/lcc_prompt.md \
+  --report /tmp/lcc_report.json
+```
+
+Inspect the same input without generating a prompt:
+
+```bash
+lcc inspect /tmp/lcc_sample.txt --model gpt-4.1 --report /tmp/lcc_inspect.json
+```
+
+Run the bundled deterministic benchmarks from a source checkout:
 
 ```bash
 lcc bench benchmarks/cases --output /tmp/lcc_bench.json
 ```
 
-## Usage
+## Command Guide
+
+### `lcc optimize`
+
+Use `optimize` when you are ready to create a prompt package.
 
 ```bash
-# Optimize a file
 lcc optimize examples/sample_input.txt \
-  --question "What are the key points?" \
+  --question "What are the key points and risks?" \
   --model gpt-4.1 \
   --max-input-tokens 6000 \
   --output optimized_prompt.md \
   --report report.json
+```
 
+Output behavior:
+
+- the optimized prompt goes to `--output`, or stdout if omitted;
+- the JSON report goes to `--report`, when provided;
+- the human-readable summary and warnings go to stderr, so stdout stays pipe-safe.
+
+Useful options:
+
+```bash
 # Read from stdin
 cat examples/sample_input.txt | lcc optimize - \
   --question "Summarize the relevant information." \
@@ -164,23 +180,55 @@ cat examples/sample_input.txt | lcc optimize - \
 
 # Use editable defaults and pricing
 lcc optimize examples/sample_input.txt -q "Summarize." \
-  --config config/default.yaml --pricing config/pricing.yaml
+  --config config/default.yaml \
+  --pricing config/pricing.yaml
 
-lcc --version
-lcc optimize --help
-lcc inspect --help
-lcc bench --help
+# Disable conservative cleanup steps
+lcc optimize examples/sample_input.txt -q "Summarize." \
+  --no-near-dedup \
+  --no-boilerplate
 ```
 
-The optimized prompt is written to `--output` (or printed to stdout if omitted). The
-human-readable summary and any warnings are printed to **stderr**, so stdout stays clean
-for piping.
+### `lcc inspect`
 
-## Example output
+Use `inspect` before optimization when you want to understand the input first.
 
-Running the bundled `examples/sample_input.txt`:
-
+```bash
+lcc inspect examples/sample_input.txt --model gpt-4.1 --report inspect_report.json
 ```
+
+The report includes:
+
+- source type, characters, lines, and paragraphs;
+- token count, counting method, tokenizer, and estimated input cost;
+- structure metrics such as blank-line runs and longest paragraph;
+- exact and near-duplicate paragraph counts;
+- a safe-cleanup projection of what `optimize` would remove.
+
+`inspect` is diagnostic only. It builds no prompt, calls no model, makes no network request,
+and never modifies the input. Projected savings are labelled as projections, not completed
+optimizations. See [ADR 0009](docs/adr/0009-inspection-command-boundary.md).
+
+### `lcc bench`
+
+Use `bench` to run deterministic fixture cases.
+
+```bash
+lcc bench benchmarks/cases --output bench_report.json --markdown bench_report.md
+```
+
+The benchmark harness reports mechanical behavior: token savings, compression ratio,
+character reduction, exact-vs-approximate token mode, literal marker preservation, warnings,
+and pass/fail thresholds. It does not measure final LLM answer quality.
+
+See [benchmarks/README.md](benchmarks/README.md) and
+[ADR 0007](docs/adr/0007-deterministic-benchmark-harness.md).
+
+## Example Summary
+
+Running the bundled `examples/sample_input.txt` can produce output like this:
+
+```text
     lcc -- optimization summary
 Model               gpt-4.1
 Token counting      exact (tiktoken)
@@ -194,7 +242,7 @@ Est. cost after     0.000256 USD
 Est. cost savings   0.000216 USD
 ```
 
-Report excerpt (`report.json`):
+Report excerpt:
 
 ```json
 {
@@ -206,108 +254,80 @@ Report excerpt (`report.json`):
   "token_savings_percent": 45.76,
   "token_count_method": "exact",
   "token_encoding": "o200k_base",
-  "cost": { "before": 0.000472, "after": 0.000256, "savings": 0.000216, "currency": "USD" },
-  "dedup_metrics": { "paragraphs_before": 8, "paragraphs_after": 5,
-                     "duplicates_removed": 2, "near_duplicates_removed": 1 },
+  "cost": {
+    "before": 0.000472,
+    "after": 0.000256,
+    "savings": 0.000216,
+    "currency": "USD"
+  },
   "warnings": []
 }
 ```
 
-## Architecture overview
+## Architecture
 
-Four deterministic libraries, composed by a single pipeline, behind a thin CLI:
+`lcc` keeps deterministic logic separate from IO and presentation.
 
 | Module | Responsibility |
 | --- | --- |
-| `lcc.cleaning` | normalize, remove boilerplate, deduplicate (text in → text + metrics out) |
-| `lcc.token_budget` | exact/approximate token counting + pricing and cost math |
-| `lcc.prompt_builder` | render an evidence-aware prompt from a structured spec |
-| `lcc.reporting` | assemble the `OptimizationReport` and serialize it to JSON |
-| `lcc.pipeline` | orchestrate the above (the only module that composes them) |
-| `lcc.cli` | Typer/Rich presentation and file/stdin IO |
+| `lcc.cleaning` | Normalize text, remove conservative boilerplate, deduplicate paragraphs. |
+| `lcc.token_budget` | Count tokens exactly or approximately, and estimate input cost. |
+| `lcc.prompt_builder` | Render an evidence-aware prompt from a structured spec. |
+| `lcc.reporting` | Build deterministic JSON reports. |
+| `lcc.pipeline` | Compose the deterministic modules. |
+| `lcc.cli` | Handle Typer/Rich CLI output, files, stdin, and config loading. |
+| `lcc.benchmarking` | Run deterministic benchmark fixtures. |
+| `lcc.inspection` | Profile one input without building a prompt. |
 
-The cleaning, token, prompt, and reporting modules contain **no network or LLM code** and
-are fully deterministic. See [docs/architecture.md](docs/architecture.md) and the decision
-records in [docs/adr/](docs/adr/).
+Read more:
 
-## Inspecting an input
+- [Architecture](docs/architecture.md)
+- [Evaluation](docs/evaluation.md)
+- [Roadmap](docs/roadmap.md)
+- [Architecture decision records](docs/adr/)
+- [Project presentation](docs/project-presentation.md)
+- [Release process](docs/release.md)
 
-Before deciding whether to run `optimize`, use `lcc inspect` to profile an input and see how
-much the safe cleaning would plausibly save — **without** generating a prompt or calling
-anything:
-
-```bash
-# Inspect a file, writing the JSON diagnostic report
-lcc inspect examples/sample_input.txt --model gpt-4.1 --report inspect_report.json
-
-# Inspect from stdin; with no --report the JSON report prints to stdout
-cat examples/sample_input.txt | lcc inspect - --model gpt-4.1
-```
-
-The report (`schema_version` 1.0) covers four areas plus a projection:
-
-- **input** — `source_type` (`file`/`stdin`), character/line/paragraph counts.
-- **token_budget** — model, token count, `token_count_method` (`exact`/`approximate`),
-  tokenizer, and estimated input cost (honest exact-vs-approximate, per ADR 0005/0008).
-- **structure** — blank-line runs, longest line/paragraph, average paragraph length.
-- **duplication** — paragraphs before/after, exact and near-duplicate counts, duplicate ratio.
-- **safe_cleanup_projection** — original vs projected tokens and the projected token/character
-  savings if you ran `optimize`, with a `projection_note` making clear this is an **estimate of
-  what `optimize` would remove, not a completed optimization**.
-
-`lcc inspect` is **diagnostic, not transformative** (see
-[ADR 0009](docs/adr/0009-inspection-command-boundary.md)): it builds no prompt, makes no
-network or model call, measures **no** semantic quality, and never modifies the input. The
-report is deterministic (no timestamps, paths, or machine-specific values) and the
-human-readable summary and warnings print to stderr.
-
-## Benchmarking
-
-`lcc` ships a deterministic, fixture-based benchmark harness (see
-[ADR 0007](docs/adr/0007-deterministic-benchmark-harness.md) and
-[benchmarks/README.md](benchmarks/README.md)):
+## Development
 
 ```bash
-lcc bench benchmarks/cases --output bench_report.json --markdown bench_report.md
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -e ".[dev]"
 ```
 
-It runs the optimization pipeline over the committed cases in `benchmarks/cases/` and reports
-mechanical metrics — token savings, compression ratio, character reduction,
-exact-vs-approximate token mode, literal marker preservation, and warnings — with explicit
-per-case pass/fail thresholds and a versioned, deterministic JSON/Markdown report. The summary
-prints to stderr; the exit code is non-zero if any case fails or the path is invalid.
+Required checks:
 
-- It measures **deterministic optimization behavior**, not final LLM answer quality.
-- Literal marker preservation is only a **basic safety proxy**.
-- Future phases may add semantic retrieval and human/LLM-assisted quality evaluation — **not
-  now**.
+```bash
+python -m pytest
+ruff check .
+ruff format --check .
+mypy
+```
 
-## Roadmap
+Contributions should keep the deterministic core free of network, LLM, embedding, and hosted
+service dependencies. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Implemented today: Phase 1 (deterministic MVP), Phase 1.5 (deterministic **benchmark
-harness**; see [Benchmarking](#benchmarking)), and Phase 1.6 (deterministic **inspection
-command**; see [Inspecting an input](#inspecting-an-input)). Later phases add local semantic
-retrieval, a local intent classifier, evidence extraction, model routing, response
-verification, and a richer semantic-quality benchmark suite — each behind a clearly
-separated boundary so the deterministic core stays intact. Full detail in
-[docs/roadmap.md](docs/roadmap.md).
+## Security and Privacy
 
-## Contributing
+`lcc` is local-first by design:
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, and
-style, and [docs/adr/](docs/adr/) for the frozen design decisions.
+- no API keys are required;
+- no telemetry is collected;
+- no model or hosted service is called;
+- runtime network access is blocked by default, including indirect `tiktoken` downloads;
+- generated prompts and reports are written only to paths you choose.
+
+Review generated prompts and reports before committing them. They can contain source context
+or metadata derived from your input. See [SECURITY.md](SECURITY.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
-## Disclaimer
+## Accuracy Notes
 
-Token counts are **exact only** when `tiktoken` recognizes the model **and** its encoding
-assets are available from a local cache; otherwise they are **approximate** and the report
-says so (with a warning explaining why). `lcc` never downloads tokenizer assets during normal
-operation — if exact tokenization is unavailable offline, it falls back to approximate
-counting and labels it (see [ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)). Bundled
-pricing in `config/pricing.yaml` and the built-in table are **editable EXAMPLES, not
-guaranteed current prices** — always verify against your provider before relying on cost
-figures.
+Token counts are exact only when `tiktoken` recognizes the model and the encoding assets are
+available locally. Otherwise, the report marks counts as approximate and includes a warning.
+
+Bundled pricing in `config/pricing.yaml` and the built-in pricing table is editable example
+data, not guaranteed current provider pricing. Verify prices before relying on cost figures.

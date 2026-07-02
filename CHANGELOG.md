@@ -6,7 +6,14 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- Visitor-facing project presentation in `docs/project-presentation.md`.
+
+### Changed
+
+- Reworked the README into a clearer first-visit guide with a tighter project summary,
+  command guide, architecture map, and explicit scope boundaries.
 
 ## [0.2.0] - 2026-06-22
 
