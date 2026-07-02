@@ -27,7 +27,7 @@ from lcc.benchmarking import (
 )
 from lcc.inspection import InspectionRequest
 from lcc.inspection import inspect as run_inspection
-from lcc.inspection.report import inspection_to_json, write_inspection_report
+from lcc.inspection.report import compact_summary_lines, inspection_to_json, write_inspection_report
 from lcc.inspection.report import summary_rows as inspect_summary_rows
 from lcc.pipeline import OptimizationRequest
 from lcc.pipeline import optimize as run_pipeline
@@ -338,6 +338,11 @@ def inspect_command(
     report_path: Path | None = typer.Option(
         None, "--report", "-r", help="Write the JSON diagnostic report here (otherwise stdout)."
     ),
+    summary: str = typer.Option(
+        "table",
+        "--summary",
+        help="Human summary style: 'table' or 'compact'. JSON output is unchanged.",
+    ),
 ) -> None:
     """Analyze INPUT and emit a deterministic diagnostic report -- no prompt is generated.
 
@@ -348,6 +353,8 @@ def inspect_command(
     ``--report`` (or stdout); the human-readable summary and warnings go to stderr.
     """
     source_type = "stdin" if input_path == "-" else "file"
+    if summary not in {"table", "compact"}:
+        _fail("unknown --summary value. Use 'table' or 'compact'.", code=2)
     raw = _read_input(input_path)
     effective_model = model or "gpt-4.1"
 
@@ -368,10 +375,20 @@ def inspect_command(
     else:
         sys.stdout.write(inspection_to_json(report) + "\n")
 
-    _print_inspect_summary(report, report_path)
+    _print_inspect_summary(report, report_path, summary)
 
 
-def _print_inspect_summary(report: Any, report_path: Path | None) -> None:
+def _print_inspect_summary(report: Any, report_path: Path | None, summary: str) -> None:
+    if summary == "compact":
+        for line in compact_summary_lines(report):
+            err_console.print(line)
+        if report_path is not None:
+            err_console.print(f"Report written to: [green]{report_path}[/green]")
+        if report.warnings:
+            body = "\n".join(f"- {warning}" for warning in report.warnings)
+            err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
+        return
+
     table = Table(title="lcc -- inspection summary", show_header=False, box=None, pad_edge=False)
     table.add_column("metric", style="bold cyan", no_wrap=True)
     table.add_column("value")

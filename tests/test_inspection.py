@@ -138,6 +138,67 @@ def test_missing_pricing_omits_cost_with_warning() -> None:
     assert any("pricing" in warning.lower() for warning in report.warnings)
 
 
+def test_small_input_recommends_skip() -> None:
+    report = inspect(_req(text="One short note."))
+    assert report.recommendation.action == "skip"
+    assert "small_input" in report.recommendation.reason_codes
+    assert report.recommendation.suggested_command is None
+
+
+def test_high_duplication_recommends_optimize_safe() -> None:
+    duplicated = (
+        "The quarterly migration status includes the same operational paragraph "
+        "for every regional service owner and should only be kept once.\n\n" * 6
+    )
+    report = inspect(_req(text=duplicated))
+    assert report.recommendation.action == "optimize_safe"
+    assert "high_duplication" in report.recommendation.reason_codes
+    assert report.recommendation.suggested_command is not None
+    assert report.recommendation.suggested_command.startswith("lcc optimize INPUT")
+
+
+def test_low_projected_savings_recommends_skip() -> None:
+    clean = "\n\n".join(
+        [
+            "Architecture notes describe module boundaries and import direction.",
+            "Release planning lists packaging checks and changelog responsibilities.",
+            "Security guidance focuses on local files, reports, and prompt artifacts.",
+            "Benchmark fixtures preserve literal evidence markers during cleanup.",
+            "Pricing documentation says bundled values are editable examples.",
+            "Tokenizer behavior falls back honestly when cached assets are absent.",
+            "CLI output keeps machine-readable JSON separate from terminal summaries.",
+            "Roadmap entries keep future retrieval and verification out of the MVP.",
+            "Evaluation guidance separates mechanical savings from answer quality.",
+            "Configuration defaults can be overridden without changing source code.",
+            "Inspection reports avoid timestamps, hostnames, and absolute paths.",
+            "Formatting rules rely on ruff with a one hundred character line length.",
+        ]
+    )
+    report = inspect(_req(text=clean))
+    assert report.recommendation.action == "skip"
+    assert "low_projected_savings" in report.recommendation.reason_codes
+    assert report.recommendation.suggested_command is None
+
+
+def test_approximate_token_count_adds_recommendation_reason(monkeypatch) -> None:
+    from lcc.token_budget import counters
+
+    monkeypatch.setattr(counters, "_HAS_TIKTOKEN", False)
+    report = inspect(_req())
+    assert report.token_budget.token_count_method == "approximate"
+    assert "approximate_token_count" in report.recommendation.reason_codes
+
+
+def test_stage_contributions_include_each_safe_cleanup_step() -> None:
+    stages = inspect(_req()).safe_cleanup_projection.stage_contributions
+    assert [stage.stage for stage in stages] == [
+        "normalization",
+        "boilerplate",
+        "exact_deduplication",
+        "near_deduplication",
+    ]
+
+
 def test_inspect_does_not_modify_input_file(tmp_path: Path) -> None:
     src = tmp_path / "in.txt"
     src.write_text(SAMPLE, encoding="utf-8")
@@ -190,6 +251,28 @@ def test_cli_inspect_empty_stdin_succeeds() -> None:
     result = runner.invoke(app, ["inspect", "-"], input="")
     assert result.exit_code == 0
     assert '"schema_version": "1.0"' in result.stdout
+
+
+def test_cli_inspect_compact_summary(tmp_path: Path) -> None:
+    src = tmp_path / "in.txt"
+    src.write_text(
+        (
+            "The quarterly migration status includes the same operational paragraph "
+            "for every regional service owner and should only be kept once.\n\n" * 6
+        ),
+        encoding="utf-8",
+    )
+    rep = tmp_path / "report.json"
+
+    result = runner.invoke(app, ["inspect", str(src), "--report", str(rep), "--summary", "compact"])
+
+    assert result.exit_code == 0
+    assert "Decision: optimize_safe" in result.stderr
+    assert "Tokens:" in result.stderr
+    assert "Projected savings:" in result.stderr
+    assert "Next: lcc optimize INPUT" in result.stderr
+    data = json.loads(rep.read_text(encoding="utf-8"))
+    assert data["recommendation"]["action"] == "optimize_safe"
 
 
 def test_cli_inspect_missing_file_exits_nonzero() -> None:
