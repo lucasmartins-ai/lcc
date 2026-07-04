@@ -1,0 +1,9 @@
+{
+  "task_id": "ambiguous_task",
+  "instruction": "What is the latest public status of this vendor?",
+  "context": "Internal notes mention the vendor migration, but they do not include current public status.",
+  "expected_format": "plain text",
+  "metadata": {
+    "requires_official_adapter": true
+  }
+}

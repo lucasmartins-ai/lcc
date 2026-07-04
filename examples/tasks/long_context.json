@@ -1,0 +1,7 @@
+{
+  "task_id": "long_context",
+  "instruction": "What action should the runbook owner take?",
+  "context": "Runbook owner action: archive the stale escalation page and keep the current paging section.\n\nRunbook owner action: archive the stale escalation page and keep the current paging section.\n\nRunbook owner action: archive the stale escalation page and keep the current paging section.\n\nUnrelated billing notes should not drive the answer.\n\nRunbook owner action: archive the stale escalation page and keep the current paging section.",
+  "expected_format": "plain text",
+  "required_markers": ["archive the stale escalation page"]
+}

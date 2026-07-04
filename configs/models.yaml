@@ -1,0 +1,10 @@
+local:
+  backend: mock
+  model_name: mock-local
+
+verifier:
+  backend: rule
+
+fireworks:
+  base_url: https://api.fireworks.ai/inference/v1
+  model_id: mock-fireworks

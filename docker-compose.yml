@@ -1,0 +1,14 @@
+services:
+  lcc-router:
+    build: .
+    env_file:
+      - .env
+    command:
+      - python
+      - -m
+      - act2_router.cli
+      - eval
+      - --cases
+      - examples/tasks
+      - --output
+      - eval/reports/docker_eval.json

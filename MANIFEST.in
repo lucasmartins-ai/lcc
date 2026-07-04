@@ -9,9 +9,13 @@ include SECURITY.md
 include pyproject.toml
 
 recursive-include benchmarks *.md *.txt *.yaml
+recursive-include act2_router *.py
 recursive-include config *.yaml
+recursive-include configs *.yaml
 recursive-include docs *.md
-recursive-include examples *.md *.txt
+recursive-include docker *
+recursive-include examples *.md *.txt *.json
+recursive-include eval .gitkeep
 recursive-include tests *.py
 
 recursive-exclude * __pycache__
