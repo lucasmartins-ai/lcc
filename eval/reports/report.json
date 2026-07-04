@@ -1,0 +1,203 @@
+{
+  "note": "Local development proxy only; not official AMD Track 1 accuracy.",
+  "result": {
+    "total_cases": 5,
+    "remote_tokens_total": 197,
+    "remote_tokens_mean": 39.4,
+    "local_accept_rate": 0.6,
+    "remote_escalation_rate": 0.4,
+    "format_pass_rate": 1.0,
+    "estimated_accuracy_proxy": 1.0,
+    "failures": []
+  },
+  "lcc_compression_applied_rate": 0.2,
+  "average_projected_savings": 0.2862,
+  "cases": [
+    {
+      "task_id": "ambiguous_task",
+      "answer": "Internal notes mention the vendor migration, but they do not include current public status.",
+      "route_taken": "REMOTE_DIRECT",
+      "remote_tokens_used": 99,
+      "local_steps_used": [
+        "lcc_inspect"
+      ],
+      "verification": null,
+      "metadata": {
+        "remote_model": "mock-fireworks (mock)",
+        "remote_prompt_tokens": 72,
+        "remote_completion_tokens": 27,
+        "remote_usage_estimated": true,
+        "remote_error": null,
+        "lcc": {
+          "input_tokens": 21,
+          "optimized_tokens": 21,
+          "projected_savings_ratio": 0.0,
+          "duplicate_ratio": 0.0,
+          "recommendation_action": "skip",
+          "warnings": [
+            "Token counts are approximate; treat token and cost figures as estimates. tiktoken would need to download encoding assets, which lcc blocks to stay offline; used the heuristic estimator. Pre-cache the tokenizer (for example, set TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts."
+          ],
+          "selected_chunks_count": 0
+        },
+        "compression_applied": false,
+        "trace": [
+          "high_accuracy_risk",
+          "initial_route:REMOTE_DIRECT"
+        ]
+      }
+    },
+    {
+      "task_id": "long_context",
+      "answer": "Runbook owner action: archive the stale escalation page and keep the current paging section.",
+      "route_taken": "COMPRESS_THEN_REMOTE",
+      "remote_tokens_used": 98,
+      "local_steps_used": [
+        "lcc_inspect",
+        "lcc_prepare"
+      ],
+      "verification": null,
+      "metadata": {
+        "remote_model": "mock-fireworks (mock)",
+        "remote_prompt_tokens": 71,
+        "remote_completion_tokens": 27,
+        "remote_usage_estimated": true,
+        "remote_error": null,
+        "lcc": {
+          "input_tokens": 96,
+          "optimized_tokens": 21,
+          "projected_savings_ratio": 0.7812,
+          "duplicate_ratio": 0.6,
+          "recommendation_action": "optimize_safe",
+          "warnings": [
+            "Token counts are approximate; treat token and cost figures as estimates. tiktoken would need to download encoding assets, which lcc blocks to stay offline; used the heuristic estimator. Pre-cache the tokenizer (for example, set TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts.",
+            "Token counts are approximate; treat token and cost figures as estimates. tiktoken would need to download encoding assets, which lcc blocks to stay offline; used the heuristic estimator. Pre-cache the tokenizer (for example, set TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts."
+          ],
+          "selected_chunks_count": 1
+        },
+        "compression_applied": true,
+        "trace": [
+          "high_accuracy_risk",
+          "compress_before_remote_enabled",
+          "initial_route:COMPRESS_THEN_REMOTE",
+          "lcc_compression_applied"
+        ]
+      }
+    },
+    {
+      "task_id": "noisy_context",
+      "answer": "# OAuth Token Rotation\n\nRotate OAuth tokens for service accounts every quarter.",
+      "route_taken": "COMPRESS_THEN_LOCAL",
+      "remote_tokens_used": 0,
+      "local_steps_used": [
+        "lcc_inspect",
+        "local_solver",
+        "local_verifier"
+      ],
+      "verification": {
+        "decision": "ACCEPT_LOCAL",
+        "confidence": 0.88,
+        "format_valid": true,
+        "missing_requirements": [],
+        "risk_reasons": [],
+        "explanation": "Local answer passed deterministic format and risk checks."
+      },
+      "metadata": {
+        "local_model": "mock-local",
+        "lcc": {
+          "input_tokens": 80,
+          "optimized_tokens": 28,
+          "projected_savings_ratio": 0.65,
+          "duplicate_ratio": 0.1429,
+          "recommendation_action": "optimize_safe",
+          "warnings": [
+            "Token counts are approximate; treat token and cost figures as estimates. tiktoken would need to download encoding assets, which lcc blocks to stay offline; used the heuristic estimator. Pre-cache the tokenizer (for example, set TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts.",
+            "Token counts are approximate; treat token and cost figures as estimates. tiktoken would need to download encoding assets, which lcc blocks to stay offline; used the heuristic estimator. Pre-cache the tokenizer (for example, set TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts."
+          ],
+          "selected_chunks_count": 2
+        },
+        "trace": [
+          "lcc_projected_savings",
+          "initial_route:COMPRESS_THEN_LOCAL",
+          "lcc_compression_applied",
+          "local_accepted"
+        ]
+      }
+    },
+    {
+      "task_id": "simple_qa",
+      "answer": "The deployment is complete.",
+      "route_taken": "LOCAL_THEN_VERIFY",
+      "remote_tokens_used": 0,
+      "local_steps_used": [
+        "lcc_inspect",
+        "local_solver",
+        "local_verifier"
+      ],
+      "verification": {
+        "decision": "ACCEPT_LOCAL",
+        "confidence": 0.88,
+        "format_valid": true,
+        "missing_requirements": [],
+        "risk_reasons": [],
+        "explanation": "Local answer passed deterministic format and risk checks."
+      },
+      "metadata": {
+        "local_model": "mock-local",
+        "lcc": {
+          "input_tokens": 18,
+          "optimized_tokens": 18,
+          "projected_savings_ratio": 0.0,
+          "duplicate_ratio": 0.0,
+          "recommendation_action": "skip",
+          "warnings": [
+            "Token counts are approximate; treat token and cost figures as estimates. tiktoken would need to download encoding assets, which lcc blocks to stay offline; used the heuristic estimator. Pre-cache the tokenizer (for example, set TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts."
+          ],
+          "selected_chunks_count": 0
+        },
+        "trace": [
+          "strict_format_requires_verification",
+          "initial_route:LOCAL_THEN_VERIFY",
+          "local_accepted"
+        ]
+      }
+    },
+    {
+      "task_id": "strict_format",
+      "answer": "{\"answer\": \"Incident INC-42 is resolved.\"}",
+      "route_taken": "LOCAL_THEN_VERIFY",
+      "remote_tokens_used": 0,
+      "local_steps_used": [
+        "lcc_inspect",
+        "local_solver",
+        "local_verifier"
+      ],
+      "verification": {
+        "decision": "ACCEPT_LOCAL",
+        "confidence": 0.88,
+        "format_valid": true,
+        "missing_requirements": [],
+        "risk_reasons": [],
+        "explanation": "Local answer passed deterministic format and risk checks."
+      },
+      "metadata": {
+        "local_model": "mock-local",
+        "lcc": {
+          "input_tokens": 15,
+          "optimized_tokens": 15,
+          "projected_savings_ratio": 0.0,
+          "duplicate_ratio": 0.0,
+          "recommendation_action": "skip",
+          "warnings": [
+            "Token counts are approximate; treat token and cost figures as estimates. tiktoken would need to download encoding assets, which lcc blocks to stay offline; used the heuristic estimator. Pre-cache the tokenizer (for example, set TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts."
+          ],
+          "selected_chunks_count": 0
+        },
+        "trace": [
+          "strict_format_requires_verification",
+          "initial_route:LOCAL_THEN_VERIFY",
+          "local_accepted"
+        ]
+      }
+    }
+  ]
+}

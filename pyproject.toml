@@ -61,7 +61,7 @@ lcc = ["py.typed"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["src", "tests"]
+src = ["src", "act2_router", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
@@ -74,11 +74,12 @@ select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+pythonpath = ["src", "."]
 
 [tool.mypy]
 python_version = "3.11"
-mypy_path = "src"
-packages = ["lcc"]
+mypy_path = "src:."
+packages = ["lcc", "act2_router"]
 ignore_missing_imports = true
 warn_redundant_casts = true
 warn_unused_ignores = true

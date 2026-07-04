@@ -1,0 +1,7 @@
+{
+  "task_id": "strict_format",
+  "instruction": "Return the incident status as JSON with an answer field.",
+  "context": "Incident INC-42 is resolved. Customer impact ended at 14:20 UTC.",
+  "expected_format": "json",
+  "required_fields": ["answer"]
+}

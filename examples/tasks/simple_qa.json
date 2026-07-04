@@ -1,0 +1,7 @@
+{
+  "task_id": "simple_qa",
+  "instruction": "What is the deployment status?",
+  "context": "The deployment is complete. The release owner signed off after smoke testing.",
+  "expected_format": "plain text",
+  "required_markers": ["deployment is complete"]
+}

@@ -1,0 +1,7 @@
+{
+  "task_id": "noisy_context",
+  "instruction": "Summarize the OAuth token rotation evidence.",
+  "context": "# Billing Renewal\n\nInvoices renewal credits and payment collection notes for finance operations.\n\n# OAuth Token Rotation\n\nRotate OAuth tokens for service accounts every quarter. Store token rotation evidence in the runbook.\n\n# General Notes\n\nRotate OAuth tokens for service accounts every quarter. Store token rotation evidence in the runbook.\n\nRegards,\nTeam\n",
+  "expected_format": "plain text",
+  "required_markers": ["Rotate OAuth tokens"]
+}
