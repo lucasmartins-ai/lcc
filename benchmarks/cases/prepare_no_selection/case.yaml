@@ -1,0 +1,21 @@
+id: prepare_no_selection
+description: Prepare falls back to optimizing the original input when no lexical matches exist.
+workflow: prepare
+question: How should cafeteria seating be arranged?
+model: local-mystery-model-v0
+max_input_tokens: 6000
+compression_level: safe
+required_markers:
+  - "FIREWALL-ALLOWLIST-317"
+forbidden_markers:
+  - "Sent from my iPhone"
+expectations:
+  min_token_savings_percent: 20.0
+  max_token_savings_percent: 95.0
+  min_required_marker_recall: 1.0
+  allow_approximate_token_count: true
+  max_forbidden_markers_found: 0
+  expected_prepare_action: optimize_with_flags
+  expected_selection_applied: false
+  min_selected_chunk_count: 0
+  max_selected_chunk_count: 0

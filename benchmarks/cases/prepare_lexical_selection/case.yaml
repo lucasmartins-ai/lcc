@@ -1,0 +1,23 @@
+id: prepare_lexical_selection
+description: Prepare applies deterministic lexical selection and drops irrelevant duplicate chunks.
+workflow: prepare
+question: What is the OAuth token rotation evidence?
+model: local-mystery-model-v0
+max_input_tokens: 6000
+compression_level: safe
+required_markers:
+  - "RUNBOOK-EVIDENCE-241"
+forbidden_markers:
+  - "BILLING-IRRELEVANT-999"
+  - "DUPLICATE-NOISE-777"
+expectations:
+  min_token_savings_percent: 20.0
+  max_token_savings_percent: 95.0
+  min_required_marker_recall: 1.0
+  allow_approximate_token_count: true
+  max_forbidden_markers_found: 0
+  expected_prepare_action: optimize_with_flags
+  expected_selection_applied: true
+  min_selected_chunk_count: 2
+  max_selected_chunk_count: 2
+  min_skipped_duplicate_chunk_count: 1

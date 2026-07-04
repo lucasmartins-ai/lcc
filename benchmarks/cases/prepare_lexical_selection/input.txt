@@ -1,0 +1,19 @@
+# Billing Renewal
+
+BILLING-IRRELEVANT-999 invoices renewal credits and payment collection notes.
+
+# OAuth Token Rotation
+
+RUNBOOK-EVIDENCE-241: rotate OAuth tokens quarterly and store token rotation evidence in the runbook.
+
+# Duplicate Noise
+
+DUPLICATE-NOISE-777 legacy footer repeated for old migration packets.
+
+DUPLICATE-NOISE-777 legacy footer repeated for old migration packets.
+
+# General Notes
+
+RUNBOOK-EVIDENCE-241: rotate OAuth tokens quarterly and store token rotation evidence in the runbook.
+
+BILLING-IRRELEVANT-999 invoices renewal credits and payment collection notes.

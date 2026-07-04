@@ -16,7 +16,7 @@ network.
 | What does it improve? | Token count, cost visibility, repeated text, boilerplate, and prompt structure. |
 | What does it preserve? | Original evidence, user intent, and an auditable JSON report of every step. |
 | What does it avoid? | Runtime network calls, API keys, LLM calls, embeddings, vector stores, and lossy summarization. |
-| Current version | `0.2.0`: `optimize`, `inspect`, `bench`, and the tokenizer network guard. |
+| Current surfaces | `optimize`, `inspect`, `prepare`, `bench`, the tokenizer network guard, and the disabled semantic retrieval boundary status command. |
 
 ## Why It Exists
 
@@ -48,7 +48,7 @@ raw text
   -> write a JSON report and optimized prompt
 ```
 
-The current release supports:
+The current source supports:
 
 - file or stdin input;
 - whitespace and line-ending normalization;
@@ -60,13 +60,25 @@ The current release supports:
 - evidence-aware prompt rendering;
 - deterministic JSON reports with `schema_version: "1.0"`;
 - `lcc inspect` for read-only diagnostics;
-- `lcc bench` for deterministic fixture-based benchmark cases.
+- deterministic `lcc inspect` chunk inventories with stable IDs, offsets, line spans, token
+  counts, structural labels, and exact duplicate markers;
+- `lcc prepare` for deterministic inspect-first orchestration that skips prompt generation
+  when inspection recommends `skip` or `manual_review`, and otherwise runs question-aware
+  lexical chunk selection before the existing safe optimization path;
+- `lcc bench` for deterministic fixture cases that measure mechanical optimization and
+  prepare-selection behavior only.
+- `lcc semantic-retrieval` as a disabled-by-default Phase 2 boundary status scaffold; it
+  validates local `semantic-index-1.0` manifest metadata, provenance consistency,
+  deterministic index settings, and local vector file references when enabled, then reports
+  disabled or blocked status only and performs no retrieval.
 
 ## What It Does Not Do
 
 These items are roadmap work and are not implemented in this repository:
 
-- semantic retrieval or RAG;
+- semantic retrieval or RAG (beyond the disabled boundary status scaffold);
+- manifest validation checks local metadata consistency only; it does not read vector contents
+  or perform retrieval, ranking, source selection, embedding, or prompt building;
 - embeddings or vector stores;
 - local or remote LLM calls;
 - hosted API server;
@@ -77,7 +89,14 @@ These items are roadmap work and are not implemented in this repository:
 - semantic answer-quality scoring.
 
 The deterministic core stays intentionally small. Future capabilities must live behind clear
-boundaries so the local-first behavior remains easy to audit.
+boundaries so the local-first behavior remains easy to audit. The Phase 1.7 preparation
+boundary is recorded in
+[ADR 0010](docs/adr/0010-deterministic-first-preparation-model-assistance.md): optional model
+assistance is not implemented, and no model, embedding, network client, runtime download, or
+local/remote model call may enter the deterministic core, inspection, or benchmarking
+boundaries. The accepted Phase 2 semantic retrieval boundary is recorded in
+[ADR 0011](docs/adr/0011-phase-2-opt-in-semantic-retrieval-boundary.md): the current scaffold
+is disabled by default and fails closed; retrieval execution is not implemented.
 
 ## Install
 
@@ -143,10 +162,26 @@ lcc inspect /tmp/lcc_sample.txt --model gpt-4.1 --report /tmp/lcc_inspect.json
 lcc inspect /tmp/lcc_sample.txt --model gpt-4.1 --summary compact
 ```
 
+Prepare only when inspection says optimization is useful:
+
+```bash
+lcc prepare /tmp/lcc_sample.txt \
+  --question "What are the key points?" \
+  --model gpt-4.1 \
+  --output /tmp/lcc_prompt.md \
+  --report /tmp/lcc_prepare_report.json
+```
+
 Run the bundled deterministic benchmarks from a source checkout:
 
 ```bash
 lcc bench benchmarks/cases --output /tmp/lcc_bench.json
+```
+
+Check the disabled Phase 2 semantic retrieval boundary status:
+
+```bash
+lcc semantic-retrieval
 ```
 
 ## Command Guide
@@ -190,6 +225,43 @@ lcc optimize examples/sample_input.txt -q "Summarize." \
   --no-boilerplate
 ```
 
+### `lcc prepare`
+
+Use `prepare` when you want `lcc` to inspect first and only generate a prompt when the
+deterministic recommendation says safe optimization is useful.
+
+```bash
+lcc prepare examples/sample_input.txt \
+  --question "What are the key points and risks?" \
+  --model gpt-4.1 \
+  --output optimized_prompt.md \
+  --report prepare_report.json
+```
+
+Output behavior:
+
+- `prepare` always runs the same deterministic inspection logic first;
+- when inspection recommends `skip` or `manual_review`, no prompt is generated; the
+  inspection report goes to `--report`, or stdout if omitted;
+- when inspection recommends `optimize_safe` or `optimize_with_flags`, `prepare` applies
+  deterministic question-aware lexical chunk selection, then runs the existing safe
+  optimization pipeline on the selected source chunks; the prompt goes to `--output`, or stdout
+  if omitted;
+- when optimization runs and `--report` is provided, `prepare` writes a prepare report with the
+  inspection decision, selected chunk IDs and reason codes, skipped duplicate chunk IDs, and the
+  nested optimization report;
+- `--output` and `--report` are rejected when they point to the input file.
+
+Lexical selection uses transparent signals from `chunk_inventory` and literal source slices:
+keyword overlap, heading matches, rare-term matches, and proximity to matched headings. It
+preserves the first exact-copy evidence and avoids selecting duplicate copies unless selection
+is not applied. It does not summarize, paraphrase, rank by model relevance, use semantic
+similarity, create embeddings, access the network, call a local model, or call a remote LLM.
+`prepare` still uses only the deterministic recommendation `action` to decide whether to skip
+or optimize; lexical selection runs only after an optimize action. See
+[ADR 0010](docs/adr/0010-deterministic-first-preparation-model-assistance.md) for the
+deterministic-first preparation and optional model-assistance boundary.
+
 ### `lcc inspect`
 
 Use `inspect` before optimization when you want to understand the input first.
@@ -204,10 +276,14 @@ The report includes:
 - token count, counting method, tokenizer, and estimated input cost;
 - structure metrics such as blank-line runs and longest paragraph;
 - exact and near-duplicate paragraph counts;
+- a deterministic chunk inventory with stable IDs, character offsets, line spans,
+  paragraph counts, per-chunk token counts and methods, simple structural labels, literal
+  heading text when present, and exact duplicate markers;
 - a safe-cleanup projection of what `optimize` would remove, including per-stage projected
   contributions for normalization, boilerplate removal, exact deduplication, and near-dedup;
 - a deterministic recommendation (`skip`, `optimize_safe`, `optimize_with_flags`, or
-  `manual_review`) with reason codes and a suggested next command when optimization is useful.
+  `manual_review`) with reason codes, stable scoring signals, thresholds, evidence values, and
+  a suggested next command when optimization is useful.
 
 For a short human summary, use:
 
@@ -215,9 +291,10 @@ For a short human summary, use:
 lcc inspect examples/sample_input.txt --summary compact
 ```
 
-`inspect` is diagnostic only. It builds no prompt, calls no model, makes no network request,
-and never modifies the input. Projected savings are labelled as projections, not completed
-optimizations. See [ADR 0009](docs/adr/0009-inspection-command-boundary.md).
+`inspect` is diagnostic only. It builds no prompt, makes no network, LLM, embedding,
+local-model, or remote-model call, and never modifies the input. Projected savings are
+labelled as projections, not completed optimizations. See
+[ADR 0009](docs/adr/0009-inspection-command-boundary.md).
 
 ### `lcc bench`
 
@@ -227,12 +304,29 @@ Use `bench` to run deterministic fixture cases.
 lcc bench benchmarks/cases --output bench_report.json --markdown bench_report.md
 ```
 
-The benchmark harness reports mechanical behavior: token savings, compression ratio,
-character reduction, exact-vs-approximate token mode, literal marker preservation, warnings,
-and pass/fail thresholds. It does not measure final LLM answer quality.
+The benchmark harness reports deterministic mechanical behavior only: token savings,
+compression ratio, character reduction, exact-vs-approximate token mode, literal marker
+preservation, warnings, prepare selection state when a fixture uses `workflow: prepare`, and
+pass/fail thresholds. It does not measure LLM answer quality or evaluate downstream response
+quality.
 
 See [benchmarks/README.md](benchmarks/README.md) and
 [ADR 0007](docs/adr/0007-deterministic-benchmark-harness.md).
+
+### `lcc semantic-retrieval`
+
+Use this command only to inspect the Phase 2 boundary status. It is disabled by default and
+performs no retrieval.
+
+```bash
+lcc semantic-retrieval --report semantic_status.json
+```
+
+When explicitly enabled, the command validates required local manifest and embedding-asset
+paths, then reports `blocked` and exits non-zero because retrieval execution is not
+implemented. It does not read vector contents, rank or select source chunks, create
+embeddings, call a model, access the network, or build a prompt. See
+[ADR 0011](docs/adr/0011-phase-2-opt-in-semantic-retrieval-boundary.md).
 
 ## Example Summary
 
@@ -285,9 +379,11 @@ Report excerpt:
 | `lcc.prompt_builder` | Render an evidence-aware prompt from a structured spec. |
 | `lcc.reporting` | Build deterministic JSON reports. |
 | `lcc.pipeline` | Compose the deterministic modules. |
+| `lcc.lexical_selection` | Select literal source chunks for `prepare` using lexical/mechanical signals. |
 | `lcc.cli` | Handle Typer/Rich CLI output, files, stdin, and config loading. |
 | `lcc.benchmarking` | Run deterministic benchmark fixtures. |
 | `lcc.inspection` | Profile one input without building a prompt. |
+| `lcc.semantic_retrieval` | Report the disabled/blocked Phase 2 boundary status; no retrieval execution. |
 
 Read more:
 
@@ -314,8 +410,8 @@ ruff format --check .
 mypy
 ```
 
-Contributions should keep the deterministic core free of network, LLM, embedding, and hosted
-service dependencies. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions should keep the deterministic core free of network, LLM, embedding,
+local-model, and hosted-service dependencies. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Security and Privacy
 
@@ -323,7 +419,7 @@ service dependencies. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 - no API keys are required;
 - no telemetry is collected;
-- no model or hosted service is called;
+- no model, embedding, or hosted service is called;
 - runtime network access is blocked by default, including indirect `tiktoken` downloads;
 - generated prompts and reports are written only to paths you choose.
 

@@ -15,5 +15,8 @@ public / cross-module contracts that are expensive to change after release.
 | [0007](0007-deterministic-benchmark-harness.md) | Deterministic, fixture-based benchmark harness |
 | [0008](0008-tokenizer-network-boundary.md) | Tokenizer network boundary (no indirect network via tiktoken) |
 | [0009](0009-inspection-command-boundary.md) | `lcc inspect` is a diagnostic boundary (no prompt, no transform) |
+| [0010](0010-deterministic-first-preparation-model-assistance.md) | Deterministic Phase 1.7 prepare boundary; optional model assistance is not implemented |
+| [0011](0011-phase-2-opt-in-semantic-retrieval-boundary.md) | Accepted Phase 2 opt-in semantic retrieval boundary with a disabled-by-default scaffold; retrieval execution is not implemented |
+| [0012](0012-semantic-retrieval-execution-boundary.md) | Future semantic retrieval execution must use a separate opt-in local-index adapter; execution is not implemented |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.

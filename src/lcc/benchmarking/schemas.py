@@ -33,6 +33,9 @@ COMPRESSION_LEVELS: dict[str, CleaningOptions] = {
 }
 
 
+WORKFLOWS = {"optimize", "prepare"}
+
+
 @dataclass
 class BenchmarkExpectations:
     """Explicit per-case pass/fail thresholds. A case passes only if all are satisfied."""
@@ -42,6 +45,11 @@ class BenchmarkExpectations:
     min_required_marker_recall: float = 1.0
     allow_approximate_token_count: bool = False
     max_forbidden_markers_found: int = 0
+    expected_prepare_action: str | None = None
+    expected_selection_applied: bool | None = None
+    min_selected_chunk_count: int | None = None
+    max_selected_chunk_count: int | None = None
+    min_skipped_duplicate_chunk_count: int = 0
 
 
 @dataclass
@@ -52,6 +60,7 @@ class BenchmarkCase:
     description: str
     question: str
     input_text: str
+    workflow: str = "optimize"
     model: str = "gpt-4.1"
     max_input_tokens: int | None = None
     compression_level: str = "safe"
@@ -66,6 +75,7 @@ class CaseResult:
 
     id: str
     description: str
+    workflow: str
     model: str
 
     original_char_count: int
@@ -88,6 +98,15 @@ class CaseResult:
     forbidden_markers_found: list[str]
 
     warnings: list[str]
+
+    prepare_action: str | None
+    selection_applied: bool | None
+    selection_reason: str | None
+    selected_chunk_count: int | None
+    selected_token_count: int | None
+    selected_chunk_ids: list[str]
+    selected_chunk_reason_codes: list[list[str]]
+    skipped_duplicate_chunk_ids: list[str]
 
     passed: bool
     failure_reasons: list[str]

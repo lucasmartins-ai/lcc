@@ -15,6 +15,8 @@ from lcc.schemas import CleaningStep
 #: Bumped only on a breaking change to the inspection report shape (ADR 0009, ADR 0004).
 INSPECT_SCHEMA_VERSION = "1.0"
 
+JsonScalar = str | int | float | bool | None
+
 
 @dataclass
 class InputInfo:
@@ -110,6 +112,49 @@ class SafeCleanupProjection:
 
 
 @dataclass
+class RecommendationScoringSignal:
+    """Auditable, deterministic signal used to explain an inspection recommendation.
+
+    ``score`` is normalized so values at or above ``1.0`` meet the signal's high/risk
+    threshold when that signal has one. ``thresholds`` and ``evidence`` carry the raw
+    deterministic inputs that make the score reproducible by report consumers.
+    """
+
+    code: str
+    score: float
+    triggered: bool
+    reason_code: str | None
+    thresholds: dict[str, JsonScalar]
+    evidence: dict[str, JsonScalar]
+
+
+@dataclass
+class ChunkInventoryItem:
+    """One deterministic structural chunk in the inspected input.
+
+    Character offsets are 0-based and end-exclusive. Line spans are 1-based and inclusive.
+    The item contains only mechanical metadata plus literal heading text when a block is a
+    Markdown heading; it does not summarize, rewrite, rank, or semantically select content.
+    """
+
+    id: str
+    index: int
+    label: str  # "heading" | "paragraph_block" | "unknown"
+    character_start: int
+    character_end: int
+    line_start: int
+    line_end: int
+    line_count: int
+    paragraph_count: int
+    character_count: int
+    token_count: int
+    token_count_method: str  # "exact" | "approximate"
+    is_duplicate: bool
+    duplicate_of: str | None = None
+    heading_text: str | None = None
+
+
+@dataclass
 class InspectionRecommendation:
     """Deterministic recommendation for what to do after inspecting an input."""
 
@@ -117,6 +162,7 @@ class InspectionRecommendation:
     reason_codes: list[str]
     summary: str
     suggested_command: str | None = None
+    scoring_signals: list[RecommendationScoringSignal] = field(default_factory=list)
 
 
 @dataclass
@@ -137,3 +183,4 @@ class InspectionReport:
     safe_cleanup_projection: SafeCleanupProjection
     recommendation: InspectionRecommendation
     warnings: list[str]
+    chunk_inventory: list[ChunkInventoryItem] = field(default_factory=list)

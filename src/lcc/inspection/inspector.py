@@ -10,6 +10,7 @@ produces an identical report (ADR 0006).
 
 from __future__ import annotations
 
+import hashlib
 import re
 from dataclasses import dataclass
 from typing import Any
@@ -19,11 +20,13 @@ from lcc.cleaning import deduplicate_paragraphs, normalize_text, remove_common_b
 from lcc.cleaning.boilerplate import BoilerplateResult
 from lcc.inspection.schemas import (
     INSPECT_SCHEMA_VERSION,
+    ChunkInventoryItem,
     CleanupStageContribution,
     DuplicationInfo,
     InputInfo,
     InspectionRecommendation,
     InspectionReport,
+    RecommendationScoringSignal,
     SafeCleanupProjection,
     StructureInfo,
     TokenBudgetInfo,
@@ -34,6 +37,7 @@ from lcc.token_budget.pricing import BUILTIN_PRICING, estimate_input_cost, get_m
 
 # Same paragraph notion as ``lcc.cleaning.deduplicate``: blocks separated by blank lines.
 _PARAGRAPH_SPLIT = re.compile(r"\n[ \t]*\n")
+_MARKDOWN_HEADING = re.compile(r"^#{1,6}[ \t]+(.+?)\s*$")
 
 _PROJECTION_NOTE = (
     "Projected savings from deterministic safe cleaning (normalize whitespace, conservative "
@@ -49,6 +53,7 @@ _HIGH_DUPLICATION_RATIO = 0.2
 _HIGH_SAVINGS_PERCENT = 15.0
 _HIGH_SAVINGS_TOKENS = 50
 _MAX_INPUT_RISK_TOKENS = 100_000
+_TOKEN_BUDGET_PRESSURE_RATIO = 0.8
 
 
 @dataclass
@@ -68,11 +73,128 @@ class InspectionRequest:
     similarity_threshold: float = 0.95
 
 
+@dataclass(frozen=True)
+class _RawChunk:
+    text: str
+    character_start: int
+    character_end: int
+    line_start: int
+    line_end: int
+
+
 def _split_paragraphs(text: str) -> list[str]:
     """Split text into non-empty, stripped paragraph blocks (line-ending agnostic)."""
     normalized = text.replace("\r\n", "\n").replace("\r", "\n")
     blocks = _PARAGRAPH_SPLIT.split(normalized)
     return [block.strip() for block in blocks if block.strip()]
+
+
+def _line_without_ending(line: str) -> str:
+    if line.endswith("\r\n"):
+        return line[:-2]
+    if line.endswith(("\n", "\r")):
+        return line[:-1]
+    return line
+
+
+def _raw_chunks(raw: str) -> list[_RawChunk]:
+    """Return non-empty blocks separated by blank lines, preserving raw character offsets."""
+    chunks: list[_RawChunk] = []
+    start_char: int | None = None
+    start_line: int | None = None
+    end_char = 0
+    end_line = 0
+    offset = 0
+
+    for line_number, line in enumerate(raw.splitlines(keepends=True), start=1):
+        line_body = _line_without_ending(line)
+        if line_body.strip():
+            if start_char is None:
+                start_char = offset
+                start_line = line_number
+            end_char = offset + len(line_body)
+            end_line = line_number
+        elif start_char is not None and start_line is not None:
+            chunks.append(
+                _RawChunk(
+                    text=raw[start_char:end_char],
+                    character_start=start_char,
+                    character_end=end_char,
+                    line_start=start_line,
+                    line_end=end_line,
+                )
+            )
+            start_char = None
+            start_line = None
+        offset += len(line)
+
+    if start_char is not None and start_line is not None:
+        chunks.append(
+            _RawChunk(
+                text=raw[start_char:end_char],
+                character_start=start_char,
+                character_end=end_char,
+                line_start=start_line,
+                line_end=end_line,
+            )
+        )
+    return chunks
+
+
+def _structural_label(chunk_text: str) -> tuple[str, str | None]:
+    stripped_lines = [line.strip() for line in chunk_text.splitlines() if line.strip()]
+    if len(stripped_lines) == 1:
+        heading = _MARKDOWN_HEADING.match(stripped_lines[0])
+        if heading:
+            return "heading", heading.group(1).strip()
+    if chunk_text.strip():
+        return "paragraph_block", None
+    return "unknown", None
+
+
+def _stable_chunk_id(index: int, chunk: _RawChunk) -> str:
+    digest_source = (
+        f"{index}\0{chunk.character_start}\0{chunk.character_end}\0{chunk.text}"
+    ).encode()
+    digest = hashlib.sha256(digest_source).hexdigest()[:12]
+    return f"chunk_{index + 1:04d}_{digest}"
+
+
+def _chunk_inventory(raw: str, model: str) -> list[ChunkInventoryItem]:
+    """Build a deterministic diagnostic inventory without selecting or rewriting content."""
+    inventory: list[ChunkInventoryItem] = []
+    first_seen_by_text: dict[str, str] = {}
+
+    for index, chunk in enumerate(_raw_chunks(raw)):
+        label, heading_text = _structural_label(chunk.text)
+        chunk_id = _stable_chunk_id(index, chunk)
+        token_count = count_tokens(chunk.text, model)
+        duplicate_key = chunk.text.strip()
+        duplicate_of = first_seen_by_text.get(duplicate_key)
+        if duplicate_of is None:
+            first_seen_by_text[duplicate_key] = chunk_id
+        paragraph_count = 0 if label == "heading" else len(_split_paragraphs(chunk.text))
+
+        inventory.append(
+            ChunkInventoryItem(
+                id=chunk_id,
+                index=index,
+                label=label,
+                character_start=chunk.character_start,
+                character_end=chunk.character_end,
+                line_start=chunk.line_start,
+                line_end=chunk.line_end,
+                line_count=chunk.line_end - chunk.line_start + 1,
+                paragraph_count=paragraph_count,
+                character_count=chunk.character_end - chunk.character_start,
+                token_count=token_count.value,
+                token_count_method=token_count.method.value,
+                is_duplicate=duplicate_of is not None,
+                duplicate_of=duplicate_of,
+                heading_text=heading_text,
+            )
+        )
+    return inventory
 
 
 def _input_info(raw: str, source_type: str) -> InputInfo:
@@ -154,6 +276,150 @@ def _suggested_optimize_command(
     return command
 
 
+def _score(value: float) -> float:
+    return round(value, 4)
+
+
+def _add_reason(reason_codes: list[str], reason_code: str) -> None:
+    if reason_code not in reason_codes:
+        reason_codes.append(reason_code)
+
+
+def _recommendation_scoring_signals(
+    *,
+    budget: TokenBudgetInfo,
+    duplication: DuplicationInfo,
+    projection: SafeCleanupProjection,
+) -> list[RecommendationScoringSignal]:
+    tokens_saved = projection.original_tokens - projection.projected_tokens_after_safe_cleaning
+    duplicates_removed = duplication.exact_duplicates_removed + duplication.near_duplicates_removed
+    is_high_duplication = (
+        duplication.duplicate_ratio >= _HIGH_DUPLICATION_RATIO and duplicates_removed > 0
+    )
+    is_low_savings = (
+        projection.projected_token_savings_percent < _LOW_SAVINGS_PERCENT
+        or tokens_saved < _LOW_SAVINGS_TOKENS
+    )
+    is_high_savings = (
+        projection.projected_token_savings_percent >= _HIGH_SAVINGS_PERCENT
+        or tokens_saved >= _HIGH_SAVINGS_TOKENS
+    )
+    pressure_tokens = int(_MAX_INPUT_RISK_TOKENS * _TOKEN_BUDGET_PRESSURE_RATIO)
+    has_budget_pressure = projection.original_tokens >= pressure_tokens
+    has_missing_pricing = not budget.pricing_found
+    has_approximate_count = budget.token_count_method == TokenCountMethod.APPROXIMATE.value
+    has_max_input_risk = projection.projected_tokens_after_safe_cleaning >= _MAX_INPUT_RISK_TOKENS
+
+    projected_savings_reason = None
+    if is_high_savings:
+        projected_savings_reason = "high_projected_savings"
+    elif is_low_savings:
+        projected_savings_reason = "low_projected_savings"
+
+    return [
+        RecommendationScoringSignal(
+            code="duplication_pressure",
+            score=_score(duplication.duplicate_ratio / _HIGH_DUPLICATION_RATIO)
+            if _HIGH_DUPLICATION_RATIO
+            else 0.0,
+            triggered=is_high_duplication,
+            reason_code="high_duplication" if is_high_duplication else None,
+            thresholds={
+                "high_duplication_ratio": _HIGH_DUPLICATION_RATIO,
+                "minimum_duplicates_removed": 1,
+            },
+            evidence={
+                "duplicate_ratio": duplication.duplicate_ratio,
+                "exact_duplicates_removed": duplication.exact_duplicates_removed,
+                "near_duplicates_removed": duplication.near_duplicates_removed,
+            },
+        ),
+        RecommendationScoringSignal(
+            code="projected_token_savings",
+            score=_score(
+                max(
+                    projection.projected_token_savings_percent / _HIGH_SAVINGS_PERCENT,
+                    tokens_saved / _HIGH_SAVINGS_TOKENS,
+                )
+            ),
+            triggered=projected_savings_reason is not None,
+            reason_code=projected_savings_reason,
+            thresholds={
+                "high_savings_percent": _HIGH_SAVINGS_PERCENT,
+                "high_savings_tokens": _HIGH_SAVINGS_TOKENS,
+                "low_savings_percent": _LOW_SAVINGS_PERCENT,
+                "low_savings_tokens": _LOW_SAVINGS_TOKENS,
+            },
+            evidence={
+                "tokens_saved": tokens_saved,
+                "original_tokens": projection.original_tokens,
+                "projected_tokens_after_safe_cleaning": (
+                    projection.projected_tokens_after_safe_cleaning
+                ),
+                "projected_token_savings_percent": (projection.projected_token_savings_percent),
+            },
+        ),
+        RecommendationScoringSignal(
+            code="token_budget_pressure",
+            score=_score(projection.original_tokens / _MAX_INPUT_RISK_TOKENS)
+            if _MAX_INPUT_RISK_TOKENS
+            else 0.0,
+            triggered=has_budget_pressure,
+            reason_code="token_budget_pressure" if has_budget_pressure else None,
+            thresholds={
+                "max_input_risk_tokens": _MAX_INPUT_RISK_TOKENS,
+                "pressure_ratio": _TOKEN_BUDGET_PRESSURE_RATIO,
+                "pressure_tokens": pressure_tokens,
+            },
+            evidence={
+                "original_tokens": projection.original_tokens,
+                "projected_tokens_after_safe_cleaning": (
+                    projection.projected_tokens_after_safe_cleaning
+                ),
+            },
+        ),
+        RecommendationScoringSignal(
+            code="missing_pricing",
+            score=1.0 if has_missing_pricing else 0.0,
+            triggered=has_missing_pricing,
+            reason_code="missing_pricing" if has_missing_pricing else None,
+            thresholds={"pricing_required_for_cost_estimate": True},
+            evidence={
+                "model": budget.model,
+                "pricing_found": budget.pricing_found,
+                "estimated_input_cost": budget.estimated_input_cost,
+            },
+        ),
+        RecommendationScoringSignal(
+            code="approximate_token_count",
+            score=1.0 if has_approximate_count else 0.0,
+            triggered=has_approximate_count,
+            reason_code="approximate_token_count" if has_approximate_count else None,
+            thresholds={"trigger_when_token_count_method": TokenCountMethod.APPROXIMATE.value},
+            evidence={
+                "token_count_method": budget.token_count_method,
+                "tokenizer": budget.tokenizer,
+                "token_encoding": budget.token_encoding,
+            },
+        ),
+        RecommendationScoringSignal(
+            code="manual_review_risk",
+            score=_score(projection.projected_tokens_after_safe_cleaning / _MAX_INPUT_RISK_TOKENS)
+            if _MAX_INPUT_RISK_TOKENS
+            else 0.0,
+            triggered=has_max_input_risk,
+            reason_code="max_input_risk" if has_max_input_risk else None,
+            thresholds={"max_input_risk_tokens": _MAX_INPUT_RISK_TOKENS},
+            evidence={
+                "projected_tokens_after_safe_cleaning": (
+                    projection.projected_tokens_after_safe_cleaning
+                ),
+                "projected_token_savings_percent": (projection.projected_token_savings_percent),
+            },
+        ),
+    ]
+
+
 def _recommendation(
     *,
     source_type: str,
@@ -162,6 +428,11 @@ def _recommendation(
     projection: SafeCleanupProjection,
 ) -> InspectionRecommendation:
     tokens_saved = projection.original_tokens - projection.projected_tokens_after_safe_cleaning
+    scoring_signals = _recommendation_scoring_signals(
+        budget=budget,
+        duplication=duplication,
+        projection=projection,
+    )
     is_small = projection.original_tokens < _SMALL_INPUT_TOKENS
     is_low_savings = (
         projection.projected_token_savings_percent < _LOW_SAVINGS_PERCENT
@@ -181,39 +452,44 @@ def _recommendation(
     reason_codes: list[str] = []
     if has_max_input_risk:
         action = "manual_review"
-        reason_codes.append("max_input_risk")
+        _add_reason(reason_codes, "max_input_risk")
         summary = "Review manually; projected context is still large."
     elif is_small:
         action = "skip"
-        reason_codes.append("small_input")
+        _add_reason(reason_codes, "small_input")
         summary = "Skip optimization; projected savings are minor."
     elif is_low_savings:
         action = "skip"
-        reason_codes.append("low_projected_savings")
+        _add_reason(reason_codes, "low_projected_savings")
         summary = "Skip optimization; projected token savings are low."
     elif is_high_duplication or is_high_savings:
         action = "optimize_with_flags" if has_missing_pricing else "optimize_safe"
         if is_high_duplication:
-            reason_codes.append("high_duplication")
+            _add_reason(reason_codes, "high_duplication")
         else:
-            reason_codes.append("high_projected_savings")
+            _add_reason(reason_codes, "high_projected_savings")
         if action == "optimize_with_flags":
             summary = "Optimization looks useful, but add missing configuration first."
         else:
             summary = "Run safe optimization; cleanup should help."
     else:
         action = "skip"
-        reason_codes.append("low_projected_savings")
+        _add_reason(reason_codes, "low_projected_savings")
         summary = "Skip optimization; no strong cleanup opportunity was detected."
 
-    if is_high_duplication and "high_duplication" not in reason_codes:
-        reason_codes.append("high_duplication")
-    if is_low_savings and "low_projected_savings" not in reason_codes:
-        reason_codes.append("low_projected_savings")
+    if is_high_duplication:
+        _add_reason(reason_codes, "high_duplication")
+    if is_high_savings:
+        _add_reason(reason_codes, "high_projected_savings")
+    if is_low_savings:
+        _add_reason(reason_codes, "low_projected_savings")
+    for signal in scoring_signals:
+        if signal.reason_code is not None:
+            _add_reason(reason_codes, signal.reason_code)
     if budget.token_count_method == TokenCountMethod.APPROXIMATE.value:
-        reason_codes.append("approximate_token_count")
+        _add_reason(reason_codes, "approximate_token_count")
     if has_missing_pricing:
-        reason_codes.append("missing_pricing")
+        _add_reason(reason_codes, "missing_pricing")
 
     return InspectionRecommendation(
         action=action,
@@ -225,6 +501,7 @@ def _recommendation(
             action=action,
             reason_codes=reason_codes,
         ),
+        scoring_signals=scoring_signals,
     )
 
 
@@ -397,4 +674,5 @@ def inspect(request: InspectionRequest) -> InspectionReport:
             projection=projection,
         ),
         warnings=warnings,
+        chunk_inventory=_chunk_inventory(raw, request.model),
     )

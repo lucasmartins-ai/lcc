@@ -22,11 +22,13 @@ from lcc.inspection.report import (
 )
 from lcc.inspection.schemas import (
     INSPECT_SCHEMA_VERSION,
+    ChunkInventoryItem,
     CleanupStageContribution,
     DuplicationInfo,
     InputInfo,
     InspectionRecommendation,
     InspectionReport,
+    RecommendationScoringSignal,
     SafeCleanupProjection,
     StructureInfo,
     TokenBudgetInfo,
@@ -34,12 +36,14 @@ from lcc.inspection.schemas import (
 
 __all__ = [
     "INSPECT_SCHEMA_VERSION",
+    "ChunkInventoryItem",
     "CleanupStageContribution",
     "DuplicationInfo",
     "InputInfo",
     "InspectionRecommendation",
     "InspectionReport",
     "InspectionRequest",
+    "RecommendationScoringSignal",
     "SafeCleanupProjection",
     "StructureInfo",
     "TokenBudgetInfo",
