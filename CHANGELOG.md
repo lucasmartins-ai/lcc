@@ -8,12 +8,41 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- `lcc prepare` deterministic inspect-first workflow. It runs inspection, skips prompt
+  generation for `skip`/`manual_review` recommendations, and runs deterministic lexical
+  selection plus the existing safe optimization path for `optimize_safe`/`optimize_with_flags`,
+  with input-file overwrite protection for output and report paths.
+- Machine-readable inspection recommendation scoring signals with deterministic scores,
+  thresholds, evidence values, and reason codes for duplication pressure, projected savings,
+  token budget pressure, missing pricing, approximate token counting, and manual-review risk.
+- Additive `chunk_inventory` data in inspection reports, with deterministic chunk IDs,
+  character offsets, line spans, paragraph counts, token counts and methods, structural
+  labels, literal heading text, and exact duplicate markers.
+- Deterministic question-aware lexical chunk selection for `lcc prepare` optimize decisions,
+  using keyword overlap, heading matches, rare-term matches, heading proximity, and exact
+  duplicate markers from `chunk_inventory`; prepare reports explain selected chunks and nested
+  optimization output.
+- Deterministic benchmark coverage for `workflow: prepare` cases, including bundled
+  selection-applied and selection-not-applied fixtures with required evidence markers,
+  forbidden irrelevant/duplicate markers, and prepare selection report assertions.
+- Phase 1.7 roadmap status for the implemented deterministic `prepare` and recommendation
+  scoring slices, chunk-inventory slice, lexical-selection slice, and prepare benchmark slice.
+- ADR 0010 documenting the deterministic-first preparation and optional model-assistance
+  boundary. Optional future model assistance is not implemented; model, embedding, network
+  client, runtime-download, and local/remote model-call code cannot enter the deterministic
+  core, inspection, or benchmarking boundary.
+- ADR 0011 as the accepted Phase 2 opt-in semantic retrieval boundary, plus a
+  disabled-by-default `lcc.semantic_retrieval` / `lcc semantic-retrieval` scaffold that reports
+  disabled or blocked status only. Retrieval execution, embeddings, RAG, model calls, network
+  access, and local-model behavior are still not implemented.
 - Visitor-facing project presentation in `docs/project-presentation.md`.
 
 ### Changed
 
 - Reworked the README into a clearer first-visit guide with a tighter project summary,
   command guide, architecture map, and explicit scope boundaries.
+- Tightened CLI-facing and visitor-facing docs around the deterministic Phase 1.7 prepare
+  boundary, diagnostic-only inspection, and mechanical-only benchmark claims.
 
 ## [0.2.0] - 2026-06-22
 

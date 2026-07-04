@@ -14,6 +14,7 @@ import yaml
 
 from lcc.benchmarking.schemas import (
     COMPRESSION_LEVELS,
+    WORKFLOWS,
     BenchmarkCase,
     BenchmarkExpectations,
 )
@@ -27,7 +28,14 @@ _EXPECTATION_KEYS = {
     "min_required_marker_recall",
     "allow_approximate_token_count",
     "max_forbidden_markers_found",
+    "expected_prepare_action",
+    "expected_selection_applied",
+    "min_selected_chunk_count",
+    "max_selected_chunk_count",
+    "min_skipped_duplicate_chunk_count",
 }
+
+_PREPARE_ACTIONS = {"skip", "optimize_safe", "optimize_with_flags", "manual_review"}
 
 
 class BenchmarkCaseError(ValueError):
@@ -92,12 +100,19 @@ def load_case(case_dir: str | Path) -> BenchmarkCase:
             f"case {where!r}: unknown compression_level {compression_level!r}; "
             f"supported: {supported}"
         )
+    workflow = _optional_str(data, "workflow", where, default="optimize")
+    if workflow not in WORKFLOWS:
+        supported = ", ".join(sorted(WORKFLOWS))
+        raise BenchmarkCaseError(
+            f"case {where!r}: unknown workflow {workflow!r}; supported: {supported}"
+        )
 
     return BenchmarkCase(
         id=_required_str(data, "id", where),
         description=_required_str(data, "description", where),
         question=_required_str(data, "question", where, allow_empty=True),
         input_text=input_file.read_text(encoding="utf-8"),
+        workflow=workflow,
         model=_optional_str(data, "model", where, default="gpt-4.1"),
         max_input_tokens=_optional_int(data, "max_input_tokens", where),
         compression_level=compression_level,
@@ -167,6 +182,18 @@ def _parse_expectations(value: Any, where: str) -> BenchmarkExpectations:
         exp.allow_approximate_token_count = _as_bool(value, "allow_approximate_token_count", where)
     if "max_forbidden_markers_found" in value:
         exp.max_forbidden_markers_found = _as_int(value, "max_forbidden_markers_found", where)
+    if "expected_prepare_action" in value:
+        exp.expected_prepare_action = _as_prepare_action(value, "expected_prepare_action", where)
+    if "expected_selection_applied" in value:
+        exp.expected_selection_applied = _as_bool(value, "expected_selection_applied", where)
+    if "min_selected_chunk_count" in value:
+        exp.min_selected_chunk_count = _as_int(value, "min_selected_chunk_count", where)
+    if "max_selected_chunk_count" in value:
+        exp.max_selected_chunk_count = _as_int(value, "max_selected_chunk_count", where)
+    if "min_skipped_duplicate_chunk_count" in value:
+        exp.min_skipped_duplicate_chunk_count = _as_int(
+            value, "min_skipped_duplicate_chunk_count", where
+        )
 
     if not 0.0 <= exp.min_required_marker_recall <= 1.0:
         raise BenchmarkCaseError(
@@ -179,6 +206,22 @@ def _parse_expectations(value: Any, where: str) -> BenchmarkExpectations:
     if exp.max_forbidden_markers_found < 0:
         raise BenchmarkCaseError(
             f"case {where!r}: max_forbidden_markers_found must not be negative"
+        )
+    if exp.min_skipped_duplicate_chunk_count < 0:
+        raise BenchmarkCaseError(
+            f"case {where!r}: min_skipped_duplicate_chunk_count must not be negative"
+        )
+    if exp.min_selected_chunk_count is not None and exp.min_selected_chunk_count < 0:
+        raise BenchmarkCaseError(f"case {where!r}: min_selected_chunk_count must not be negative")
+    if exp.max_selected_chunk_count is not None and exp.max_selected_chunk_count < 0:
+        raise BenchmarkCaseError(f"case {where!r}: max_selected_chunk_count must not be negative")
+    if (
+        exp.min_selected_chunk_count is not None
+        and exp.max_selected_chunk_count is not None
+        and exp.min_selected_chunk_count > exp.max_selected_chunk_count
+    ):
+        raise BenchmarkCaseError(
+            f"case {where!r}: min_selected_chunk_count exceeds max_selected_chunk_count"
         )
     return exp
 
@@ -201,4 +244,14 @@ def _as_bool(data: dict[str, Any], key: str, where: str) -> bool:
     value = data[key]
     if not isinstance(value, bool):
         raise BenchmarkCaseError(f"case {where!r}: expectation {key!r} must be a boolean")
+    return value
+
+
+def _as_prepare_action(data: dict[str, Any], key: str, where: str) -> str:
+    value = data[key]
+    if not isinstance(value, str):
+        raise BenchmarkCaseError(f"case {where!r}: expectation {key!r} must be a string")
+    if value not in _PREPARE_ACTIONS:
+        supported = ", ".join(sorted(_PREPARE_ACTIONS))
+        raise BenchmarkCaseError(f"case {where!r}: expectation {key!r} must be one of: {supported}")
     return value

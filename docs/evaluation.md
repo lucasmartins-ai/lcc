@@ -1,6 +1,7 @@
 # Evaluation
 
-How to measure whether `lcc` is actually helping — on both **cost** and **quality**.
+How to measure whether `lcc` is actually helping on cost, deterministic behavior, and any
+downstream quality checks you run outside `lcc`.
 
 ## Measuring token savings
 
@@ -65,10 +66,21 @@ Use `lcc inspect INPUT --summary compact` for a short terminal summary with the 
 main reason, projected token/cost savings when pricing is available, and the next suggested
 command. The full JSON report remains available on stdout or via `--report`.
 
+### Preparing deterministically with `lcc prepare`
+
+`lcc prepare` is deterministic prepare orchestration, not model assistance. It runs the same
+diagnostic inspection first, branches only on `recommendation.action`, and when optimization
+is recommended it may apply question-aware lexical chunk selection before the existing safe
+optimization path. The selector assembles literal source chunks using lexical/mechanical
+signals such as keyword overlap, heading matches, rare-term matches, proximity to matched
+headings, and exact duplicate markers. It does not summarize, rewrite, paraphrase, embed, call
+a model, semantically rank source content, or access the network. See
+[ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md).
+
 ## Measuring quality preservation
 
-Token savings are only useful if the answer quality holds. Because the MVP does **not** call
-an LLM, quality must be measured with a downstream model you control:
+Token savings are only useful if the answer quality holds. Because `lcc` does **not** call an
+LLM, quality must be measured outside `lcc` with a downstream model you control:
 
 1. Pick a fixed set of (document, question, reference-answer) cases.
 2. For each case, generate an answer twice: once with the **raw** context, once with the
@@ -93,25 +105,26 @@ A good context optimizer keeps this rate flat or lower than the raw-context base
 should never *increase* hallucination by removing needed evidence. This requires a
 verification step and is on the [roadmap](roadmap.md), not in the MVP.
 
-## Suggested benchmark examples
+## Suggested downstream evaluation examples
 
 - **Duplicated reports:** status notes or logs with repeated paragraphs → expect high
-  savings with no quality loss.
+  savings, then check answer quality outside `lcc` if needed.
 - **Email threads:** quoted replies, signatures, and disclaimers → tests boilerplate removal.
-- **Long documentation:** a question answerable from a few sections → tests that needed
-  evidence survives (quality must hold).
+- **Long documentation:** a question answerable from a few sections → in `lcc bench`, test only
+  that required literal markers survive; measure answer quality separately.
 - **Already-clean text:** a tight, unique document → expect near-zero savings and **zero**
-  quality change (a guard against over-cleaning).
+  quality change when you run an external downstream-model comparison.
 
-A reproducible **deterministic** harness for these now ships with `lcc` (Phase 1.5); see
-below. Quality-preservation measurement (which needs a downstream model you control) remains
-future work.
+A reproducible **deterministic** harness for mechanical token/marker checks now ships with
+`lcc` (Phase 1.5); see below. Automated quality-preservation measurement inside `lcc` remains
+future work because it needs a downstream model or evaluator outside the deterministic harness.
 
 ## Deterministic benchmark harness
 
-`lcc bench` runs the optimization pipeline over committed fixtures and reports **mechanical**
-optimization metrics. It calls no model or network and makes **no claim about answer
-quality**. See [ADR 0007](adr/0007-deterministic-benchmark-harness.md) and
+`lcc bench` runs deterministic `optimize` or `prepare` workflows over committed fixtures and
+reports **mechanical metrics**. It calls no model or network and is **not LLM answer quality**
+evaluation. See [ADR 0007](adr/0007-deterministic-benchmark-harness.md),
+[ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md), and
 [../benchmarks/README.md](../benchmarks/README.md).
 
 ```bash
@@ -122,8 +135,9 @@ lcc bench benchmarks/cases --output bench_report.json --markdown bench_report.md
 
 Each case is a directory under `benchmarks/cases/<id>/` with a `case.yaml` (metadata,
 `required_markers`, `forbidden_markers`, and `expectations`) and an `input.txt` (raw context).
-The harness feeds `input.txt` and the case `question` through the same pipeline as
-`lcc optimize`, then scores the result against the case's explicit thresholds.
+The harness feeds `input.txt` and the case `question` through either `lcc optimize` behavior
+or the implemented deterministic `prepare` flow, then scores the result against the case's
+explicit mechanical thresholds.
 
 ### Formulas
 
@@ -151,6 +165,9 @@ required_marker_recall = required_markers_found / required_markers_total   (1.0 
   survived; these should be empty.
 - **warnings** — pass-through of the pipeline's honesty warnings (approximate counts, missing
   pricing, exceeding `max_input_tokens`).
+- **prepare action / lexical-selection state** — for `workflow: prepare`, the inspection
+  action, whether lexical selection applied, selected chunk counts and IDs, reason codes, and
+  skipped exact duplicate chunk IDs.
 - **passed / failure_reasons** — whether every threshold held, with explicit reasons when not.
 
 ### What the metrics do NOT prove

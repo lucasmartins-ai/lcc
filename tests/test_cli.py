@@ -68,3 +68,31 @@ def test_unknown_template_exits_with_code_two(tmp_path: Path):
     src.write_text("content", encoding="utf-8")
     result = runner.invoke(app, ["optimize", str(src), "--template", "nope"])
     assert result.exit_code == 2
+
+
+def test_cli_help_states_phase_1_7_boundaries():
+    prepare = runner.invoke(app, ["prepare", "--help"])
+    inspect = runner.invoke(app, ["inspect", "--help"])
+    bench = runner.invoke(app, ["bench", "--help"])
+
+    assert prepare.exit_code == 0
+    assert inspect.exit_code == 0
+    assert bench.exit_code == 0
+
+    prepare_words = " ".join(prepare.stdout.split())
+    inspect_words = " ".join(inspect.stdout.split())
+    bench_words = " ".join(bench.stdout.split())
+
+    assert "question-aware lexical selection" in prepare_words
+    assert "does not summarize, rewrite, or paraphrase source content" in prepare_words
+    assert (
+        "no semantic selection, embeddings, network access, local model call, or remote LLM call"
+    ) in prepare_words
+
+    assert "diagnostic only" in inspect_words
+    assert "never builds or writes an optimized prompt" in inspect_words
+    assert "makes no network, LLM, embedding, local model, or remote model call" in inspect_words
+
+    assert "mechanical optimization and prepare-selection metrics" in bench_words
+    assert "exact-vs-approximate counting" in bench_words
+    assert "not LLM answer quality" in bench_words

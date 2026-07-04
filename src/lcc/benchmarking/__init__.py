@@ -1,9 +1,10 @@
-"""Deterministic, fixture-based benchmark harness for lcc (ADR 0007).
+"""Deterministic, fixture-based benchmark harness for lcc (ADR 0007, ADR 0010).
 
-Runs the existing optimization pipeline over committed local fixtures and measures
+Runs deterministic optimize or prepare workflows over committed local fixtures and measures
 mechanical behavior — token savings, compression ratio, character reduction, exact/
-approximate token mode, literal marker preservation, and warnings. It makes **no claim**
-about final LLM answer quality and performs no network or model calls.
+approximate token mode, literal marker preservation, warnings, prepare action, and lexical
+selection state. It makes **no claim** about final LLM answer quality and performs no network
+or model calls.
 
 This package sits above ``lcc.pipeline`` (like the CLI); it composes the pipeline and does
 not change any deterministic-core contract (ADR 0002, ADR 0006).

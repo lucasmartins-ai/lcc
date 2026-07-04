@@ -3,11 +3,15 @@
 This document is the checklist for cutting a public release of `lcc`. The next prepared
 release is **v0.2.0**.
 
-> **Scope reminder.** v0.2.0 is the deterministic MVP plus `lcc bench` and `lcc inspect`.
-> It does **not** include RAG, embeddings, vector databases, local or remote LLM calls, an
-> API server, hosted product, voice/audio or ASR, transcript ingestion, semantic scoring,
-> model routing, or response verification. Those are roadmap items (see
-> [docs/roadmap.md](roadmap.md)) and must never be described as implemented.
+> **Scope reminder.** v0.2.0 is the deterministic MVP plus `lcc bench`, `lcc inspect`, and
+> deterministic Phase 1.7 prepare boundary work (`lcc prepare`, deterministic
+> recommendations, chunk inventory, lexical selection, and prepare benchmark coverage; see
+> [ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md)). It does **not**
+> include RAG, embeddings, vector databases, local or remote LLM calls, an API server, hosted
+> product, voice/audio or ASR, transcript ingestion, semantic selection or scoring, source
+> summarization/rewrite/paraphrase in `prepare`, model routing, or response verification. Those
+> are roadmap items (see [docs/roadmap.md](roadmap.md)) and must never be described as
+> implemented.
 
 Do not create a tag, publish to PyPI, or push release refs unless the maintainer explicitly
 decides to release.
@@ -43,6 +47,12 @@ lcc optimize examples/sample_input.txt \
 lcc inspect examples/sample_input.txt \
   -m gpt-4.1 \
   -r /tmp/lcc_release_inspect.json
+
+lcc prepare examples/sample_input.txt \
+  -q "What are the key points?" \
+  -m gpt-4.1 \
+  -o /tmp/lcc_release_prepare_prompt.md \
+  -r /tmp/lcc_release_prepare_report.json
 
 lcc bench benchmarks/cases --output /tmp/lcc_release_bench_1.json
 lcc bench benchmarks/cases --output /tmp/lcc_release_bench_2.json
@@ -107,6 +117,11 @@ printf 'Alpha point.\n\nAlpha point.\n\nRegards,\nTeam\n' > /tmp/lcc_smoke_input
 /tmp/lcc-wheel-smoke/bin/lcc inspect /tmp/lcc_smoke_input.txt \
   -r /tmp/lcc_smoke_inspect.json
 
+/tmp/lcc-wheel-smoke/bin/lcc prepare /tmp/lcc_smoke_input.txt \
+  -q "What are the key points?" \
+  -o /tmp/lcc_smoke_prepare_prompt.md \
+  -r /tmp/lcc_smoke_prepare_report.json
+
 /tmp/lcc-wheel-smoke/bin/lcc bench benchmarks/cases \
   --output /tmp/lcc_smoke_bench.json
 ```
@@ -126,8 +141,8 @@ run `lcc bench` against their own case directory using the format in
   for breaking changes. A JSON-report breaking change also bumps the report
   `schema_version` per [ADR 0004](adr/0004-report-schema-versioning.md).
 
-`lcc inspect` is an additive CLI command, so the prepared release is `0.2.0` rather than a
-retroactive change to `0.1.0`.
+`lcc inspect`, `lcc bench`, and deterministic `lcc prepare` are additive CLI surfaces, so the
+prepared release is `0.2.0` rather than a retroactive change to `0.1.0`.
 
 ## 5. GitHub checks
 
@@ -179,10 +194,15 @@ Tag names are `vMAJOR.MINOR.PATCH`. Do not move or reuse a published tag.
 - [ ] Title: `v0.2.0`.
 - [ ] Body: paste the `[0.2.0]` section from `CHANGELOG.md`.
 - [ ] State the boundaries explicitly: deterministic, local-first, no runtime network by
-      default, no API keys, no model/LLM/embedding calls in the core.
+      default, no API keys, no model/LLM/embedding calls in the core, and no model assistance
+      inside the deterministic Phase 1.7 prepare boundary from
+      [ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md).
+- [ ] State that `lcc prepare` uses deterministic lexical selection only and does not summarize,
+      rewrite, paraphrase, embed, or semantically rank source content.
 - [ ] State the tokenization honesty note: exact only with local `tiktoken` assets,
       otherwise a clearly labelled approximate count.
-- [ ] List the CLI commands: `lcc optimize`, `lcc inspect`, and `lcc bench`.
+- [ ] List the CLI commands: `lcc optimize`, `lcc inspect`, `lcc prepare`, `lcc bench`, and,
+      when including the Unreleased Phase 2 scaffold, `lcc semantic-retrieval`.
 - [ ] Explicitly note what is not included: RAG, embeddings, LLM calls, API server, hosted
       product, voice/audio, semantic evaluation, model routing, and response verification.
-- [ ] Link ADRs 0001-0009 for the frozen design decisions.
+- [ ] Link ADRs 0001-0011 for the frozen design decisions.

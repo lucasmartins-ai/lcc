@@ -9,6 +9,7 @@ from typer.testing import CliRunner
 
 from lcc.cli import app
 from lcc.inspection import InspectionRequest, inspect, inspection_to_json
+from lcc.inspection import inspector as inspector_module
 from lcc.inspection.schemas import INSPECT_SCHEMA_VERSION
 from lcc.token_budget.counters import count_tokens
 
@@ -21,6 +22,15 @@ SAMPLE = (
     "The migration is now eighty percent complete across the reporting service!\n\n"
     "Sent from my iPhone\n\n"
     "A genuinely distinct closing remark about the on-call runbook.\n"
+)
+
+INVENTORY_SAMPLE = (
+    "# Overview\n\n"
+    "First paragraph spans\n"
+    "two lines.\n\n"
+    "# Details\n\n"
+    "Repeated paragraph for inventory.\n\n"
+    "Repeated paragraph for inventory.\n"
 )
 
 
@@ -89,6 +99,72 @@ def test_report_has_no_absolute_paths(tmp_path: Path) -> None:
     assert "/Users/" not in payload and "/home/" not in payload
 
 
+def test_chunk_inventory_exposes_stable_structural_spans() -> None:
+    report = inspect(_req(text=INVENTORY_SAMPLE))
+    inventory = report.chunk_inventory
+
+    assert [chunk.index for chunk in inventory] == [0, 1, 2, 3, 4]
+    assert [chunk.label for chunk in inventory] == [
+        "heading",
+        "paragraph_block",
+        "heading",
+        "paragraph_block",
+        "paragraph_block",
+    ]
+    assert all(chunk.id.startswith(f"chunk_{chunk.index + 1:04d}_") for chunk in inventory)
+
+    first = inventory[0]
+    assert first.heading_text == "Overview"
+    assert first.character_start == 0
+    assert INVENTORY_SAMPLE[first.character_start : first.character_end] == "# Overview"
+    assert first.line_start == 1
+    assert first.line_end == 1
+    assert first.line_count == 1
+    assert first.paragraph_count == 0
+    assert first.character_count == len("# Overview")
+
+    paragraph = inventory[1]
+    assert INVENTORY_SAMPLE[paragraph.character_start : paragraph.character_end] == (
+        "First paragraph spans\ntwo lines."
+    )
+    assert paragraph.line_start == 3
+    assert paragraph.line_end == 4
+    assert paragraph.line_count == 2
+    assert paragraph.paragraph_count == 1
+    assert paragraph.heading_text is None
+
+    expected_tokens = count_tokens(
+        INVENTORY_SAMPLE[paragraph.character_start : paragraph.character_end],
+        "gpt-4.1",
+    )
+    assert paragraph.token_count == expected_tokens.value
+    assert paragraph.token_count_method == expected_tokens.method.value
+
+
+def test_chunk_inventory_marks_exact_duplicate_blocks() -> None:
+    inventory = inspect(_req(text=INVENTORY_SAMPLE)).chunk_inventory
+
+    first_repeated = inventory[3]
+    second_repeated = inventory[4]
+
+    assert first_repeated.is_duplicate is False
+    assert first_repeated.duplicate_of is None
+    assert second_repeated.is_duplicate is True
+    assert second_repeated.duplicate_of == first_repeated.id
+
+
+def test_chunk_inventory_is_machine_readable_additive_and_deterministic() -> None:
+    first_json = inspection_to_json(inspect(_req(text=INVENTORY_SAMPLE)))
+    second_json = inspection_to_json(inspect(_req(text=INVENTORY_SAMPLE)))
+    data = json.loads(first_json)
+
+    assert first_json == second_json
+    assert data["schema_version"] == "1.0"
+    assert "chunk_inventory" in data
+    assert data["chunk_inventory"][0]["heading_text"] == "Overview"
+    assert "First paragraph spans" not in first_json
+
+
 def test_token_method_is_surfaced_honestly() -> None:
     # The report must echo exactly what count_tokens determined (exact or approximate),
     # never upgrade an approximation to exact (ADR 0005, ADR 0008).
@@ -155,6 +231,95 @@ def test_high_duplication_recommends_optimize_safe() -> None:
     assert "high_duplication" in report.recommendation.reason_codes
     assert report.recommendation.suggested_command is not None
     assert report.recommendation.suggested_command.startswith("lcc optimize INPUT")
+
+
+def _signal(report, code: str):
+    signals = {signal.code: signal for signal in report.recommendation.scoring_signals}
+    return signals[code]
+
+
+def test_recommendation_scoring_signals_are_stable_and_auditable() -> None:
+    duplicated = (
+        "The quarterly migration status includes the same operational paragraph "
+        "for every regional service owner and should only be kept once.\n\n" * 6
+    )
+
+    report = inspect(_req(text=duplicated))
+
+    assert [signal.code for signal in report.recommendation.scoring_signals] == [
+        "duplication_pressure",
+        "projected_token_savings",
+        "token_budget_pressure",
+        "missing_pricing",
+        "approximate_token_count",
+        "manual_review_risk",
+    ]
+    duplication = _signal(report, "duplication_pressure")
+    assert duplication.reason_code == "high_duplication"
+    assert duplication.triggered is True
+    assert duplication.thresholds["high_duplication_ratio"] == 0.2
+    assert duplication.evidence["duplicate_ratio"] == report.duplication.duplicate_ratio
+
+    projected_savings = _signal(report, "projected_token_savings")
+    assert projected_savings.reason_code in {"high_projected_savings", "low_projected_savings"}
+    assert projected_savings.thresholds["high_savings_percent"] == 15.0
+    assert projected_savings.thresholds["high_savings_tokens"] == 50
+    assert projected_savings.thresholds["low_savings_percent"] == 5.0
+    assert projected_savings.thresholds["low_savings_tokens"] == 20
+    assert (
+        projected_savings.evidence["projected_token_savings_percent"]
+        == report.safe_cleanup_projection.projected_token_savings_percent
+    )
+
+
+def test_missing_pricing_signal_carries_reason_threshold_and_suggestion() -> None:
+    duplicated = (
+        "The quarterly migration status includes the same operational paragraph "
+        "for every regional service owner and should only be kept once.\n\n" * 6
+    )
+
+    report = inspect(_req(text=duplicated, pricing={}))
+    signal = _signal(report, "missing_pricing")
+
+    assert report.recommendation.action == "optimize_with_flags"
+    assert signal.triggered is True
+    assert signal.reason_code == "missing_pricing"
+    assert signal.thresholds["pricing_required_for_cost_estimate"] is True
+    assert signal.evidence["pricing_found"] is False
+    assert report.recommendation.suggested_command is not None
+    assert "--pricing <pricing.yaml>" in report.recommendation.suggested_command
+
+
+def test_approximate_token_count_signal_carries_reason_threshold_and_evidence(monkeypatch) -> None:
+    from lcc.token_budget import counters
+
+    monkeypatch.setattr(counters, "_HAS_TIKTOKEN", False)
+    report = inspect(_req())
+    signal = _signal(report, "approximate_token_count")
+
+    assert signal.triggered is True
+    assert signal.reason_code == "approximate_token_count"
+    assert signal.thresholds["trigger_when_token_count_method"] == "approximate"
+    assert signal.evidence["token_count_method"] == "approximate"
+
+
+def test_token_budget_and_manual_review_thresholds_are_auditable(monkeypatch) -> None:
+    monkeypatch.setattr(inspector_module, "_MAX_INPUT_RISK_TOKENS", 10)
+    monkeypatch.setattr(inspector_module, "_TOKEN_BUDGET_PRESSURE_RATIO", 0.5, raising=False)
+    text = " ".join(f"term{i}" for i in range(40))
+
+    report = inspect(_req(text=text))
+    budget_pressure = _signal(report, "token_budget_pressure")
+    manual_review = _signal(report, "manual_review_risk")
+
+    assert report.recommendation.action == "manual_review"
+    assert budget_pressure.triggered is True
+    assert budget_pressure.reason_code == "token_budget_pressure"
+    assert budget_pressure.thresholds["pressure_ratio"] == 0.5
+    assert budget_pressure.thresholds["max_input_risk_tokens"] == 10
+    assert manual_review.triggered is True
+    assert manual_review.reason_code == "max_input_risk"
+    assert manual_review.thresholds["max_input_risk_tokens"] == 10
 
 
 def test_low_projected_savings_recommends_skip() -> None:
@@ -234,6 +399,7 @@ def test_cli_inspect_file_success(tmp_path: Path) -> None:
     assert data["schema_version"] == "1.0"
     assert data["input"]["source_type"] == "file"
     assert "safe_cleanup_projection" in data
+    assert "chunk_inventory" in data
 
 
 def test_cli_inspect_json_to_stdout_when_no_report() -> None:

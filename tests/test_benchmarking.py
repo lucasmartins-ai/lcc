@@ -19,6 +19,7 @@ from lcc.benchmarking import (
     run_case,
     run_suite,
     suite_to_json,
+    suite_to_markdown,
 )
 from lcc.cli import app
 from lcc.schemas import TokenCountMethod
@@ -75,6 +76,7 @@ def test_load_case_parses_fields(tmp_path: Path) -> None:
         case_yaml=(
             "id: demo\n"
             "description: A demo case.\n"
+            "workflow: prepare\n"
             "question: What changed?\n"
             "model: gpt-4.1\n"
             "max_input_tokens: 6000\n"
@@ -88,16 +90,27 @@ def test_load_case_parses_fields(tmp_path: Path) -> None:
             "  max_token_savings_percent: 90.0\n"
             "  min_required_marker_recall: 1.0\n"
             "  allow_approximate_token_count: true\n"
+            "  expected_prepare_action: optimize_safe\n"
+            "  expected_selection_applied: true\n"
+            "  min_selected_chunk_count: 2\n"
+            "  max_selected_chunk_count: 4\n"
+            "  min_skipped_duplicate_chunk_count: 1\n"
         ),
         input_text="KEEP-ME line.\n",
     )
     case = load_case(cdir)
     assert case.id == "demo"
+    assert case.workflow == "prepare"
     assert case.model == "gpt-4.1"
     assert case.max_input_tokens == 6000
     assert case.required_markers == ["KEEP-ME"]
     assert case.forbidden_markers == ["DROP-ME"]
     assert case.expectations.allow_approximate_token_count is True
+    assert case.expectations.expected_prepare_action == "optimize_safe"
+    assert case.expectations.expected_selection_applied is True
+    assert case.expectations.min_selected_chunk_count == 2
+    assert case.expectations.max_selected_chunk_count == 4
+    assert case.expectations.min_skipped_duplicate_chunk_count == 1
     assert case.input_text == "KEEP-ME line.\n"
 
 
@@ -156,6 +169,107 @@ def test_required_marker_preserved_and_forbidden_removed() -> None:
     result = run_case(case)
     assert result.required_marker_recall == 1.0
     assert result.required_markers_found == ["ABC-123"]
+    assert result.forbidden_markers_found == []
+    assert result.passed
+
+
+def test_prepare_case_selection_applied_reports_deterministic_fields() -> None:
+    text = (
+        "# Billing Renewal\n\n"
+        "BILLING-IRRELEVANT-999 invoices renewal credits and payment collection notes.\n\n"
+        "# OAuth Token Rotation\n\n"
+        "RUNBOOK-EVIDENCE-241: rotate OAuth tokens quarterly and store token rotation "
+        "evidence in the runbook.\n\n"
+        "# Duplicate Noise\n\n"
+        "DUPLICATE-NOISE-777 legacy footer repeated for old migration packets.\n\n"
+        "DUPLICATE-NOISE-777 legacy footer repeated for old migration packets.\n\n"
+        "# General Notes\n\n"
+        "RUNBOOK-EVIDENCE-241: rotate OAuth tokens quarterly and store token rotation "
+        "evidence in the runbook.\n\n"
+        "BILLING-IRRELEVANT-999 invoices renewal credits and payment collection notes.\n"
+    )
+    case = _case(
+        id="prepare_selection",
+        workflow="prepare",
+        question="What is the OAuth token rotation evidence?",
+        input_text=text,
+        required_markers=["RUNBOOK-EVIDENCE-241"],
+        forbidden_markers=["BILLING-IRRELEVANT-999", "DUPLICATE-NOISE-777"],
+        expectations=BenchmarkExpectations(
+            min_token_savings_percent=20.0,
+            allow_approximate_token_count=True,
+            expected_prepare_action="optimize_with_flags",
+            expected_selection_applied=True,
+            min_selected_chunk_count=2,
+            max_selected_chunk_count=2,
+            min_skipped_duplicate_chunk_count=1,
+        ),
+    )
+
+    first = run_case(case)
+    second = run_case(case)
+
+    assert first.workflow == "prepare"
+    assert first.prepare_action == "optimize_with_flags"
+    assert first.selection_applied is True
+    assert first.selection_reason == "lexical_matches"
+    assert first.selected_chunk_count == 2
+    assert first.selected_chunk_reason_codes == [
+        ["heading_match"],
+        ["keyword_overlap", "rare_term_match", "matched_heading_proximity"],
+    ]
+    assert first.skipped_duplicate_chunk_ids
+    assert first.required_markers_found == ["RUNBOOK-EVIDENCE-241"]
+    assert first.forbidden_markers_found == []
+    assert first.passed
+    assert first == second
+
+
+def test_prepare_case_selection_not_applied_keeps_original_path() -> None:
+    text = (
+        "FIREWALL-ALLOWLIST-317 remains the required operational evidence.\n\n"
+        "The migration status paragraph repeats across regional service packets with "
+        "deployment windows, rollback owners, and monitoring checkpoints listed for "
+        "every service team.\n\n"
+        "The migration status paragraph repeats across regional service packets with "
+        "deployment windows, rollback owners, and monitoring checkpoints listed for "
+        "every service team.\n\n"
+        "The migration status paragraph repeats across regional service packets with "
+        "deployment windows, rollback owners, and monitoring checkpoints listed for "
+        "every service team.\n\n"
+        "The migration status paragraph repeats across regional service packets with "
+        "deployment windows, rollback owners, and monitoring checkpoints listed for "
+        "every service team.\n\n"
+        "The migration status paragraph repeats across regional service packets with "
+        "deployment windows, rollback owners, and monitoring checkpoints listed for "
+        "every service team.\n\n"
+        "Sent from my iPhone\n"
+    )
+    case = _case(
+        id="prepare_no_selection",
+        workflow="prepare",
+        question="How should cafeteria seating be arranged?",
+        input_text=text,
+        required_markers=["FIREWALL-ALLOWLIST-317"],
+        forbidden_markers=["Sent from my iPhone"],
+        expectations=BenchmarkExpectations(
+            min_token_savings_percent=20.0,
+            allow_approximate_token_count=True,
+            expected_prepare_action="optimize_with_flags",
+            expected_selection_applied=False,
+            min_selected_chunk_count=0,
+            max_selected_chunk_count=0,
+        ),
+    )
+
+    result = run_case(case)
+
+    assert result.workflow == "prepare"
+    assert result.prepare_action == "optimize_with_flags"
+    assert result.selection_applied is False
+    assert result.selection_reason == "no_lexical_matches"
+    assert result.selected_chunk_count == 0
+    assert result.required_markers_found == ["FIREWALL-ALLOWLIST-317"]
     assert result.forbidden_markers_found == []
     assert result.passed
 
@@ -246,6 +360,25 @@ def test_json_has_no_unstable_fields() -> None:
     assert '"schema_version": "1.0"' in payload
 
 
+def test_markdown_report_states_phase_1_7_boundary_and_prepare_metrics() -> None:
+    suite = run_suite([load_case(BUNDLED_CASES / "prepare_lexical_selection")])
+
+    markdown = suite_to_markdown(suite)
+
+    assert "Mechanical optimization and prepare-selection metrics only" in markdown
+    assert "exact-vs-approximate token mode" in markdown
+    assert "does **not** measure final LLM answer quality" in markdown
+    assert (
+        "does not perform semantic selection, embeddings, network access, model calls" in markdown
+    )
+    assert "summarization, rewriting, or paraphrasing" in markdown
+    assert "(ADR 0007, ADR 0010)" in markdown
+    assert "Prepare action" in markdown
+    assert "Selection" in markdown
+    assert "optimize_with_flags" in markdown
+    assert "applied: lexical_matches" in markdown
+
+
 # -------------------------------------------------------------------------------- cli
 
 
@@ -319,14 +452,37 @@ def test_cli_bench_empty_dir_exits_nonzero(tmp_path: Path) -> None:
 
 def test_bundled_fixtures_load_and_are_sufficient() -> None:
     cases = load_suite(BUNDLED_CASES)
-    assert len(cases) >= 4
+    assert len(cases) >= 6
     ids = {c.id for c in cases}
     assert {
         "basic_redundancy",
         "boilerplate_cleanup",
         "evidence_preservation",
         "approximate_token_fallback",
+        "prepare_lexical_selection",
+        "prepare_no_selection",
     } <= ids
+
+
+def test_bundled_prepare_fixtures_cover_selection_states() -> None:
+    applied = run_case(load_case(BUNDLED_CASES / "prepare_lexical_selection"))
+    not_applied = run_case(load_case(BUNDLED_CASES / "prepare_no_selection"))
+
+    assert applied.workflow == "prepare"
+    assert applied.selection_applied is True
+    assert applied.selected_chunk_count == 2
+    assert applied.skipped_duplicate_chunk_ids
+    assert applied.required_markers_found == ["RUNBOOK-EVIDENCE-241"]
+    assert applied.forbidden_markers_found == []
+    assert applied.passed
+
+    assert not_applied.workflow == "prepare"
+    assert not_applied.selection_applied is False
+    assert not_applied.selection_reason == "no_lexical_matches"
+    assert not_applied.selected_chunk_count == 0
+    assert not_applied.required_markers_found == ["FIREWALL-ALLOWLIST-317"]
+    assert not_applied.forbidden_markers_found == []
+    assert not_applied.passed
 
 
 def test_bundled_suite_is_deterministic() -> None:

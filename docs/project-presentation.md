@@ -34,20 +34,28 @@ Its promise is narrow and auditable:
 
 ## 4. What Works Today
 
-Current release scope: `v0.2.0`.
+Current source scope: `v0.2.0` plus the Unreleased deterministic Phase 1.7 prepare slices and
+the disabled Phase 2 semantic retrieval boundary scaffold.
 
 | Surface | What it does |
 | --- | --- |
 | `lcc optimize` | Cleans context, builds an optimized prompt, and writes a JSON report. |
 | `lcc inspect` | Profiles an input and projects safe cleanup without generating a prompt. |
-| `lcc bench` | Runs deterministic fixture cases and reports mechanical optimization metrics. |
+| `lcc prepare` | Runs deterministic inspect-first orchestration, applies question-aware lexical selection only after an optimize recommendation, and then uses the safe optimization path. |
+| `lcc bench` | Runs deterministic fixture cases and reports mechanical optimization and prepare-selection metrics, not LLM answer quality. |
+| `lcc semantic-retrieval` | Reports the disabled or blocked Phase 2 boundary status; retrieval execution is not implemented. |
 | Tokenizer guard | Blocks runtime tokenizer downloads and falls back to labelled approximate counts. |
+
+The deterministic Phase 1.7 prepare boundary is recorded in
+[ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md). `prepare` selects
+literal source chunks with lexical/mechanical signals only. It does not summarize, rewrite, or
+paraphrase source content, and it does not measure LLM answer quality.
 
 ## 5. What Is Deliberately Out of Scope
 
 `lcc` does not currently provide:
 
-- semantic retrieval or RAG;
+- semantic retrieval or RAG execution beyond the disabled boundary status scaffold;
 - embeddings or vector stores;
 - local or remote LLM calls;
 - hosted APIs;
@@ -82,7 +90,7 @@ Use `lcc` when you want:
 - prompt packages that preserve source evidence;
 - deterministic behavior that can be tested in CI.
 
-Avoid `lcc` when you need semantic retrieval, automatic summarization, or an application that
+Avoid `lcc` when you need retrieval execution, automatic summarization, or an application that
 calls models for you. Those are different layers.
 
 ## 8. Quick Demo
@@ -98,6 +106,11 @@ lcc optimize /tmp/lcc_sample.txt \
   --report report.json
 
 lcc inspect /tmp/lcc_sample.txt --report inspect_report.json
+
+lcc prepare /tmp/lcc_sample.txt \
+  --question "What are the key points and risks?" \
+  --output prepared_prompt.md \
+  --report prepare_report.json
 ```
 
 Expected result:
@@ -106,6 +119,8 @@ Expected result:
 - `report.json` explains token savings, cost estimates, cleaning steps, warnings, and token
   count method;
 - `inspect_report.json` profiles the input without creating a prompt.
+- `prepared_prompt.md` is created only when the deterministic inspection recommendation says
+  optimization is useful; otherwise `prepare_report.json` contains the inspection report.
 
 ## 9. Trust Boundaries
 
@@ -113,7 +128,8 @@ Expected result:
 
 - no API keys;
 - no telemetry;
-- no model calls;
+- no LLM, embedding, local-model, or remote-model calls;
+- no semantic ranking, embeddings, network access, local model call, or remote LLM call;
 - no runtime network access by default;
 - optional `tiktoken` use only when tokenizer assets are locally available;
 - deterministic reports without timestamps, random values, absolute paths, or machine-specific
