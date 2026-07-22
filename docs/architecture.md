@@ -128,3 +128,21 @@ in [ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md). `lc
 uses deterministic inspect-first orchestration and question-aware lexical chunk selection.
 Inside `src/lcc`, there is no semantic selection, embeddings, network access, local model
 call, or remote LLM call. The router layer is outside that boundary.
+
+## Programmatic Module & Ecosystem Integration Architecture
+
+```mermaid
+flowchart TD
+  subgraph Library Module Exports
+    PythonModule["src/lcc/compressor.py (LccCompressor)"]
+    NodeModule["index.js / index.d.ts (LccCompressor)"]
+  end
+  subgraph Ecosystem Integration (agentic-intake)
+    Ingestion["Raw User Input / Voice Transcript"] --> IntakeParse["agentic-intake Readiness Triage"]
+    IntakeParse --> LccGuard["lcc Local Token Estimation & Guardrails"]
+    LccGuard --> LLMDispatch["Optimized Payload / LLM Dispatch"]
+  end
+  PythonModule --> Ecosystem Integration
+  NodeModule --> Ecosystem Integration
+```
+
