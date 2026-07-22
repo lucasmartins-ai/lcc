@@ -14,4 +14,15 @@ try:
 except PackageNotFoundError:  # running from a source tree without an installation
     __version__ = "0.2.0"
 
-__all__ = ["__version__"]
+from lcc.compressor import CompressionResult, LccCompressor, LccOptimizer
+from lcc.pipeline import OptimizationRequest, OptimizationResult, optimize
+
+__all__ = [
+    "__version__",
+    "LccCompressor",
+    "LccOptimizer",
+    "CompressionResult",
+    "OptimizationRequest",
+    "OptimizationResult",
+    "optimize",
+]

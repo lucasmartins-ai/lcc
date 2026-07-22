@@ -1,0 +1,28 @@
+{
+  "name": "local-context-compiler",
+  "version": "0.2.0",
+  "description": "Deterministic, local-first context optimization for LLM prompts & AI agents",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "node test/index.test.js"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vetlucasmartins/lcc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vetlucasmartins/lcc/issues"
+  },
+  "homepage": "https://github.com/vetlucasmartins/lcc#readme",
+  "keywords": [
+    "openai",
+    "tiktoken",
+    "agentic-ai",
+    "context-optimization",
+    "prompt-engineering",
+    "local-first",
+    "typescript"
+  ]
+}
