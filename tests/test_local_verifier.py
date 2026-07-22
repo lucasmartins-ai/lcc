@@ -54,6 +54,56 @@ def test_verifier_escalates_invalid_strict_format() -> None:
     assert "valid JSON object" in result.missing_requirements
 
 
+def test_verifier_requires_json_fields_as_keys() -> None:
+    task = TaskInput(
+        "t",
+        "Return JSON with a status field",
+        "Status is green.",
+        expected_format="json object",
+        metadata={"required_fields": ["status"]},
+    )
+    answer = LocalAnswer('{"answer": "status is green"}', "mock", 0)
+
+    result = RuleBasedVerifier().verify(task, answer, _summary(), _features())
+
+    assert result.decision == VerificationDecision.ESCALATE_REMOTE
+    assert "field:status" in result.missing_requirements
+
+
+def test_verifier_rejects_wrong_simple_calculation() -> None:
+    task = TaskInput("t", "Calculate 17 + 25.", "Use 17 + 25 only.")
+    answer = LocalAnswer("The total is 41.", "mock", 0)
+
+    result = RuleBasedVerifier().verify(
+        task,
+        answer,
+        _summary(),
+        _features(requires_calculation=True),
+    )
+
+    assert result.decision == VerificationDecision.ESCALATE_REMOTE
+    assert "calculated result:42" in result.missing_requirements
+
+
+def test_verifier_rejects_overconfident_ambiguous_answer() -> None:
+    task = TaskInput(
+        "t",
+        "What is the migration status?",
+        "Plan A says approved, while incident notes say blocked.",
+    )
+    answer = LocalAnswer("The migration is approved.", "mock", 0)
+
+    result = RuleBasedVerifier().verify(
+        task,
+        answer,
+        _summary(),
+        _features(ambiguity_score=0.5),
+    )
+
+    assert result.decision == VerificationDecision.ESCALATE_REMOTE
+    assert "ambiguity_acknowledgement" in result.missing_requirements
+
+
 def test_verifier_escalates_external_knowledge() -> None:
     task = TaskInput("t", "Latest status?", "No public status here.")
     answer = LocalAnswer("Looks fine.", "mock", 0)

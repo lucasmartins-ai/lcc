@@ -1,0 +1,7 @@
+{
+  "task_id": "long_duplicated_context",
+  "instruction": "What should the runbook keep?",
+  "context": "Runbook decision: keep the stable cache header. Current page remains live.\n\nRunbook decision: keep the stable cache header. Current page remains live.\n\nRunbook decision: keep the stable cache header. Current page remains live.\n\nUnrelated launch notes should not drive the answer.\n\nRunbook decision: keep the stable cache header. Current page remains live.\n\nRunbook decision: keep the stable cache header. Current page remains live.",
+  "expected_format": "plain text",
+  "required_markers": ["keep the stable cache header"]
+}

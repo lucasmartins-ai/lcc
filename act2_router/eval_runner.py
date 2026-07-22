@@ -150,6 +150,19 @@ def _markdown_report(report: dict[str, Any]) -> str:
             f"| lcc_compression_applied_rate | {report['lcc_compression_applied_rate']} |",
             f"| average_projected_savings | {report['average_projected_savings']} |",
             "",
+            "## Cases",
+            "",
+            "| case | route | remote_tokens_used |",
+            "| --- | --- | ---: |",
+        ]
+    )
+    for item in report.get("cases", []):
+        lines.append(
+            f"| {item['task_id']} | {item['route_taken']} | {item['remote_tokens_used']} |"
+        )
+    lines.extend(
+        [
+            "",
             "## Failures",
             "",
         ]

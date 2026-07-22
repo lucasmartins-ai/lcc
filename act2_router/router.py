@@ -88,6 +88,7 @@ class LCCRouter:
                     verification=None,
                     lcc_summary=lcc_summary,
                     trace=trace,
+                    compression_applied=bool(prepared and prepared.compression_applied),
                 )
 
             verification = self._verify(local_task, local_answer, lcc_summary, features)
@@ -99,6 +100,7 @@ class LCCRouter:
                     verification=verification,
                     lcc_summary=lcc_summary,
                     trace=[*trace, "local_accepted"],
+                    compression_applied=bool(prepared and prepared.compression_applied),
                 )
             trace.append("local_rejected_by_verifier")
             return self._remote_after_local(task, plan, verification, trace, lcc_summary)

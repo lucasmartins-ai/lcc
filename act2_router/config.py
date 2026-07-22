@@ -12,11 +12,11 @@ import yaml
 
 @dataclass(frozen=True)
 class RouterPolicyConfig:
-    local_first_max_tokens: int = 2500
-    compress_if_projected_savings_above: float = 0.15
+    local_first_max_tokens: int = 3500
+    compress_if_projected_savings_above: float = 0.12
     remote_direct_if_input_tokens_above: int = 16000
     escalate_if_manual_review: bool = True
-    local_accept_confidence: float = 0.78
+    local_accept_confidence: float = 0.82
     strict_format_requires_verification: bool = True
     compress_before_remote: bool = True
 

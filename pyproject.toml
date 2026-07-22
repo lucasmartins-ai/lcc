@@ -11,7 +11,20 @@ requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Local Context Compiler contributors" }]
-keywords = ["llm", "tokens", "prompt", "context", "optimization", "cost", "cli"]
+keywords = [
+  "openai",
+  "tiktoken",
+  "prompt-engineering",
+  "cli",
+  "python",
+  "llm-tools",
+  "context-optimization",
+  "llm",
+  "tokens",
+  "prompt",
+  "context",
+  "cost",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

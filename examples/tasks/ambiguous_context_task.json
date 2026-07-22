@@ -1,0 +1,7 @@
+{
+  "task_id": "ambiguous_context_task",
+  "instruction": "What is the migration status?",
+  "context": "The available context is unclear: plan A says migration is approved, while incident notes say it is blocked. No source of truth is marked.",
+  "expected_format": "plain text",
+  "required_markers": ["unclear"]
+}

@@ -1,0 +1,7 @@
+{
+  "task_id": "very_short_simple",
+  "instruction": "Status?",
+  "context": "Green.",
+  "expected_format": "plain text",
+  "required_markers": ["Green"]
+}

@@ -31,6 +31,20 @@ def test_extract_features_detects_strict_calculation_and_external_risk() -> None
     assert features.projected_savings_ratio == 0.2
 
 
+def test_extract_features_does_not_treat_current_context_as_external_request() -> None:
+    task = TaskInput(
+        task_id="t",
+        instruction="What should the runbook owner keep?",
+        context="Keep the current paging section and archive the stale page.",
+        expected_format="plain text",
+    )
+
+    features = extract_features(task, _summary(), RiskConfig())
+
+    assert features.requires_external_knowledge is False
+    assert features.has_strict_format is False
+
+
 def test_extract_features_detects_conflicting_instructions() -> None:
     task = TaskInput(
         task_id="t",
@@ -42,3 +56,15 @@ def test_extract_features_detects_conflicting_instructions() -> None:
 
     assert features.has_conflicting_instructions is True
     assert features.ambiguity_score > 0
+
+
+def test_extract_features_detects_ambiguous_context_markers() -> None:
+    task = TaskInput(
+        task_id="t",
+        instruction="What is the migration status?",
+        context="Plan A says approved, while incident notes say blocked. The context is unclear.",
+    )
+
+    features = extract_features(task, _summary(), RiskConfig())
+
+    assert features.ambiguity_score >= 0.45
