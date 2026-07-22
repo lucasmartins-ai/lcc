@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from act2_router.config import PolicyConfig
@@ -37,6 +38,7 @@ class RuleBasedVerifier:
         answer = candidate.answer.strip()
         format_valid = True
         confidence = 0.88
+        parsed_json = _json_value(answer) if _expects_json(task.expected_format) else None
 
         if not answer:
             missing.append("non-empty answer")
@@ -52,9 +54,24 @@ class RuleBasedVerifier:
                 confidence -= 0.3
 
         for field in task.metadata.get("required_fields", []) or []:
-            if str(field) not in answer:
+            if isinstance(parsed_json, dict):
+                field_missing = str(field) not in parsed_json
+            else:
+                field_missing = str(field) not in answer
+            if field_missing:
                 missing.append(f"field:{field}")
                 confidence -= 0.08
+
+        if features.requires_calculation:
+            expected_result = _simple_calculation_result(task)
+            if expected_result is None:
+                risks.append("calculation_not_deterministically_verified")
+                confidence -= 0.12
+            elif not _answer_contains_number(answer, expected_result):
+                rendered = _render_decimal(expected_result)
+                missing.append(f"calculated result:{rendered}")
+                risks.append("calculation_result_mismatch")
+                confidence -= 0.35
 
         if features.requires_external_knowledge:
             risks.append("external_knowledge_required")
@@ -62,6 +79,14 @@ class RuleBasedVerifier:
         if features.has_conflicting_instructions:
             risks.append("conflicting_instructions")
             confidence -= 0.25
+        if features.ambiguity_score >= 0.45:
+            if _acknowledges_ambiguity(answer):
+                risks.append("ambiguity_acknowledged")
+                confidence -= 0.04
+            else:
+                missing.append("ambiguity_acknowledgement")
+                risks.append("overconfident_ambiguous_answer")
+                confidence -= 0.25
         if features.ambiguity_score >= 0.65:
             risks.append("ambiguous_task")
             confidence -= 0.18
@@ -134,8 +159,13 @@ def _format_valid(expected_format: str, answer: str) -> tuple[bool, str]:
     marker = expected_format.lower()
     if "json" in marker:
         try:
-            json.loads(answer)
+            value = json.loads(answer)
         except json.JSONDecodeError:
+            return False, "valid JSON object"
+        if "array" in marker:
+            if not isinstance(value, list):
+                return False, "valid JSON array"
+        elif not isinstance(value, dict):
             return False, "valid JSON object"
     if "yaml" in marker and ":" not in answer:
         return False, "YAML-like key/value output"
@@ -146,6 +176,70 @@ def _format_valid(expected_format: str, answer: str) -> tuple[bool, str]:
     if "exactly" in marker and not answer:
         return False, "exact requested output"
     return True, ""
+
+
+def _expects_json(expected_format: str | None) -> bool:
+    return bool(expected_format and "json" in expected_format.lower())
+
+
+def _json_value(answer: str) -> Any | None:
+    try:
+        return json.loads(answer)
+    except json.JSONDecodeError:
+        return None
+
+
+def _acknowledges_ambiguity(answer: str) -> bool:
+    return bool(
+        re.search(
+            r"\b(ambiguous|unclear|unknown|cannot determine|not enough context|conflicting)\b",
+            answer,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _simple_calculation_result(task: TaskInput) -> Decimal | None:
+    text = f"{task.instruction}\n{task.context}"
+    match = re.search(
+        r"(-?\d+(?:\.\d+)?)\s*([+\-*/×x])\s*(-?\d+(?:\.\d+)?)",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    try:
+        left = Decimal(match.group(1))
+        right = Decimal(match.group(3))
+    except InvalidOperation:
+        return None
+    operator = match.group(2).lower()
+    if operator == "+":
+        return left + right
+    if operator == "-":
+        return left - right
+    if operator in {"*", "x", "×"}:
+        return left * right
+    if operator == "/" and right != 0:
+        return left / right
+    return None
+
+
+def _answer_contains_number(answer: str, expected: Decimal) -> bool:
+    for raw in re.findall(r"-?\d+(?:\.\d+)?", answer):
+        try:
+            if Decimal(raw) == expected:
+                return True
+        except InvalidOperation:
+            continue
+    return False
+
+
+def _render_decimal(value: Decimal) -> str:
+    normalized = value.normalize()
+    if normalized == normalized.to_integral():
+        return str(normalized.quantize(Decimal(1)))
+    return format(normalized, "f")
 
 
 def _looks_unsupported(task: TaskInput, answer: str) -> bool:

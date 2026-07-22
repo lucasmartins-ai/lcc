@@ -1,0 +1,72 @@
+{
+  "note": "Local development proxy only; not official AMD Track 1 accuracy.",
+  "before": "eval/reports/before_router_policy_tuning.json",
+  "after": "eval/reports/report.json",
+  "summary": {
+    "total_cases": {
+      "before": 10,
+      "after": 10,
+      "delta": 0
+    },
+    "remote_tokens_total": {
+      "before": 273,
+      "after": 99,
+      "delta": -174,
+      "delta_ratio": -0.6374
+    },
+    "remote_tokens_mean": {
+      "before": 27.3,
+      "after": 9.9,
+      "delta": -17.4
+    },
+    "local_accept_rate": {
+      "before": 0.7,
+      "after": 0.9,
+      "delta": 0.2
+    },
+    "remote_escalation_rate": {
+      "before": 0.3,
+      "after": 0.1,
+      "delta": -0.2
+    },
+    "format_pass_rate": {
+      "before": 1.0,
+      "after": 1.0,
+      "delta": 0.0
+    },
+    "estimated_accuracy_proxy": {
+      "before": 1.0,
+      "after": 1.0,
+      "delta": 0.0
+    },
+    "lcc_compression_applied_rate": {
+      "before": 0.2,
+      "after": 0.3,
+      "delta": 0.1
+    }
+  },
+  "route_changes": [
+    {
+      "task_id": "long_context",
+      "before_route": "COMPRESS_THEN_REMOTE",
+      "after_route": "COMPRESS_THEN_LOCAL",
+      "before_remote_tokens": 98,
+      "after_remote_tokens": 0
+    },
+    {
+      "task_id": "long_duplicated_context",
+      "before_route": "COMPRESS_THEN_REMOTE",
+      "after_route": "COMPRESS_THEN_LOCAL",
+      "before_remote_tokens": 76,
+      "after_remote_tokens": 0
+    }
+  ],
+  "kept_remote": [
+    {
+      "task_id": "ambiguous_task",
+      "route": "REMOTE_DIRECT",
+      "remote_tokens": 99,
+      "reason": "instruction asks for latest public status outside the provided context"
+    }
+  ]
+}

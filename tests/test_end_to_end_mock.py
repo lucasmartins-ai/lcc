@@ -31,3 +31,20 @@ def test_end_to_end_mock_escalates_external_knowledge(monkeypatch) -> None:
 
     assert final.remote_tokens_used > 0
     assert final.route_taken == "REMOTE_DIRECT"
+
+
+def test_end_to_end_mock_reports_local_compression(monkeypatch) -> None:
+    monkeypatch.delenv("FIREWORKS_API_KEY", raising=False)
+    repeated = "Runbook decision: keep the stable cache header. Current page remains live."
+    task = TaskInput(
+        task_id="compressed",
+        instruction="What should the runbook keep?",
+        context="\n\n".join([repeated, repeated, repeated, "Ignore billing notes.", repeated]),
+    )
+
+    final = LCCRouter().run(task)
+
+    assert final.route_taken == "COMPRESS_THEN_LOCAL"
+    assert final.remote_tokens_used == 0
+    assert final.metadata["compression_applied"] is True
+    assert "lcc_prepare" in final.local_steps_used

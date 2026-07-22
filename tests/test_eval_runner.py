@@ -27,4 +27,7 @@ def test_eval_runner_writes_json_and_markdown(tmp_path: Path, monkeypatch) -> No
     assert report["result"]["total_cases"] == 1
     assert out.exists()
     assert out.with_suffix(".md").exists()
-    assert "Local development proxy" in out.with_suffix(".md").read_text(encoding="utf-8")
+    markdown = out.with_suffix(".md").read_text(encoding="utf-8")
+    assert "Local development proxy" in markdown
+    assert "| case | route | remote_tokens_used |" in markdown
+    assert "| case | LOCAL_THEN_VERIFY | 0 |" in markdown

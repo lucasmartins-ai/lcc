@@ -9,22 +9,71 @@ from act2_router.schemas import LCCReportSummary, TaskFeatures, TaskInput
 from act2_router.token_accounting import estimate_tokens
 
 _DEFAULT_STRICT = ["json", "csv", "yaml", "exactly", "schema", "markdown table"]
-_DEFAULT_CALC = ["calculate", "compute", "exact", "numeric", "percentage"]
+_DEFAULT_CALC = [
+    "calculate",
+    "compute",
+    "numeric",
+    "percentage",
+    "sum",
+    "total",
+    "add",
+    "subtract",
+    "multiply",
+    "divide",
+    "average",
+    "ratio",
+]
 _DEFAULT_CODE = ["python", "javascript", "function", "bug", "error"]
 _DEFAULT_EXTERNAL = ["latest", "current", "today", "internet", "web", "outside context"]
 _CONFLICT_MARKERS = ["ignore previous", "disregard above", "instead answer", "contradict"]
+_AMBIGUITY_MARKERS = [
+    "maybe",
+    "ambiguous",
+    "unclear",
+    "unknown",
+    "not enough context",
+    "cannot determine",
+    "conflicting",
+    "inconsistent",
+]
+_EXPLICIT_EXTERNAL_CONTEXT_MARKERS = [
+    "outside context",
+    "external source",
+    "internet search",
+    "web search",
+    "public web",
+    "look up online",
+]
+_ARITHMETIC_PATTERN = re.compile(r"\b\d+(?:\.\d+)?\s*(?:[+\-*/×x]|%)\s*\d+(?:\.\d+)?\b")
+_SAYS_BUT_SAYS_PATTERN = re.compile(
+    r"\b(?:say|says|state|states|report|reports)\b.+\b(?:but|while|however)\b.+\b(?:say|says|state|states|report|reports)\b",
+    flags=re.DOTALL,
+)
 
 
 def _contains_any(text: str, needles: list[str]) -> bool:
     haystack = text.lower()
-    return any(needle.lower() in haystack for needle in needles)
+    for needle in needles:
+        marker = needle.strip().lower()
+        if not marker:
+            continue
+        escaped = re.escape(marker).replace(r"\ ", r"\s+")
+        if re.fullmatch(r"[a-z0-9_\-\s]+", marker):
+            pattern = rf"(?<![a-z0-9_-]){escaped}(?![a-z0-9_-])"
+        else:
+            pattern = escaped
+        if re.search(pattern, haystack):
+            return True
+    return False
 
 
 def _ambiguity_score(task: TaskInput) -> float:
     text = f"{task.instruction}\n{task.context}".lower()
     score = 0.0
-    if any(marker in text for marker in ["maybe", "ambiguous", "unclear", "unknown"]):
+    if _contains_any(text, _AMBIGUITY_MARKERS):
         score += 0.35
+    if _SAYS_BUT_SAYS_PATTERN.search(text):
+        score += 0.25
     if "?" not in task.instruction and len(task.instruction.split()) < 5:
         score += 0.25
     if _contains_any(text, _CONFLICT_MARKERS):
@@ -51,6 +100,25 @@ def _has_conflicts(text: str) -> bool:
     return bool(re.search(r"\b(do not|never)\b.+\b(but|however|instead)\b", lowered))
 
 
+def _has_strict_format(task: TaskInput, strict_markers: list[str]) -> bool:
+    expected = (task.expected_format or "").strip().lower()
+    scope = f"{task.instruction}\n{expected}"
+    if expected in {"", "plain", "plain text", "text", "prose"}:
+        return _contains_any(task.instruction, strict_markers)
+    return _contains_any(scope, strict_markers)
+
+
+def _requires_external_knowledge(task: TaskInput, external_markers: list[str]) -> bool:
+    request_scope = f"{task.instruction}\n{task.expected_format or ''}"
+    if _contains_any(request_scope, external_markers):
+        return True
+    return _contains_any(task.context, _EXPLICIT_EXTERNAL_CONTEXT_MARKERS)
+
+
+def _requires_calculation(text: str, calculation_markers: list[str]) -> bool:
+    return _contains_any(text, calculation_markers) or bool(_ARITHMETIC_PATTERN.search(text))
+
+
 def extract_features(
     task: TaskInput,
     lcc_report: LCCReportSummary,
@@ -73,10 +141,10 @@ def extract_features(
         instruction_tokens=instruction_tokens,
         projected_savings_ratio=lcc_report.projected_savings_ratio,
         duplicate_ratio=lcc_report.duplicate_ratio,
-        has_strict_format=bool(task.expected_format) or _contains_any(combined, strict),
-        requires_calculation=_contains_any(combined, calc),
+        has_strict_format=_has_strict_format(task, strict),
+        requires_calculation=_requires_calculation(combined, calc),
         requires_code=_contains_any(combined, code),
-        requires_external_knowledge=_contains_any(combined, external),
+        requires_external_knowledge=_requires_external_knowledge(task, external),
         ambiguity_score=_ambiguity_score(task),
         context_noise_score=_noise_score(task, lcc_report),
         lcc_recommendation=lcc_report.recommendation_action,

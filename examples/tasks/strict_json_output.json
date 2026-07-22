@@ -1,0 +1,8 @@
+{
+  "task_id": "strict_json_output",
+  "instruction": "Return the release note as strict JSON with an answer field.",
+  "context": "Release note RN-7 is ready for publishing. Legal approval is complete.",
+  "expected_format": "json object",
+  "required_fields": ["answer"],
+  "required_markers": ["RN-7"]
+}

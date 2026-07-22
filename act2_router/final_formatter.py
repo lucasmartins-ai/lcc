@@ -22,18 +22,22 @@ def local_final(
     verification: VerificationResult | None,
     lcc_summary: LCCReportSummary,
     trace: list[str],
+    compression_applied: bool = False,
 ) -> FinalAnswer:
     return FinalAnswer(
         task_id=task_id,
         answer=answer.answer,
         route_taken=route.value,
         remote_tokens_used=0,
-        local_steps_used=["lcc_inspect", "local_solver"]
+        local_steps_used=["lcc_inspect"]
+        + (["lcc_prepare"] if compression_applied else [])
+        + ["local_solver"]
         + (["local_verifier"] if verification is not None else []),
         verification=verification,
         metadata={
             "local_model": answer.model_name,
             "lcc": asdict(lcc_summary),
+            "compression_applied": compression_applied,
             "trace": trace,
         },
     )

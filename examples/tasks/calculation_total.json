@@ -1,0 +1,7 @@
+{
+  "task_id": "calculation_total",
+  "instruction": "Calculate 17 + 25 and return the checked total.",
+  "context": "The checked total of 17 + 25 is 42. Use only the numbers shown here.",
+  "expected_format": "plain text",
+  "required_markers": ["42"]
+}

@@ -2,15 +2,15 @@
   "note": "Local development proxy only; not official AMD Track 1 accuracy.",
   "result": {
     "total_cases": 10,
-    "remote_tokens_total": 99,
-    "remote_tokens_mean": 9.9,
-    "local_accept_rate": 0.9,
-    "remote_escalation_rate": 0.1,
+    "remote_tokens_total": 273,
+    "remote_tokens_mean": 27.3,
+    "local_accept_rate": 0.7,
+    "remote_escalation_rate": 0.3,
     "format_pass_rate": 1.0,
     "estimated_accuracy_proxy": 1.0,
     "failures": []
   },
-  "lcc_compression_applied_rate": 0.3,
+  "lcc_compression_applied_rate": 0.2,
   "average_projected_savings": 0.2254,
   "cases": [
     {
@@ -25,12 +25,10 @@
       ],
       "verification": {
         "decision": "ACCEPT_LOCAL",
-        "confidence": 0.84,
+        "confidence": 0.88,
         "format_valid": true,
         "missing_requirements": [],
-        "risk_reasons": [
-          "ambiguity_acknowledged"
-        ],
+        "risk_reasons": [],
         "explanation": "Local answer passed deterministic format and risk checks."
       },
       "metadata": {
@@ -46,9 +44,8 @@
           ],
           "selected_chunks_count": 0
         },
-        "compression_applied": false,
         "trace": [
-          "short_simple_local_first",
+          "strict_format_requires_verification",
           "initial_route:LOCAL_THEN_VERIFY",
           "local_accepted"
         ]
@@ -118,9 +115,8 @@
           ],
           "selected_chunks_count": 0
         },
-        "compression_applied": false,
         "trace": [
-          "short_simple_local_first",
+          "strict_format_requires_verification",
           "initial_route:LOCAL_THEN_VERIFY",
           "local_accepted"
         ]
@@ -129,24 +125,19 @@
     {
       "task_id": "long_context",
       "answer": "Runbook owner action: archive the stale escalation page and keep the current paging section.",
-      "route_taken": "COMPRESS_THEN_LOCAL",
-      "remote_tokens_used": 0,
+      "route_taken": "COMPRESS_THEN_REMOTE",
+      "remote_tokens_used": 98,
       "local_steps_used": [
         "lcc_inspect",
-        "lcc_prepare",
-        "local_solver",
-        "local_verifier"
+        "lcc_prepare"
       ],
-      "verification": {
-        "decision": "ACCEPT_LOCAL",
-        "confidence": 0.88,
-        "format_valid": true,
-        "missing_requirements": [],
-        "risk_reasons": [],
-        "explanation": "Local answer passed deterministic format and risk checks."
-      },
+      "verification": null,
       "metadata": {
-        "local_model": "mock-local",
+        "remote_model": "mock-fireworks (mock)",
+        "remote_prompt_tokens": 71,
+        "remote_completion_tokens": 27,
+        "remote_usage_estimated": true,
+        "remote_error": null,
         "lcc": {
           "input_tokens": 96,
           "optimized_tokens": 21,
@@ -161,34 +152,29 @@
         },
         "compression_applied": true,
         "trace": [
-          "lcc_projected_savings",
-          "initial_route:COMPRESS_THEN_LOCAL",
-          "lcc_compression_applied",
-          "local_accepted"
+          "high_accuracy_risk",
+          "compress_before_remote_enabled",
+          "initial_route:COMPRESS_THEN_REMOTE",
+          "lcc_compression_applied"
         ]
       }
     },
     {
       "task_id": "long_duplicated_context",
       "answer": "Runbook decision: keep the stable cache header.",
-      "route_taken": "COMPRESS_THEN_LOCAL",
-      "remote_tokens_used": 0,
+      "route_taken": "COMPRESS_THEN_REMOTE",
+      "remote_tokens_used": 76,
       "local_steps_used": [
         "lcc_inspect",
-        "lcc_prepare",
-        "local_solver",
-        "local_verifier"
+        "lcc_prepare"
       ],
-      "verification": {
-        "decision": "ACCEPT_LOCAL",
-        "confidence": 0.88,
-        "format_valid": true,
-        "missing_requirements": [],
-        "risk_reasons": [],
-        "explanation": "Local answer passed deterministic format and risk checks."
-      },
+      "verification": null,
       "metadata": {
-        "local_model": "mock-local",
+        "remote_model": "mock-fireworks (mock)",
+        "remote_prompt_tokens": 62,
+        "remote_completion_tokens": 14,
+        "remote_usage_estimated": true,
+        "remote_error": null,
         "lcc": {
           "input_tokens": 96,
           "optimized_tokens": 17,
@@ -203,10 +189,10 @@
         },
         "compression_applied": true,
         "trace": [
-          "lcc_projected_savings",
-          "initial_route:COMPRESS_THEN_LOCAL",
-          "lcc_compression_applied",
-          "local_accepted"
+          "high_accuracy_risk",
+          "compress_before_remote_enabled",
+          "initial_route:COMPRESS_THEN_REMOTE",
+          "lcc_compression_applied"
         ]
       }
     },
@@ -217,7 +203,6 @@
       "remote_tokens_used": 0,
       "local_steps_used": [
         "lcc_inspect",
-        "lcc_prepare",
         "local_solver",
         "local_verifier"
       ],
@@ -243,7 +228,6 @@
           ],
           "selected_chunks_count": 2
         },
-        "compression_applied": true,
         "trace": [
           "lcc_projected_savings",
           "initial_route:COMPRESS_THEN_LOCAL",
@@ -283,9 +267,8 @@
           ],
           "selected_chunks_count": 0
         },
-        "compression_applied": false,
         "trace": [
-          "short_simple_local_first",
+          "strict_format_requires_verification",
           "initial_route:LOCAL_THEN_VERIFY",
           "local_accepted"
         ]
@@ -322,7 +305,6 @@
           ],
           "selected_chunks_count": 0
         },
-        "compression_applied": false,
         "trace": [
           "strict_format_requires_verification",
           "initial_route:LOCAL_THEN_VERIFY",
@@ -361,7 +343,6 @@
           ],
           "selected_chunks_count": 0
         },
-        "compression_applied": false,
         "trace": [
           "strict_format_requires_verification",
           "initial_route:LOCAL_THEN_VERIFY",
@@ -400,9 +381,8 @@
           ],
           "selected_chunks_count": 0
         },
-        "compression_applied": false,
         "trace": [
-          "short_simple_local_first",
+          "strict_format_requires_verification",
           "initial_route:LOCAL_THEN_VERIFY",
           "local_accepted"
         ]
