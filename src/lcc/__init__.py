@@ -16,6 +16,7 @@ except PackageNotFoundError:  # running from a source tree without an installati
 
 from lcc.compressor import CompressionResult, LccCompressor, LccOptimizer
 from lcc.pipeline import OptimizationRequest, OptimizationResult, optimize
+from lcc.toon import encode_toon
 
 __all__ = [
     "__version__",
@@ -25,4 +26,5 @@ __all__ = [
     "OptimizationRequest",
     "OptimizationResult",
     "optimize",
+    "encode_toon",
 ]
