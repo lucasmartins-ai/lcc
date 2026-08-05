@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -79,9 +80,13 @@ def test_cli_help_states_phase_1_7_boundaries():
     assert inspect.exit_code == 0
     assert bench.exit_code == 0
 
-    prepare_words = " ".join(prepare.stdout.split())
-    inspect_words = " ".join(inspect.stdout.split())
-    bench_words = " ".join(bench.stdout.split())
+    clean_prepare = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", prepare.stdout)
+    clean_inspect = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", inspect.stdout)
+    clean_bench = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", bench.stdout)
+
+    prepare_words = " ".join(clean_prepare.split())
+    inspect_words = " ".join(clean_inspect.split())
+    bench_words = " ".join(clean_bench.split())
 
     assert "question-aware lexical selection" in prepare_words
     assert "does not summarize, rewrite, or paraphrase source content" in prepare_words
