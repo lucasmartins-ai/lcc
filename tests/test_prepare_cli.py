@@ -88,15 +88,15 @@ def test_prepare_applies_question_aware_lexical_selection_when_optimizing(
     src.write_text(
         (
             "# Billing Renewal\n\n"
-            "Invoices renewal credits and payment collection notes for finance operations.\n\n"
+            "Invoices renewal credits and payment collection notes for finance operations across all enterprise accounts.\n\n"
             "# OAuth Token Rotation\n\n"
-            "Rotate OAuth tokens for service accounts every quarter. "
-            "Store token rotation evidence in the runbook.\n\n"
+            "Rotate OAuth tokens for service accounts every quarter without exception. "
+            "Store token rotation evidence and compliance logs in the runbook.\n\n"
             "# General Notes\n\n"
-            "Rotate OAuth tokens for service accounts every quarter. "
-            "Store token rotation evidence in the runbook.\n\n"
+            "Rotate OAuth tokens for service accounts every quarter without exception. "
+            "Store token rotation evidence and compliance logs in the runbook.\n\n"
             "# Billing Archive\n\n"
-            "Invoices renewal credits and payment collection notes for finance operations.\n"
+            "Invoices renewal credits and payment collection notes for finance operations across all enterprise accounts.\n"
         ),
         encoding="utf-8",
     )
@@ -122,7 +122,7 @@ def test_prepare_applies_question_aware_lexical_selection_when_optimizing(
     assert result.exit_code == 0
     prompt_text = prompt.read_text(encoding="utf-8")
     assert "OAuth Token Rotation" in prompt_text
-    assert "Store token rotation evidence in the runbook." in prompt_text
+    assert "Store token rotation evidence and compliance logs in the runbook." in prompt_text
     assert "Billing Renewal" not in prompt_text
     assert "payment collection notes" not in prompt_text
 
