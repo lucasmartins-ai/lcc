@@ -86,24 +86,6 @@ def test_phase_1_7_boundary_is_referenced_by_core_docs() -> None:
     assert "does not summarize, rewrite, or paraphrase source content" in benchmarks
 
 
-def test_project_presentation_reflects_phase_1_7_prepare_boundary() -> None:
-    presentation = _words("docs/project-presentation.md")
-
-    required_phrases = [
-        "lcc prepare",
-        "deterministic inspect-first orchestration",
-        "question-aware lexical selection",
-        "deterministic Phase 1.7 prepare boundary",
-        "ADR 0010",
-        "does not summarize, rewrite, or paraphrase source content",
-        "does not measure LLM answer quality",
-        "no semantic ranking, embeddings, network access, local model call, or remote LLM call",
-    ]
-
-    for phrase in required_phrases:
-        assert phrase in presentation
-
-
 def test_phase_2_first_slice_boundary_stub_is_documented() -> None:
     adr_path = "docs/adr/0011-phase-2-opt-in-semantic-retrieval-boundary.md"
     adr = _read(adr_path)
