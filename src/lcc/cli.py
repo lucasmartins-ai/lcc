@@ -853,6 +853,134 @@ def _print_inspect_summary(report: Any, report_path: Path | None, summary: str) 
         err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
 
 
+@app.command(name="intake")
+def intake_cmd(
+    input_source: str = typer.Argument(
+        ...,
+        help="Input text, file path, or '-' for stdin.",
+        show_default=False,
+    ),
+    question: str = typer.Option(
+        "",
+        "--question",
+        "-q",
+        help="Specific question or objective (optional; inferred if omitted).",
+    ),
+    model: str = typer.Option(
+        "claude-sonnet-5",
+        "--model",
+        "-m",
+        help="Target model for token budgeting and cost calculation.",
+    ),
+    template: str = typer.Option(
+        "claude_xml",
+        "--template",
+        "-t",
+        help="Prompt template to apply (claude_xml, code_agent, structured_markdown, default).",
+    ),
+    output_format: str = typer.Option(
+        "markdown",
+        "--format",
+        "-f",
+        help="Output format: markdown, json, or toon.",
+    ),
+    output_path: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Write the structured/compiled prompt to this file instead of stdout.",
+    ),
+    report_path: Path | None = typer.Option(
+        None,
+        "--report",
+        "-r",
+        help="Write the complete intake report JSON to this file.",
+    ),
+) -> None:
+    """Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC."""
+    from lcc.intake import LccIntake, ReadinessState
+
+    # Determine if input_source is a file or direct string
+    if input_source == "-":
+        raw_text = sys.stdin.read()
+    elif Path(input_source).exists() and not Path(input_source).is_dir():
+        raw_text = Path(input_source).read_text(encoding="utf-8")
+    else:
+        raw_text = input_source
+
+    pipeline = LccIntake(
+        model=model,
+        template_name=template,
+        optimize_context=True,
+    )
+    result = pipeline.process(
+        raw_input=raw_text,
+        question=question,
+        output_format=output_format,
+    )
+
+    # Output formatted prompt
+    if output_path is not None:
+        try:
+            output_path.write_text(result.formatted_prompt, encoding="utf-8")
+        except OSError as exc:
+            _fail(f"could not write prompt to {output_path}: {exc}")
+    else:
+        sys.stdout.write(result.formatted_prompt + "\n")
+
+    # Output JSON report if requested
+    if report_path is not None:
+        report_data = {
+            "readiness": result.parsed.readiness.value,
+            "readiness_score": result.parsed.readiness_score,
+            "ambiguity_score": result.parsed.ambiguity_score,
+            "intent": result.parsed.intent,
+            "questions": result.parsed.questions,
+            "assumptions": result.parsed.assumptions,
+            "brief": asdict(result.parsed.brief),
+            "compression": asdict(result.compression) if result.compression else None,
+        }
+        try:
+            report_path.write_text(json.dumps(report_data, indent=2), encoding="utf-8")
+        except OSError as exc:
+            _fail(f"could not write report to {report_path}: {exc}")
+
+    # Rich summary display on stderr
+    readiness = result.parsed.readiness
+    badge_style = "green" if readiness == ReadinessState.READY_TO_EXECUTE else "yellow" if readiness == ReadinessState.NEEDS_LIGHT_REFINEMENT else "magenta" if readiness == ReadinessState.NEEDS_INTAKE else "red"
+
+    table = Table(title="lcc -- prompt intake & context compilation", show_header=False, box=None, pad_edge=False)
+    table.add_column("field", style="bold cyan", no_wrap=True)
+    table.add_column("value")
+
+    table.add_row("Readiness Status", f"[{badge_style}]{readiness.value}[/{badge_style}]")
+    table.add_row("Readiness Score", f"{result.parsed.readiness_score}/100")
+    table.add_row("Ambiguity Score", f"{result.parsed.ambiguity_score}/100")
+    table.add_row("Target Model", model)
+    table.add_row("Template", template)
+
+    if result.compression:
+        table.add_row("Original Tokens", str(result.compression.original_tokens))
+        table.add_row("Compiled Tokens", str(result.compression.compressed_tokens))
+        table.add_row("Token Savings", f"[green]{result.compression.savings_percentage}%[/green]")
+
+    err_console.print(table)
+
+    if result.parsed.assumptions:
+        assump_text = "\n".join(f"- {a}" for a in result.parsed.assumptions)
+        err_console.print(Panel(assump_text, title="Assumptions", border_style="yellow", expand=False))
+
+    if result.parsed.questions:
+        q_text = "\n".join(f"{i+1}. {q}" for i, q in enumerate(result.parsed.questions))
+        err_console.print(Panel(q_text, title="Clarifying Questions Needed", border_style="magenta", expand=False))
+
+    if output_path is not None:
+        err_console.print(f"Compiled prompt written to: [green]{output_path}[/green]")
+    if report_path is not None:
+        err_console.print(f"Intake report written to: [green]{report_path}[/green]")
+
+
+
 def cli_main() -> None:
     """Console-script entry point (``lcc``)."""
     app()

@@ -65,6 +65,22 @@ def test_get_model_pricing_found():
     assert info.input_per_million == 2.00
     assert info.currency == "USD"
 
+    claude_info = get_model_pricing(BUILTIN_PRICING, "claude-sonnet-5")
+    assert claude_info.found is True
+    assert claude_info.input_per_million == 2.00
+
+    gemini_info = get_model_pricing(BUILTIN_PRICING, "gemini-3.6-flash")
+    assert gemini_info.found is True
+    assert gemini_info.input_per_million == 1.50
+
+    gpt5_info = get_model_pricing(BUILTIN_PRICING, "gpt-5.6-terra")
+    assert gpt5_info.found is True
+    assert gpt5_info.input_per_million == 2.00
+
+    deepseek_info = get_model_pricing(BUILTIN_PRICING, "deepseek-v4-pro")
+    assert deepseek_info.found is True
+    assert deepseek_info.input_per_million == 0.435
+
 
 def test_get_model_pricing_missing():
     info = get_model_pricing(BUILTIN_PRICING, "no-such-model")

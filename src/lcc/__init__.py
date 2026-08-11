@@ -15,6 +15,16 @@ except PackageNotFoundError:  # running from a source tree without an installati
     __version__ = "0.2.0"
 
 from lcc.compressor import CompressionResult, LccCompressor, LccOptimizer
+from lcc.intake import (
+    IntakePipeline,
+    IntakeResult,
+    LccIntake,
+    ParsedIntake,
+    ReadinessState,
+    StructuredBrief,
+    parse_intake,
+    process_intake,
+)
 from lcc.pipeline import OptimizationRequest, OptimizationResult, optimize
 from lcc.toon import encode_toon
 
@@ -27,4 +37,13 @@ __all__ = [
     "OptimizationResult",
     "optimize",
     "encode_toon",
+    "LccIntake",
+    "IntakePipeline",
+    "IntakeResult",
+    "ParsedIntake",
+    "ReadinessState",
+    "StructuredBrief",
+    "parse_intake",
+    "process_intake",
 ]
+
