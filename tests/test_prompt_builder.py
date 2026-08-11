@@ -50,3 +50,51 @@ def test_no_max_output_means_no_length_guidance():
 def test_format_requirements_are_appended():
     spec = PromptSpec(question="q", context="c", format_requirements=["Use a Markdown table."])
     assert "Use a Markdown table." in build_prompt(spec)
+
+
+def test_claude_xml_template_renders_tags_and_ordering():
+    spec = PromptSpec(
+        question="Find bug in authentication logic",
+        context="def auth(): pass",
+        task_type="code-review",
+        constraints=["Preserve existing API."],
+        max_output_tokens=500,
+    )
+    prompt = build_prompt(spec, template_name="claude_xml")
+    assert "<system_instructions>" in prompt
+    assert "<definition_of_done>" in prompt
+    assert "<context>" in prompt
+    assert "<user_query>" in prompt
+    assert "<rule>Preserve existing API.</rule>" in prompt
+    assert "def auth(): pass" in prompt
+    assert "Find bug in authentication logic" in prompt
+    # Verify prompt caching order: system_instructions and context appear before user_query
+    assert prompt.index("<system_instructions>") < prompt.index("<context>") < prompt.index("<user_query>")
+
+
+def test_code_agent_template_renders_markdown_and_standards():
+    spec = PromptSpec(
+        question="Refactor compressor method",
+        context="class LccCompressor: pass",
+        task_type="refactor",
+        constraints=["Do not break tests."],
+    )
+    prompt = build_prompt(spec, template_name="code_agent")
+    assert "# System: AI Coding Agent Instructions & Operational Contract" in prompt
+    assert "### Reference Context & Codebase Memory:" in prompt
+    assert "class LccCompressor: pass" in prompt
+    assert "### User Task / Objective:\nRefactor compressor method" in prompt
+    assert "Do not break tests." in prompt
+
+
+def test_structured_markdown_template():
+    spec = PromptSpec(
+        question="Analyze performance bottleneck",
+        context="Latency is 450ms.",
+        task_type="analysis",
+    )
+    prompt = build_prompt(spec, template_name="structured_markdown")
+    assert "## Role & Instructions" in prompt
+    assert "## Context\nLatency is 450ms." in prompt
+    assert "## Task\nAnalyze performance bottleneck" in prompt
+

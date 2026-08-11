@@ -35,4 +35,42 @@ assert.strictEqual(res2.compressedText, "Testing optimizer alias");
 const res3 = compressContext("Hello world");
 assert.strictEqual(res3.compressedText, "Hello world");
 
+// Test buildPrompt with Claude XML template
+const xmlPrompt = compressor.buildPrompt({
+  question: "Summarize architecture",
+  context: "Architecture uses local-first compiler.",
+  taskType: "summary",
+  constraints: ["Preserve all ADRs."]
+}, "claude_xml");
+assert(xmlPrompt.includes("<system_instructions>"), "Should contain <system_instructions>");
+assert(xmlPrompt.includes("<definition_of_done>"), "Should contain <definition_of_done>");
+assert(xmlPrompt.includes("<context>"), "Should contain <context>");
+assert(xmlPrompt.includes("<user_query>"), "Should contain <user_query>");
+assert(xmlPrompt.includes("<rule>Preserve all ADRs.</rule>"), "Should contain constraint rule");
+assert(xmlPrompt.indexOf("<system_instructions>") < xmlPrompt.indexOf("<context>") && xmlPrompt.indexOf("<context>") < xmlPrompt.indexOf("<user_query>"), "Should be ordered for prompt caching");
+
+// Test buildPrompt with Code Agent template
+const codePrompt = compressor.buildPrompt({
+  question: "Implement unit test",
+  context: "function add(a, b) { return a + b; }",
+  taskType: "coding"
+}, "code_agent");
+// Test LccIntake unified workflow
+const { LccIntake, parseIntake, processIntake } = require("../index.js");
+
+const parsed = parseIntake("Maybe we should refactor something with the database, not sure");
+assert.strictEqual(parsed.readiness, "NEEDS_INTAKE");
+assert(parsed.questions.length > 0);
+
+const intakePipeline = new LccIntake({ model: "claude-sonnet-5", template: "claude_xml" });
+const intakeRes = intakePipeline.process(`
+Sent from my iPhone
+This is the database migration guide.
+This is the database migration guide.
+`, "Optimize query");
+assert(intakeRes.formattedPrompt.includes("lcc-intake:readiness"));
+assert(!intakeRes.formattedPrompt.includes("Sent from my iPhone"));
+assert(intakeRes.formattedPrompt.includes("<system_instructions>"));
+assert(intakeRes.compression !== null);
+
 console.log("✓ All lcc JS unit tests passed cleanly!");

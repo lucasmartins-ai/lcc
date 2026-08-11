@@ -101,6 +101,107 @@ function deduplicateParagraphs(text) {
   };
 }
 
+/**
+ * Renders an XML-tagged contract prompt optimized for Claude (Sonnet 5/Opus 5/3.7), Gemini 3.6, and KV-Cache.
+ */
+function renderClaudeXml(spec = {}) {
+  const role = "You are a frontier technical assistant. Base your answers on the provided context.";
+  const taskType = spec.taskType || "general";
+  const constraints = spec.constraints || [];
+  const reqs = [
+    "Direct answer to the question with zero fluff.",
+    "Key evidence drawn from the provided context.",
+    "Limitations or uncertainties, stated explicitly when evidence is insufficient."
+  ];
+  if (spec.formatRequirements) {
+    reqs.push(...spec.formatRequirements);
+  }
+
+  const constraintsXml = constraints.map(c => `    <rule>${c}</rule>`).join("\n");
+  const reqsXml = reqs.map(r => `    <criterion>${r}</criterion>`).join("\n");
+
+  const sections = [
+    `<system_instructions>\n  <role>${role}</role>\n  <task_type>${taskType}</task_type>\n  <constraints>\n${constraintsXml}\n  </constraints>\n  <definition_of_done>\n${reqsXml}\n  </definition_of_done>\n</system_instructions>`,
+    `<context>\n${(spec.context || "").trim() || "(no context provided)"}\n</context>`,
+    `<user_query>\n${(spec.question || "").trim() || "(no question provided)"}\n</user_query>`
+  ];
+
+  return sections.join("\n\n") + "\n";
+}
+
+/**
+ * Renders an agentic contract prompt optimized for AI IDEs (Cursor, Antigravity, Codex, Claude Code).
+ */
+function renderCodeAgent(spec = {}) {
+  const taskType = spec.taskType || "coding";
+  const constraints = [
+    "Preserve existing codebase architecture, formatting, and conventions.",
+    "Write production-grade, type-safe, runnable code without placeholders.",
+    "Minimize conversational filler; deliver exact code diffs or implementations.",
+    "Never delete environment configurations, lockfiles, or unrelated modules.",
+    ...(spec.constraints || [])
+  ];
+
+  const sections = [
+    "# System: AI Coding Agent Instructions & Operational Contract",
+    `**Task Type:** \`${taskType}\``,
+    "### Operational Boundaries & Negative Constraints:\n" + constraints.map(c => `- ${c}`).join("\n"),
+    "### Reference Context & Codebase Memory:\n```\n" + ((spec.context || "").trim() || "(no context provided)") + "\n```",
+    "### User Task / Objective:\n" + ((spec.question || "").trim() || "(no question provided)")
+  ];
+
+  return sections.join("\n\n") + "\n";
+}
+
+/**
+ * Renders a structured markdown prompt.
+ */
+function renderStructuredMarkdown(spec = {}) {
+  const taskType = spec.taskType || "general";
+  const constraints = spec.constraints || [];
+
+  const sections = [
+    `## Role & Instructions\nYou are a careful technical assistant.\n\n**Task Type:** ${taskType}`,
+    "## Constraints\n" + (constraints.length ? constraints.map(c => `- ${c}`).join("\n") : "- None specified"),
+    "## Context\n" + ((spec.context || "").trim() || "(no context provided)"),
+    "## Task\n" + ((spec.question || "").trim() || "(no question provided)")
+  ];
+
+  return sections.join("\n\n") + "\n";
+}
+
+/**
+ * Renders default prompt.
+ */
+function renderDefault(spec = {}) {
+  const sections = [
+    "You are a careful technical assistant.",
+    `Task type: ${spec.taskType || "general"}`,
+    "User question:\n" + ((spec.question || "").trim() || "(no question provided)"),
+    "Constraints:\n" + (spec.constraints && spec.constraints.length ? spec.constraints.map(c => `- ${c}`).join("\n") : "- None"),
+    "Context:\n" + ((spec.context || "").trim() || "(no context provided)")
+  ];
+
+  return sections.join("\n\n") + "\n";
+}
+
+const TEMPLATES = {
+  default: renderDefault,
+  claude_xml: renderClaudeXml,
+  xml: renderClaudeXml,
+  claude: renderClaudeXml,
+  code_agent: renderCodeAgent,
+  cursor: renderCodeAgent,
+  codex: renderCodeAgent,
+  structured_markdown: renderStructuredMarkdown,
+  markdown: renderStructuredMarkdown
+};
+
+function buildPrompt(spec, templateName = "default") {
+  const fn = TEMPLATES[templateName] || TEMPLATES.default;
+  return fn(spec);
+}
+
 class LccCompressor {
   constructor(options = {}) {
     this.model = options.model || "gpt-4.1";
@@ -108,10 +209,15 @@ class LccCompressor {
     this.maxTokens = options.maxTokens || null;
     this.removeBoilerplate = options.removeBoilerplate !== false;
     this.removeNearDuplicates = options.removeNearDuplicates !== false;
+    this.template = options.template || "default";
   }
 
   estimateTokens(text) {
     return estimateTokens(text, this.model);
+  }
+
+  buildPrompt(spec, templateName) {
+    return buildPrompt(spec, templateName || this.template);
   }
 
   compress(rawText, question = "") {
@@ -173,6 +279,104 @@ class LccCompressor {
   }
 }
 
+/**
+ * Classifies raw intake prompt into protocol readiness state.
+ */
+function parseIntake(rawInput) {
+  const text = (rawInput || "").trim();
+  if (!text) {
+    return {
+      intent: "Empty request",
+      readiness: "BLOCKED",
+      readinessScore: 0,
+      ambiguityScore: 100,
+      questions: ["Please provide a valid prompt or context."],
+      assumptions: []
+    };
+  }
+
+  const words = text.split(/\s+/);
+  const wordCount = words.length;
+  const hasQuestion = text.includes("?");
+  const lowered = text.toLowerCase();
+
+  let readiness = "READY_TO_EXECUTE";
+  let questions = [];
+  let assumptions = [];
+  let readinessScore = 90;
+  let ambiguityScore = 10;
+
+  if (lowered.includes("maybe") || lowered.includes("something with") || lowered.includes("not sure") || lowered.includes("talvez")) {
+    readiness = "NEEDS_INTAKE";
+    readinessScore = 40;
+    ambiguityScore = 60;
+    questions.push("What is the primary objective and required deliverable format?");
+    questions.append ? questions.push("Are there specific architectural constraints?") : null;
+  } else if (wordCount < 5 && !hasQuestion) {
+    readiness = "NEEDS_LIGHT_REFINEMENT";
+    readinessScore = 70;
+    ambiguityScore = 30;
+    assumptions.push(`Interpreted '${text}' as a request to process or implement.`);
+  }
+
+  return {
+    intent: text.slice(0, 80) + (text.length > 80 ? "..." : ""),
+    readiness,
+    readinessScore,
+    ambiguityScore,
+    questions,
+    assumptions
+  };
+}
+
+class LccIntake {
+  constructor(options = {}) {
+    this.model = options.model || "claude-sonnet-5";
+    this.template = options.template || "claude_xml";
+    this.optimizeContext = options.optimizeContext !== false;
+    this.maxTokens = options.maxTokens || null;
+    this.compressor = new LccCompressor({
+      model: this.model,
+      template: this.template,
+      maxTokens: this.maxTokens
+    });
+  }
+
+  parse(rawInput) {
+    return parseIntake(rawInput);
+  }
+
+  process(rawInput, question = "") {
+    const parsed = parseIntake(rawInput);
+    let compression = null;
+    let context = rawInput;
+
+    if (this.optimizeContext && parsed.readiness !== "BLOCKED") {
+      compression = this.compressor.compress(rawInput, question);
+      context = compression.compressedText;
+    }
+
+    const prompt = buildPrompt({
+      question: question || parsed.intent,
+      context,
+      taskType: "intake-refinement"
+    }, this.template);
+
+    const formattedPrompt = [
+      `<!-- lcc-intake:readiness status="${parsed.readiness}" score="${parsed.readinessScore}" -->`,
+      parsed.assumptions.length ? `<!-- assumptions: ${parsed.assumptions.join("; ")} -->` : "",
+      prompt
+    ].filter(Boolean).join("\n\n");
+
+    return {
+      rawInput,
+      parsed,
+      compression,
+      formattedPrompt
+    };
+  }
+}
+
 class LccOptimizer extends LccCompressor {}
 
 function compressContext(text, options) {
@@ -180,9 +384,21 @@ function compressContext(text, options) {
   return compressor.compress(text);
 }
 
+function processIntake(rawInput, options) {
+  const intake = new LccIntake(options);
+  return intake.process(rawInput);
+}
+
 module.exports = {
   LccCompressor,
   LccOptimizer,
+  LccIntake,
   compressContext,
-  estimateTokens
+  estimateTokens,
+  buildPrompt,
+  parseIntake,
+  parseInput: parseIntake,
+  processIntake,
+  processIngestion: processIntake,
+  TEMPLATES
 };
