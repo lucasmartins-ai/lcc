@@ -241,6 +241,12 @@ node test/index.test.js
 
 ---
 
+## Built by LookADev
+
+[`lcc`](https://github.com/vetlucasmartins/lcc) is built and maintained by [LookADev](https://lookadev.com), a software & AI automation studio. We use context engineering like this in production to cut token costs and keep agent workflows deterministic.
+
+If you are building agents, automation, or internal tooling and want this kind of engineering behind your product, we take on a small number of projects. **Start a project → lookadev.com** · **Email: lucas@lookadev.com**
+
 ## 📄 License
 
 Open-source software licensed under the [MIT License](LICENSE).
