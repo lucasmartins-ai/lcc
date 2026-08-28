@@ -1,34 +1,8 @@
-# LCC-Router Local Evaluation
+# LCC Evaluation Report
 
-Local development proxy only; not official AMD Track 1 accuracy.
-
-| Metric | Value |
-| --- | ---: |
-| total_cases | 10 |
-| remote_tokens_total | 99 |
-| remote_tokens_mean | 9.9 |
-| local_accept_rate | 0.9 |
-| remote_escalation_rate | 0.1 |
-| format_pass_rate | 1.0 |
-| estimated_accuracy_proxy | 1.0 |
-| lcc_compression_applied_rate | 0.3 |
-| average_projected_savings | 0.2254 |
-
-## Cases
-
-| case | route | remote_tokens_used |
-| --- | --- | ---: |
-| ambiguous_context_task | LOCAL_THEN_VERIFY | 0 |
-| ambiguous_task | REMOTE_DIRECT | 99 |
-| calculation_total | LOCAL_THEN_VERIFY | 0 |
-| long_context | COMPRESS_THEN_LOCAL | 0 |
-| long_duplicated_context | COMPRESS_THEN_LOCAL | 0 |
-| noisy_context | COMPRESS_THEN_LOCAL | 0 |
-| simple_qa | LOCAL_THEN_VERIFY | 0 |
-| strict_format | LOCAL_THEN_VERIFY | 0 |
-| strict_json_output | LOCAL_THEN_VERIFY | 0 |
-| very_short_simple | LOCAL_THEN_VERIFY | 0 |
-
-## Failures
-
-None.
+- **Total Cases**: 10
+- **Local Accept Rate**: 50.0% (0 remote tokens used)
+- **Remote Escalation Rate**: 50.0%
+- **Total Remote Tokens**: 363
+- **Mean Remote Tokens per Task**: 36.3
+- **Format Pass Rate**: 100.0%

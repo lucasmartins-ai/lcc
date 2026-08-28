@@ -14,6 +14,11 @@ try:
 except PackageNotFoundError:  # running from a source tree without an installation
     __version__ = "0.2.0"
 
+from lcc.agents import (
+    LocalAgent,
+    LocalAgentConfig,
+    create_local_agent_from_env,
+)
 from lcc.compressor import CompressionResult, LccCompressor, LccOptimizer
 from lcc.intake import (
     IntakePipeline,
@@ -26,6 +31,14 @@ from lcc.intake import (
     process_intake,
 )
 from lcc.pipeline import OptimizationRequest, OptimizationResult, optimize
+from lcc.router import (
+    FinalAnswer,
+    LCCRouter,
+    RouteDecision,
+    TaskInput,
+    VerificationDecision,
+    VerificationResult,
+)
 from lcc.toon import encode_toon
 
 __all__ = [
@@ -45,5 +58,15 @@ __all__ = [
     "StructuredBrief",
     "parse_intake",
     "process_intake",
+    "LocalAgent",
+    "LocalAgentConfig",
+    "create_local_agent_from_env",
+    "LCCRouter",
+    "TaskInput",
+    "FinalAnswer",
+    "RouteDecision",
+    "VerificationDecision",
+    "VerificationResult",
 ]
+
 

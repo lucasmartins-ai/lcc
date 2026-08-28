@@ -13,4 +13,4 @@ COPY docker/entrypoint.sh /usr/local/bin/lcc-router-entrypoint
 RUN python -m pip install --no-cache-dir -e .
 
 ENTRYPOINT ["lcc-router-entrypoint"]
-CMD ["python", "-m", "act2_router.cli", "eval", "--cases", "examples/tasks", "--output", "eval/reports/docker_eval.json"]
+CMD ["lcc", "route", "eval", "--cases", "examples/tasks", "--output", "eval/reports/docker_eval.json"]

@@ -58,9 +58,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/vetlucasmartins/lcc"
-Repository = "https://github.com/vetlucasmartins/lcc"
-Issues = "https://github.com/vetlucasmartins/lcc/issues"
+Homepage = "https://github.com/lucasmartins-ai/lcc"
+Repository = "https://github.com/lucasmartins-ai/lcc"
+Issues = "https://github.com/lucasmartins-ai/lcc/issues"
+
 
 [project.scripts]
 lcc = "lcc.cli:cli_main"

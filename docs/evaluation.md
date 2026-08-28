@@ -1,62 +1,50 @@
 # Evaluation
 
-`act2_router.eval_runner` is a local development harness. It is not the official Track 1
-benchmark and should not be reported as official accuracy.
+`lcc` provides two levels of evaluation:
 
-This is separate from the pre-existing deterministic LCC benchmark harness. LCC deterministic
-prepare and question-aware lexical selection remain governed by
-[ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md). The original LCC
-harness reports mechanical metrics and is not LLM answer quality evaluation.
 
-Measured today:
+1. **Deterministic Core Benchmark Harness** (`lcc bench`): Reports mechanical metrics (character reduction, token savings, duplicate groups, timing) for the core compression pipeline. LCC deterministic prepare and question-aware lexical selection remain governed by [ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md). The original LCC harness reports mechanical metrics and is not LLM answer quality evaluation.
 
-- `remote_tokens_total`;
-- `remote_tokens_mean`;
-- per-case `remote_tokens_used`;
-- `local_accept_rate`;
-- `remote_escalation_rate`;
-- `format_pass_rate`;
-- LCC compression applied rate;
-- average projected savings;
-- failure cases;
-- estimated accuracy proxy.
+2. **Hybrid Router & Local Agent Evaluation Harness** (`lcc route eval`): A deterministic development evaluation suite that assesses routing accuracy, token savings, quality gates pass rate, and escalation rates across structured task fixtures.
 
-The estimated accuracy proxy uses fixture checks:
+---
 
-- exact match when `expected_answer` exists;
-- required markers;
-- forbidden markers;
-- valid JSON or other requested format;
-- required fields when provided.
+## Router & Agent Evaluation Metrics
 
-The fixture set includes:
+The router evaluation harness tracks:
 
-- very short simple task;
-- long duplicated context task;
-- strict JSON output task;
-- calculation task;
-- ambiguous context task.
+- `remote_tokens_total`: Total cloud tokens consumed across all cases;
+- `remote_tokens_mean`: Average cloud tokens per task;
+- `local_accept_rate`: Percentage of tasks solved completely locally (0 remote tokens);
+- `remote_escalation_rate`: Percentage of tasks escalated to cloud after quality checks;
+- `format_pass_rate`: Percentage of outputs strictly satisfying expected schema (e.g. JSON, tables);
+- `lcc_compression_applied_rate`: Percentage of cases where context compression was activated;
+- `average_projected_savings`: Average token savings predicted by LCC;
+- `estimated_accuracy_proxy`: Deterministic verification score based on fixture assertions.
 
-Run:
+---
+
+## Running the Router Evaluation
+
+To execute evaluation across task fixtures:
 
 ```bash
-python -m act2_router.cli eval --cases examples/tasks --output eval/reports/report.json
+lcc route eval --cases examples/tasks --output eval/reports/report.json
 ```
 
-The runner writes JSON and Markdown reports. The Markdown report includes a case table with
-route and remote token count for every fixture.
+The runner automatically generates both machine-readable JSON and human-readable Markdown summaries:
 
-Current local proxy report:
+- `eval/reports/report.json`
+- `eval/reports/report.md`
 
-- `eval/reports/report.json`;
-- `eval/reports/report.md`.
+---
 
-Before/after policy tuning comparison:
+## Example Tasks Fixtures
 
-- `eval/reports/before_router_policy_tuning.json`;
-- `eval/reports/before_router_policy_tuning.md`;
-- `eval/reports/before_after_router_policy_tuning.json`;
-- `eval/reports/before_after_router_policy_tuning.md`.
+The evaluation suite includes test fixtures in `examples/tasks/`:
 
-The comparison is on the local fixture proxy only. It should be used to inspect routing and
-token accounting behavior, not to claim official model accuracy.
+- `simple_task.json`: Short direct prompt (routed to local agent);
+- `noisy_context.json`: Redundant context with high duplication (compressed then local);
+- `strict_format.json`: JSON output enforcement (verified by local quality gate);
+- `calculation.json`: Numeric calculation with deterministic verifier check;
+- `ambiguous_context.json`: Conflicting context requiring escalation to cloud model.
