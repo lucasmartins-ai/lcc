@@ -8,7 +8,12 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- `lcc agent` local agent subsystem (`lcc.agents`) with native support for **Gemma 4 e4b** (turn formatting `<start_of_turn>user...`) and **Qwen3.5-4B** (ChatML `<|im_start|>...`), Ollama, llama.cpp / GGUF (e4b 4-bit), vLLM, MLX, and mock backends with health checks and zero remote token usage.
+- `lcc route` hybrid local/cloud routing subsystem (`lcc.router`) with conservative verification gates (`RuleBasedVerifier`, `LocalLLMVerifier`) and selective escalation to Fireworks AI.
+- `lcc intake` intelligent prompt intake engine (`lcc.intake`) with automated readiness triage (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`), intent/assumptions extraction, and clarifying questions generation.
+- Universal TypeScript & Node.js client package exports (`LccCompressor`, `LccIntake`, `processIntake`).
 - `lcc prepare` deterministic inspect-first workflow. It runs inspection, skips prompt
+
   generation for `skip`/`manual_review` recommendations, and runs deterministic lexical
   selection plus the existing safe optimization path for `optimize_safe`/`optimize_with_flags`,
   with input-file overwrite protection for output and report paths.

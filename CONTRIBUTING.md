@@ -8,8 +8,9 @@ well-documented changes over large rewrites.
 Requires Python 3.11+.
 
 ```bash
-git clone https://github.com/vetlucasmartins/lcc
+git clone https://github.com/lucasmartins-ai/lcc
 cd lcc
+
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```

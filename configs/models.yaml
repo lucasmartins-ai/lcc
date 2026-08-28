@@ -1,10 +1,16 @@
 local:
-  backend: mock
-  model_name: mock-local
+  backend: mock # mock | ollama | llamacpp | vllm | mlx | transformers
+  model_name: gemma-4-e4b # Target models: gemma-4-e4b, qwen3.5-4b, gemma2:2b, qwen2.5:3b
+  endpoint: http://127.0.0.1:11434 # Ollama default: 11434 | llama.cpp default: 8080
+  family: auto # auto | gemma | qwen | generic
+  quantization: e4b # 4-bit quantization profile (e4b / Q4_K_M / INT4)
+  temperature: 0.0
+  max_tokens: 2048
 
 verifier:
-  backend: rule
+  backend: rule # rule | local_llm
 
 fireworks:
   base_url: https://api.fireworks.ai/inference/v1
   model_id: mock-fireworks
+

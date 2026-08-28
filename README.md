@@ -1,11 +1,12 @@
 <div align="center">
 
-# ⚡ Local Context Compiler (`lcc`) & Unified Prompt Intake
+# ⚡ Local Context Compiler (`lcc`)
 
-**Unified, high-performance, local-first engine for prompt context optimization, intelligent intake triage, token estimation, and KV-cache alignment.**
+**Unified, high-performance, local-first engine for prompt context optimization, intelligent intake triage, token estimation, and local LLM agents (Gemma 4 e4b & Qwen3.5-4B).**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+[![Node 18+](https://img.shields.io/badge/node-18%2B-green.svg)](package.json)
 [![GitHub Stars](https://img.shields.io/github/stars/lucasmartins-ai/lcc?style=social)](https://github.com/lucasmartins-ai/lcc)
 [![CI Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/lucasmartins-ai/lcc/actions)
 [![Local-First](https://img.shields.io/badge/privacy-100%25_local_--_zero_telemetry-success.svg)](SECURITY.md)
@@ -14,14 +15,66 @@
 
 ---
 
-## 📌 Overview
+## 📌 Table of Contents
 
-**`lcc` (Local Context Compiler)** is a unified, local-first toolkit that combines:
-1. **Intelligent Prompt Intake & Triage**: Transforms vague prompts, voice notes, audio transcripts, and rambling instructions into structured operational briefs with ambiguity detection (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`).
-2. **Deterministic Context Compiler**: Cleans boilerplate, normalizes whitespace, and deduplicates paragraphs 100% locally with zero data leakage.
-3. **KV-Cache Alignment & 2026 Contract Templates**: Formats prompts with stable prefixes (`<system_instructions>`, `<definition_of_done>`, reference memory) and dynamic suffixes (`<user_query>`) to maximize prompt cache hits (>90% savings) across Anthropic Claude, OpenAI, Google Gemini, and Cursor.
+- [Overview & The 3 Pillars](#-overview--the-3-pillars)
+- [Proven Token Savings & Cache Alignment](#-proven-token-savings--cache-alignment)
+- [Single-Step Installation](#-single-step-installation)
+- [The Unified Workflow](#-the-unified-workflow)
+- [CLI Usage Guide](#-cli-usage-guide)
+  - [`lcc intake` — Prompt Intake & Triage](#1-lcc-intake--prompt-intake--triage)
+  - [`lcc optimize` — Direct Context Optimization](#2-lcc-optimize--direct-context-optimization)
+  - [`lcc inspect` — Read-Only Diagnostic Inspection](#3-lcc-inspect--read-only-diagnostic-inspection)
+  - [`lcc agent` — Local LLM Agents (Gemma 4 e4b & Qwen3.5-4B)](#4-lcc-agent--local-llm-agents-gemma-4-e4b--qwen35-4b)
+  - [`lcc route` — Hybrid Local/Cloud Routing](#5-lcc-route--hybrid-localcloud-routing)
+- [Programmatic Library API Usage](#-programmatic-library-api-usage)
+  - [Python API](#python-api)
+  - [TypeScript / Node.js API](#typescript--nodejs-api)
+- [2026 Context Engineering Templates](#-2026-context-engineering-templates)
+- [Architectural Boundaries & ADRs](#-architectural-boundaries--adrs)
+- [Running Tests & Validation](#-running-tests--validation)
+- [Built by LookADev](#built-by-lookadev)
+- [License](#-license)
 
-A **single installation** gives you both the **LCC Context Compiler** and the **Prompt Intake Engine**—in CLI, Python, and TypeScript/Node.js.
+---
+
+## 🏛️ Overview & The 3 Pillars
+
+**`lcc` (Local Context Compiler)** is a unified toolkit engineered for production AI workflows across CLI, Python, and TypeScript/Node.js. It operates around three permanent, decoupled pillars:
+
+```mermaid
+flowchart LR
+  subgraph P1["1. Deterministic Core"]
+    direction TB
+    C1["Boilerplate cleaning"]
+    C2["Paragraph deduplication"]
+    C3["Exact/approx token budget"]
+  end
+
+  subgraph P2["2. Intelligent Intake"]
+    direction TB
+    I1["Readiness classification"]
+    I2["Intent & brief structuring"]
+    I3["Clarifying questions generation"]
+  end
+
+  subgraph P3["3. Local Agents & Router"]
+    direction TB
+    A1["Gemma 4 e4b (0 remote tokens)"]
+    A2["Qwen3.5-4B (ChatML / JSON)"]
+    A3["Conservative verifier gates"]
+    A4["Cloud escalation (Fireworks AI)"]
+  end
+
+  RawInput["Raw Context / Audio / Prompt"] --> P2
+  P2 --> P1
+  P1 --> P3
+  P3 --> FinalOutput["Final Answer + Token Accounting Report"]
+```
+
+1. **Deterministic Context Engine Core** (`lcc.cleaning`, `lcc.token_budget`, `lcc.inspection`, `lcc.pipeline`): 100% deterministic, local-first context optimization with zero network requests and zero LLMs inside the core.
+2. **Intelligent Prompt Intake & Triage** (`lcc.intake`): Analyzes messy audio transcripts, voice notes, and rambling prompts, assigning operational readiness status (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`).
+3. **Local Agents & Hybrid Router** (`lcc.agents`, `lcc.router`): Runs edge-quantized local LLMs (**Gemma 4 e4b** and **Qwen3.5-4B**) with 0 remote tokens, verifying candidate quality before selective escalation to frontier cloud models.
 
 ---
 
@@ -35,9 +88,9 @@ A **single installation** gives you both the **LCC Context Compiler** and the **
 
 ---
 
-## 📦 Single-Step Installation Guide
+## 📦 Single-Step Installation
 
-### 1. Python CLI & Library (Includes LCC + Prompt Intake)
+### 1. Python CLI & Library (Includes LCC Core + Intake + Local Agents)
 
 Requires **Python 3.11+**.
 
@@ -62,7 +115,7 @@ cd lcc
 pip install -e ".[dev,tiktoken]"
 ```
 
-### 2. Node.js / TypeScript Package (Includes LCC + Prompt Intake)
+### 2. Node.js / TypeScript Package
 
 Requires **Node.js 18+**.
 
@@ -82,31 +135,36 @@ lcc --help
 
 ---
 
-## 🔄 The Unified Intake-to-Execution Workflow
+## 🔄 The Unified Workflow
 
 ```text
-[Raw Input / Voice / Vague Idea]
-             │
-             ▼
-   [1. lcc intake Triage] ──► Classify Readiness & Extract Structured Brief
-             │
-             ▼
- [2. lcc Local Compilation] ──► Strip Boilerplate, Deduplicate, Count Tokens
-             │
-             ▼
-  [3. KV-Cache Alignment]  ──► Render Contract Template (Claude XML / Code Agent / Markdown)
-             │
-             ▼
-      [Model Dispatch]     ──► Claude Sonnet 5 / GPT-5.6 Terra / Gemini 3.6 / Cursor
+[Raw Input / Voice Note / Context Dump]
+                  │
+                  ▼
+       [1. lcc intake Triage] ──► Classify Readiness & Extract Structured Operational Brief
+                  │
+                  ▼
+     [2. lcc Local Compilation] ──► Strip Boilerplate, Deduplicate Chunks, Count Tokens
+                  │
+                  ▼
+      [3. KV-Cache Alignment]  ──► Render Contract Template (Claude XML / Code Agent / Markdown)
+                  │
+                  ▼
+     [4. Hybrid Local Routing] ──► Local Agent (Gemma 4 e4b / Qwen3.5-4B) with Quality Verifier
+                  │
+       ┌──────────┴──────────┐
+       ▼                     ▼
+[0 Remote Tokens]    [Cloud Escalation]
+(Local Accept)       (Fireworks AI / Claude / GPT)
 ```
 
 ---
 
 ## 🖥️ CLI Usage Guide
 
-### 1. `lcc intake` — Intelligent Prompt Intake & Compilation (All-in-One)
+### 1. `lcc intake` — Prompt Intake & Triage
 
-Processes raw or vague text, analyzes readiness, extracts missing requirements, and compiles the optimized prompt:
+Processes raw text or voice transcripts, analyzes ambiguity, extracts missing requirements, and compiles the formatted prompt:
 
 ```bash
 # Run intake on a raw file with Claude XML contract formatting
@@ -115,7 +173,7 @@ lcc intake draft_prompt.txt --model claude-sonnet-5 --template claude_xml
 # Run intake directly from a natural language string
 lcc intake "Maybe we should refactor something with the database, not sure" --model gemini-3.6-flash
 
-# Output structured JSON intake report
+# Output structured JSON intake report alongside the compiled prompt
 lcc intake notes.txt --report intake_report.json --output compiled_prompt.md
 ```
 
@@ -139,6 +197,33 @@ Inspects token counts, boilerplate ratio, and projected cost savings without alt
 lcc inspect large_context.txt --model claude-sonnet-5
 ```
 
+### 4. `lcc agent` — Local LLM Agents (Gemma 4 e4b & Qwen3.5-4B)
+
+Directly execute or diagnose local agent backends with 0 remote tokens used:
+
+```bash
+# Check local agent connectivity and health
+lcc agent health
+
+# Run text generation directly on Gemma 4 e4b
+lcc agent run --prompt "Summarize token budget policies" --model gemma-4-e4b
+
+# Run strict JSON generation on Qwen3.5-4B
+lcc agent run --prompt "Extract status: ready, code: 200" --model qwen3.5-4b --format json
+```
+
+### 5. `lcc route` — Hybrid Local/Cloud Routing
+
+Execute policy-driven hybrid routing and run benchmark evaluation suites:
+
+```bash
+# Run hybrid routing on a task fixture
+lcc route run --task examples/tasks/noisy_context.json
+
+# Run evaluation suite across task cases
+lcc route eval --cases examples/tasks --output eval/reports/report.json
+```
+
 ---
 
 ## 🚀 Programmatic Library API Usage
@@ -147,6 +232,8 @@ lcc inspect large_context.txt --model claude-sonnet-5
 
 ```python
 from lcc import LccIntake, LccCompressor, parse_intake, process_intake
+from lcc.agents import LocalAgent, LocalAgentConfig
+from lcc.router import LCCRouter, TaskInput
 
 # 1. Quick all-in-one Intake & Context Compilation
 result = process_intake(
@@ -163,6 +250,11 @@ print("Formatted Prompt:\n", result.formatted_prompt)
 compressor = LccCompressor(model="claude-sonnet-5", max_tokens=2000)
 comp_res = compressor.compress("Raw context text...")
 print("Tokens Saved:", comp_res.saved_tokens)
+
+# 3. Direct Local Agent Execution (0 Remote Tokens)
+agent = LocalAgent(LocalAgentConfig(backend="ollama", model_name="gemma-4-e4b"))
+answer = agent.solve(TaskInput(task_id="t1", instruction="Summarize runbook"))
+print(answer.answer)
 ```
 
 ### TypeScript / Node.js API
@@ -192,7 +284,7 @@ console.log(`Saved: ${compressed.savingsPercentage}%`);
 
 ---
 
-## 🎨 2026 Context Engineering & Prompt Templates
+## 🎨 2026 Context Engineering Templates
 
 | Template Name | Target Ecosystem | Format & Highlights |
 | --- | --- | --- |
@@ -203,21 +295,36 @@ console.log(`Saved: ${compressed.savingsPercentage}%`);
 
 ---
 
-## 🧪 Development & Testing
+## 🏛️ Architectural Boundaries & ADRs
+
+`lcc` is engineered around strict architectural boundaries:
+
+- **Deterministic Core & Model-Assistance Boundary**: `src/lcc/` is model-free, offline, and deterministic. Optional model assistance stays strictly outside the deterministic core and inspection boundaries ([ADR 0010](docs/adr/0010-deterministic-first-preparation-model-assistance.md)).
+- **Offline Network Guard**: `lcc` blocks runtime network requests by default via a tightly scoped guard ([ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)).
+- **Inspection Boundary**: `lcc inspect` is strictly diagnostic and transformative-free ([ADR 0009](docs/adr/0009-inspection-command-boundary.md)).
+- **Semantic Retrieval Boundary**: Phase 2 boundary status scaffold ([ADR 0011](docs/adr/0011-phase-2-opt-in-semantic-retrieval-boundary.md)).
+
+---
+
+## 🧪 Running Tests & Validation
 
 Run all test suites for Python and Node.js:
 
 ```bash
-# Python test suite (269+ unit tests)
+# Python test suite (283+ unit tests)
 pytest
 
 # Node.js test suite
 node test/index.test.js
+
+# Documentation & ADR integrity checks
+pytest tests/test_docs.py
 ```
 
 ---
 
 ## ⭐ Star & Support
+
 If `lcc` saves you tokens and API expenses:
 - ⭐ **Star this repository** on GitHub!
 - 🍴 **Fork & Integrate** into your AI agent pipelines.
@@ -229,6 +336,8 @@ If `lcc` saves you tokens and API expenses:
 [`lcc`](https://github.com/lucasmartins-ai/lcc) is built and maintained by [LookADev](https://lookadev.com), a high-performance software & AI automation studio. We use deterministic context engineering in production to cut token costs and maintain repeatable agent workflows.
 
 **Start a project → [lookadev.com](https://lookadev.com)** · **Email: [lucas@lookadev.com](mailto:lucas@lookadev.com)**
+
+---
 
 ## 📄 License
 

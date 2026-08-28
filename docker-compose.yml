@@ -4,9 +4,8 @@ services:
     env_file:
       - .env
     command:
-      - python
-      - -m
-      - act2_router.cli
+      - lcc
+      - route
       - eval
       - --cases
       - examples/tasks

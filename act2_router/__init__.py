@@ -1,7 +1,4 @@
-"""AMD ACT II Track 1 router layer built on top of deterministic LCC."""
+"""Backwards-compatibility re-export module for lcc.router and lcc.agents."""
 
-from __future__ import annotations
-
-__version__ = "0.1.0"
-
-__all__ = ["__version__"]
+from lcc.agents import *
+from lcc.router import *

@@ -55,6 +55,8 @@ app = typer.Typer(
     help="Local Context Compiler (lcc): deterministic, local-first context optimization "
     "for LLM prompts.",
 )
+
+
 console = Console()
 err_console = Console(stderr=True)
 _OPTIMIZE_RECOMMENDATION_ACTIONS = {"optimize_safe", "optimize_with_flags"}
@@ -980,11 +982,101 @@ def intake_cmd(
         err_console.print(f"Intake report written to: [green]{report_path}[/green]")
 
 
+@app.command("agent")
+def agent_cmd(
+    action: str = typer.Argument("health", help="Action: 'health' to check status, or 'run' to execute prompt"),
+    prompt: str = typer.Option("", "--prompt", "-p", help="Prompt or task instruction for the local agent"),
+    backend: str | None = typer.Option(None, "--backend", "-b", help="Backend (ollama, llamacpp, vllm, mock)"),
+    model: str | None = typer.Option(None, "--model", "-m", help="Model name (e.g. gemma-4-e4b, qwen3.5-4b)"),
+    endpoint: str | None = typer.Option(None, "--endpoint", "-e", help="Backend endpoint URL"),
+    expected_format: str | None = typer.Option(None, "--format", "-f", help="Expected format (json, table, text)"),
+) -> None:
+    """Manage and execute local LLM agents (Gemma 4 e4b, Qwen3.5-4B)."""
+    from lcc.agents.local_agent import LocalAgent, create_local_agent_from_env
+    from lcc.router.schemas import TaskInput
+
+    base_agent = create_local_agent_from_env()
+    config = base_agent.config
+    if backend:
+        config.backend = backend
+    if model:
+        config.model_name = model
+    if endpoint:
+        config.endpoint = endpoint
+    agent = LocalAgent(config)
+
+    if action == "health":
+        health = agent.health_check()
+        console.print(json.dumps(asdict(health), indent=2, ensure_ascii=False))
+        if not health.healthy:
+            raise typer.Exit(code=1)
+        return
+
+    if action == "run":
+        if not prompt:
+            _fail("please provide a prompt using --prompt 'your instruction'")
+        task = TaskInput(
+            task_id="cli-direct-agent",
+            instruction=prompt,
+            context="",
+            expected_format=expected_format,
+        )
+        answer = agent.solve(task, prompt)
+        console.print(answer.answer)
+        err_console.print(
+            f"\n[cyan]Model:[/cyan] {answer.model_name} | "
+            f"[cyan]Latency:[/cyan] {answer.latency_ms}ms | "
+            f"[green]Remote tokens: 0 (100% local)[/green]"
+        )
+        return
+
+    _fail(f"unknown agent action: {action}. Use 'health' or 'run'")
+
+
+@app.command("route")
+def route_cmd(
+    action: str = typer.Argument("run", help="Action: 'run' for a single task, or 'eval' for a test suite"),
+    task: Path | None = typer.Option(None, "--task", "-t", help="Path to task JSON/YAML fixture"),
+    cases: Path | None = typer.Option(None, "--cases", "-c", help="Directory containing task case fixtures"),
+    output: Path = typer.Option(Path("eval/reports/report.json"), "--output", "-o", help="Output JSON report path"),
+) -> None:
+    """Hybrid local/cloud context routing and evaluation."""
+    from lcc.router.eval_runner import load_task, run_evaluation, write_reports
+    from lcc.router.router import LCCRouter, final_answer_to_dict
+
+    if action == "run":
+        if task is None or not task.exists():
+            _fail(f"task file not found or not specified: {task}")
+        task_input, _ = load_task(task)
+        router = LCCRouter()
+        final = router.run(task_input)
+        payload = final_answer_to_dict(final)
+        console.print(payload["answer"])
+        err_console.print(
+            f"\n[cyan]Route taken:[/cyan] {payload['route_taken']} | "
+            f"[cyan]Remote tokens:[/cyan] {payload['remote_tokens_used']}"
+        )
+        return
+
+    if action == "eval":
+        if cases is None or not cases.exists():
+            _fail(f"cases directory not found or not specified: {cases}")
+        report = run_evaluation(cases)
+        out = write_reports(report, output)
+        console.print(json.dumps(report["result"], indent=2, ensure_ascii=False))
+        err_console.print(f"[green]Wrote evaluation report to {out} and {out.with_suffix('.md')}[/green]")
+        return
+
+    _fail(f"unknown route action: {action}. Use 'run' or 'eval'")
+
 
 def cli_main() -> None:
+
+
     """Console-script entry point (``lcc``)."""
     app()
 
 
 if __name__ == "__main__":
     cli_main()
+

@@ -10,12 +10,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vetlucasmartins/lcc.git"
+    "url": "git+https://github.com/lucasmartins-ai/lcc.git"
   },
   "bugs": {
-    "url": "https://github.com/vetlucasmartins/lcc/issues"
+    "url": "https://github.com/lucasmartins-ai/lcc/issues"
   },
-  "homepage": "https://github.com/vetlucasmartins/lcc#readme",
+  "homepage": "https://github.com/lucasmartins-ai/lcc#readme",
+
   "keywords": [
     "openai",
     "tiktoken",
