@@ -38,6 +38,124 @@ def test_normalize_empty_and_whitespace_only():
     assert normalize_text("   \n  \n").text == ""
 
 
+def test_normalize_preserves_python_code_block_indentation_and_spaces():
+    raw = """Here is some   introductory   text.
+
+```python
+def calculate_metrics(items,    factor=2):
+    total = 0
+    for item in items:
+        # Indented 8 spaces
+        val = item.get("value",    0)
+        total += val * factor
+    return total
+```
+
+Follow-up   remarks   here."""
+
+    res = normalize_text(raw)
+
+    expected_code = """```python
+def calculate_metrics(items,    factor=2):
+    total = 0
+    for item in items:
+        # Indented 8 spaces
+        val = item.get("value",    0)
+        total += val * factor
+    return total
+```"""
+    assert expected_code in res.text
+    assert "Here is some introductory text." in res.text
+    assert "Follow-up remarks here." in res.text
+
+
+def test_normalize_preserves_markdown_table():
+    raw = """Summary   table   below:
+
+| Column A    | Column B       | Status   |
+|:------------|:--------------:|---------:|
+| Item 1      | Description    | OK       |
+| Item 2      | Long detail    | Pending  |
+
+Closing   paragraph   with    spaces."""
+
+    res = normalize_text(raw)
+
+    expected_table = """| Column A    | Column B       | Status   |
+|:------------|:--------------:|---------:|
+| Item 1      | Description    | OK       |
+| Item 2      | Long detail    | Pending  |"""
+    assert expected_table in res.text
+    assert "Summary table below:" in res.text
+    assert "Closing paragraph with spaces." in res.text
+
+
+def test_normalize_mixed_content_prose_code_table():
+    raw = """### Overview   with   spaces
+
+First paragraph with    extra   spaces.
+
+```json
+{
+    "id": 1,
+    "name": "test",
+    "params":    [1,    2,    3]
+}
+```
+
+Middle   transition   text.
+
+| Key       | Value     |
+|-----------|-----------|
+| host      | localhost |
+| port      | 8080      |
+
+~~~bash
+#!/usr/bin/env bash
+echo "Running    script..."
+~~~
+
+Final   conclusion."""
+
+    res = normalize_text(raw)
+
+    assert "### Overview with spaces" in res.text
+    assert "First paragraph with extra spaces." in res.text
+    assert '    "params":    [1,    2,    3]' in res.text
+    assert "| Key       | Value     |" in res.text
+    assert 'echo "Running    script..."' in res.text
+    assert "Final conclusion." in res.text
+
+
+def test_normalize_nested_and_consecutive_code_blocks():
+    raw = """Consecutive code blocks:
+
+```python
+x    = 1
+```
+```python
+y    = 2
+```
+
+Nested markdown code fence:
+
+````markdown
+```python
+def nested():
+    pass    # 4 spaces
+```
+````
+
+End   note."""
+
+    res = normalize_text(raw)
+
+    assert "x    = 1" in res.text
+    assert "y    = 2" in res.text
+    assert "pass    # 4 spaces" in res.text
+    assert "End note." in res.text
+
+
 def test_boilerplate_removes_signature_and_page_marker():
     text = "Real content here.\nSent from my iPhone\nPage 3 of 10\nMore content."
     result = remove_common_boilerplate(text)

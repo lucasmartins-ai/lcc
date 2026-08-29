@@ -58,13 +58,16 @@ class LccIntake:
         extra_constraints: list[str] | None = None,
     ) -> IntakeResult:
         """Execute full intake & LCC compilation pipeline."""
-        parsed = parse_intake(raw_input)
-        cleaned_text = raw_input
+        from lcc.cleaning import clean_speech_transcript, is_speech_transcript
+
+        input_text = clean_speech_transcript(raw_input) if is_speech_transcript(raw_input) else raw_input
+        parsed = parse_intake(input_text)
+        cleaned_text = input_text
         compression_result: CompressionResult | None = None
 
         if self.optimize_context and parsed.readiness != ReadinessState.BLOCKED:
             compression_result = self.compressor.compress(
-                raw_text=raw_input,
+                raw_text=input_text,
                 question=question or parsed.brief.objective,
                 task_type="intake-refinement",
                 constraints=extra_constraints or parsed.brief.constraints,
