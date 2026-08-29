@@ -29,7 +29,8 @@ Most LLM applications waste 40–70% of their context window on invisible bloat:
 ## 🎬 Live Demo: Before & After
 
 ### Raw Input (Messy Transcript + Code)
-```text
+
+````text
 WEBVTT
 
 00:00:01.000 --> 00:00:04.500
@@ -47,10 +48,11 @@ SELECT * FROM orders WHERE customer_id = 42 AND status LIKE '%active%';
 [Applause]
 Thank you for watching!
 Please subscribe to the channel.
-```
+````
 
 ### Cleaned `lcc` Compiled Output
-```xml
+
+````xml
 <!-- lcc-intake:readiness status="READY_TO_EXECUTE" score="90" -->
 
 <system_instructions>
@@ -73,9 +75,14 @@ SELECT * FROM orders WHERE customer_id = 42 AND status LIKE '%active%';
 <user_query>
 Speaker 1: We need to optimize the database query latency.
 </user_query>
-```
+````
 
-> **Result**: Audio tags, filler words, and video outros stripped cleanly; SQL indentation and string literals preserved 100% intact with deterministic readiness triage.
+> **Result**: 98 tokens → 46 tokens (**-53.1% token reduction**). Audio tags, filler words, and video outros stripped cleanly; SQL indentation and string literals preserved 100% intact with deterministic readiness triage.
+>
+> 👉 **Try it yourself:**
+> ```bash
+> lcc intake "[Music] Speaker 1: Um, we need to basically optimize the query latency, né?"
+> ```
 
 ---
 
@@ -83,7 +90,7 @@ Speaker 1: We need to optimize the database query latency.
 
 | Context Type | Raw Input Tokens | LCC Compiled Tokens | Token Savings | Cache Hit Potential |
 | :--- | :---: | :---: | :---: | :---: |
-| **Messy Whisper Audio Transcript (EN/PT)** | ~4,800 tokens | **1,350 tokens** | **-71.8%** | ⭐⭐⭐⭐⭐ (Structured XML) |
+| **Messy Whisper Audio Transcript (EN/PT)** | ~98 tokens (demo) / ~4,800 tokens | **46 tokens / 1,350 tokens** | **-53.1% to -71.8%** | ⭐⭐⭐⭐⭐ (Structured XML) |
 | **Multi-File Context Dump** | ~18,500 tokens | **5,400 tokens** | **-70.8%** | ⭐⭐⭐⭐⭐ (>90% KV reuse) |
 | **Vague Refactoring Brief** | ~2,100 tokens | **620 tokens** | **-70.4%** | ⭐⭐⭐⭐ (Zero Ambiguity) |
 | **Direct Cloud Escalation (`REMOTE_DIRECT`)** | ~3,400 tokens | **2,200 tokens** | **-35.3%** | ⭐⭐⭐⭐ (Lossless Boilerplate Drop) |
