@@ -54,3 +54,26 @@ def test_process_intake_convenience_helper():
     res = process_intake("Fix bug in tokenizer", model="gemini-3.6-flash")
     assert res.formatted_prompt is not None
     assert "lcc-intake:readiness" in res.formatted_prompt
+
+
+def test_lcc_intake_speech_transcript_filtering():
+    pipeline = LccIntake(model="claude-sonnet-5", template_name="claude_xml")
+    raw_transcript = """
+    00:00:01,000 --> 00:00:04,000
+    [Music]
+    Speaker 1: Um, okay so, we need to optimize the database query latency.
+
+    00:00:04,100 --> 00:00:07,000
+    Speaker 1: You know, the queries on the users table are basically timing out.
+
+    00:00:07,100 --> 00:00:09,000
+    [Applause]
+    Thank you for watching!
+    """
+    result = pipeline.process(raw_transcript)
+
+    assert "[Music]" not in result.formatted_prompt
+    assert "[Applause]" not in result.formatted_prompt
+    assert "Thank you for watching" not in result.formatted_prompt
+    assert "00:00:01" not in result.formatted_prompt
+    assert "optimize the database query latency" in result.formatted_prompt

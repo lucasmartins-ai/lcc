@@ -10,7 +10,13 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from lcc import __version__
-from lcc.cleaning import deduplicate_paragraphs, normalize_text, remove_common_boilerplate
+from lcc.cleaning import (
+    clean_speech_transcript,
+    deduplicate_paragraphs,
+    is_speech_transcript,
+    normalize_text,
+    remove_common_boilerplate,
+)
 from lcc.cleaning.boilerplate import BoilerplateResult
 from lcc.prompt_builder import PromptSpec, build_prompt
 from lcc.reporting.report import build_report
@@ -34,6 +40,7 @@ class OptimizationRequest:
     remove_boilerplate: bool = True
     remove_near_duplicates: bool = True
     similarity_threshold: float = 0.95
+    clean_speech: bool = True
     template_name: str = "default"
     pricing: dict[str, Any] | None = None
 
@@ -50,16 +57,20 @@ class OptimizationResult:
 def optimize(request: OptimizationRequest) -> OptimizationResult:
     """Run the full deterministic pipeline.
 
-    Steps: normalize -> remove boilerplate -> deduplicate -> count tokens -> build prompt
-    -> estimate cost -> assemble report. Nothing is summarized or rewritten; cleaning only
-    removes safe, redundant, or non-meaningful text.
+    Steps: speech cleaning (if transcript detected) -> normalize -> remove boilerplate
+    -> deduplicate -> count tokens -> build prompt -> estimate cost -> assemble report.
+    Nothing is summarized or rewritten; cleaning only removes safe, redundant, or non-meaningful text.
     """
     warnings: list[str] = []
     raw = request.raw_text
     if not raw.strip():
         warnings.append("Input text is empty or whitespace-only; nothing to optimize.")
 
-    normalized = normalize_text(raw)
+    text_to_clean = raw
+    if request.clean_speech and is_speech_transcript(raw):
+        text_to_clean = clean_speech_transcript(raw)
+
+    normalized = normalize_text(text_to_clean)
     if request.remove_boilerplate:
         boilerplate = remove_common_boilerplate(normalized.text)
     else:

@@ -118,7 +118,9 @@ def prepare_context(task: TaskInput) -> PreparedContext:
 
 
 def optimize_context_if_needed(task: TaskInput, policy: Any) -> PreparedContext:
-    """Return optimized context when LCC predicts enough savings, otherwise original context."""
+    """Return optimized context when LCC predicts enough savings, otherwise cleaned context."""
+    from lcc.cleaning import safe_clean_text
+
     summary = inspect_context(task)
     threshold = getattr(
         getattr(policy, "router", policy),
@@ -129,9 +131,10 @@ def optimize_context_if_needed(task: TaskInput, policy: Any) -> PreparedContext:
         summary.projected_savings_ratio >= threshold
     ):
         return prepare_context(task)
+    cleaned = safe_clean_text(task.context)
     return PreparedContext(
-        context=task.context,
-        prompt=f"{task.instruction}\n\n{task.context}",
+        context=cleaned,
+        prompt=f"{task.instruction}\n\n{cleaned}",
         lcc_summary=replace(summary),
         compression_applied=False,
         warnings=summary.warnings,
