@@ -176,7 +176,9 @@ class LCCRouter:
         lcc_summary: LCCReportSummary,
         prepared: PreparedContext | None,
     ) -> FinalAnswer:
-        context = prepared.context if prepared else task.context
+        from lcc.cleaning import safe_clean_text
+
+        context = prepared.context if prepared else safe_clean_text(task.context)
         remote_task = replace(task, context=context)
         prompt = build_fireworks_prompt(remote_task, context)
         remote = self.remote_solver.complete(remote_task, prompt)
