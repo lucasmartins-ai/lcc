@@ -11,6 +11,9 @@ All notable changes to this project are documented here. The format is based on
 - `lcc agent` local agent subsystem (`lcc.agents`) with native support for **Gemma 4 e4b** (turn formatting `<start_of_turn>user...`) and **Qwen3.5-4B** (ChatML `<|im_start|>...`), Ollama, llama.cpp / GGUF (e4b 4-bit), vLLM, MLX, and mock backends with health checks and zero remote token usage.
 - `lcc route` hybrid local/cloud routing subsystem (`lcc.router`) with conservative verification gates (`RuleBasedVerifier`, `LocalLLMVerifier`) and selective escalation to Fireworks AI.
 - `lcc intake` intelligent prompt intake engine (`lcc.intake`) with automated readiness triage (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`), intent/assumptions extraction, and clarifying questions generation.
+- `lcc speech` and transcript cleaning (`lcc.cleaning.speech`) with deterministic speech disfluency stripping (English & Portuguese fillers), Whisper audio tag elimination (`[Music]`, `[Applause]`, etc.), hallucinated subtitle/video outro removal, and speaker-turn collapsing.
+- Code-block and Markdown-table safe normalization in `lcc.cleaning.normalize` protecting fenced code blocks (``` and ~~~) and Markdown tables against destructive inner-space collapsing and indentation disruption.
+- Fixed `REMOTE_DIRECT` router token leak in `lcc.router` so direct cloud model escalation always receives safe deterministic cleaning (normalization, boilerplate removal, and exact paragraph deduplication).
 - Universal TypeScript & Node.js client package exports (`LccCompressor`, `LccIntake`, `processIntake`).
 - `lcc prepare` deterministic inspect-first workflow. It runs inspection, skips prompt
 
