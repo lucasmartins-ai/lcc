@@ -81,6 +81,16 @@ The report is designed for automated cache accounting:
 If `prefix_sha256` changes while a cache should still be warm, something recomputed the
 head region — investigate before blaming the model provider.
 
+### When a pass is not worth an epoch (v1.1)
+
+The report carries `reduction_ratio` and `worth_it` (target via `--min-reduction`, default
+25%). A pass that removes little is usually not worth breaking a warm prefix: keep the
+original bytes and the cache. Trimmed blocks are counted separately (`blocks_trimmed`,
+`decisions[].chars_after`) so accounting can tell "deleted" from "shortened". For live
+append-only contexts, `--preserve-tail N` pins the newest blocks untouched, so freshly
+appended content is never sacrificed by a pass that runs while the session is still
+growing.
+
 ## Agent pattern (the short version)
 
 1. Structure the prompt as `[stable prefix][cache break][volatile tail]`.

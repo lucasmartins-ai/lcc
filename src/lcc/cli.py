@@ -874,6 +874,35 @@ def compact_command(
     threshold: float = typer.Option(
         0.4, "--threshold", help="Drop blocks whose keep-probability is below this value (0-1)."
     ),
+    trim_threshold: float | None = typer.Option(
+        None,
+        "--trim-threshold",
+        help=(
+            "Middle gear: blocks scoring in [trim-threshold, threshold) keep a bounded head "
+            "plus a note. Default: threshold / 2."
+        ),
+    ),
+    trim_head_chars: int = typer.Option(
+        300,
+        "--trim-head-chars",
+        help="Characters kept from a trimmed block (0 disables trimming, strict keep/drop).",
+    ),
+    preserve_tail: int = typer.Option(
+        0,
+        "--preserve-tail",
+        help="Never score or mutate the newest N blocks (live append-only contexts).",
+    ),
+    max_workers: int = typer.Option(
+        4, "--max-workers", help="Scoring batches sent concurrently (1 = sequential, max 8)."
+    ),
+    min_reduction: float = typer.Option(
+        0.25,
+        "--min-reduction",
+        help=(
+            "Below this removed share of characters the pass is flagged as not worth a cache "
+            "epoch (0 disables the check)."
+        ),
+    ),
     provider: str = typer.Option(
         "auto",
         "--provider",
@@ -928,12 +957,27 @@ def compact_command(
         _fail(f"unknown provider {provider!r}; expected auto, jev, or mechanical.", code=2)
     if not 0.0 <= threshold <= 1.0:
         _fail("--threshold must be between 0 and 1.", code=2)
+    if trim_head_chars < 0:
+        _fail("--trim-head-chars must be >= 0.", code=2)
+    if trim_threshold is not None and not 0.0 <= trim_threshold <= 1.0:
+        _fail("--trim-threshold must be between 0 and 1.", code=2)
+    if preserve_tail < 0:
+        _fail("--preserve-tail must be >= 0.", code=2)
+    if not 1 <= max_workers <= 8:
+        _fail("--max-workers must be between 1 and 8.", code=2)
+    if not 0.0 <= min_reduction <= 1.0:
+        _fail("--min-reduction must be between 0 and 1.", code=2)
 
     raw = _read_input(input_path)
     request = RelevanceCompactionRequest(
         text=raw,
         question=question,
         threshold=threshold,
+        trim_threshold=trim_threshold,
+        trim_head_chars=trim_head_chars,
+        preserve_tail_blocks=preserve_tail,
+        max_workers=max_workers,
+        min_reduction=min_reduction,
         provider=provider,
         model=model,
         jev_model=jev_model,
@@ -982,8 +1026,22 @@ def compact_command(
         f"{report.blocks_protected} protected",
     )
     table.add_row("Dropped", str(report.blocks_dropped))
+    if report.blocks_trimmed:
+        band = (
+            f"{report.trim_threshold:.2f}-{report.threshold:.2f}"
+            if report.trim_threshold is not None
+            else "-"
+        )
+        table.add_row(
+            "Trimmed",
+            f"{report.blocks_trimmed} (head {report.trim_head_chars} chars, band {band})",
+        )
     table.add_row(
         "Chars", f"{report.chars_before} -> {report.chars_after} (-{report.chars_removed})"
+    )
+    table.add_row(
+        "Reduction",
+        f"{report.reduction_ratio:.1%}" + ("" if report.worth_it else " (below target)"),
     )
     table.add_row(
         "Tokens", f"{report.tokens_before} -> {report.tokens_after} ({report.token_count_method})"

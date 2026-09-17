@@ -69,7 +69,7 @@ class DecisionCache:
                 continue
             key = record.get("k")
             decision = record.get("decision")
-            if not isinstance(key, str) or decision not in ("keep", "drop"):
+            if not isinstance(key, str) or decision not in ("keep", "trim", "drop"):
                 continue
             score = record.get("score")
             self._entries[key] = CachedDecision(
