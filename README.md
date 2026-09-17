@@ -227,22 +227,26 @@ lcc route eval --cases examples/tasks --output eval/reports/report.json
 
 ### 6. `lcc compact` — Instant Relevance Compaction (opt-in, cache-aware)
 
-Drop context blocks that are irrelevant to an objective before any large model sees them. Narrow model judgment (TypeSafe System One / Jev) scores blocks in batched calls (~0.7s per call for up to 8 blocks); without an API key it falls back to a fully local mechanical pass. Kept bytes are re-emitted exactly, provider failures never drop content, and sticky decisions keep the output byte-stable so prompt/KV caches survive.
+Drop context blocks that are irrelevant to an objective before any large model sees them. Narrow model judgment (TypeSafe System One / Jev) scores blocks in batched calls sent concurrently (~0.7s per call for up to 8 blocks); without an API key it falls back to a fully local mechanical pass. Blocks end in one of three states: **keep** (bytes re-emitted exactly), **trim** (a bounded head plus an audit note — the middle gear between keep and drop), or **drop**. Provider failures never drop content, and sticky decisions keep the output byte-stable so prompt/KV caches survive.
 
 ```bash
 # Full pass (Jev-scored): drops noise, keeps an auditable decision trail
 lcc compact dossier.md -q "reduce mobile booking friction" -o compacted.md -r report.json
 
-# Cache-safe incremental pattern for live sessions
+# Cache-safe incremental pattern for live sessions (never touch the newest blocks)
 lcc compact dossier.md -q "reduce mobile booking friction" \
   --prefix-marker "<!-- lcc:cache-break -->" \
+  --preserve-tail 6 \
   --decisions-cache ~/.cache/lcc/decisions.jsonl
+
+# Strict keep/drop, no middle gear
+lcc compact dossier.md -q "reduce mobile booking friction" --trim-head-chars 0
 
 # Fully offline (mechanical): drops only zero-lexical-overlap blocks
 lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical
 ```
 
-The `relevance-compaction-1.0` report exposes per-block scores and decisions plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`). See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013).
+The `relevance-compaction-1.1` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`). See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013).
 
 ---
 

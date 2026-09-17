@@ -1,5 +1,12 @@
 """Instant relevance compaction: opt-in block dropping driven by narrow model judgment.
 
+Blocks can end in three states: ``keep`` (bytes re-emitted exactly), ``trim`` (a bounded
+head is kept plus a one-line note; the middle gear adopted in the 2026-09-18 review of
+tamaratran/fast-jev-compaction), or ``drop``. Scoring batches run concurrently, the newest
+blocks can be pinned untouched (``preserve_tail_blocks``) for live append-only contexts, and
+the report carries a reduction ratio with a worth-it flag so callers can skip a cache epoch
+that saves too little.
+
 Boundary (ADR 0013): this package is NOT part of the deterministic core. It only runs when
 explicitly opted in, it fails safe (when in doubt, keep), and it falls back to a fully local
 mechanical pass when the model provider is unavailable. The compactor never rewrites kept
@@ -21,6 +28,7 @@ import hashlib
 import json
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -36,11 +44,14 @@ from lcc.relevance.decisions import CachedDecision, DecisionCache, decision_key
 from lcc.relevance.jev import JevClient, JevError
 from lcc.token_budget import count_tokens
 
-RELEVANCE_SCHEMA_VERSION = "relevance-compaction-1.0"
+RELEVANCE_SCHEMA_VERSION = "relevance-compaction-1.1"
 
 _DEFAULT_THRESHOLD = 0.4
 _DEFAULT_BATCH_SIZE = 8
 _DEFAULT_MAX_STATE_CHARS = 12000
+_DEFAULT_TRIM_HEAD_CHARS = 300
+_DEFAULT_MAX_WORKERS = 4
+_DEFAULT_MIN_REDUCTION = 0.25
 _SCORE_CLIP_HEAD = 4000
 _SCORE_CLIP_TAIL = 1100
 
@@ -59,6 +70,17 @@ class RelevanceCompactionRequest:
     text: str
     question: str
     threshold: float = _DEFAULT_THRESHOLD
+    # Middle gear: blocks scoring in [trim_threshold, threshold) keep a bounded head
+    # instead of being dropped. ``None`` resolves to ``threshold * 0.5``; set
+    # ``trim_head_chars`` to 0 to keep the pass strictly binary (keep/drop).
+    trim_threshold: float | None = None
+    trim_head_chars: int = _DEFAULT_TRIM_HEAD_CHARS
+    # Live append-only contexts: the newest N blocks are never scored or mutated.
+    preserve_tail_blocks: int = 0
+    # Scoring batches sent concurrently; 1 keeps the strictly sequential path.
+    max_workers: int = _DEFAULT_MAX_WORKERS
+    # Below this share of removed characters the pass is flagged as not worth a cache epoch.
+    min_reduction: float = _DEFAULT_MIN_REDUCTION
     batch_size: int = _DEFAULT_BATCH_SIZE
     min_block_chars: int = DEFAULT_MIN_BLOCK_CHARS
     max_block_chars: int = DEFAULT_MAX_BLOCK_CHARS
@@ -76,17 +98,18 @@ class RelevanceCompactionRequest:
 
 @dataclass(frozen=True)
 class BlockDecision:
-    """One auditable keep/drop decision."""
+    """One auditable keep/trim/drop decision."""
 
     id: str
     index: int
     line_start: int
     line_end: int
     chars: int
-    decision: str  # keep | drop
+    decision: str  # keep | trim | drop
     source: str  # protected | reused | jev | mechanical | mechanical_fallback | degraded
     score: float | None
     reason: str
+    chars_after: int | None = None  # set for ``trim`` (head kept + note)
 
 
 @dataclass(frozen=True)
@@ -99,16 +122,22 @@ class RelevanceCompactionReport:
     degraded: bool
     objective: str
     threshold: float
+    trim_threshold: float | None
+    trim_head_chars: int
     blocks_total: int
     blocks_scored: int
     blocks_protected: int
     blocks_dropped: int
+    blocks_trimmed: int
     chars_before: int
     chars_after: int
     chars_removed: int
     tokens_before: int
     tokens_after: int
     token_count_method: str
+    reduction_ratio: float
+    worth_it: bool
+    min_reduction: float
     calls: int
     latency_ms: int
     reused_decisions: int
@@ -160,6 +189,31 @@ def _resolve_client() -> JevClient | None:
     return JevClient.from_env(ledger_path=default_ledger_path())
 
 
+_TRIM_HEAD_SLACK = 200
+
+
+def _render_trimmed(
+    block_text: str,
+    score: float | None,
+    trim_threshold: float | None,
+    threshold: float,
+    head_chars: int,
+) -> str:
+    """Rendered form of a trimmed block: bounded head plus one audit note line."""
+    head = block_text[:head_chars]
+    if score is None:
+        score_part = ""
+    elif trim_threshold is not None:
+        score_part = f", score {score:.2f} in band {trim_threshold:.2f}-{threshold:.2f}"
+    else:
+        score_part = f", score {score:.2f}"
+    return (
+        f"{head.rstrip()}\n"
+        f"[lcc-compact: trimmed {len(block_text) - head_chars} of {len(block_text)} chars "
+        f"of this block{score_part}]"
+    )
+
+
 def _marker_for_run(run: list[BlockDecision], threshold: float) -> str:
     total_chars = sum(decision.chars for decision in run)
     scores = [decision.score for decision in run if decision.score is not None]
@@ -199,13 +253,19 @@ def _score_with_jev(
     blocks: list[TextBlock],
     request: RelevanceCompactionRequest,
 ) -> tuple[dict[str, tuple[float, str]], int, int, list[str]]:
-    """Score blocks with Jev. Returns (results, calls, latency_ms, warnings)."""
+    """Score blocks with Jev, concurrently when several batches exist.
+
+    Returns (results, calls, latency_ms, warnings). A failed batch does not abort the
+    remaining ones: blocks left without an answer are reported so the caller scores them
+    mechanically (fail-safe, unchanged contract).
+    """
     results: dict[str, tuple[float, str]] = {}
     warnings: list[str] = []
-    calls = 0
-    latency_ms = 0
     batches = _batch_blocks(blocks, request.batch_size, request.max_state_chars)
-    for batch_index, batch in enumerate(batches, start=1):
+
+    def score_batch(
+        batch_index: int, batch: list[TextBlock]
+    ) -> tuple[int, dict[str, Any] | None, int, str | None]:
         state = {
             "objective": request.question,
             "blocks": [{"id": block.id, "text": _clip_for_scoring(block.text)} for block in batch],
@@ -230,21 +290,44 @@ def _score_with_jev(
         try:
             response = client.evaluate(state, questions)
         except JevError as exc:
-            warnings.append(
-                f"jev_batch_{batch_index}_failed: {exc}; remaining blocks scored mechanically"
+            return (
+                batch_index,
+                None,
+                int((time.perf_counter() - started) * 1000),
+                f"jev_batch_{batch_index}_failed: {exc}; those blocks scored mechanically",
             )
-            return results, calls, latency_ms, warnings
-        latency_ms += int((time.perf_counter() - started) * 1000)
+        return batch_index, response, int((time.perf_counter() - started) * 1000), None
+
+    workers = max(1, min(8, int(request.max_workers)))
+    if workers == 1 or len(batches) <= 1:
+        outcomes = [score_batch(index, batch) for index, batch in enumerate(batches, start=1)]
+    else:
+        with ThreadPoolExecutor(max_workers=min(workers, len(batches))) as pool:
+            futures = [
+                pool.submit(score_batch, index, batch)
+                for index, batch in enumerate(batches, start=1)
+            ]
+            outcomes = [future.result() for future in futures]
+
+    calls = 0
+    latency_ms = 0
+    for batch_index, response, batch_latency, failure in outcomes:
+        latency_ms += batch_latency
+        if response is None:
+            fallback = failure or f"jev_batch_{batch_index}_failed: unknown; scored mechanically"
+            warnings.append(fallback)
+            continue
         calls += 1
+        batch = batches[batch_index - 1]
         answers = response.get("answers") or {}
         for block in batch:
             answer = answers.get(f"keep_{block.id}") or {}
             noul = answer.get("noul")
             if isinstance(noul, (int, float)):
                 results[block.id] = (float(noul), "jev")
-        missing = [block.id for block in batch if block.id not in results]
-        for block_id in missing:
-            warnings.append(f"jev_missing_answer:{block_id}")
+        for block in batch:
+            if block.id not in results:
+                warnings.append(f"jev_missing_answer:{block.id}")
     return results, calls, latency_ms, warnings
 
 
@@ -301,6 +384,22 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         if any(regex.search(block.text) for regex in keep_regexes):
             protected_reasons[block.id] = "keep_pattern"
 
+    # --- live contexts: pin the newest N blocks untouched (fast-jev-compaction review)
+    if request.preserve_tail_blocks > 0:
+        for block in blocks[-request.preserve_tail_blocks :]:
+            protected_reasons.setdefault(block.id, "tail_preserve")
+
+    # --- middle gear resolution: trim band [trim_threshold, threshold)
+    if request.trim_head_chars <= 0:
+        trim_threshold: float | None = None
+    elif request.trim_threshold is None:
+        trim_threshold = request.threshold * 0.5
+    elif 0.0 <= request.trim_threshold < request.threshold:
+        trim_threshold = request.trim_threshold
+    else:
+        warnings.append("trim_threshold_out_of_range: trim disabled")
+        trim_threshold = None
+
     scoreable = [block for block in blocks if block.id not in protected_reasons]
 
     # --- sticky decisions (cache alignment): reuse previous outcomes for unchanged blocks
@@ -314,6 +413,17 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         cached = cache.get(key) if request.decisions_cache_path is not None else None
         if cached is not None:
             reused += 1
+            chars_after: int | None = None
+            if cached.decision == "trim":
+                chars_after = len(
+                    _render_trimmed(
+                        block.text,
+                        cached.score,
+                        trim_threshold,
+                        request.threshold,
+                        request.trim_head_chars,
+                    )
+                )
             decisions[block.id] = BlockDecision(
                 id=block.id,
                 index=block.index,
@@ -324,6 +434,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 source="reused",
                 score=cached.score,
                 reason=f"sticky_decision:{cached.provider}",
+                chars_after=chars_after,
             )
         else:
             pending.append(block)
@@ -383,9 +494,30 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
 
         for block in pending:
             score, source = results.get(block.id, (0.0, provider_used))
+            chars_after: int | None = None
             if source == "jev":
-                decision = "drop" if score < request.threshold else "keep"
-                reason = "score_below_threshold" if decision == "drop" else "score_above_threshold"
+                if score >= request.threshold:
+                    decision = "keep"
+                    reason = "score_above_threshold"
+                elif trim_threshold is not None and score >= trim_threshold:
+                    if len(block.text) > request.trim_head_chars + _TRIM_HEAD_SLACK:
+                        decision = "trim"
+                        reason = "score_in_trim_band"
+                        chars_after = len(
+                            _render_trimmed(
+                                block.text,
+                                score,
+                                trim_threshold,
+                                request.threshold,
+                                request.trim_head_chars,
+                            )
+                        )
+                    else:
+                        decision = "keep"
+                        reason = "score_in_trim_band_kept_whole"
+                else:
+                    decision = "drop"
+                    reason = "score_below_threshold"
             else:
                 decision = "drop" if score <= 0.0 else "keep"
                 reason = "no_lexical_overlap" if decision == "drop" else "lexical_overlap"
@@ -399,6 +531,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 source=source,
                 score=score,
                 reason=reason,
+                chars_after=chars_after,
             )
             if request.decisions_cache_path is not None:
                 cache.put(
@@ -431,8 +564,10 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             ordered.append(decisions[block.id])
 
     dropped_ids = {decision.id for decision in ordered if decision.decision == "drop"}
-    if not dropped_ids:
-        compacted = text  # byte-identical identity for no-drop runs
+    trimmed_ids = {decision.id for decision in ordered if decision.decision == "trim"}
+    mutated_ids = dropped_ids | trimmed_ids
+    if not mutated_ids:
+        compacted = text  # byte-identical identity for keep-only runs
     else:
         pieces: list[str] = []
         index = 0
@@ -449,14 +584,25 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     pieces.append(_marker_for_run(run, request.threshold))
             else:
                 pieces.append(gaps[decision.index - 1])
-                pieces.append(blocks[index].text)
+                if decision.decision == "trim":
+                    pieces.append(
+                        _render_trimmed(
+                            blocks[index].text,
+                            decision.score,
+                            trim_threshold,
+                            request.threshold,
+                            request.trim_head_chars,
+                        )
+                    )
+                else:
+                    pieces.append(blocks[index].text)
                 index += 1
         pieces.append(gaps[-1])
         compacted = "".join(pieces)
 
     first_mutation_offset: int | None = None
     for block in blocks:
-        if block.id in dropped_ids:
+        if block.id in mutated_ids:
             first_mutation_offset = block.character_start
             break
 
@@ -467,6 +613,19 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     else:
         prefix_source = compacted[:first_mutation_offset]
 
+    chars_before = len(text)
+    chars_after = len(compacted)
+    reduction_ratio = (chars_before - chars_after) / chars_before if chars_before else 0.0
+    mutated = bool(mutated_ids)
+    worth_it = (
+        not mutated or request.min_reduction <= 0.0 or reduction_ratio >= request.min_reduction
+    )
+    if mutated and not worth_it:
+        warnings.append(
+            f"low_reduction: removed {reduction_ratio:.1%} of chars "
+            f"(< {request.min_reduction:.0%} target); a cache epoch may not be worth it"
+        )
+
     report = RelevanceCompactionReport(
         schema_version=RELEVANCE_SCHEMA_VERSION,
         provider_requested=provider_requested,
@@ -474,22 +633,28 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         degraded=degraded,
         objective=request.question,
         threshold=request.threshold,
+        trim_threshold=trim_threshold,
+        trim_head_chars=request.trim_head_chars,
         blocks_total=len(blocks),
         blocks_scored=len(scoreable),
         blocks_protected=len(protected_reasons),
         blocks_dropped=len(dropped_ids),
-        chars_before=len(text),
-        chars_after=len(compacted),
-        chars_removed=len(text) - len(compacted),
+        blocks_trimmed=len(trimmed_ids),
+        chars_before=chars_before,
+        chars_after=chars_after,
+        chars_removed=chars_before - chars_after,
         tokens_before=before_count.value,
         tokens_after=after_count.value,
         token_count_method=after_count.method.value,
+        reduction_ratio=reduction_ratio,
+        worth_it=worth_it,
+        min_reduction=request.min_reduction,
         calls=calls,
         latency_ms=latency_ms,
         reused_decisions=reused,
         prefix_protected=protect_boundary is not None,
         prefix_untouched=(
-            not dropped_ids
+            not mutated
             or (
                 protect_boundary is not None
                 and first_mutation_offset is not None
@@ -515,16 +680,22 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "degraded": report.degraded,
         "objective": report.objective,
         "threshold": report.threshold,
+        "trim_threshold": report.trim_threshold,
+        "trim_head_chars": report.trim_head_chars,
         "blocks_total": report.blocks_total,
         "blocks_scored": report.blocks_scored,
         "blocks_protected": report.blocks_protected,
         "blocks_dropped": report.blocks_dropped,
+        "blocks_trimmed": report.blocks_trimmed,
         "chars_before": report.chars_before,
         "chars_after": report.chars_after,
         "chars_removed": report.chars_removed,
         "tokens_before": report.tokens_before,
         "tokens_after": report.tokens_after,
         "token_count_method": report.token_count_method,
+        "reduction_ratio": report.reduction_ratio,
+        "worth_it": report.worth_it,
+        "min_reduction": report.min_reduction,
         "calls": report.calls,
         "latency_ms": report.latency_ms,
         "reused_decisions": report.reused_decisions,
@@ -545,6 +716,7 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
                 "source": decision.source,
                 "score": decision.score,
                 "reason": decision.reason,
+                "chars_after": decision.chars_after,
             }
             for decision in report.decisions
         ],

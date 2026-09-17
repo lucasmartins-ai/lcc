@@ -42,3 +42,24 @@ makes cache safety a first-class feature rather than an afterthought.
 it inside the deterministic core or the inspection boundary, drop blocks without an
 auditable decision record, or mutate protected prefixes. Node/TypeScript parity for
 `compact` is roadmap work behind the same contract, not implied by this ADR.
+
+## Update 2026-09-18 — trim middle gear, tail pinning, concurrent batches
+
+Reviewed `tamaratran/fast-jev-compaction` (a Claude Code plugin that replaces compaction
+summaries with Jev decisions per tool call: keep the call, keep its result verbatim, or
+truncate the result) and adopted what fits this boundary:
+
+- Three-way decisions **keep / trim / drop**. Borderline blocks (score in
+  `[--trim-threshold, threshold)`, default `threshold / 2`) keep a bounded head plus an
+  audit note instead of vanishing; `--trim-head-chars 0` restores strict keep/drop.
+- `--preserve-tail N` pins the newest N blocks untouched (live append-only contexts where
+  fresh content must never be sacrificed by a pass that runs mid-session).
+- Scoring batches run concurrently (`--max-workers`, max 8); a failed batch no longer
+  aborts the remaining ones — blocks left unanswered fall back mechanically, as before.
+- Reduction accounting: `reduction_ratio`, `worth_it`, `--min-reduction` — callers can skip
+  a cache epoch that would save too little (`docs/CACHE_ALIGNMENT.md`).
+
+The report schema moves to `relevance-compaction-1.1` (additive fields;
+`decisions[].chars_after` for trims). Not adopted, deliberately: the reviewed plugin throws
+on failure and relies on a host-provided fallback summary — this boundary keeps its
+built-in fail-safe (keep-all) and its byte-stable sticky decisions.

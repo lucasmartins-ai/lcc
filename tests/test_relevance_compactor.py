@@ -161,3 +161,123 @@ def test_decision_cache_roundtrip(tmp_path: Path):
     second.load()
     entry = second.get(key)
     assert entry is not None and entry.decision == "drop"
+
+
+# ---------------------------------------------------------------------------
+# 2026-09-18 upgrades (review of tamaratran/fast-jev-compaction): trim band,
+# tail pinning, concurrent batches, reduction ratio.
+# ---------------------------------------------------------------------------
+
+BORDER = (
+    "The borderline paragraph starts here with details that only partly match the "
+    "objective but still carry some signal for the reader. " + ("Extra context sentence. " * 30)
+) + "TAIL_MARKER_SHOULD_BE_GONE"
+
+TRIM_SAMPLE = (
+    "Intro block relevant to the objective and long enough to be scored without dropping it here.\n\n"
+    f"{BORDER}\n\n"
+    "Noise zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz.\n"
+)
+
+
+def _trim_judge(text: str) -> float:
+    lowered = text.lower()
+    if "intro block" in lowered:
+        return 0.9
+    if "borderline" in lowered:
+        return 0.3  # inside the default trim band [0.2, 0.4)
+    return 0.05
+
+
+def test_trim_band_keeps_head_and_note():
+    client = FakeJevClient(_trim_judge)
+    result = compact_context(_request(text=TRIM_SAMPLE, client=client))
+    report = result.report
+    assert report.blocks_trimmed == 1
+    assert "The borderline paragraph starts here" in result.compacted_text
+    assert "TAIL_MARKER_SHOULD_BE_GONE" not in result.compacted_text
+    assert "lcc-compact: trimmed" in result.compacted_text
+    assert "zzz zzz" not in result.compacted_text  # noise still dropped
+    trimmed = [d for d in report.decisions if d.decision == "trim"]
+    assert trimmed and trimmed[0].chars_after is not None
+    assert trimmed[0].chars_after < trimmed[0].chars
+
+
+def test_trim_disabled_with_zero_head_chars():
+    client = FakeJevClient(_trim_judge)
+    result = compact_context(_request(text=TRIM_SAMPLE, client=client, trim_head_chars=0))
+    assert result.report.blocks_trimmed == 0
+    assert "The borderline paragraph" not in result.compacted_text
+
+
+def test_trim_decision_round_trips_through_sticky_cache(tmp_path: Path):
+    cache = tmp_path / "decisions.jsonl"
+    first = compact_context(
+        _request(text=TRIM_SAMPLE, client=FakeJevClient(_trim_judge), decisions_cache_path=cache)
+    )
+    second_client = FakeJevClient(_trim_judge)
+    second = compact_context(
+        _request(text=TRIM_SAMPLE, client=second_client, decisions_cache_path=cache)
+    )
+    assert second_client.calls == 0
+    assert second.compacted_text == first.compacted_text
+    assert second.report.blocks_trimmed == 1
+
+
+def test_preserve_tail_blocks_are_never_scored_or_mutated():
+    client = FakeJevClient(lambda text: 0.02)  # everything would drop
+    result = compact_context(_request(client=client, preserve_tail_blocks=1))
+    report = result.report
+    assert "Another relevant line" in result.compacted_text  # newest block survives
+    assert "Intro block" not in result.compacted_text  # older blocks still drop
+    tail = [d for d in report.decisions if d.reason == "tail_preserve"]
+    assert len(tail) == 1 and tail[0].decision == "keep"
+
+
+def test_batches_run_concurrently_when_workers_allow():
+    import threading
+    import time as _time
+
+    class ProbeClient:
+        model = "probe"
+
+        def __init__(self):
+            self.lock = threading.Lock()
+            self.active = 0
+            self.max_active = 0
+            self.calls = 0
+
+        def evaluate(self, state, questions):
+            with self.lock:
+                self.active += 1
+                self.max_active = max(self.max_active, self.active)
+                self.calls += 1
+            _time.sleep(0.05)
+            with self.lock:
+                self.active -= 1
+            return {"answers": {qid: {"type": "noul", "noul": 0.9} for qid in questions}}
+
+    lines = [f"Block {i}: " + ("y " * 60) for i in range(8)]
+    text = "\n\n".join(lines) + "\n"
+
+    parallel = ProbeClient()
+    compact_context(_request(text=text, client=parallel, batch_size=1, max_workers=4))
+    assert parallel.calls == 8
+    assert parallel.max_active >= 2  # batches overlapped
+
+    sequential = ProbeClient()
+    compact_context(_request(text=text, client=sequential, batch_size=1, max_workers=1))
+    assert sequential.calls == 8
+    assert sequential.max_active == 1
+
+
+def test_reduction_ratio_and_low_reduction_flag():
+    client = FakeJevClient(_judge)
+    low = compact_context(_request(client=client, min_reduction=0.99))
+    assert low.report.worth_it is False
+    assert any("low_reduction" in w for w in low.report.warnings)
+    assert 0.0 < low.report.reduction_ratio < 1.0
+
+    client2 = FakeJevClient(_judge)
+    relaxed = compact_context(_request(client=client2, min_reduction=0.0))
+    assert relaxed.report.worth_it is True
