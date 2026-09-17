@@ -1,0 +1,72 @@
+"""Opt-in instant relevance compaction (ADR 0013).
+
+Drops context blocks that are irrelevant to an objective before a larger model ever sees
+them. Two modes:
+
+- ``provider="jev"``/``"auto"``: narrow model judgment (TypeSafe System One, "Jev") scores
+  every candidate block in batches; blocks below ``threshold`` are dropped.
+- ``provider="mechanical"``: fully local fallback that only drops blocks with zero lexical
+  overlap with the objective. Used automatically when no API key is configured.
+
+Everything is conservative: kept bytes are re-emitted exactly, blocks that are short or
+match ``keep_patterns`` are never scored, and any failure keeps content rather than
+dropping it. Sticky decisions (``decisions_cache_path``) keep the output byte-stable across
+runs so downstream prompt/KV caches survive (see ``docs/CACHE_ALIGNMENT.md``).
+"""
+
+from __future__ import annotations
+
+from lcc.relevance.blocks import (
+    BLOCK_ID_RE,
+    DEFAULT_MAX_BLOCK_CHARS,
+    DEFAULT_MIN_BLOCK_CHARS,
+    TextBlock,
+    block_id,
+    gaps_between,
+    reconstruct,
+    split_blocks,
+)
+from lcc.relevance.compactor import (
+    RELEVANCE_SCHEMA_VERSION,
+    BlockDecision,
+    RelevanceCompactionReport,
+    RelevanceCompactionRequest,
+    RelevanceCompactionResult,
+    compact_context,
+    report_to_dict,
+)
+from lcc.relevance.decisions import DecisionCache, decision_key
+from lcc.relevance.jev import (
+    JevClient,
+    JevError,
+    JevRequestError,
+    JevUnavailableError,
+    default_ledger_path,
+    resolve_typesafe_key,
+)
+
+__all__ = [
+    "BLOCK_ID_RE",
+    "DEFAULT_MAX_BLOCK_CHARS",
+    "DEFAULT_MIN_BLOCK_CHARS",
+    "RELEVANCE_SCHEMA_VERSION",
+    "BlockDecision",
+    "DecisionCache",
+    "JevClient",
+    "JevError",
+    "JevRequestError",
+    "JevUnavailableError",
+    "RelevanceCompactionReport",
+    "RelevanceCompactionRequest",
+    "RelevanceCompactionResult",
+    "TextBlock",
+    "block_id",
+    "compact_context",
+    "decision_key",
+    "default_ledger_path",
+    "gaps_between",
+    "reconstruct",
+    "report_to_dict",
+    "resolve_typesafe_key",
+    "split_blocks",
+]

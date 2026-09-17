@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- `lcc compact` (ADR 0013): opt-in instant relevance compaction. Drops context blocks that are irrelevant to an objective using narrow model judgment (TypeSafe System One / Jev) in batched calls, with a fully local mechanical fallback (zero-lexical-overlap blocks only) when no API key is configured. Fail-safe: provider failures keep content, never drop it.
+- Cache-aligned compaction: sticky decisions (`--decisions-cache`) pin `(objective, block)` outcomes so unchanged history keeps byte-identical output; `--protect-prefix` / `--prefix-marker` make early-prefix mutation impossible; reports expose `first_mutation_offset`, `prefix_sha256`, and `output_sha256` for automated cache accounting (`docs/CACHE_ALIGNMENT.md`).
+- `lcc intake --enable-relevance` (with `--relevance-threshold`, `--relevance-provider`): runs relevance compaction on raw input before intake compilation; results appear in the intake report JSON and summary.
+- Deterministic relevance block segmentation (`lcc.relevance.blocks`) with content-addressed ids (`blk_0001_<12 hex>`), fenced-code-aware spans, and byte-exact reconstruction; shared-ledger audit trail for every scoring call (`lcc_compact` feature tag, matching the LookADev fleet ledger schema).
 - `lcc agent` local agent subsystem (`lcc.agents`) with native support for **Gemma 4 e4b** (turn formatting `<start_of_turn>user...`) and **Qwen3.5-4B** (ChatML `<|im_start|>...`), Ollama, llama.cpp / GGUF (e4b 4-bit), vLLM, MLX, and mock backends with health checks and zero remote token usage.
 - `lcc route` hybrid local/cloud routing subsystem (`lcc.router`) with conservative verification gates (`RuleBasedVerifier`, `LocalLLMVerifier`) and selective escalation to Fireworks AI.
 - `lcc intake` intelligent prompt intake engine (`lcc.intake`) with automated readiness triage (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`), intent/assumptions extraction, and clarifying questions generation.

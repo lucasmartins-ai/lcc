@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from lcc.compressor import CompressionResult, LccCompressor
 from lcc.intake.parser import ParsedIntake, ReadinessState, parse_intake
 from lcc.prompt_builder import PromptSpec, build_prompt
 from lcc.toon import encode_toon
+
+if TYPE_CHECKING:
+    from lcc.relevance import RelevanceCompactionResult
 
 
 @dataclass
@@ -21,6 +24,7 @@ class IntakeResult:
     compression: CompressionResult | None
     formatted_prompt: str
     output_format: str
+    relevance: RelevanceCompactionResult | None = None
 
 
 class LccIntake:
@@ -33,12 +37,20 @@ class LccIntake:
         optimize_context: bool = True,
         max_tokens: int | None = None,
         strategy: str = "local-first",
+        enable_relevance: bool = False,
+        relevance_threshold: float = 0.4,
+        relevance_provider: str = "auto",
+        relevance_client: Any | None = None,
     ) -> None:
         self.model = model
         self.template_name = template_name
         self.optimize_context = optimize_context
         self.max_tokens = max_tokens
         self.strategy = strategy
+        self.enable_relevance = enable_relevance
+        self.relevance_threshold = relevance_threshold
+        self.relevance_provider = relevance_provider
+        self.relevance_client = relevance_client
         self.compressor = LccCompressor(
             model=model,
             strategy=strategy,
@@ -62,12 +74,26 @@ class LccIntake:
 
         input_text = clean_speech_transcript(raw_input) if is_speech_transcript(raw_input) else raw_input
         parsed = parse_intake(input_text)
-        cleaned_text = input_text
+        relevance_result: RelevanceCompactionResult | None = None
+        if self.enable_relevance and parsed.readiness != ReadinessState.BLOCKED:
+            from lcc.relevance import RelevanceCompactionRequest, compact_context
+
+            relevance_result = compact_context(
+                RelevanceCompactionRequest(
+                    text=input_text,
+                    question=question or parsed.brief.objective,
+                    threshold=self.relevance_threshold,
+                    provider=self.relevance_provider,
+                    client=self.relevance_client,
+                )
+            )
+        source_text = relevance_result.compacted_text if relevance_result else input_text
+        cleaned_text = source_text
         compression_result: CompressionResult | None = None
 
         if self.optimize_context and parsed.readiness != ReadinessState.BLOCKED:
             compression_result = self.compressor.compress(
-                raw_text=input_text,
+                raw_text=source_text,
                 question=question or parsed.brief.objective,
                 task_type="intake-refinement",
                 constraints=extra_constraints or parsed.brief.constraints,
@@ -124,6 +150,7 @@ class LccIntake:
             compression=compression_result,
             formatted_prompt=formatted_prompt,
             output_format=output_format,
+            relevance=relevance_result,
         )
 
 

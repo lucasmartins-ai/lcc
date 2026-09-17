@@ -39,6 +39,11 @@ from lcc.lexical_selection import PREPARE_SCHEMA_VERSION, select_chunks_for_ques
 from lcc.pipeline import OptimizationRequest
 from lcc.pipeline import optimize as run_pipeline
 from lcc.prompt_builder import available_templates
+from lcc.relevance import (
+    RelevanceCompactionRequest,
+    compact_context,
+)
+from lcc.relevance import report_to_dict as relevance_report_to_dict
 from lcc.reporting.report import report_to_dict, summary_rows, write_report
 from lcc.semantic_retrieval import (
     LOCAL_INDEX_V1_ADAPTER,
@@ -855,6 +860,154 @@ def _print_inspect_summary(report: Any, report_path: Path | None, summary: str) 
         err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
 
 
+@app.command("compact")
+def compact_command(
+    input_path: str = typer.Argument(
+        ..., metavar="INPUT", help="Path to a UTF-8 text file, or '-' to read from stdin."
+    ),
+    question: str = typer.Option(
+        ...,
+        "--question",
+        "-q",
+        help="Objective the context must serve; irrelevant blocks are dropped.",
+    ),
+    threshold: float = typer.Option(
+        0.4, "--threshold", help="Drop blocks whose keep-probability is below this value (0-1)."
+    ),
+    provider: str = typer.Option(
+        "auto",
+        "--provider",
+        help="Scoring provider: auto, jev (narrow model judgment), or mechanical (local only).",
+    ),
+    model: str = typer.Option(
+        "gpt-4.1", "--model", "-m", help="Model for token counting (default: gpt-4.1)."
+    ),
+    jev_model: str = typer.Option(
+        "jev-latest", "--jev-model", help="TypeSafe model id used for relevance scoring."
+    ),
+    batch_size: int = typer.Option(8, "--batch-size", help="Blocks scored per Jev call."),
+    min_block_chars: int = typer.Option(
+        80, "--min-block-chars", help="Blocks shorter than this are always kept (never scored)."
+    ),
+    keep_regex: list[str] | None = typer.Option(
+        None, "--keep-regex", help="Blocks matching this regex are never dropped (repeatable)."
+    ),
+    protect_prefix_chars: int | None = typer.Option(
+        None,
+        "--protect-prefix",
+        help="Cache alignment: never drop anything starting before this character offset.",
+    ),
+    prefix_marker: str | None = typer.Option(
+        None,
+        "--prefix-marker",
+        help="Cache alignment: never drop anything before this literal marker.",
+    ),
+    decisions_cache: Path | None = typer.Option(
+        None,
+        "--decisions-cache",
+        help=(
+            "Sticky decisions JSONL: unchanged blocks keep the same outcome "
+            "(keeps output byte-stable)."
+        ),
+    ),
+    no_marker: bool = typer.Option(
+        False, "--no-marker", help="Do not leave a drop marker line in the output."
+    ),
+    output_path: Path | None = typer.Option(
+        None, "--output", "-o", help="Write the compacted text here (otherwise stdout)."
+    ),
+    report_path: Path | None = typer.Option(
+        None, "--report", "-r", help="Write the JSON report to this file."
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Score and report without writing the compacted text."
+    ),
+) -> None:
+    """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
+    if provider not in ("auto", "jev", "mechanical"):
+        _fail(f"unknown provider {provider!r}; expected auto, jev, or mechanical.", code=2)
+    if not 0.0 <= threshold <= 1.0:
+        _fail("--threshold must be between 0 and 1.", code=2)
+
+    raw = _read_input(input_path)
+    request = RelevanceCompactionRequest(
+        text=raw,
+        question=question,
+        threshold=threshold,
+        provider=provider,
+        model=model,
+        jev_model=jev_model,
+        batch_size=batch_size,
+        min_block_chars=min_block_chars,
+        keep_patterns=tuple(keep_regex or ()),
+        marker=not no_marker,
+        protect_prefix_chars=protect_prefix_chars,
+        prefix_marker=prefix_marker,
+        decisions_cache_path=decisions_cache,
+    )
+    try:
+        result = compact_context(request)
+    except ValueError as exc:
+        _fail(str(exc), code=2)
+
+    report = result.report
+    if not dry_run:
+        if output_path is not None:
+            try:
+                output_path.write_text(result.compacted_text, encoding="utf-8")
+            except OSError as exc:
+                _fail(f"could not write compacted text to {output_path}: {exc}")
+        else:
+            sys.stdout.write(result.compacted_text)
+    if report_path is not None:
+        try:
+            report_path.write_text(
+                json.dumps(relevance_report_to_dict(report), indent=2), encoding="utf-8"
+            )
+        except OSError as exc:
+            _fail(f"could not write report to {report_path}: {exc}")
+
+    table = Table(
+        title="lcc -- instant relevance compaction", show_header=False, box=None, pad_edge=False
+    )
+    table.add_column("field", style="bold cyan", no_wrap=True)
+    table.add_column("value")
+    provider_label = report.provider_used
+    if report.degraded:
+        provider_label += " [yellow](degraded)[/yellow]"
+    table.add_row("Provider", provider_label)
+    table.add_row(
+        "Blocks",
+        f"{report.blocks_total} total | {report.blocks_scored} scored | "
+        f"{report.blocks_protected} protected",
+    )
+    table.add_row("Dropped", str(report.blocks_dropped))
+    table.add_row(
+        "Chars", f"{report.chars_before} -> {report.chars_after} (-{report.chars_removed})"
+    )
+    table.add_row(
+        "Tokens", f"{report.tokens_before} -> {report.tokens_after} ({report.token_count_method})"
+    )
+    if report.calls:
+        table.add_row("Jev calls", f"{report.calls} ({report.latency_ms} ms)")
+    if report.reused_decisions:
+        table.add_row("Sticky decisions reused", str(report.reused_decisions))
+    if report.prefix_protected:
+        table.add_row("Prefix untouched", "yes" if report.prefix_untouched else "no")
+    table.add_row(
+        "First mutation offset",
+        "-" if report.first_mutation_offset is None else str(report.first_mutation_offset),
+    )
+    table.add_row("Prefix sha256", report.prefix_sha256[:16] + "...")
+    err_console.print(table)
+    for warning in report.warnings:
+        err_console.print(f"[yellow]warning:[/yellow] {warning}")
+    if output_path is not None and not dry_run:
+        err_console.print(f"Compacted context written to: [green]{output_path}[/green]")
+    if report_path is not None:
+        err_console.print(f"Compaction report written to: [green]{report_path}[/green]")
+
+
 @app.command(name="intake")
 def intake_cmd(
     input_source: str = typer.Argument(
@@ -898,6 +1051,21 @@ def intake_cmd(
         "-r",
         help="Write the complete intake report JSON to this file.",
     ),
+    enable_relevance: bool = typer.Option(
+        False,
+        "--enable-relevance",
+        help="Opt in to instant relevance compaction (Jev-scored) before compilation.",
+    ),
+    relevance_threshold: float = typer.Option(
+        0.4,
+        "--relevance-threshold",
+        help="Drop blocks whose keep-probability is below this value.",
+    ),
+    relevance_provider: str = typer.Option(
+        "auto",
+        "--relevance-provider",
+        help="Relevance scoring provider: auto, jev, or mechanical.",
+    ),
 ) -> None:
     """Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC."""
     from lcc.intake import LccIntake, ReadinessState
@@ -914,6 +1082,9 @@ def intake_cmd(
         model=model,
         template_name=template,
         optimize_context=True,
+        enable_relevance=enable_relevance,
+        relevance_threshold=relevance_threshold,
+        relevance_provider=relevance_provider,
     )
     result = pipeline.process(
         raw_input=raw_text,
@@ -941,6 +1112,9 @@ def intake_cmd(
             "assumptions": result.parsed.assumptions,
             "brief": asdict(result.parsed.brief),
             "compression": asdict(result.compression) if result.compression else None,
+            "relevance": relevance_report_to_dict(result.relevance.report)
+            if result.relevance
+            else None,
         }
         try:
             report_path.write_text(json.dumps(report_data, indent=2), encoding="utf-8")
@@ -965,6 +1139,14 @@ def intake_cmd(
         table.add_row("Original Tokens", str(result.compression.original_tokens))
         table.add_row("Compiled Tokens", str(result.compression.compressed_tokens))
         table.add_row("Token Savings", f"[green]{result.compression.savings_percentage}%[/green]")
+
+    if result.relevance:
+        relevance_section = result.relevance.report
+        table.add_row("Relevance Provider", relevance_section.provider_used)
+        table.add_row(
+            "Relevance Dropped",
+            f"{relevance_section.blocks_dropped} block(s), {relevance_section.chars_removed} chars",
+        )
 
     err_console.print(table)
 
