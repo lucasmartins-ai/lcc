@@ -27,6 +27,7 @@
   - [`lcc inspect` — Read-Only Diagnostic Inspection](#3-lcc-inspect--read-only-diagnostic-inspection)
   - [`lcc agent` — Local LLM Agents (Gemma 4 e4b & Qwen3.5-4B)](#4-lcc-agent--local-llm-agents-gemma-4-e4b--qwen35-4b)
   - [`lcc route` — Hybrid Local/Cloud Routing](#5-lcc-route--hybrid-localcloud-routing)
+  - [`lcc compact` — Instant Relevance Compaction](#6-lcc-compact--instant-relevance-compaction)
 - [Programmatic Library API Usage](#-programmatic-library-api-usage)
   - [Python API](#python-api)
   - [TypeScript / Node.js API](#typescript--nodejs-api)
@@ -223,6 +224,25 @@ lcc route run --task examples/tasks/noisy_context.json
 # Run evaluation suite across task cases
 lcc route eval --cases examples/tasks --output eval/reports/report.json
 ```
+
+### 6. `lcc compact` — Instant Relevance Compaction (opt-in, cache-aware)
+
+Drop context blocks that are irrelevant to an objective before any large model sees them. Narrow model judgment (TypeSafe System One / Jev) scores blocks in batched calls (~0.7s per call for up to 8 blocks); without an API key it falls back to a fully local mechanical pass. Kept bytes are re-emitted exactly, provider failures never drop content, and sticky decisions keep the output byte-stable so prompt/KV caches survive.
+
+```bash
+# Full pass (Jev-scored): drops noise, keeps an auditable decision trail
+lcc compact dossier.md -q "reduce mobile booking friction" -o compacted.md -r report.json
+
+# Cache-safe incremental pattern for live sessions
+lcc compact dossier.md -q "reduce mobile booking friction" \
+  --prefix-marker "<!-- lcc:cache-break -->" \
+  --decisions-cache ~/.cache/lcc/decisions.jsonl
+
+# Fully offline (mechanical): drops only zero-lexical-overlap blocks
+lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical
+```
+
+The `relevance-compaction-1.0` report exposes per-block scores and decisions plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`). See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013).
 
 ---
 
