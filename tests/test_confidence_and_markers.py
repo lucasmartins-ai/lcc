@@ -53,9 +53,9 @@ def _run_long(score, conf, threshold=0.4):
 def test_threshold_boundaries():
     below = _run(0.05, 0.9, threshold=0.4)
     assert below.report.blocks_dropped >= 1  # below the trim band
-    band = _run_long(0.39, 0.9, threshold=0.4)
-    assert band.report.blocks_trimmed >= 1  # inside [0.2, 0.4): middle gear
-    short_band = _run(0.39, 0.9, threshold=0.4)
+    band = _run_long(0.34, 0.9, threshold=0.4)
+    assert band.report.blocks_trimmed >= 1  # bucket 0.3 is inside [0.2, 0.4): middle gear
+    short_band = _run(0.34, 0.9, threshold=0.4)
     assert short_band.report.blocks_dropped == 0  # too short to trim: kept whole
     assert _run(0.40, 0.9, threshold=0.4).report.blocks_dropped == 0  # at
     assert _run(0.41, 0.9, threshold=0.4).report.blocks_dropped == 0  # above
@@ -100,5 +100,5 @@ def test_provenance_answers_what_why_and_who():
     for d in payload["decisions"]:
         assert {"decision", "reason", "score", "confidence", "relationships",
                 "policy_version", "content_type"} <= set(d)
-    assert payload["policy_version"] == "relevance-compaction-1.1"
+    assert payload["policy_version"] == "relevance-compaction-1.2"
     assert payload["jev_model_requested"] == "jev-latest"

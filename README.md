@@ -80,6 +80,12 @@ flowchart LR
 2. **Intelligent Prompt Intake & Triage** (`lcc.intake`): Analyzes messy audio transcripts, voice notes, and rambling prompts, assigning operational readiness status (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`).
 3. **Local Agents & Hybrid Router** (`lcc.agents`, `lcc.router`): Runs edge-quantized local LLMs (**Gemma 4 e4b** and **Qwen3.5-4B**) with 0 remote tokens, verifying candidate quality before selective escalation to frontier cloud models.
 
+> Research positioning: the core contribution is the **Context Compiler**
+> (normalization → dedup → relevance compaction → structural sufficiency →
+> independent semantic verifier → cache alignment). Intake and local execution
+> are the surrounding suite, not the thesis. Canonical numbers live in
+> `benchmarks/research/RESEARCH_STATUS.md`; theory in ADR 0014/0015.
+
 ---
 
 ## 🎬 See it work

@@ -1013,6 +1013,14 @@ def compact_command(
         "--confidence-threshold",
         help="Judge confidence below this degrades a DROP toward TRIM/KEEP.",
     ),
+    enable_semantic_verify: bool = typer.Option(
+        False,
+        "--semantic-verify/--no-semantic-verify",
+        help=(
+            "Run the independent semantic verifier (one extra Jev call over "
+            "objective + candidate context only). Flags REVIEW when insufficient."
+        ),
+    ),
 ) -> None:
     """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
     if provider not in ("auto", "jev", "mechanical"):
@@ -1059,6 +1067,7 @@ def compact_command(
         enable_sufficiency=enable_sufficiency,
         max_restorations=max_restorations,
         confidence_threshold=confidence_threshold,
+        enable_semantic_verify=enable_semantic_verify,
     )
     try:
         result = compact_context(request)

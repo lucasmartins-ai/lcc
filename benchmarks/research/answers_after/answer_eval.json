@@ -312,5 +312,53 @@
     "regression": false,
     "compacted_missing": [],
     "original_missing": []
+  },
+  {
+    "id": "qualifier_truncation",
+    "hazard": "trim",
+    "tokens_before": 568,
+    "tokens_after": 405,
+    "original_recall": 1.0,
+    "compacted_recall": 1.0,
+    "quality_delta": 0.0,
+    "regression": false,
+    "compacted_missing": [],
+    "original_missing": []
+  },
+  {
+    "id": "qualifier_unless",
+    "hazard": "trim",
+    "tokens_before": 545,
+    "tokens_after": 158,
+    "original_recall": 1.0,
+    "compacted_recall": 1.0,
+    "quality_delta": 0.0,
+    "regression": false,
+    "compacted_missing": [],
+    "original_missing": []
+  },
+  {
+    "id": "structured_semantic_json",
+    "hazard": "structured",
+    "tokens_before": 529,
+    "tokens_after": 142,
+    "original_recall": 1.0,
+    "compacted_recall": 1.0,
+    "quality_delta": 0.0,
+    "regression": false,
+    "compacted_missing": [],
+    "original_missing": []
+  },
+  {
+    "id": "structured_semantic_units",
+    "hazard": "structured",
+    "tokens_before": 675,
+    "tokens_after": 288,
+    "original_recall": 1.0,
+    "compacted_recall": 1.0,
+    "quality_delta": 0.0,
+    "regression": false,
+    "compacted_missing": [],
+    "original_missing": []
   }
 ]
