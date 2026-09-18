@@ -81,6 +81,41 @@ At an epoch boundary, run a **full** compaction without prefix protection and le
 rebuild once — that is the cheapest moment to restructure. Between epochs: append-only +
 sticky, tail compaction only.
 
+## Where to compact, not just how much
+
+The sections above assume you are compacting the accumulated session. That is the expensive
+placement, and measurement says so plainly.
+
+| placement | what it does to a warm prefix | measured context cost |
+|---|---|---|
+| whole session, one pass | invalidates everything right of the first drop | **−7.9 %** |
+| whole session, three passes | the same, three times | **−22.6 %** |
+| **each payload before it is appended** | nothing, ever | **−42.4 %** |
+
+Measured by `benchmarks/research/run_cache_patterns.py` over a session shape of a 255-token
+prefix, five tool-result turns and 4 254 tokens of appended payload, priced with the read/write
+factors above. The same run also shows the per-payload pattern spending fewer scorer tokens
+(33 154 against 57 567), because a whole-session pass re-scores the entire session every time.
+
+The arithmetic behind the gap: a whole-session drop pays to rewrite everything it invalidates,
+so it hands back most of what it removed. A per-payload drop pays fresh-input price on smaller
+content and invalidates nothing.
+
+**Recommended order of preference:**
+
+1. **Compact the payload before appending it.** Run the pass on the tool result, the fetched
+   page, the log bundle. The appended bytes are final, and the session prefix stays byte-stable
+   for the whole session.
+2. **If you must compact the session, protect the prefix.** `--prefix-marker` makes mid-prefix
+   mutation impossible and the report proves it with `prefix_untouched: true`.
+3. **Before keeping a whole-session pass, read `break_even_reuses`.** Measured across three
+   corpus sizes, a pass that mutates a warm prefix needs 12 to 20 reuses of the pruned context
+   before it pays for itself. Below that, keep the original bytes and the cache.
+
+This matters most where the reasoning trace is not visible. When the model does not expose its
+reasoning, the context you send is the context you pay for on every call, so an invalidated
+prefix is charged again and again rather than once.
+
 ## What to monitor
 
 The report is designed for automated cache accounting:

@@ -75,6 +75,15 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- `benchmarks/research/run_cache_patterns.py`: measures where compaction is placed, which turns
+  out to matter more than how much it removes. Per-payload compaction (the tool result, before it
+  is appended) saved 42.4% of context cost against 7.9% for a single whole-session pass, and spent
+  fewer scorer tokens, because a whole-session drop pays to rewrite everything it invalidates.
+  `docs/CACHE_ALIGNMENT.md` now carries the placement guidance and the recommended order.
+- An audit guide in `benchmarks/research/README.md`: what each script proves, how to re-run every
+  number, and the two habits that keep the benchmark honest (report recall per information
+  category, and check that the objective actually requires the ground truth before blaming a
+  component).
 - Supersession rule in the deterministic safety net: a block that revises or corrects a value
   carried by a kept block is kept too, even when it shares only one distinctive term with it. It
   closes the last category the local scorer was losing (`temporal`, at 0.00 on every scale) for
