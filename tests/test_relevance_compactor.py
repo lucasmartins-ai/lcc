@@ -281,3 +281,127 @@ def test_reduction_ratio_and_low_reduction_flag():
     client2 = FakeJevClient(_judge)
     relaxed = compact_context(_request(client=client2, min_reduction=0.0))
     assert relaxed.report.worth_it is True
+
+
+# --- hardening: honest degradation, stable markers, cache-epoch accounting ----------------
+
+
+def test_auto_fallback_reports_degraded_and_no_semantic_guarantee(monkeypatch):
+    """``auto`` may fall back to mechanical scoring, but it may not hide it."""
+    monkeypatch.setattr("lcc.relevance.compactor._resolve_client", lambda: None)
+    result = compact_context(_request(provider="auto", client=None, question="zzz"))
+    report = result.report
+    assert report.provider_used == "mechanical"
+    assert report.degraded is True
+    assert report.degradation_reason == "jev_unavailable_mechanical_fallback"
+    assert report.semantic_guarantee == "none"
+    assert any("degraded" in w for w in report.warnings)
+
+
+def test_explicit_jev_unavailable_fails_safe_with_reason(monkeypatch):
+    monkeypatch.setattr("lcc.relevance.compactor._resolve_client", lambda: None)
+    result = compact_context(_request(provider="jev", client=None))
+    report = result.report
+    assert report.provider_used == "degraded"
+    assert report.degraded is True
+    assert report.degradation_reason == "jev_unavailable"
+    assert report.semantic_guarantee == "none"
+    assert result.compacted_text == SAMPLE  # nothing dropped
+
+
+def test_jev_scoring_reports_a_semantic_guarantee():
+    result = compact_context(_request(client=FakeJevClient(_judge)))
+    assert result.report.semantic_guarantee == "judged"
+    assert result.report.degraded is False
+    assert result.report.degradation_reason is None
+
+
+def test_marker_omits_scores_by_default():
+    """Live scores wobble between calls; embedding them would rewrite the emitted bytes."""
+    out = compact_context(_request(client=FakeJevClient(_judge))).compacted_text
+    assert "[lcc-compact: dropped" in out
+    assert "score " not in out
+    assert "scores " not in out
+
+
+def test_marker_scores_flag_restores_inline_scores():
+    out = compact_context(
+        _request(client=FakeJevClient(_judge), marker_scores=True)
+    ).compacted_text
+    assert "score" in out
+
+
+def test_identical_blocks_receive_one_decision_per_run():
+    """The decisions cache is content-addressed, so a run must not disagree with itself."""
+    dup = "Duplicate block: " + ("y " * 60)
+    text = f"{dup.strip()}\n\n{dup.strip()}\n\nUnique block: " + ("z " * 60) + "\n"
+    seen: dict[str, int] = {}
+
+    def wobbling_judge(block_text: str) -> float:
+        seen[block_text] = seen.get(block_text, 0) + 1
+        return 0.9 if seen[block_text] == 1 else 0.05
+
+    result = compact_context(_request(text=text, client=FakeJevClient(wobbling_judge)))
+    by_content: dict[str, set[str]] = {}
+    for decision in result.report.decisions:
+        content_hash = decision.id.rsplit("_", 1)[-1]
+        by_content.setdefault(content_hash, set()).add(decision.decision)
+    duplicated = {h: d for h, d in by_content.items() if len(d) > 0}
+    assert duplicated, "expected at least one block"
+    for content_hash, decisions in by_content.items():
+        assert len(decisions) == 1, f"inconsistent decisions for {content_hash}: {decisions}"
+
+
+def test_cache_epoch_accounting_is_reported_when_mutated():
+    result = compact_context(_request(client=FakeJevClient(_judge)))
+    report = result.report
+    assert report.blocks_dropped >= 1
+    assert report.invalidated_tokens > 0
+    assert report.break_even_reuses is not None
+    assert any("cache_epoch_risk" in w for w in report.warnings)
+
+
+def test_cache_epoch_accounting_is_silent_when_nothing_is_dropped():
+    result = compact_context(_request(client=FakeJevClient(lambda text: 0.9)))
+    assert result.report.blocks_dropped == 0
+    assert result.report.invalidated_tokens == 0
+    assert result.report.break_even_reuses is None
+
+
+def test_strict_keep_drop_warns_about_the_missing_middle_gear():
+    result = compact_context(
+        _request(client=FakeJevClient(_judge), trim_head_chars=0)
+    )
+    assert any("strict_keep_drop" in w for w in result.report.warnings)
+
+
+def test_approximate_token_counting_is_flagged(monkeypatch):
+    from lcc import schemas
+    from lcc.relevance import compactor as compactor_module
+
+    real_count = compactor_module.count_tokens
+
+    def forced_approximate(text, model=None, **kwargs):
+        counted = real_count(text, model, **kwargs)
+        return schemas.TokenCount(
+            counted.value, schemas.TokenCountMethod.APPROXIMATE, "heuristic", None, "forced"
+        )
+
+    monkeypatch.setattr(compactor_module, "count_tokens", forced_approximate)
+    result = compact_context(_request(client=FakeJevClient(_judge)))
+    assert result.report.token_count_method == "approximate"
+    assert any("approximate_token_count" in w for w in result.report.warnings)
+
+
+def test_report_dict_exposes_the_hardening_fields():
+    from lcc.relevance import report_to_dict as relevance_report_to_dict
+
+    result = compact_context(_request(client=FakeJevClient(_judge)))
+    payload = relevance_report_to_dict(result.report)
+    for key in (
+        "degradation_reason",
+        "semantic_guarantee",
+        "invalidated_tokens",
+        "break_even_reuses",
+    ):
+        assert key in payload

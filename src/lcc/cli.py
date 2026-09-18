@@ -942,6 +942,15 @@ def compact_command(
     no_marker: bool = typer.Option(
         False, "--no-marker", help="Do not leave a drop marker line in the output."
     ),
+    marker_scores: bool = typer.Option(
+        False,
+        "--marker-scores",
+        help=(
+            "Include scorer values in the inline drop marker. Off by default because live "
+            "scores wobble between calls and would rewrite the emitted bytes on every run; "
+            "scores stay in the report either way."
+        ),
+    ),
     output_path: Path | None = typer.Option(
         None, "--output", "-o", help="Write the compacted text here (otherwise stdout)."
     ),
@@ -950,6 +959,15 @@ def compact_command(
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Score and report without writing the compacted text."
+    ),
+    require_exact_tokens: bool = typer.Option(
+        False,
+        "--require-exact-tokens",
+        help=(
+            "Fail (exit 3) when token counting degrades to the heuristic estimator, instead of "
+            "reporting estimates. Set TIKTOKEN_CACHE_DIR to a populated directory to make "
+            "counts exact offline."
+        ),
     ),
 ) -> None:
     """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
@@ -985,6 +1003,7 @@ def compact_command(
         min_block_chars=min_block_chars,
         keep_patterns=tuple(keep_regex or ()),
         marker=not no_marker,
+        marker_scores=marker_scores,
         protect_prefix_chars=protect_prefix_chars,
         prefix_marker=prefix_marker,
         decisions_cache_path=decisions_cache,
@@ -995,6 +1014,13 @@ def compact_command(
         _fail(str(exc), code=2)
 
     report = result.report
+    if require_exact_tokens and report.token_count_method != "exact":
+        _fail(
+            "token counting degraded to the heuristic estimator, so every token figure would "
+            "be an estimate. Populate the tokenizer cache (set TIKTOKEN_CACHE_DIR to a "
+            "persistent directory) or drop --require-exact-tokens to accept estimates.",
+            code=3,
+        )
     if not dry_run:
         if output_path is not None:
             try:
@@ -1050,8 +1076,16 @@ def compact_command(
         table.add_row("Jev calls", f"{report.calls} ({report.latency_ms} ms)")
     if report.reused_decisions:
         table.add_row("Sticky decisions reused", str(report.reused_decisions))
+    guarantee = report.semantic_guarantee
+    if report.degraded:
+        guarantee += f" (degraded: {report.degradation_reason or 'unknown'})"
+    table.add_row("Semantic guarantee", guarantee)
     if report.prefix_protected:
         table.add_row("Prefix untouched", "yes" if report.prefix_untouched else "no")
+    if report.invalidated_tokens:
+        table.add_row("Cache invalidated", f"{report.invalidated_tokens} tokens")
+    if report.break_even_reuses is not None:
+        table.add_row("Pays off after", f"~{report.break_even_reuses:g} reuses")
     table.add_row(
         "First mutation offset",
         "-" if report.first_mutation_offset is None else str(report.first_mutation_offset),

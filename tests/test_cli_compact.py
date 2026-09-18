@@ -133,3 +133,64 @@ def test_intake_without_relevance_unchanged(tmp_path: Path):
     src.write_text(SAMPLE, encoding="utf-8")
     result = runner.invoke(app, ["intake", str(src)])
     assert result.exit_code == 0
+
+
+def test_require_exact_tokens_fails_when_counting_degrades(tmp_path: Path, monkeypatch):
+    """A token budget must not be built on an estimate the CLI silently accepted."""
+    from lcc import schemas
+    from lcc.relevance import compactor as compactor_module
+
+    real_count = compactor_module.count_tokens
+
+    def forced_approximate(text, model=None, **kwargs):
+        counted = real_count(text, model, **kwargs)
+        return schemas.TokenCount(
+            counted.value, schemas.TokenCountMethod.APPROXIMATE, "heuristic", None, "forced"
+        )
+
+    monkeypatch.setattr(compactor_module, "count_tokens", forced_approximate)
+    src = tmp_path / "in.md"
+    src.write_text(SAMPLE, encoding="utf-8")
+    result = runner.invoke(
+        app,
+        [
+            "compact",
+            str(src),
+            "--question",
+            "reduce mobile booking friction funnel",
+            "--provider",
+            "mechanical",
+            "--require-exact-tokens",
+        ],
+    )
+    assert result.exit_code == 3
+    assert "approximate" in result.output.lower() or "estimate" in result.output.lower()
+
+
+def test_marker_scores_flag_is_opt_in(tmp_path: Path):
+    src = tmp_path / "in.md"
+    src.write_text(SAMPLE, encoding="utf-8")
+
+    plain = tmp_path / "plain.md"
+    runner.invoke(
+        app,
+        [
+            "compact", str(src), "--question", "office noise plants coffee",
+            "--provider", "mechanical", "--output", str(plain),
+        ],
+    )
+    plain_text = plain.read_text(encoding="utf-8")
+    assert "lcc-compact: dropped" in plain_text, "expected a drop marker to exist"
+    assert "score" not in plain_text
+
+    scored = tmp_path / "scored.md"
+    runner.invoke(
+        app,
+        [
+            "compact", str(src), "--question", "office noise plants coffee",
+            "--provider", "mechanical", "--marker-scores", "--output", str(scored),
+        ],
+    )
+    scored_text = scored.read_text(encoding="utf-8")
+    assert "lcc-compact: dropped" in scored_text
+    assert "score" in scored_text
