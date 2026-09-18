@@ -400,6 +400,56 @@ Finding 4 already documents.
 `test_cases_the_safety_net_was_built_for` asserts each fixed case still fails without it, so the
 attribution is checked rather than assumed.
 
+## Finding 10 — recall by information category, and what the flat number was hiding (Etapa 3)
+
+The benchmark up to here reported one recall number over five ground-truth facts. That number
+cannot distinguish losing an easy fact from losing a compliance rule, and it was hiding a real
+failure. The corpora now carry categorized ground truth: the original facts plus a constraint,
+a negative constraint, an exception, a dated revision and a contradictory measurement, and
+`run_matrix.py` reports recall per category.
+
+Recall by information category, averaged over the three scales:
+
+| arm | critical fact | constraint | negative constraint | exception | temporal | contradiction |
+|---|---|---|---|---|---|---|
+| `baseline_raw` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| `compact_jev_prefix` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| `compact_jev_tail6` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| `optimize_*`, `intake` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| **`compact_jev`** | **0.93** | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| `chain_compact_optimize` | 0.93 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| `compact_mechanical` | 1.00 | **0.00** | 1.00 | 1.00 | 1.00 | **0.00** |
+| `compact_jev_strict` | **0.60** | 1.00 | **0.00** | 1.00 | 1.00 | **0.00** |
+| `prepare_default` | **0.60** | **0.00** | **0.00** | **0.00** | 1.00 | **0.00** |
+
+Which items are actually lost, from `show_losses.py`:
+
+| arm | lost | marker |
+|---|---|---|
+| `compact_jev` (large) | critical fact | `3 chairs` |
+| `chain_compact_optimize` (large) | critical fact | `3 chairs` |
+| `compact_mechanical` | constraint, contradiction | `within 48 hours`, `8.7 percent` |
+| `compact_jev_strict` | critical fact, negative constraint, contradiction | `3 chairs`, `must not be contacted`, `8.7 percent` |
+| `prepare_default` | critical fact, constraint, negative constraint, exception, contradiction | five items |
+
+### The correction this forces
+
+Finding 8 concluded that "the Jev path shows no semantic-safety failure". **That was true of the
+adversarial suite and false of the benchmark.** On the large corpus the Jev path drops the
+`3 chairs` fact, and so does the chain that ends in `optimize`. It is the topically distant item
+with no lexical overlap with the objective, and on a 387-block corpus the scorer lets it go.
+The flat recall read `1.00` and reported nothing.
+
+That is exactly why the feedback asked for category-level recall, and it is a better argument
+for the feature than the argument I declined earlier: the multi-question scoring idea (ask
+relevance *and* "does this block preserve a key fact?") now has a reproduced failure behind it
+on the path that matters, not a hypothetical.
+
+Two smaller results worth recording. The mechanical path protects critical facts (1.00) but not
+constraints or contradictions (0.00), so the Etapa 2 safety net covers one category well and two
+badly. And `--prefix-marker` and `--preserve-tail 6` both scored 1.00 across every category where
+plain `compact_jev` lost an item, which is a reason to prefer them beyond cache safety alone.
+
 ## Limitations
 
 - The corpora are synthetic and shaped by hand. Fact placement inside the volatile tail is a

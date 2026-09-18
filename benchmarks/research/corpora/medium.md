@@ -89,6 +89,8 @@ TOOL OUTPUT 38: crawl pass 38 found 38 internal links, 4 broken, 2 redirect chai
 
 TOOL OUTPUT 39: form trace 39 recorded 24 field abandonment events across the booking flow.
 
+OPERATING CONSTRAINT: an appointment may only be rebooked through the front desk, and only within 48 hours of the original slot.
+
 LOG 0: npm WARN deprecated legacy-form-widget@1.0.0 this package is no longer maintained and will be removed in a future release. Please migrate to a supported alternative.
 
 LOG 1: queue worker heartbeat ok in 6336ms, backlog 138 jobs, retry budget untouched, no dead letters in the last window.
@@ -151,6 +153,8 @@ LOG 29: cron job lead-sync finished with 384 records processed and 8917 ms elaps
 
 GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.
 
+COMPLIANCE RULE: patients who have not signed the updated consent form must not be contacted about the booking system migration.
+
 CHATTER 0: Lucas mentioned in passing that we should probably look at this again later, not urgent, just noting it here so it does not get lost in the thread somewhere.
 
 CHATTER 1: someone asked whether the staging credentials still work and nobody answered, so treat this line as unresolved background rather than evidence.
@@ -210,6 +214,8 @@ CHATTER 27: someone asked whether the staging credentials still work and nobody 
 CHATTER 28: Lucas mentioned in passing that we should probably look at this again later, not urgent, just noting it here so it does not get lost in the thread somewhere.
 
 CHATTER 29: someone asked whether the staging credentials still work and nobody answered, so treat this line as unresolved background rather than evidence.
+
+EXCEPTION: the 63 percent abandonment figure excludes returning customers entirely, so it describes first-time visitors only.
 
 GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.
 
@@ -293,6 +299,10 @@ DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent reve
 
 DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot.
 
+REVISION: the p75 figure was revised on 3 September, down from 5.8 seconds measured in June.
+
 GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.
+
+CONFLICTING MEASUREMENT: a later export puts monthly churn at 8.7 percent, against the 4.2 percent recorded earlier in the same quarter.
 
 GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking.

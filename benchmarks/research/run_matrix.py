@@ -27,16 +27,37 @@ OUT = ROOT / "results"
 WORK = ROOT / "work"
 LCC = "lcc"
 
-# Distinctive strings for the 5 ground-truth facts. A transform that drops one of these
-# blocks makes the downstream answer impossible, which is the whole point of the metric.
-REQUIRED = {
-    "A_step1_63pct": r"63 percent",
-    "B_p75_4.2s": r"4\.2 seconds",
-    "C_after_hours_41pct": r"41 percent",
-    "D_chairs_idle": r"3 chairs",
-    "E_retype_4min": r"4 minutes",
-}
+# Ground truth is loaded from the corpus index so the categories and markers live in one place
+# (make_corpora.py) instead of being duplicated here and drifting.
+def _load_items(scale: str) -> list[dict[str, str]]:
+    index = json.loads((CORPORA / "index.json").read_text(encoding="utf-8"))
+    return index[scale]["items"]
+
+
 DISTRACTOR_PAT = r"DISTRACTOR \d"
+
+
+def recall(text: str, scale: str) -> dict:
+    items = _load_items(scale)
+    found = {item["marker"]: bool(re.search(item["marker"], text)) for item in items}
+    by_category: dict[str, list[bool]] = {}
+    for item in items:
+        by_category.setdefault(item["category"], []).append(found[item["marker"]])
+    missing = [item["marker"] for item in items if not found[item["marker"]]]
+    return {
+        "found": found,
+        "recall": round(sum(found.values()) / len(found), 4),
+        "missing": missing,
+        "by_category": {
+            category: {
+                "kept": sum(hits),
+                "total": len(hits),
+                "recall": round(sum(hits) / len(hits), 4),
+            }
+            for category, hits in by_category.items()
+        },
+        "distractor_leak": len(re.findall(DISTRACTOR_PAT, text)),
+    }
 
 OBJECTIVE = "What is the measured mobile conversion problem for the clinic?"
 
@@ -100,16 +121,6 @@ def exact_tokens(path: pathlib.Path) -> int:
     return len(enc.encode(path.read_text(encoding="utf-8")))
 
 
-def recall(text: str) -> dict:
-    found = {name: bool(re.search(pat, text)) for name, pat in REQUIRED.items()}
-    return {
-        "found": found,
-        "recall": round(sum(found.values()) / len(found), 4),
-        "missing": [k for k, v in found.items() if not v],
-        "distractor_leak": len(re.findall(DISTRACTOR_PAT, text)),
-    }
-
-
 def run_arm(scale: str, arm: str, spec: dict) -> dict:
     src = CORPORA / f"{scale}.md"
     arm_dir = WORK / scale / arm
@@ -152,7 +163,7 @@ def run_arm(scale: str, arm: str, spec: dict) -> dict:
     if artifact.exists():
         row["tokens_out"] = exact_tokens(artifact)
         text = artifact.read_text(encoding="utf-8")
-        row.update(recall(text))
+        row.update(recall(text, scale))
         row["chars_out"] = len(text)
     row["chars_in"] = len(src.read_text(encoding="utf-8"))
     if row.get("tokens_out"):
@@ -185,6 +196,43 @@ def main() -> None:
         "\n".join(json.dumps(r, ensure_ascii=False) for r in rows), encoding="utf-8"
     )
     print(f"\nwrote {len(rows)} rows -> {OUT / 'matrix.jsonl'}")
+    _print_category_table(rows)
+
+
+def _print_category_table(rows: list[dict]) -> None:
+    """Recall per information category, averaged over every arm that emits a context.
+
+    A flat fact count hides which kind of information a transform loses. This table is the
+    answer to "is it good at keeping constraints, exceptions and dated values, or only at
+    keeping the easy stuff?"
+    """
+    categories: list[str] = []
+    for row in rows:
+        for category in (row.get("by_category") or {}):
+            if category not in categories:
+                categories.append(category)
+    by_arm: dict[str, dict[str, list[float]]] = {}
+    for row in rows:
+        arm = row["arm"]
+        for category, stats in (row.get("by_category") or {}).items():
+            by_arm.setdefault(arm, {}).setdefault(category, []).append(stats["recall"])
+    if not categories or not by_arm:
+        return
+    header = f"{'arm':24}" + "".join(f"{c[:12]:>14}" for c in categories)
+    print("\nrecall by information category")
+    print(header)
+    print("-" * len(header))
+    for arm in sorted(by_arm, key=lambda a: (-_arm_mean(by_arm[a]), a)):
+        line = f"{arm:24}"
+        for category in categories:
+            values = by_arm[arm].get(category)
+            line += f"{sum(values) / len(values):>13.2f} " if values else f"{'-':>13} "
+        print(line)
+
+
+def _arm_mean(stats: dict[str, list[float]]) -> float:
+    values = [v for per_category in stats.values() for v in per_category]
+    return sum(values) / len(values) if values else 0.0
 
 
 if __name__ == "__main__":

@@ -229,6 +229,8 @@ TOOL OUTPUT 108: mobile audit run 108 returned HTTP 200, 41 kB HTML, 0 console e
 
 TOOL OUTPUT 109: lighthouse run 109 scored performance 55/100 on mobile emulation with 6 render-blocking resources.
 
+OPERATING CONSTRAINT: an appointment may only be rebooked through the front desk, and only within 48 hours of the original slot.
+
 LOG 0: npm WARN deprecated legacy-form-widget@1.0.0 this package is no longer maintained and will be removed in a future release. Please migrate to a supported alternative.
 
 LOG 1: queue worker heartbeat ok in 1665ms, backlog 49 jobs, retry budget untouched, no dead letters in the last window.
@@ -391,6 +393,8 @@ LOG 79: queue worker heartbeat ok in 7127ms, backlog 287 jobs, retry budget unto
 
 GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.
 
+COMPLIANCE RULE: patients who have not signed the updated consent form must not be contacted about the booking system migration.
+
 CHATTER 0: Lucas mentioned in passing that we should probably look at this again later, not urgent, just noting it here so it does not get lost in the thread somewhere.
 
 CHATTER 1: someone asked whether the staging credentials still work and nobody answered, so treat this line as unresolved background rather than evidence.
@@ -550,6 +554,8 @@ CHATTER 77: someone asked whether the staging credentials still work and nobody 
 CHATTER 78: Lucas mentioned in passing that we should probably look at this again later, not urgent, just noting it here so it does not get lost in the thread somewhere.
 
 CHATTER 79: someone asked whether the staging credentials still work and nobody answered, so treat this line as unresolved background rather than evidence.
+
+EXCEPTION: the 63 percent abandonment figure excludes returning customers entirely, so it describes first-time visitors only.
 
 GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.
 
@@ -773,6 +779,10 @@ DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent reve
 
 DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot.
 
+REVISION: the p75 figure was revised on 3 September, down from 5.8 seconds measured in June.
+
 GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.
+
+CONFLICTING MEASUREMENT: a later export puts monthly churn at 8.7 percent, against the 4.2 percent recorded earlier in the same quarter.
 
 GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking.
