@@ -75,6 +75,17 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- `lcc explain`: reads a report written by `lcc compact -r` and prints why every block was kept,
+  trimmed or dropped, in plain language, with the original text behind each decision when
+  `--source` is given. `--only` filters to one decision kind and `--limit` caps the trail. It
+  never re-runs compaction and never touches the network, so a pass stays auditable after the
+  fact.
+- Recall by information category in the research benchmark. The corpora now carry categorized
+  ground truth (critical facts, a constraint, a negative constraint, an exception, a dated
+  revision and a contradictory measurement) and `run_matrix.py` reports recall per category
+  instead of one flat count. The change found a real failure: on the large corpus the Jev path
+  drops a critical fact with no lexical overlap with the objective, which the flat metric had
+  been reporting as perfect.
 - Deterministic safety net for locally scored blocks (`--deterministic-protection`, on by
   default). When `lcc compact` falls back to the lexical scorer, three classes of evidence now
   survive it: quoted third-party speech, evidence written in another language than the
