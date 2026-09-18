@@ -1,14 +1,18 @@
-"""Semantic sufficiency verification: is the compiled context enough?
+"""Structural (dependency) sufficiency verification: is the compiled context enough?
 
-Relevance scoring answers "is this block worth keeping?". Sufficiency answers the
-second, more important question: "after dropping these blocks, can the objective still
-be solved safely from what remains?". The verifier never regenerates information — it
-only names missing evidence so the caller can restore the dropped blocks that carried
+Relevance scoring answers "is this block worth keeping?". Structural sufficiency
+answers the second question: "after dropping these blocks, was any explicit
+dependency link severed?". The verifier never regenerates information — it only
+names missing evidence so the caller can restore the dropped blocks that carried
 it.
 
-Deterministic today (graph links + protection reasons), Jev-assisted tomorrow through
-the ``extra_missing`` hook. Fail-closed: when the verifier cannot run, the result is
-``sufficient=False`` with ``confidence=0.0`` and the caller keeps more context.
+This is a dependency sufficiency guard, not a semantic sufficiency verifier: it
+checks broken structural relationships, not whether the remaining information can
+still answer the objective. True semantic verification lives in
+``lcc.relevance.verifier`` (independent Jev question over objective + candidate
+context only) and arrives via the ``extra_missing`` hook. Fail-closed: when the
+verifier cannot run, the result is ``sufficient=False`` with ``confidence=0.0``
+and the caller keeps more context.
 """
 
 from __future__ import annotations
