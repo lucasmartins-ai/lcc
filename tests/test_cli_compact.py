@@ -312,7 +312,7 @@ def test_compact_accepts_sufficiency_and_confidence_flags(tmp_path: Path):
     data = json.loads(report.read_text(encoding="utf-8"))
     assert data["sufficiency_checks"] == 0
     assert data["blocks_restored"] == 0
-    assert data["policy_version"] == "relevance-compaction-1.1"
+    assert data["policy_version"] == "relevance-compaction-1.2"
     assert data["tokenizer_id"]
     assert "compilation_ms" in data
 
