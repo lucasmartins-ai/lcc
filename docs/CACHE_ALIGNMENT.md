@@ -45,10 +45,25 @@ lcc compact dossier.md -q "<objective>" --decisions-cache ~/.cache/lcc/decisions
 
 Decisions are pinned per `(objective, block content)`. Unchanged blocks keep their previous
 outcome forever; only new blocks are scored. Because kept bytes are re-emitted exactly and
-dropped runs are replaced by a deterministic marker, **all runs over an unchanged history
-produce byte-identical output** (verify: `output_sha256` in the report). Appending content
-extends the output at the tail instead of rewriting it, so the previously emitted bytes
-remain a byte-stable prefix — exactly what incremental caching needs.
+dropped runs are replaced by a deterministic marker that carries no scorer values, all runs
+over an unchanged history produce byte-identical output (verify: `output_sha256` in the
+report). Appending content extends the output at the tail instead of rewriting it, so the
+previously emitted bytes remain a byte-stable prefix — exactly what incremental caching needs.
+
+Two things break that stability, and both are measured in `benchmarks/research/`:
+
+- **Scorer values in the inline marker.** Live scores wobble between calls, so a marker that
+  embeds them rewrites the emitted bytes on every run. That is why `--marker-scores` is
+  opt-in: by default the marker reports only the block count and char count, and the
+  per-block scores stay in the report.
+- **Idle judgment drift.** Without a decisions cache, a block sitting on the threshold can
+  flip between runs. The decisions cache removes that by pinning the outcome, so warm runs
+  show `calls: 0` and full `reused_decisions`.
+
+One subtlety worth knowing: a run decides identical content once and applies that judgment to
+every copy of it. The cache is content-addressed, so a run that scored two copies of the same
+block independently could disagree with the single cached score a later run reuses — and
+change the bytes. Pinning one judgment per content is what keeps cold and warm runs agreeing.
 
 The objective is part of the decision key: changing the objective is a natural cache epoch
 and rescoring starts fresh.
@@ -77,6 +92,15 @@ The report is designed for automated cache accounting:
 | `output_sha256` | full-output hash; detect accidental drift between runs |
 | `prefix_untouched` | true when protection guarantees zero prefix risk |
 | `reused_decisions` / `calls` | a warm-cache run should show `calls: 0` and full reuse |
+| `invalidated_tokens` | tokens to the right of the mutation, i.e. what a warm cache would recompute |
+| `break_even_reuses` | reuses of the pruned context needed before the drop pays for the invalidation |
+| `degraded` / `degradation_reason` / `semantic_guarantee` | whether the semantic judge actually ran, and what the pass can promise |
+| `token_count_method` | `approximate` means every token figure is an estimate, not a measurement |
+
+`break_even_reuses` is the one to gate on. Measured across three corpus sizes the figure lands
+between 11.8 and 20.3 reuses: below that, a mid-prefix pass costs more in invalidation than it
+saves in dropped tokens, and the report says so explicitly with a `cache_epoch_risk` warning.
+A run that would not pay off yet should keep the original bytes and the cache.
 
 If `prefix_sha256` changes while a cache should still be warm, something recomputed the
 head region — investigate before blaming the model provider.

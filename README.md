@@ -81,11 +81,44 @@ flowchart LR
 
 ## 📊 Proven Token Savings & Cache Alignment
 
-| Context Type | Raw Input Tokens | LCC Compiled Tokens | Token Savings | Cache Hit Potential |
+Measured on the deterministic corpora in `benchmarks/research/` (exact `o200k` token counts of
+the emitted context; no LLM in the loop). Reproduce with `python3 run_matrix.py`.
+
+| Arm | Raw tokens | Emitted tokens | Change | Ground-truth facts kept |
 | :--- | :---: | :---: | :---: | :---: |
-| **Messy Audio Transcript** | ~4,800 tokens | **1,350 tokens** | **-71.8%** | ⭐⭐⭐⭐⭐ (Structured XML) |
-| **Multi-File Context Dump** | ~18,500 tokens | **5,400 tokens** | **-70.8%** | ⭐⭐⭐⭐⭐ (>90% KV reuse) |
-| **Vague Refactoring Brief** | ~2,100 tokens | **620 tokens** | **-70.4%** | ⭐⭐⭐⭐ (Zero Ambiguity) |
+| **`compact` (Jev), 4.4k dossier** | 4,399 | **1,587** | **−63.9%** | 5 / 5 |
+| **`compact` (Jev), 11.5k dossier** | 11,483 | **3,589** | **−68.8%** | 5 / 5 |
+| `compact` (mechanical), 4.4k | 4,399 | 941 | −78.6% | **3 / 5** |
+| `prepare`, 4.4k | 4,399 | 905 | −79.4% | **3 / 5** |
+| `optimize` (`claude_xml`), 4.4k | 4,399 | 4,628 | **+5.2%** | 5 / 5 |
+| `intake`, 4.4k | 4,399 | 4,686 | **+6.5%** | 5 / 5 |
+
+`optimize` and `intake` clean and structure; they are not reducers, and budgeting them as token
+savings is a mistake. The mechanical scorer cuts the most bytes and pays for it in evidence,
+which is the reason the Jev path exists.
+
+In a real agent A/B (9 subagents per run, twice, identical task, context as the only variable),
+the Jev arm loaded **61.2% less context** and consumed **9.1% fewer total prompt tokens** per
+sample with no change in answer quality. Run twice, the total-prompt figure read −8.9% and
+−9.1%.
+
+| Arm | Context loaded | Total prompt tokens | Fact recall |
+| :--- | :---: | :---: | :---: |
+| no LCC | 5,524 | 38,690 | 5 / 5, 3 of 3 |
+| `compact --provider jev` | **2,144** | **35,169** | 5 / 5, 3 of 3 |
+
+The gap between 61% context reduction and 9% prompt reduction is the fixed harness floor
+(roughly 14,000 tokens per call against a 5,524-token context). **LCC's saving is bounded by the
+context's share of the prompt, not by the compression ratio.** Quote total prompt tokens, not
+fresh `input_tokens`: prompt caching moves tokens between the fresh and cached buckets between
+runs and made that metric read anywhere from −5% to −43% on the same setup.
+
+**Cache alignment:** the inline drop marker omits scorer values by default, so repeated runs
+emit byte-identical bytes; `--decisions-cache` makes warm runs free (`calls: 0`). A pass that
+mutates a warm prefix invalidates every token to its right, so the report now states the cost
+(`invalidated_tokens`) and the reuse count needed to pay for it (`break_even_reuses`, measured
+at ~12–20 reuses). Protect the prefix or wait for an epoch. Full study, limitations and the
+per-scenario break-even table: `benchmarks/research/`.
 
 ---
 
@@ -227,7 +260,7 @@ lcc route eval --cases examples/tasks --output eval/reports/report.json
 
 ### 6. `lcc compact` — Instant Relevance Compaction (opt-in, cache-aware)
 
-Drop context blocks that are irrelevant to an objective before any large model sees them. Narrow model judgment (TypeSafe System One / Jev) scores blocks in batched calls sent concurrently (~0.7s per call for up to 8 blocks); without an API key it falls back to a fully local mechanical pass. Blocks end in one of three states: **keep** (bytes re-emitted exactly), **trim** (a bounded head plus an audit note — the middle gear between keep and drop), or **drop**. Provider failures never drop content, and sticky decisions keep the output byte-stable so prompt/KV caches survive.
+Drop context blocks that are irrelevant to an objective before any large model sees them. Narrow model judgment (TypeSafe System One / Jev) scores blocks in batched calls sent concurrently (~0.7s per call for up to 8 blocks); without an API key it falls back to a fully local mechanical pass. Blocks end in one of three states: **keep** (bytes re-emitted exactly), **trim** (a bounded head plus an audit note — the middle gear between keep and drop), or **drop**. Provider failures never drop content. The inline drop marker carries no scorer values by default, so repeated runs emit the same bytes; per-block scores stay in the report. Sticky decisions plus a warm decisions cache extend that stability across runs and make rescoring free.
 
 ```bash
 # Full pass (Jev-scored): drops noise, keeps an auditable decision trail
@@ -235,18 +268,22 @@ lcc compact dossier.md -q "reduce mobile booking friction" -o compacted.md -r re
 
 # Cache-safe incremental pattern for live sessions (never touch the newest blocks)
 lcc compact dossier.md -q "reduce mobile booking friction" \
+  --provider jev \
   --prefix-marker "<!-- lcc:cache-break -->" \
   --preserve-tail 6 \
+  --no-marker \
   --decisions-cache ~/.cache/lcc/decisions.jsonl
 
-# Strict keep/drop, no middle gear
-lcc compact dossier.md -q "reduce mobile booking friction" --trim-head-chars 0
+# Report scorer values inline instead of only in the report (rewrites bytes every run)
+lcc compact dossier.md -q "reduce mobile booking friction" --marker-scores
 
 # Fully offline (mechanical): drops only zero-lexical-overlap blocks
 lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical
 ```
 
-The `relevance-compaction-1.1` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`). See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013).
+`--trim-head-chars 0` disables the middle gear and drops borderline blocks outright. The trim band is the safety net for near-miss evidence, so that setting is measurably *less* safe, not stricter. Pass `--provider jev` explicitly rather than relying on `auto`: `auto` may fall back to mechanical scoring, and while it now reports `degraded: true` with `semantic_guarantee: none` when it does, an explicit provider makes the guarantee a decision rather than a fallback.
+
+The `relevance-compaction-1.1` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`, `invalidated_tokens`, `break_even_reuses`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`), plus `degraded` / `degradation_reason` / `semantic_guarantee` for honest fallback reporting. See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013), and `benchmarks/research/` for the measured study behind these defaults.
 
 ---
 
