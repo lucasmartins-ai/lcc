@@ -18,6 +18,7 @@
 ## 📌 Table of Contents
 
 - [Overview & The 3 Pillars](#-overview--the-3-pillars)
+- [See it work](#-see-it-work)
 - [Does it work without a model API key?](#-does-it-work-without-a-model-api-key-yes-and-that-is-the-default-path)
 - [Proven Token Savings & Cache Alignment](#-proven-token-savings--cache-alignment)
 - [Single-Step Installation](#-single-step-installation)
@@ -78,6 +79,29 @@ flowchart LR
 1. **Deterministic Context Engine Core** (`lcc.cleaning`, `lcc.token_budget`, `lcc.inspection`, `lcc.pipeline`): 100% deterministic, local-first context optimization with zero network requests and zero LLMs inside the core.
 2. **Intelligent Prompt Intake & Triage** (`lcc.intake`): Analyzes messy audio transcripts, voice notes, and rambling prompts, assigning operational readiness status (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`).
 3. **Local Agents & Hybrid Router** (`lcc.agents`, `lcc.router`): Runs edge-quantized local LLMs (**Gemma 4 e4b** and **Qwen3.5-4B**) with 0 remote tokens, verifying candidate quality before selective escalation to frontier cloud models.
+
+---
+
+## 🎬 See it work
+
+Three recordings, each rendered from a real run against the files in `demos/`. Regenerate them
+with `python3 demos/make_gifs.py`; the commands in `demos/*.tape` run the same sessions through
+[vhs](https://github.com/charmbracelet/vhs) if you prefer a live terminal recording.
+
+**Compaction, with the decision trail behind it.** 23 blocks of dossier, the noise dropped, then
+`lcc explain` showing why each removal happened and what was in the block. Runs offline.
+
+![lcc compact dropping noise from a dossier, then lcc explain listing why each block was removed](demos/compact.gif)
+
+**A scattered brief compiled into a structured prompt.** Repeated paragraphs, page markers and an
+email signature removed deterministically, with the report naming each cleaning step.
+
+![lcc optimize turning a messy brief into a structured XML prompt](demos/compile.gif)
+
+**A voice transcript turned into a structured prompt.** Fillers dropped in English and Portuguese,
+audio tags stripped, speaker turns collapsed, then compiled with an intake readiness score.
+
+![lcc intake cleaning a Whisper transcript and compiling it into a prompt](demos/audio-to-prompt.gif)
 
 ---
 
