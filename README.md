@@ -28,6 +28,7 @@
   - [`lcc agent` — Local LLM Agents (Gemma 4 e4b & Qwen3.5-4B)](#4-lcc-agent--local-llm-agents-gemma-4-e4b--qwen35-4b)
   - [`lcc route` — Hybrid Local/Cloud Routing](#5-lcc-route--hybrid-localcloud-routing)
   - [`lcc compact` — Instant Relevance Compaction](#6-lcc-compact--instant-relevance-compaction)
+  - [`lcc explain` — Audit a compaction pass](#7-lcc-explain--audit-a-compaction-pass-after-the-fact)
 - [Programmatic Library API Usage](#-programmatic-library-api-usage)
   - [Python API](#python-api)
   - [TypeScript / Node.js API](#typescript--nodejs-api)
@@ -84,14 +85,22 @@ flowchart LR
 Measured on the deterministic corpora in `benchmarks/research/` (exact `o200k` token counts of
 the emitted context; no LLM in the loop). Reproduce with `python3 run_matrix.py`.
 
-| Arm | Raw tokens | Emitted tokens | Change | Ground-truth facts kept |
+| Arm | Raw tokens | Emitted tokens | Change | Ground-truth categories kept |
 | :--- | :---: | :---: | :---: | :---: |
-| **`compact` (Jev), 4.4k dossier** | 4,399 | **1,587** | **−63.9%** | 5 / 5 |
-| **`compact` (Jev), 11.5k dossier** | 11,483 | **3,589** | **−68.8%** | 5 / 5 |
-| `compact` (mechanical), 4.4k | 4,399 | 1,498 | −66.0% | 5 / 5 |
-| `prepare`, 4.4k | 4,399 | 905 | −79.4% | **3 / 5** |
-| `optimize` (`claude_xml`), 4.4k | 4,399 | 4,628 | **+5.2%** | 5 / 5 |
-| `intake`, 4.4k | 4,399 | 4,686 | **+6.5%** | 5 / 5 |
+| **`compact` (Jev), 4.5k dossier** | 4,533 | **1,721** | **−62.0%** | 5 of 6 (misses 1 critical fact) |
+| **`compact` (Jev), 11.6k dossier** | 11,617 | **3,897** | **−66.5%** | 5 of 6 |
+| `compact` (Jev) `--prefix-marker` | varies | varies | — | **6 of 6** |
+| `compact` (mechanical), 4.5k | 4,533 | 1,582 | −65.1% | 4 of 6 (loses constraint, contradiction) |
+| `prepare`, 4.5k | 4,533 | 930 | −79.5% | **2 of 6** |
+| `optimize` (`claude_xml`), 4.5k | 4,533 | 4,762 | **+5.0%** | 6 of 6 |
+| `intake`, 4.5k | 4,533 | 4,820 | **+6.3%** | 6 of 6 |
+
+Recall is reported per information category (critical facts, constraints, negative constraints,
+exceptions, dated revisions, contradictions) rather than as one flat count, because a single
+number hides which kind of information a transform drops. That change found a real failure: on
+the large corpus the Jev path drops a critical fact that has no lexical overlap with the
+objective, which the flat metric had been reporting as perfect. Full table in
+`benchmarks/research/`.
 
 `optimize` and `intake` clean and structure; they are not reducers, and budgeting them as token
 savings is a mistake. The mechanical scorer cuts the most bytes and pays for it in evidence,
@@ -284,6 +293,35 @@ lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical
 `--trim-head-chars 0` disables the middle gear and drops borderline blocks outright. The trim band is the safety net for near-miss evidence, so that setting is measurably *less* safe, not stricter. Pass `--provider jev` explicitly rather than relying on `auto`: `auto` may fall back to mechanical scoring, and while it now reports `degraded: true` with `semantic_guarantee: none` when it does, an explicit provider makes the guarantee a decision rather than a fallback.
 
 The `relevance-compaction-1.1` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`, `invalidated_tokens`, `break_even_reuses`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`), plus `degraded` / `degradation_reason` / `semantic_guarantee` for honest fallback reporting. See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013), and `benchmarks/research/` for the measured study behind these defaults.
+
+### 7. `lcc explain` — audit a compaction pass after the fact
+
+Reads a report written by `lcc compact -r` and prints why every block was kept, trimmed or
+dropped: the headline numbers, each decision with its score and reason in plain language, and
+the original text behind a block when you point it at the source. It never re-runs compaction
+and never touches the network, so a pass can be reviewed later, by someone else.
+
+```bash
+# Why did this pass drop what it dropped?
+lcc explain report.json --source dossier.md
+
+# Only the removals, capped at twenty
+lcc explain report.json --only drop --limit 20
+```
+
+```
+Objective           What is the measured mobile conversion problem for the clinic?
+Provider            jev (requested jev)
+Semantic guarantee  judged
+Thresholds          keep >= 0.40, trim 0.20-0.40
+Decisions           18 keep | 0 trim | 17 drop
+Cache               first mutation at offset 1 657, invalidates 659 tokens, pays off after ~17.7 reuses
+
+DROPPED (17)
+  blk_0013_0cf4cd0870fb   0.16  lines 30-30          121 chars  jev
+      why: scored below the drop threshold
+      text: LOG 1: queue worker heartbeat ok in 554ms, backlog 287 jobs, retry budget untouched…
+```
 
 ---
 
