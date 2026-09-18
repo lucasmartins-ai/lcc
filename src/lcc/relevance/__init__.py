@@ -61,6 +61,7 @@ from lcc.relevance.jev import (
 from lcc.relevance.safety import BlockAssessment, decide_assessment
 from lcc.relevance.sufficiency import SufficiencyResult, verify_sufficiency
 from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
+from lcc.relevance.verifier import SemanticVerificationResult, verify_semantic
 
 __all__ = [
     "BLOCK_ID_RE",
@@ -87,6 +88,7 @@ __all__ = [
     "RelevanceCompactionReport",
     "RelevanceCompactionRequest",
     "RelevanceCompactionResult",
+    "SemanticVerificationResult",
     "SufficiencyResult",
     "TextBlock",
     "block_id",
@@ -106,5 +108,6 @@ __all__ = [
     "resolve_typesafe_key",
     "split_blocks",
     "trim_block_safe",
+    "verify_semantic",
     "verify_sufficiency",
 ]

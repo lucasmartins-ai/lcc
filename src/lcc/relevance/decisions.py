@@ -103,6 +103,7 @@ def build_decision_identity(
     relationship_version: str = RELATIONSHIP_VERSION,
     tokenizer_id: str | None = None,
     deterministic_protection: bool = True,
+    relationship_context: str | None = None,
 ) -> dict[str, Any]:
     """Build the canonical identity dict hashed by :func:`decision_key_v2`.
 
@@ -126,6 +127,7 @@ def build_decision_identity(
         "relationship_version": relationship_version,
         "tokenizer_id": tokenizer_id,
         "deterministic_protection": bool(deterministic_protection),
+        "relationship_context": relationship_context,
     }
 
 
@@ -207,6 +209,26 @@ class DecisionCache:
             # affecting the key (the key already binds it).
             record["identity"] = identity
         self._pending.append(record)
+
+    def stats(self) -> dict[str, int]:
+        """Size accounting for GC planning (append-only growth observability)."""
+        lines = 0
+        byte_size = 0
+        if self.path is not None and self.path.is_file():
+            try:
+                raw = self.path.read_bytes()
+                byte_size = len(raw)
+                lines = raw.count(b"\n")
+            except OSError:
+                pass
+        return {
+            "entries": len(self._entries),
+            "pending": len(self._pending),
+            "reused": self.reused,
+            "written": self.written,
+            "file_lines": lines,
+            "file_bytes": byte_size,
+        }
 
     def flush(self) -> None:
         if self.path is None or not self._pending:

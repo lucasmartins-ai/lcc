@@ -17,7 +17,24 @@ import json
 import re
 import xml.etree.ElementTree as ET
 
-TRIM_POLICY_VERSION = "trim-1.0"
+TRIM_POLICY_VERSION = "trim-1.1"
+
+#: Semantic-scope qualifiers: cutting before one of these can invert the surviving
+#: claim ("safe for adults" vs "safe for adults, except when..."). Any trim that
+#: would drop or straddle such a cue is refused (TRIM→KEEP).
+_QUALIFIER_SEMANTIC_RE = re.compile(
+    r"\b(except|exception|excluding|excluded|unless|only|not|no\b|never|"
+    r"but\b|however|although|though|nevertheless|otherwise|"
+    r"as\s+long\s+as|subject\s+to|provided\s+that|if\s+not)\b",
+    re.IGNORECASE,
+)
+
+#: Structured field names whose removal changes meaning even when syntax stays
+#: valid (currency, units, ids, flags, nulls). A structured trim that drops any
+#: declared field is refused.
+_STRUCTURED_KEY_RE = re.compile(r'"([^"]+)"\s*:')
+_YAML_KEY_RE = re.compile(r"^\s*([\w.\-]+)\s*:", re.MULTILINE)
+_XML_TAG_RE = re.compile(r"<([a-zA-Z][\w.\-:]*)[\s>/]")
 
 _CODE_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})", re.MULTILINE)
 _TABLE_DELIM_RE = re.compile(
@@ -113,6 +130,35 @@ def _cut_at_line_boundary(text: str, budget: int) -> str | None:
     return head if head else None
 
 
+def _structured_keys(text: str, ctype: str) -> set[str]:
+    if ctype == "json":
+        return set(_STRUCTURED_KEY_RE.findall(text))
+    if ctype == "yaml":
+        return set(_YAML_KEY_RE.findall(text))
+    if ctype == "xml":
+        return set(_XML_TAG_RE.findall(text))
+    return set()
+
+
+def _drops_structured_field(full: str, head: str, ctype: str) -> bool:
+    """True when a structured trim would silently drop a declared field."""
+    try:
+        return bool(_structured_keys(full, ctype) - _structured_keys(head, ctype))
+    except Exception:
+        return True  # unknown shape: refuse rather than emit a partial
+
+
+def _straddles_qualifier(text: str, cut: int) -> bool:
+    """True when cutting at ``cut`` would drop or split a semantic qualifier."""
+    # A qualifier in the dropped tail inverts the surviving head ("safe, except…").
+    if _QUALIFIER_SEMANTIC_RE.search(text[cut:]):
+        return True
+    # A qualifier in the last 120 chars of the head likely spans the cut.
+    if _QUALIFIER_SEMANTIC_RE.search(text[max(0, cut - 120) : cut]):
+        return True
+    return False
+
+
 def trim_block_safe(
     text: str, head_chars: int, *, content_type: str | None = None
 ) -> tuple[str, bool, str]:
@@ -127,8 +173,9 @@ def trim_block_safe(
     if ctype == "high_risk":
         return text, False, ctype  # TRIM -> KEEP for high-risk content
     if ctype in ("json", "yaml", "xml"):
-        # Structured formats: only trim when the head remains parseable AND ends at a
-        # line boundary. Otherwise refuse — a broken structure misleads more than it saves.
+        # Structured formats: only trim when the head remains parseable, ends at a
+        # line boundary, AND drops no declared field. Valid syntax with a missing
+        # field (price without currency) is still a semantic change → KEEP.
         head = _cut_at_line_boundary(text, head_chars)
         if head is None:
             return text, False, ctype
@@ -141,6 +188,10 @@ def trim_block_safe(
                 if not head.strip():
                     return text, False, ctype
         except Exception:
+            return text, False, ctype
+        if _drops_structured_field(text, head, ctype):
+            return text, False, ctype
+        if _QUALIFIER_SEMANTIC_RE.search(text[len(head) :]):
             return text, False, ctype
         return head, True, ctype
     if ctype == "markdown_table":
@@ -187,7 +238,13 @@ def trim_block_safe(
         head = _cut_at_line_boundary(text, head_chars)
         if head is None:
             return text, False, ctype
+        if _straddles_qualifier(text, len(head)):
+            return text, False, ctype
         return head, True, ctype
-    # prose (default): word-boundary head cut; head+tail was evaluated and rejected as
-    # default because stitching two prose halves mid-argument reads as a new claim.
-    return _cut_at_word_boundary(text, head_chars), True, ctype
+    # prose (default): word-boundary head cut, refused when a trailing qualifier
+    # would be cut off; head+tail stitching was evaluated and rejected as default
+    # because two prose halves mid-argument read as a new claim.
+    head = _cut_at_word_boundary(text, head_chars)
+    if _straddles_qualifier(text, len(head)):
+        return text, False, ctype
+    return head, True, ctype
