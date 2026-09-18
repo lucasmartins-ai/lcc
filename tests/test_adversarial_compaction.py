@@ -277,7 +277,7 @@ def test_supersession_links_a_revision_to_the_value_it_replaces():
     supersession pass; that is what makes it a test of that pass rather than of the closure.
     """
     blocks, closures = _closure_for(SUPERSESSION_SAMPLE, 0)
-    revision, unrelated = blocks[2], blocks[3]
+    revision = blocks[2]
     assert revision.id in closures, "the revision was not linked to the value it replaces"
     assert closures[revision.id].startswith("supersedes_value"), (
         f"linked by the general closure instead of the supersession pass: {closures[revision.id]}"
