@@ -460,30 +460,34 @@ def _with_traps(cases: tuple[Case, ...]) -> tuple[Case, ...]:
 CASES: tuple[Case, ...] = _with_traps(_RAW_CASES)
 
 
-def build_corpus(case: Case) -> str:
+def build_corpus(case: Case, pressure: int = 1) -> str:
     """Corpus = stable prefix, cache break, then critical blocks woven through filler.
 
     The trap block, when a case defines one, is placed directly before each critical block
     so the two compete for the same slot in the scoring pass.
+
+    ``pressure`` multiplies the surrounding noise and repeats the trap between segments. A
+    dossier-shaped corpus is far larger than a single case, and size is what forces the
+    scorer to make hard choices, so pressure is how a case stops being easy.
     """
     prefix = (
         "SYSTEM CONTRACT (stable reference, must never be dropped)\n"
         "You are the LookADev delivery analyst. Answer strictly from the evidence in this "
         "dossier. Never invent figures that are not present in the evidence below.\n"
     )
-    filler = _fill_case(case)
+    filler = _fill_case(case) * pressure
     body: list[str] = []
     if case.position == "head":
         body.extend(case.critical)
         if case.trap:
-            body.append(case.trap)
+            body.extend([case.trap] * pressure)
         body.extend(filler)
     else:
         step = max(1, len(filler) // (len(case.critical) + 1))
         for i, block in enumerate(case.critical):
             body.extend(filler[i * step : (i + 1) * step])
             if case.trap:
-                body.append(case.trap)
+                body.extend([case.trap] * pressure)
             body.append(block)
         body.extend(filler[(len(case.critical) * step) :])
     return prefix + "\n<!-- lcc:cache-break -->\n\n" + "\n\n".join(body) + "\n"
