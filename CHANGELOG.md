@@ -75,6 +75,11 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- Supersession rule in the deterministic safety net: a block that revises or corrects a value
+  carried by a kept block is kept too, even when it shares only one distinctive term with it. It
+  closes the last category the local scorer was losing (`temporal`, at 0.00 on every scale) for
+  between one and two points of reduction. The rule is a separate pass rather than a transitive
+  closure, because making the closure transitive cost 27 points of reduction on the medium corpus.
 - `lcc explain`: reads a report written by `lcc compact -r` and prints why every block was kept,
   trimmed or dropped, in plain language, with the original text behind each decision when
   `--source` is given. `--only` filters to one decision kind and `--limit` caps the trail. It
