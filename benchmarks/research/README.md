@@ -400,7 +400,13 @@ Finding 4 already documents.
 `test_cases_the_safety_net_was_built_for` asserts each fixed case still fails without it, so the
 attribution is checked rather than assumed.
 
-## Finding 10 — recall by information category, and what the flat number was hiding (Etapa 3)
+## Finding 10 — recall by information category (Etapa 3)
+
+> **Corrected by Finding 11.** The table first published here was measured under a narrower
+> objective that its own ground truth did not serve, which made the Jev path look like it was
+> losing a critical fact. Fixing the objective removed that failure with no code change. The
+> corrected table is below; the narrative of what the metric found, and why the correction was
+> needed, is kept because the sequence is the point.
 
 The benchmark up to here reported one recall number over five ground-truth facts. That number
 cannot distinguish losing an easy fact from losing a compliance rule, and it was hiding a real
@@ -408,47 +414,127 @@ failure. The corpora now carry categorized ground truth: the original facts plus
 a negative constraint, an exception, a dated revision and a contradictory measurement, and
 `run_matrix.py` reports recall per category.
 
-Recall by information category, averaged over the three scales:
+Recall by information category, averaged over the four scales (small, medium, large, xl):
 
 | arm | critical fact | constraint | negative constraint | exception | temporal | contradiction |
 |---|---|---|---|---|---|---|
 | `baseline_raw` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| **`compact_jev`** | **1.00** | **1.00** | **1.00** | **1.00** | **1.00** | **1.00** |
 | `compact_jev_prefix` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
 | `compact_jev_tail6` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| `chain_compact_optimize` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
 | `optimize_*`, `intake` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
-| **`compact_jev`** | **0.93** | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
-| `chain_compact_optimize` | 0.93 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
-| `compact_mechanical` | 1.00 | **0.00** | 1.00 | 1.00 | 1.00 | **0.00** |
-| `compact_jev_strict` | **0.60** | 1.00 | **0.00** | 1.00 | 1.00 | **0.00** |
-| `prepare_default` | **0.60** | **0.00** | **0.00** | **0.00** | 1.00 | **0.00** |
+| `compact_jev_strict` | 0.95 | 1.00 | 1.00 | 1.00 | **0.75** | 1.00 |
+| `compact_mechanical` | 1.00 | 1.00 | 1.00 | 1.00 | **0.00** | 1.00 |
+| `prepare_default` | **0.40** | **0.00** | 1.00 | **0.00** | **0.00** | **0.00** |
 
-Which items are actually lost, from `show_losses.py`:
+With a question its ground truth can actually serve, the Jev path keeps every item of every
+category on every scale, at 49 % reduction on the 1 492-block stress corpus. The deterministic
+path now holds five of six categories, and `temporal` is its gap: a dated revision reads as a
+restatement of the value it revises. `compact_jev_strict` inherits the same temporal weakness,
+which is a second reason not to disable the trim gear. `prepare_default` remains the worst arm in
+the suite, losing four of six categories outright.
+
+### What the metric found before the correction
+
+`show_losses.py` prints which item each arm loses, because a category score alone does not say
+which item went. Under the original narrow objective it reported:
 
 | arm | lost | marker |
 |---|---|---|
 | `compact_jev` (large) | critical fact | `3 chairs` |
-| `chain_compact_optimize` (large) | critical fact | `3 chairs` |
 | `compact_mechanical` | constraint, contradiction | `within 48 hours`, `8.7 percent` |
 | `compact_jev_strict` | critical fact, negative constraint, contradiction | `3 chairs`, `must not be contacted`, `8.7 percent` |
-| `prepare_default` | critical fact, constraint, negative constraint, exception, contradiction | five items |
+| `prepare_default` | five of six categories | — |
 
-### The correction this forces
+That first row is what prompted Finding 11, and the investigation found the benchmark at fault
+rather than the scorer.
 
-Finding 8 concluded that "the Jev path shows no semantic-safety failure". **That was true of the
-adversarial suite and false of the benchmark.** On the large corpus the Jev path drops the
-`3 chairs` fact, and so does the chain that ends in `optimize`. It is the topically distant item
-with no lexical overlap with the objective, and on a 387-block corpus the scorer lets it go.
-The flat recall read `1.00` and reported nothing.
+## Finding 11 — the two-question experiment, a corpus premise bug, and the stress suite
 
-That is exactly why the feedback asked for category-level recall, and it is a better argument
-for the feature than the argument I declined earlier: the multi-question scoring idea (ask
-relevance *and* "does this block preserve a key fact?") now has a reproduced failure behind it
-on the path that matters, not a hypothetical.
+### The premise was wrong before the fix was built
 
-Two smaller results worth recording. The mechanical path protects critical facts (1.00) but not
-constraints or contradictions (0.00), so the Etapa 2 safety net covers one category well and two
-badly. And `--prefix-marker` and `--preserve-tail 6` both scored 1.00 across every category where
-plain `compact_jev` lost an item, which is a reason to prefer them beyond cache safety alone.
+Finding 10 concluded that the Jev path drops the `3 chairs` fact on the large corpus and read
+that as a scorer failure. Before building anything, the ground truth was checked against the
+objective, and the objective was the problem: a corpus whose subject is *"What is the measured
+mobile conversion problem for the clinic?"* cannot honestly require a chair-capacity fact or a
+rebooking rule. A benchmark whose ground truth is not needed to answer its own question measures
+nothing, and this one had been measuring that way since it was written.
+
+The objective is now `"What is wrong with the clinic's booking operation, and what limits what we
+can change?"`, which every category in the corpus actually serves. With that one change and no
+code change at all, `3 chairs` survives. The scorer had been right; the question had been too
+narrow to make the fact evidence.
+
+### The two-question design, measured and removed
+
+The failure above was the argument for a second, separately typed question per block: relevance
+answers "does this block talk about the objective", which is not the same as "does this block
+carry something the objective needs". So the second question was built — *does this block state a
+concrete fact, figure or rule the objective needs, even without the objective's vocabulary?* —
+with an asymmetric policy: a high confidence there keeps a block that relevance scored low.
+
+Measured on 391 model-scored blocks of the large corpus, under both objectives:
+
+| objective | correlation of the two scores | cases where relevance says drop and the fact score says keep |
+|---|---|---|
+| narrow (pre-fix) | 0.975 | **0 / 391** |
+| aligned (post-fix) | 0.989 | **0 / 391** |
+
+The two questions produce the same answer. The rescue path cannot fire, because the two scores
+move together. And the cost is not free:
+
+| | input tokens per call | output tokens per call | latency per call |
+|---|---|---|---|
+| one question | 1,765 | 271 | 627 ms |
+| two questions | **3,142 (+77.9 %)** | **538 (+98.5 %)** | 663 ms (+5.7 %) |
+
+A 78 % cost increase for a path that provably never fires is worse than not having the feature,
+so it was removed rather than shipped behind a flag. The code is in the history if the idea is
+revisited.
+
+**What this says about the multi-question proposal.** The design asks several typed questions
+about the same block in the same state, and the measurement says that yields collinear answers.
+If dependency, contradiction or authority signals are wanted, they need a different *state* —
+pairs or clusters of blocks rather than one block — not another question about the same block.
+That is a different experiment, and this one does not support the cheaper version of it.
+
+### Stress suite
+
+`stress_edges.py` covers the two things the matrix cannot: behaviour at a stress scale, and
+inputs nobody designs for.
+
+**`xl`, roughly four times `large`**: 192 785 chars, 1 492 blocks, 44 128 tokens.
+
+| metric | result |
+|---|---|
+| reduction | 51.5 % (44 128 → 22 651 tokens, exact counting) |
+| Jev calls | 187 |
+| cold wall time | 32 196 ms |
+| warm wall time (decisions cache) | **458 ms** (70x faster) |
+| warm calls / reused decisions | 0 / 1 491 |
+| cold vs warm bytes | **byte-identical** |
+| category recall | **6 of 6 categories perfect**, 5 of 5 critical facts |
+
+Category recall and cache byte-stability both hold at four times the previous maximum, and the
+decisions cache turns a 32-second pass into half a second.
+
+**Edge cases, 8 of 8 passing:**
+
+| case | input | output | note |
+|---|---|---|---|
+| empty file | 0 chars | 0 chars | exits 0, no crash |
+| whitespace only | 11 | 11 | unchanged |
+| single tiny block | 11 | 11 | below the scoring floor, kept |
+| **one 264 kB block** | 264 030 | **77** | keeps its verdict line, drops 264 000 chars of repetitive tail |
+| CRLF line endings | 83 | 78 | no mangling of the remaining text |
+| unicode and emoji | 498 | 498 | `OdontoVero — Clínica Odontológica 🦷` intact |
+| 400 tiny blocks | 7 488 | 7 488 | none scored, none lost |
+| one 40 kB line | 40 006 | 36 386 | preserved, nothing droppable |
+
+The oversized-block case is the one to remember: a quarter of a megabyte of repeated filler
+collapses to its verdict line plus a drop marker, which is exactly the shape a compaction pass
+should have on a pathological input.
 
 ## Limitations
 

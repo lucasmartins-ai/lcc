@@ -94,6 +94,16 @@ def economics(report: dict, text_in: str, reuse_count: int = 1) -> dict:
     }
 
 
+def _scales() -> list[str]:
+    """Corpora for the full cache suite.
+
+    Deliberately stops at `large`: this suite runs about ten scored passes per corpus, and the
+    `xl` stress scale is checked separately by `stress_edges.py` with a single cold/warm pair.
+    """
+    index = json.loads((CORPORA / "index.json").read_text(encoding="utf-8"))
+    return [scale for scale in ("small", "medium", "large") if scale in index]
+
+
 def main() -> None:
     if WORK.exists():
         shutil.rmtree(WORK)
@@ -101,7 +111,8 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     findings: dict = {}
 
-    for scale in ("small", "medium", "large"):
+    for scale in _scales():
+        pass
         src = CORPORA / f"{scale}.md"
         original = src.read_text(encoding="utf-8")
         sdir = WORK / scale

@@ -3,6 +3,7 @@
 work/
 work_cache/
 work_adversarial/
+work_stress/
 payloads/
 __pycache__/
 results/*.log
