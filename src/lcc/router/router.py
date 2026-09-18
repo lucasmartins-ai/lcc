@@ -73,7 +73,9 @@ class LCCRouter:
         if verifier is None:
             from lcc.agents.local_verifier import create_verifier
 
-            self.verifier: Verifier = cast(Verifier, create_verifier(self.policy, self.local_solver))
+            self.verifier: Verifier = cast(
+                Verifier, create_verifier(self.policy, self.local_solver)
+            )
         else:
             self.verifier = verifier
 

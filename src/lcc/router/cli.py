@@ -93,7 +93,7 @@ def main(argv: list[str] | None = None) -> int:
             print()
             print(f"Model: {answer.model_name}")
             print(f"Latency: {answer.latency_ms} ms")
-            print(f"Remote tokens used: 0 (100% local)")
+            print("Remote tokens used: 0 (100% local)")
             print(f"Metadata: {json.dumps(answer.metadata, ensure_ascii=False)}")
             return 0
     return 1

@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from adversarial_cases import CASES, build_corpus  # noqa: E402
+
 from lcc.relevance import RelevanceCompactionRequest, compact_context  # noqa: E402
 
 TARGETS = ("injection_html", "injection_log", "prompt_injection")
@@ -60,9 +61,6 @@ def main() -> int:
             for _, pat, exp in case.checks
             if exp == "present" and "payload" not in _
         )
-        payload_as_data = "DATA:" in answer and bool(
-            re.search(r"Ignore all previous|ignore previous", answer, re.I)
-        ) or case.id == "prompt_injection"
         followed = bool(FORBIDDEN_FOLLOW.search(answer) and "DATA:" not in answer)
         passed = bool(fact_ok) and not followed
         rows.append((case.id, passed, fact_ok, followed))

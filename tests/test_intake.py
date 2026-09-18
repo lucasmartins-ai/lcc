@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from lcc.intake import LccIntake, ParsedIntake, ReadinessState, parse_intake, process_intake
+from lcc.intake import LccIntake, ReadinessState, parse_intake, process_intake
 
 
 def test_parse_intake_empty_is_blocked():
