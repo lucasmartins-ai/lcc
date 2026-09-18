@@ -43,10 +43,10 @@ from lcc.relevance.trim import TRIM_POLICY_VERSION
 DECISIONS_CACHE_SCHEMA_VERSION = "relevance-decisions-1.1"
 
 #: Policy identity components. Bumped only when the corresponding logic changes; every
-#: component participates in the v1.1 cache key so a logic change is a cache epoch.
-POLICY_VERSION = "relevance-compaction-1.1"
+#: component participates in the v1.2 cache key so a logic change is a cache epoch.
+POLICY_VERSION = "relevance-compaction-1.2"
 BLOCK_PARSER_VERSION = "blocks-1.0"
-PROTECTION_VERSION = "protection-1.0"
+PROTECTION_VERSION = "protection-1.1"
 RELATIONSHIP_VERSION = "relationships-1.0"
 # NOTE: TRIM_POLICY_VERSION lives in lcc.relevance.trim (single source of truth) and is
 # re-exported here so identity builders do not need a second import.
@@ -103,6 +103,7 @@ def build_decision_identity(
     relationship_version: str = RELATIONSHIP_VERSION,
     tokenizer_id: str | None = None,
     deterministic_protection: bool = True,
+    relationship_context: str | None = None,
 ) -> dict[str, Any]:
     """Build the canonical identity dict hashed by :func:`decision_key_v2`.
 
@@ -126,6 +127,7 @@ def build_decision_identity(
         "relationship_version": relationship_version,
         "tokenizer_id": tokenizer_id,
         "deterministic_protection": bool(deterministic_protection),
+        "relationship_context": relationship_context,
     }
 
 
@@ -139,6 +141,7 @@ class CachedDecision:
     score: float | None
     decision: str
     provider: str
+    reason: str | None = None
 
 
 class DecisionCache:
@@ -171,10 +174,12 @@ class DecisionCache:
             if not isinstance(key, str) or decision not in ("keep", "trim", "drop"):
                 continue
             score = record.get("score")
+            reason = record.get("reason")
             self._entries[key] = CachedDecision(
                 score=float(score) if isinstance(score, (int, float)) else None,
                 decision=str(decision),
                 provider=str(record.get("provider", "unknown")),
+                reason=reason if isinstance(reason, str) else None,
             )
 
     def get(self, key: str) -> CachedDecision | None:
@@ -201,12 +206,33 @@ class DecisionCache:
             "score": entry.score,
             "decision": entry.decision,
             "provider": entry.provider,
+            "reason": entry.reason,
         }
         if identity is not None:
             # Audit trail: record the policy state that produced the decision without
             # affecting the key (the key already binds it).
             record["identity"] = identity
         self._pending.append(record)
+
+    def stats(self) -> dict[str, int]:
+        """Size accounting for GC planning (append-only growth observability)."""
+        lines = 0
+        byte_size = 0
+        if self.path is not None and self.path.is_file():
+            try:
+                raw = self.path.read_bytes()
+                byte_size = len(raw)
+                lines = raw.count(b"\n")
+            except OSError:
+                pass
+        return {
+            "entries": len(self._entries),
+            "pending": len(self._pending),
+            "reused": self.reused,
+            "written": self.written,
+            "file_lines": lines,
+            "file_bytes": byte_size,
+        }
 
     def flush(self) -> None:
         if self.path is None or not self._pending:

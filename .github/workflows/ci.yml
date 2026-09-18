@@ -25,7 +25,20 @@ jobs:
         pip install -e ".[dev,tiktoken]"
     - name: Run Pytest Suite
       run: |
-        pytest -v
+        pytest -q
+    - name: Lint (ruff)
+      run: |
+        ruff check src tests benchmarks/research/run_multiagent_ab.py benchmarks/research/run_injection_e2e.py src/lcc/relevance/verifier.py || true
+    - name: Typecheck (mypy)
+      run: |
+        mypy src/lcc/relevance/verifier.py src/lcc/relevance/compactor.py src/lcc/relevance/trim.py || true
+    - name: Answer-level regression (E0)
+      run: |
+        python3 benchmarks/research/run_answer_eval.py --provider mechanical
+    - name: Multi-agent pilot smoke (E0/E1/E2)
+      run: |
+        python3 benchmarks/research/run_multiagent_ab.py --tasks 20 --provider mechanical
+        python3 benchmarks/research/run_injection_e2e.py
 
   test-node:
     runs-on: ubuntu-latest

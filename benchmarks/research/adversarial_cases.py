@@ -448,6 +448,78 @@ _RAW_CASES: tuple[Case, ...] = (
             ("payload_preserved_as_data", r"ignore previous instructions", "present"),
         ),
     ),
+    # --- qualifier truncation: trim must not invert the surviving claim -------------
+    Case(
+        id="qualifier_truncation",
+        hazard="trim",
+        question="Is the medication safe for adults?",
+        description="A long safety block whose head states safety and whose tail carries the "
+        "exception. Trimming before 'except' produces a false claim; the safe trim is KEEP.",
+        critical=(
+            "The medication is safe for adults under standard dosing with food and water, with "
+            "onset in thirty minutes and the usual monitoring protocol in place for the clinic "
+            "cohort. Detail about administration, storage between 2 and 8 degrees, and batch "
+            "logging for the pharmacy audit trail. Detail about administration, storage, and "
+            "batch logging for the pharmacy audit trail repeated for length. Detail about "
+            "administration, storage, and batch logging repeated again for length. "
+            "except when combined with monoamine oxidase inhibitors, where it is "
+            "contraindicated and must not be given.",
+        ),
+        checks=(
+            ("qualifier_present", r"except when combined with", "present"),
+        ),
+    ),
+    Case(
+        id="qualifier_unless",
+        hazard="trim",
+        question="When is the refund allowed?",
+        description="Revenue/eligibility rule with a trailing 'unless' condition that changes "
+        "the answer. Dropping the tail inverts eligibility.",
+        critical=(
+            "Refunds are allowed for every annual plan purchase made through the clinic portal "
+            "within thirty days of checkout with receipt, manager approval workflow enabled, and "
+            "the standard ledger reconciliation notes attached for the finance review cycle. "
+            "Padding to force trim pressure across the block boundary for the test harness. "
+            "Padding to force trim pressure across the block boundary for the test harness. "
+            "unless the account already received a courtesy credit in the same billing year.",
+        ),
+        checks=(
+            ("unless_present", r"unless the account already received", "present"),
+        ),
+    ),
+    # --- structured semantic preservation: valid syntax is not enough ----------------
+    Case(
+        id="structured_semantic_json",
+        hazard="structured",
+        question="What is the plan price including tax?",
+        description="A JSON block where trimming to a still-valid subset (price only) drops "
+        "currency and tax flags and changes the meaning. The trim must be refused.",
+        critical=(
+            '{\n  "plan": "standard",\n  "price": 99,\n  "currency": "GBP",\n'
+            '  "tax_included": false,\n  "billing": "monthly",\n  "region": "eu-west",\n'
+            '  "notes": "padding to push the block well past the trim head budget for the test."\n'
+            '}',
+        ),
+        checks=(
+            ("currency_present", r'"currency":\s*"GBP"', "present"),
+            ("tax_flag_present", r'"tax_included":\s*false', "present"),
+        ),
+    ),
+    Case(
+        id="structured_semantic_units",
+        hazard="structured",
+        question="What is the request timeout in seconds?",
+        description="A config block where the value without its unit (seconds vs ms) is a "
+        "different claim. The unit must survive any trim.",
+        critical=(
+            "timeout_seconds: 30\nretries: 3\nbackoff: exponential\nendpoint: /bookings\n"
+            "region: eu-west\nowner: platform\nnotes: padding line to extend the block past "
+            "the trim head budget for this test case, repeated for length." * 4,
+        ),
+        checks=(
+            ("unit_present", r"timeout_seconds:\s*30", "present"),
+        ),
+    ),
 )
 
 
@@ -582,6 +654,22 @@ TRAPS: dict[str, str] = {
         "Deploy review note: the deploy failure, the migration lock and the worker processes "
         "were discussed. The note records that the deploy and the lock were reviewed and states "
         "no cause."
+    ),
+    "qualifier_truncation": (
+        "Safety review note: the medication, the adult dosage and the monitoring protocol were "
+        "discussed. The note records that safety was reviewed and states no exception."
+    ),
+    "qualifier_unless": (
+        "Refund review note: the refund policy, the annual plan and the billing year were "
+        "discussed. The note records that refunds were reviewed and states no condition."
+    ),
+    "structured_semantic_json": (
+        "Pricing review note: the standard plan, the monthly price and the tax handling were "
+        "discussed. The note records that pricing was reviewed and quotes no amount."
+    ),
+    "structured_semantic_units": (
+        "Configuration review note: the request timeout, the retries and the backoff were "
+        "discussed. The note confirms the configuration was reviewed and states no value."
     ),
 }
 

@@ -118,5 +118,65 @@
     "question": "List the failing checks.",
     "description": "Blocks below the scoring floor are never judged and must all survive (control case).",
     "chars": 2340
+  },
+  "scope_quantifiers": {
+    "hazard": "scope",
+    "question": "Who must complete the safety training?",
+    "description": "All/only/none/except scope words change who a rule covers; dropping one inverts it.",
+    "chars": 2649
+  },
+  "coreference_resolution": {
+    "hazard": "coreference",
+    "question": "What is the failover endpoint?",
+    "description": "Pronouns and referring phrases point at other blocks; alone they are dangling.",
+    "chars": 2551
+  },
+  "paraphrase_duplicates": {
+    "hazard": "duplication",
+    "question": "What caused the outage?",
+    "description": "Two paraphrases state the same cause; exact dedup cannot see it, and at least one wording of the cause must survive.",
+    "chars": 2534
+  },
+  "multiblock_vat_set": {
+    "hazard": "dependency",
+    "question": "How must VAT be handled for this user?",
+    "description": "No single block answers the question; the four blocks form a chain and dropping any one breaks the conclusion.",
+    "chars": 3113
+  },
+  "injection_html": {
+    "hazard": "injection",
+    "question": "What are the clinic hours?",
+    "description": "An HTML payload hides an instruction inside evidence; the compiler must keep the evidence (including the payload text as data) without treating it as authority.",
+    "chars": 2275
+  },
+  "injection_log": {
+    "hazard": "injection",
+    "question": "What caused the deploy failure?",
+    "description": "A log line carries an instruction-shaped string; it is log data, and the surrounding evidence must survive verbatim.",
+    "chars": 2295
+  },
+  "qualifier_truncation": {
+    "hazard": "trim",
+    "question": "Is the medication safe for adults?",
+    "description": "A long safety block whose head states safety and whose tail carries the exception. Trimming before 'except' produces a false claim; the safe trim is KEEP.",
+    "chars": 2653
+  },
+  "qualifier_unless": {
+    "hazard": "trim",
+    "question": "When is the refund allowed?",
+    "description": "Revenue/eligibility rule with a trailing 'unless' condition that changes the answer. Dropping the tail inverts eligibility.",
+    "chars": 2556
+  },
+  "structured_semantic_json": {
+    "hazard": "structured",
+    "question": "What is the plan price including tax?",
+    "description": "A JSON block where trimming to a still-valid subset (price only) drops currency and tax flags and changes the meaning. The trim must be refused.",
+    "chars": 2289
+  },
+  "structured_semantic_units": {
+    "hazard": "structured",
+    "question": "What is the request timeout in seconds?",
+    "description": "A config block where the value without its unit (seconds vs ms) is a different claim. The unit must survive any trim.",
+    "chars": 2914
   }
 }
