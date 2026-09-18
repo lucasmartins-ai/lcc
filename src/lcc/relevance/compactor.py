@@ -46,6 +46,12 @@ from lcc.token_budget import count_tokens
 
 RELEVANCE_SCHEMA_VERSION = "relevance-compaction-1.1"
 
+#: Prompt-cache cost factors from ``docs/CACHE_ALIGNMENT.md``: a cache read costs ~0.10x the
+#: base token price and a cache write ~1.25x. Used to report the break-even reuse count of a
+#: pass that mutates a warm prefix. Override per provider before trusting the figure.
+_CACHE_READ_FACTOR = 0.10
+_CACHE_WRITE_FACTOR = 1.25
+
 _DEFAULT_THRESHOLD = 0.4
 _DEFAULT_BATCH_SIZE = 8
 _DEFAULT_MAX_STATE_CHARS = 12000
@@ -87,6 +93,10 @@ class RelevanceCompactionRequest:
     max_state_chars: int = _DEFAULT_MAX_STATE_CHARS
     keep_patterns: tuple[str, ...] = ()
     marker: bool = True
+    #: Put scorer values inside the inline drop marker. Off by default: live scores wobble
+    #: between calls, and a marker that embeds them changes the emitted bytes on every run,
+    #: which defeats the prompt cache the pass is meant to protect. Scores stay in the report.
+    marker_scores: bool = False
     provider: str = "auto"  # auto | jev | mechanical
     model: str = "gpt-4.1"  # token counting model (ADR 0005 honesty contract)
     jev_model: str = "jev-latest"
@@ -146,6 +156,21 @@ class RelevanceCompactionReport:
     first_mutation_offset: int | None
     prefix_sha256: str
     output_sha256: str
+    #: Why the run degraded, when ``degraded`` is true (``jev_unavailable``,
+    #: ``jev_unavailable_mechanical_fallback``, ``jev_batch_failed``).
+    degradation_reason: str | None = None
+    #: What the pass can promise about semantic judgment: ``judged`` (every scored block was
+    #: decided by the model provider), ``partial`` (some blocks fell back), or ``none``
+    #: (mechanical or degraded scoring only). Callers that need evidence preservation must
+    #: refuse ``none``.
+    semantic_guarantee: str = "judged"
+    #: Tokens to the right of the first mutation. Everything here is recomputed by a prompt
+    #: cache whose prefix was warm, so it is the real cost of the pass.
+    invalidated_tokens: int = 0
+    #: Reuses of the pruned context needed before the invalidation pays for the drop, using
+    #: the read/write factors in ``docs/CACHE_ALIGNMENT.md``. ``None`` when nothing was
+    #: dropped or nothing was invalidated.
+    break_even_reuses: float | None = None
     warnings: list[str] = field(default_factory=list)
     decisions: list[BlockDecision] = field(default_factory=list)
 
@@ -214,9 +239,23 @@ def _render_trimmed(
     )
 
 
-def _marker_for_run(run: list[BlockDecision], threshold: float) -> str:
+def _marker_for_run(
+    run: list[BlockDecision], threshold: float, *, include_scores: bool = False
+) -> str:
+    """Inline replacement for a run of dropped blocks.
+
+    Scores are deliberately left out by default. Live scorer values wobble between calls, so
+    a marker that embeds them makes every run emit different bytes and invalidates the prompt
+    cache the pass was supposed to protect. The per-block scores stay in the report, where
+    they can be audited without touching the emitted context. Pass ``include_scores=True``
+    (CLI: ``--marker-scores``) to put them back inline.
+    """
     total_chars = sum(decision.chars for decision in run)
     scores = [decision.score for decision in run if decision.score is not None]
+    label = "block" if len(run) == 1 else "blocks"
+    base = f"{len(run)} {label} ({total_chars} chars)"
+    if not include_scores:
+        return f"[lcc-compact: dropped {base}]"
     if len(run) == 1:
         score_part = f"score {scores[0]:.2f} < {threshold:.2f}" if scores else "no score"
         return f"[lcc-compact: dropped 1 block ({total_chars} chars, {score_part})]"
@@ -443,6 +482,8 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     provider_requested = request.provider
     provider_used = "mechanical"
     degraded = False
+    degradation_reason: str | None = None
+    semantic_guarantee = "judged"
     calls = 0
     latency_ms = 0
     client: JevClient | None = None
@@ -452,11 +493,22 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             if provider_requested == "jev":
                 degraded = True
                 provider_used = "degraded"
+                degradation_reason = "jev_unavailable"
+                semantic_guarantee = "none"
                 warnings.append(
                     "jev_unavailable: no API key or network disabled; kept every block (fail-safe)"
                 )
             else:
-                warnings.append("jev_unavailable: fell back to mechanical scoring")
+                # ``auto`` used to keep ``degraded: false`` here while quietly swapping the
+                # semantic judge for a lexical scorer. The fallback itself is fine; hiding it
+                # is not, so the degradation is now reported like any other.
+                degraded = True
+                degradation_reason = "jev_unavailable_mechanical_fallback"
+                semantic_guarantee = "none"
+                warnings.append(
+                    "jev_unavailable: fell back to mechanical scoring; semantic judgment is "
+                    "unavailable (degraded)"
+                )
         elif request.jev_model:
             client.model = request.jev_model
 
@@ -488,12 +540,22 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 if any(source == "mechanical" for _, source in results.values()):
                     provider_used = "jev+mechanical_fallback"
                     degraded = True
+                    degradation_reason = "jev_batch_failed"
+                    semantic_guarantee = "partial"
         else:
             provider_used = "mechanical"
+            semantic_guarantee = "none"
             results = _score_mechanically(pending, request.question)
 
+        # Identical content must receive an identical decision within a run. The decisions
+        # cache is content-addressed, so a cold run that scores two copies of the same block
+        # independently can disagree with the single cached score a warm run reuses, which
+        # changes the emitted bytes. Pin the first judgment per content and reuse it.
+        per_content: dict[str, tuple[float, str]] = {}
         for block in pending:
             score, source = results.get(block.id, (0.0, provider_used))
+            first = per_content.setdefault(block.text, (score, source))
+            score, source = first
             chars_after: int | None = None
             if source == "jev":
                 if score >= request.threshold:
@@ -581,7 +643,11 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     index += 1
                 pieces.append(gaps[run[0].index - 1])
                 if request.marker:
-                    pieces.append(_marker_for_run(run, request.threshold))
+                    pieces.append(
+                        _marker_for_run(
+                            run, request.threshold, include_scores=request.marker_scores
+                        )
+                    )
             else:
                 pieces.append(gaps[decision.index - 1])
                 if decision.decision == "trim":
@@ -626,6 +692,42 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             f"(< {request.min_reduction:.0%} target); a cache epoch may not be worth it"
         )
 
+    if after_count.method.value != "exact":
+        warnings.append(
+            "approximate_token_count: every token figure in this report is an estimate, not a "
+            "measurement. The tokenizer assets are not cached locally and lcc will not fetch "
+            "them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token "
+            "or cost decision, or pass --require-exact-tokens to fail instead of guessing."
+        )
+
+    if request.trim_head_chars == 0 and mutated:
+        warnings.append(
+            "strict_keep_drop: --trim-head-chars 0 disabled the trim middle gear, so "
+            "borderline-scored blocks are dropped outright instead of keeping a bounded head. "
+            "Trimming is the safety net for near-miss evidence; leaving it on is the safer "
+            "default."
+        )
+
+    # --- cache-epoch accounting: what the pass costs a warm prefix, and whether it can pay
+    invalidated_tokens = 0
+    break_even_reuses: float | None = None
+    if mutated and first_mutation_offset is not None:
+        prefix_tokens = count_tokens(text[:first_mutation_offset], request.model).value
+        invalidated_tokens = max(0, before_count.value - prefix_tokens)
+        dropped_tokens = max(0, before_count.value - after_count.value)
+        if invalidated_tokens and dropped_tokens:
+            # docs/CACHE_ALIGNMENT.md factors: read 0.10x, write 1.25x.
+            saving_per_reuse = dropped_tokens * _CACHE_READ_FACTOR
+            invalidation_cost = invalidated_tokens * (_CACHE_WRITE_FACTOR - _CACHE_READ_FACTOR)
+            break_even_reuses = round(invalidation_cost / saving_per_reuse, 1)
+            if break_even_reuses > 1.0:
+                warnings.append(
+                    f"cache_epoch_risk: this pass invalidates {invalidated_tokens} tokens at "
+                    f"offset {first_mutation_offset} to drop {dropped_tokens}; it only pays off "
+                    f"after ~{break_even_reuses:g} reuses of the pruned context. Protect the "
+                    f"prefix (--prefix-marker/--protect-prefix) or wait for a cache epoch."
+                )
+
     report = RelevanceCompactionReport(
         schema_version=RELEVANCE_SCHEMA_VERSION,
         provider_requested=provider_requested,
@@ -664,6 +766,10 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         first_mutation_offset=first_mutation_offset,
         prefix_sha256=_sha256(prefix_source),
         output_sha256=_sha256(compacted),
+        degradation_reason=degradation_reason,
+        semantic_guarantee=semantic_guarantee,
+        invalidated_tokens=invalidated_tokens,
+        break_even_reuses=break_even_reuses,
         warnings=warnings,
         decisions=ordered,
     )
@@ -704,6 +810,10 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "first_mutation_offset": report.first_mutation_offset,
         "prefix_sha256": report.prefix_sha256,
         "output_sha256": report.output_sha256,
+        "degradation_reason": report.degradation_reason,
+        "semantic_guarantee": report.semantic_guarantee,
+        "invalidated_tokens": report.invalidated_tokens,
+        "break_even_reuses": report.break_even_reuses,
         "warnings": list(report.warnings),
         "decisions": [
             {
