@@ -951,6 +951,15 @@ def compact_command(
             "scores stay in the report either way."
         ),
     ),
+    deterministic_protection: bool = typer.Option(
+        True,
+        "--deterministic-protection/--no-deterministic-protection",
+        help=(
+            "Keep locally scored blocks that carry quoted speech, evidence in another language, "
+            "or distinctive vocabulary shared with a kept block. On by default: the local "
+            "scorer is a fallback and should err toward keeping evidence."
+        ),
+    ),
     output_path: Path | None = typer.Option(
         None, "--output", "-o", help="Write the compacted text here (otherwise stdout)."
     ),
@@ -1004,6 +1013,7 @@ def compact_command(
         keep_patterns=tuple(keep_regex or ()),
         marker=not no_marker,
         marker_scores=marker_scores,
+        deterministic_protection=deterministic_protection,
         protect_prefix_chars=protect_prefix_chars,
         prefix_marker=prefix_marker,
         decisions_cache_path=decisions_cache,

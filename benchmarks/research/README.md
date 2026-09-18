@@ -342,6 +342,64 @@ The one measured gap is the deterministic path: three cases fail under mechanica
 that path is reachable whenever a key is missing or `--provider auto` degrades. If Etapa 2 is to
 be evidence-driven, that is where the evidence points.
 
+## Finding 9 — deterministic safety net: the three measured gaps, closed (Etapa 2)
+
+Etapa 1 ended with a clear verdict: the Jev path shows no semantic-safety failure, and the only
+measured gap is the deterministic path, which fails three of twenty cases. Etapa 2 targets
+exactly that, and only that.
+
+### What was built
+
+Three rules, each tied to one reproduced failure, applied only to locally scored blocks:
+
+| rule | fixes | mechanism |
+|---|---|---|
+| quoted speech | `quoted_instruction` | attribution verbs and quoted spans are evidence, not chatter |
+| foreign-language evidence | `multilingual` | block language detected from unambiguous function words; a block in another language is not dropped for sharing no tokens with an English objective |
+| distinctive-term linkage | `dependency_causal` | a block sharing two or more distinctive terms with a kept block is pulled in, so a conclusion does not outlive its evidence |
+
+### What was built and then removed
+
+Two broader rules looked reasonable and were measured out of existence: protecting every block
+containing a negation cue, and every block containing a literal.
+
+| configuration | cases passing | mean reduction |
+|---|---|---|
+| no protection | 17 / 20 | 62.2 % |
+| negation + literal + quotes + language + linkage | 20 / 20 | **0.0 %** |
+| quotes + language + linkage (shipped) | **20 / 20** | 51.4 % |
+
+The broad rules took compaction to zero: chatter, log lines and filler are full of the word
+"not" and of numbers with units, so protecting them protects everything. A protection that
+keeps every block is not a protection, it is a disabled compressor. The hazards they targeted
+(`negation_consent`, `numeric_precision`, `unit_conversion`) already passed without them.
+
+### The trade, measured
+
+Cost on the adversarial suite: **−10.9 points of mean reduction** for three failures fixed,
+with the rest of the cost falling on cases that were already safe. Cost on the main corpora is
+larger and buys more:
+
+| corpus | reduction before | reduction after | ground-truth recall before | after |
+|---|---|---|---|---|
+| small | 73.2 % | 50.3 % | 3 / 5 | **5 / 5** |
+| medium | 78.6 % | 66.0 % | 3 / 5 | **5 / 5** |
+| large | 79.1 % | 68.8 % | 3 / 5 | **5 / 5** |
+
+The independent main suite confirms it: the deterministic path now keeps every ground-truth
+fact it used to lose, at ten to twenty-three points of reduction. That is the right direction
+for a fallback. Its job is to be safe when the model judge is unavailable, and a fallback that
+preserves evidence at 50 % compression is worth more than one that reaches 73 % by losing the
+answer.
+
+The Jev path is untouched: the protection is only consulted for locally scored blocks, so the
+small differences in Jev rows between the two matrix runs are the run-to-run score variance
+Finding 4 already documents.
+
+`--no-deterministic-protection` restores the previous behaviour, and
+`test_cases_the_safety_net_was_built_for` asserts each fixed case still fails without it, so the
+attribution is checked rather than assumed.
+
 ## Limitations
 
 - The corpora are synthetic and shaped by hand. Fact placement inside the volatile tail is a

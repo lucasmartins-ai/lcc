@@ -13,66 +13,6 @@ CHATTER 3: someone mentioned this might be worth revisiting at some point, not u
 
 TOOL OUTPUT 4: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
 
-CHATTER 5: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 6: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 7: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 8: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 9: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 0: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 1: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 2: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 3: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 4: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 5: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 6: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 7: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 8: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 9: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 0: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 1: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 2: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 3: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 4: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 5: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 6: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 7: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 8: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 9: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-Latency review note: the regions, the latency figures and the request volumes were compared. The note records that latency across regions was reviewed and cites no region and no number.
-
-Latency review note: the regions, the latency figures and the request volumes were compared. The note records that latency across regions was reviewed and cites no region and no number.
-
-Latency review note: the regions, the latency figures and the request volumes were compared. The note records that latency across regions was reviewed and cites no region and no number.
-
-Latency review note: the regions, the latency figures and the request volumes were compared. The note records that latency across regions was reviewed and cites no region and no number.
-
-Latency review note: the regions, the latency figures and the request volumes were compared. The note records that latency across regions was reviewed and cites no region and no number.
-
 Latency review note: the regions, the latency figures and the request volumes were compared. The note records that latency across regions was reviewed and cites no region and no number.
 
 | region | p95 latency | requests |
@@ -81,56 +21,6 @@ Latency review note: the regions, the latency figures and the request volumes we
 | us-east-1 | 480 ms | 2,910,000 |
 | ap-south-1 | 620 ms | 880,000 |
 
-
-TOOL OUTPUT 0: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 1: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 2: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 3: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 4: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 5: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 6: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 7: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 8: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 9: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 0: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 1: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 2: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 3: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 4: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 5: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 6: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 7: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 8: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 9: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 0: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 1: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 2: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
-
-CHATTER 3: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
-
-TOOL OUTPUT 4: the scanner returned HTTP 200 with 41 kB of HTML, no console errors, the viewport meta tag is present and 12 third-party scripts block first paint.
 
 CHATTER 5: someone mentioned this might be worth revisiting at some point, not urgent, just leaving a note here so the detail does not get lost somewhere in the thread.
 

@@ -1,0 +1,578 @@
+{
+  "provider": "mechanical",
+  "pressure": 1,
+  "cases": 20,
+  "passed": 20,
+  "failed": 0,
+  "rows": [
+    {
+      "id": "negation_consent",
+      "hazard": "negation",
+      "description": "A positive and a negative rule differ by one word and must never collapse.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "negation_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 21.6,
+      "blocks_dropped": 5,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 46.3,
+      "passed": true,
+      "wall_ms": 369,
+      "pressure": 1
+    },
+    {
+      "id": "double_negation",
+      "hazard": "negation",
+      "description": "Two negations in one clause invert back to the positive rule.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "double_negation_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 33.6,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 35.8,
+      "passed": true,
+      "wall_ms": 371,
+      "pressure": 1
+    },
+    {
+      "id": "contradiction_same_metric",
+      "hazard": "contradiction",
+      "description": "Two conflicting values for one metric; keeping only one silently picks a side.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "older_value_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "newer_value_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 29.1,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 40.5,
+      "passed": true,
+      "wall_ms": 378,
+      "pressure": 1
+    },
+    {
+      "id": "temporal_supersession",
+      "hazard": "temporal",
+      "description": "Three dated prices; the latest must survive or the answer is stale.",
+      "critical_blocks": 3,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "latest_price_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 25.2,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 46.0,
+      "passed": true,
+      "wall_ms": 376,
+      "pressure": 1
+    },
+    {
+      "id": "source_authority_conflict",
+      "hazard": "authority",
+      "description": "An informal channel and the official spec disagree; they are not equally weighted.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "authoritative_value_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 29.0,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 40.9,
+      "passed": true,
+      "wall_ms": 376,
+      "pressure": 1
+    },
+    {
+      "id": "dependency_qualifier",
+      "hazard": "dependency",
+      "description": "A qualifier block looks low-relevance alone but changes the meaning of the headline.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "headline_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "qualifier_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 66.7,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 17.0,
+      "passed": true,
+      "wall_ms": 380,
+      "pressure": 1
+    },
+    {
+      "id": "dependency_causal",
+      "hazard": "dependency",
+      "description": "A cause and its effect sit in different blocks; each looks weak alone.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "cause_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "effect_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 65.6,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 17.4,
+      "passed": true,
+      "wall_ms": 372,
+      "pressure": 1
+    },
+    {
+      "id": "numeric_precision",
+      "hazard": "precision",
+      "description": "4.20 and 42 seconds are different claims; the precise one must survive, and the lookalike distractor may legitimately be dropped.",
+      "critical_blocks": 2,
+      "lost_blocks": [
+        1
+      ],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "precise_value_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 71.9,
+      "blocks_dropped": 12,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 15.9,
+      "passed": true,
+      "wall_ms": 374,
+      "pressure": 1
+    },
+    {
+      "id": "unit_conversion",
+      "hazard": "units",
+      "description": "The same quantity in two units must not be merged or mangled.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "unit_value_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 78.8,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 14.5,
+      "passed": true,
+      "wall_ms": 369,
+      "pressure": 1
+    },
+    {
+      "id": "prompt_injection",
+      "hazard": "injection",
+      "description": "Retrieved text tries to override the compiler. The evidence must survive, and the injected instruction must not be forwarded to the downstream model.",
+      "critical_blocks": 2,
+      "lost_blocks": [
+        0
+      ],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "evidence_survives",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "injection_not_forwarded",
+          "expectation": "absent",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 71.2,
+      "blocks_dropped": 12,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 15.9,
+      "passed": true,
+      "wall_ms": 374,
+      "pressure": 1
+    },
+    {
+      "id": "quoted_instruction",
+      "hazard": "injection",
+      "description": "An instruction inside quoted user text is evidence, not a command.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "quoted_text_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 77.4,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 14.6,
+      "passed": true,
+      "wall_ms": 368,
+      "pressure": 1
+    },
+    {
+      "id": "structured_json",
+      "hazard": "structure",
+      "description": "JSON is data; collapsing its inner whitespace or dropping it loses the answer.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "json_replicas_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 34.4,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 36.4,
+      "passed": true,
+      "wall_ms": 373,
+      "pressure": 1
+    },
+    {
+      "id": "structured_yaml",
+      "hazard": "structure",
+      "description": "YAML indentation carries meaning and must survive the pass.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "yaml_value_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 77.8,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 15.1,
+      "passed": true,
+      "wall_ms": 378,
+      "pressure": 1
+    },
+    {
+      "id": "structured_xml",
+      "hazard": "structure",
+      "description": "XML tags are semantic, not decoration.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "xml_retries_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 34.7,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 35.3,
+      "passed": true,
+      "wall_ms": 378,
+      "pressure": 1
+    },
+    {
+      "id": "structured_code",
+      "hazard": "structure",
+      "description": "Code inside a fence must come through byte-intact.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "code_signature_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 33.7,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 37.0,
+      "passed": true,
+      "wall_ms": 374,
+      "pressure": 1
+    },
+    {
+      "id": "structured_table",
+      "hazard": "structure",
+      "description": "A markdown table row is the answer; rows must not be silently merged.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "table_worst_region_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 77.8,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 15.9,
+      "passed": true,
+      "wall_ms": 389,
+      "pressure": 1
+    },
+    {
+      "id": "multilingual",
+      "hazard": "language",
+      "description": "Evidence in another language is relevant content, not noise.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "portuguese_evidence_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 77.7,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 14.9,
+      "passed": true,
+      "wall_ms": 385,
+      "pressure": 1
+    },
+    {
+      "id": "unicode_content",
+      "hazard": "unicode",
+      "description": "Accents, non-latin scripts and symbols must survive verbatim.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "unicode_name_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 78.6,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 15.0,
+      "passed": true,
+      "wall_ms": 380,
+      "pressure": 1
+    },
+    {
+      "id": "very_long_block",
+      "hazard": "size",
+      "description": "One oversized block must be trimmed, never dropped: its head carries the verdict.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "verdict_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 9.6,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 95.7,
+      "passed": true,
+      "wall_ms": 385,
+      "pressure": 1
+    },
+    {
+      "id": "many_short_blocks",
+      "hazard": "size",
+      "description": "Blocks below the scoring floor are never judged and must all survive (control case).",
+      "critical_blocks": 12,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "short_blocks_all_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "short_blocks_tail_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 33.2,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 38.7,
+      "passed": true,
+      "wall_ms": 380,
+      "pressure": 1
+    }
+  ]
+}
