@@ -44,6 +44,7 @@ from lcc.relevance import (
     compact_context,
 )
 from lcc.relevance import report_to_dict as relevance_report_to_dict
+from lcc.reporting.explain import render as render_explanation
 from lcc.reporting.report import report_to_dict, summary_rows, write_report
 from lcc.semantic_retrieval import (
     LOCAL_INDEX_V1_ADAPTER,
@@ -906,7 +907,13 @@ def compact_command(
     provider: str = typer.Option(
         "auto",
         "--provider",
-        help="Scoring provider: auto, jev (narrow model judgment), or mechanical (local only).",
+        help=(
+            "Scoring provider. 'mechanical' is fully local and needs no API key or network, "
+            "so LCC works on its own; measured, it keeps every item of every information "
+            "category on every corpus size tested. 'jev' uses TypeSafe System One as a semantic "
+            "judge and needs a TYPESAFE_API_KEY; it is optional. 'auto' prefers Jev and falls "
+            "back to mechanical, reporting 'degraded: true' when it does."
+        ),
     ),
     model: str = typer.Option(
         "gpt-4.1", "--model", "-m", help="Model for token counting (default: gpt-4.1)."
@@ -942,14 +949,51 @@ def compact_command(
     no_marker: bool = typer.Option(
         False, "--no-marker", help="Do not leave a drop marker line in the output."
     ),
+    marker_scores: bool = typer.Option(
+        False,
+        "--marker-scores",
+        help=(
+            "Include scorer values in the inline drop marker. Off by default because live "
+            "scores wobble between calls and would rewrite the emitted bytes on every run; "
+            "scores stay in the report either way."
+        ),
+    ),
+    deterministic_protection: bool = typer.Option(
+        True,
+        "--deterministic-protection/--no-deterministic-protection",
+        help=(
+            "Keep locally scored blocks that carry quoted speech, evidence in another language, "
+            "or distinctive vocabulary shared with a kept block. On by default: the local "
+            "scorer is a fallback and should err toward keeping evidence."
+        ),
+    ),
     output_path: Path | None = typer.Option(
         None, "--output", "-o", help="Write the compacted text here (otherwise stdout)."
+    ),
+    append_to: Path | None = typer.Option(
+        None,
+        "--append-to",
+        help=(
+            "Append the compacted text to this file instead of writing a new one. The existing "
+            "bytes are never touched, so an accumulated session's prefix stays byte-stable and "
+            "its prompt cache survives. This is the placement the measurements favour: compact "
+            "each payload, then append it."
+        ),
     ),
     report_path: Path | None = typer.Option(
         None, "--report", "-r", help="Write the JSON report to this file."
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Score and report without writing the compacted text."
+    ),
+    require_exact_tokens: bool = typer.Option(
+        False,
+        "--require-exact-tokens",
+        help=(
+            "Fail (exit 3) when token counting degrades to the heuristic estimator, instead of "
+            "reporting estimates. Set TIKTOKEN_CACHE_DIR to a populated directory to make "
+            "counts exact offline."
+        ),
     ),
 ) -> None:
     """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
@@ -985,6 +1029,8 @@ def compact_command(
         min_block_chars=min_block_chars,
         keep_patterns=tuple(keep_regex or ()),
         marker=not no_marker,
+        marker_scores=marker_scores,
+        deterministic_protection=deterministic_protection,
         protect_prefix_chars=protect_prefix_chars,
         prefix_marker=prefix_marker,
         decisions_cache_path=decisions_cache,
@@ -995,8 +1041,37 @@ def compact_command(
         _fail(str(exc), code=2)
 
     report = result.report
+    if require_exact_tokens and report.token_count_method != "exact":
+        _fail(
+            "token counting degraded to the heuristic estimator, so every token figure would "
+            "be an estimate. Populate the tokenizer cache (set TIKTOKEN_CACHE_DIR to a "
+            "persistent directory) or drop --require-exact-tokens to accept estimates.",
+            code=3,
+        )
+    if append_to is not None and output_path is not None:
+        _fail("--append-to and --output are mutually exclusive; pick one.", code=2)
+
     if not dry_run:
-        if output_path is not None:
+        if append_to is not None:
+            # Append only. The bytes already in the file are never rewritten, which is the whole
+            # point: a session's prefix stays byte-stable, so its prompt cache is not invalidated
+            # by adding to it. Measured, this placement saves several times what rewriting the
+            # accumulated context saves.
+            try:
+                existing = append_to.read_text(encoding="utf-8") if append_to.exists() else ""
+                separator = "" if not existing or existing.endswith("\n\n") else (
+                    "\n" if existing.endswith("\n") else "\n\n"
+                )
+                with append_to.open("a", encoding="utf-8") as handle:
+                    handle.write(separator + result.compacted_text)
+            except OSError as exc:
+                _fail(f"could not append compacted text to {append_to}: {exc}")
+            appended = separator + result.compacted_text
+            err_console.print(
+                f"Appended {len(appended)} chars to [green]{append_to}[/green]; "
+                f"the {len(existing)} chars already there were left untouched."
+            )
+        elif output_path is not None:
             try:
                 output_path.write_text(result.compacted_text, encoding="utf-8")
             except OSError as exc:
@@ -1050,8 +1125,16 @@ def compact_command(
         table.add_row("Jev calls", f"{report.calls} ({report.latency_ms} ms)")
     if report.reused_decisions:
         table.add_row("Sticky decisions reused", str(report.reused_decisions))
+    guarantee = report.semantic_guarantee
+    if report.degraded:
+        guarantee += f" (degraded: {report.degradation_reason or 'unknown'})"
+    table.add_row("Semantic guarantee", guarantee)
     if report.prefix_protected:
         table.add_row("Prefix untouched", "yes" if report.prefix_untouched else "no")
+    if report.invalidated_tokens:
+        table.add_row("Cache invalidated", f"{report.invalidated_tokens} tokens")
+    if report.break_even_reuses is not None:
+        table.add_row("Pays off after", f"~{report.break_even_reuses:g} reuses")
     table.add_row(
         "First mutation offset",
         "-" if report.first_mutation_offset is None else str(report.first_mutation_offset),
@@ -1064,6 +1147,62 @@ def compact_command(
         err_console.print(f"Compacted context written to: [green]{output_path}[/green]")
     if report_path is not None:
         err_console.print(f"Compaction report written to: [green]{report_path}[/green]")
+
+
+@app.command(name="explain")
+def explain_cmd(
+    report_path: Path = typer.Argument(
+        ...,
+        help="Path to a relevance compaction report written by `lcc compact -r`.",
+        show_default=False,
+    ),
+    source: Path | None = typer.Option(
+        None,
+        "--source",
+        "-s",
+        help="Original input file, to show what each block actually contained.",
+    ),
+    only: str | None = typer.Option(
+        None, "--only", help="Show only keep, trim or drop decisions."
+    ),
+    limit: int | None = typer.Option(None, "--limit", help="Show at most N blocks per group."),
+) -> None:
+    """Explain a compaction report: why each block was kept, trimmed or dropped.
+
+    Reads the report, never re-runs compaction and never touches the network, so a pass can be
+    audited after the fact. Pass --source to see the text behind each decision.
+    """
+    try:
+        payload = json.loads(report_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        _fail(f"could not read {report_path}: {exc}")
+    except json.JSONDecodeError as exc:
+        _fail(f"{report_path} is not valid JSON: {exc}")
+    if not isinstance(payload, dict):
+        _fail(f"{report_path} does not contain a report object")
+    if "decisions" not in payload:
+        _fail(
+            f"{report_path} does not look like a compaction report (no 'decisions' key); "
+            "generate one with `lcc compact -r report.json`"
+        )
+
+    source_text: str | None = None
+    if source is not None:
+        try:
+            source_text = source.read_text(encoding="utf-8")
+        except OSError as exc:
+            _fail(f"could not read {source}: {exc}")
+
+    if limit is not None and limit < 1:
+        _fail("--limit must be at least 1", code=2)
+
+    try:
+        rendered = render_explanation(
+            payload, only=only, limit=limit, source_text=source_text
+        )
+    except ValueError as exc:
+        _fail(str(exc), code=2)
+    sys.stdout.write(rendered + "\n")
 
 
 @app.command(name="intake")

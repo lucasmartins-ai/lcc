@@ -48,7 +48,13 @@ _INLINE_TIMESTAMP = re.compile(
     r"^\[?\d{1,2}:\d{2}(?::\d{2})?(?:[,\.]\d{1,3})?\]?\s*|"
     r"(?<=\s)\[\d{1,2}:\d{2}(?::\d{2})?(?:[,\.]\d{1,3})?\]"
 )
-_SPEAKER_PREFIX = re.compile(r"^([A-Za-z0-9_ -]+|\bSpeaker\s+\d+)\s*:\s*(.*)$", re.IGNORECASE)
+_SPEAKER_PREFIX = re.compile(
+    # A speaker label is a short, capitalised, name-like token before a colon. Deliberately no
+    # digits in the label, so a prose line such as "the deployment finished at 09:00" is not read
+    # as "someone called 'the deployment finished at 09' spoke". The literal ``Speaker N`` form
+    # is admitted separately because it is the conventional transcript label.
+    r"^((?i:speaker\s*\d+)|[A-Z][\w'’.-]*(?:\s+[A-Z][\w'’.-]*){0,3})\s*:\s*(\S.*)$"
+)
 
 # Disfluency / Speech fillers patterns (compiled regexes)
 _FILLERS: list[tuple[re.Pattern[str], str]] = [
@@ -140,13 +146,15 @@ def is_speech_transcript(text: str) -> bool:
     if _INLINE_TIMESTAMP.search(text):
         return True
 
-    # Check speaker turns
-    lines = text.split("\n")
-    speaker_turns = 0
-    for line in lines:
-        if _SPEAKER_PREFIX.match(line.strip()):
-            speaker_turns += 1
-            if speaker_turns >= 2:
+    # Check speaker turns. Two *distinct* labels are required: a prose document that happens to
+    # repeat one label-like word ("Note:", "Result:") is not a transcript, while a real one
+    # alternates between speakers.
+    speaker_labels: set[str] = set()
+    for line in text.split("\n"):
+        match = _SPEAKER_PREFIX.match(line.strip())
+        if match:
+            speaker_labels.add(match.group(0).split(":", 1)[0].strip().lower())
+            if len(speaker_labels) >= 2:
                 return True
 
     # Check filler density

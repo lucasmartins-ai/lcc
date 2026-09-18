@@ -1,0 +1,218 @@
+{
+  "arms": {
+    "raw": {
+      "label": "no LCC (raw corpus)",
+      "samples": 3,
+      "recall_values": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "recall_mean": 1.0,
+      "recall_min": 1.0,
+      "perfect_samples": 3,
+      "hallucination_events": 0,
+      "per_sample": [
+        {
+          "file": "raw_1.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 355
+        },
+        {
+          "file": "raw_2.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 379
+        },
+        {
+          "file": "raw_3.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 379
+        }
+      ],
+      "tokens": {
+        "input_tokens": 52451,
+        "output_tokens": 1229,
+        "cache_read_tokens": 63616,
+        "cache_write_tokens": 0,
+        "api_call_count": 6,
+        "message_count": 12
+      }
+    },
+    "lcc_jev": {
+      "label": "LCC compact --provider jev",
+      "samples": 3,
+      "recall_values": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "recall_mean": 1.0,
+      "recall_min": 1.0,
+      "perfect_samples": 3,
+      "hallucination_events": 0,
+      "per_sample": [
+        {
+          "file": "lcc_jev_1.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 456
+        },
+        {
+          "file": "lcc_jev_2.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 387
+        },
+        {
+          "file": "lcc_jev_3.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 467
+        }
+      ],
+      "tokens": {
+        "input_tokens": 29800,
+        "output_tokens": 1560,
+        "cache_read_tokens": 75904,
+        "cache_write_tokens": 0,
+        "api_call_count": 6,
+        "message_count": 12
+      }
+    },
+    "lcc_optimize": {
+      "label": "LCC optimize --template claude_xml",
+      "samples": 3,
+      "recall_values": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "recall_mean": 1.0,
+      "recall_min": 1.0,
+      "perfect_samples": 3,
+      "hallucination_events": 0,
+      "per_sample": [
+        {
+          "file": "lcc_optimize_1.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 336
+        },
+        {
+          "file": "lcc_optimize_2.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 412
+        },
+        {
+          "file": "lcc_optimize_3.txt",
+          "facts": {
+            "q1_step1_63pct": true,
+            "q2_p75_4.2s": true,
+            "q3_after_hours_41pct": true,
+            "q4_chairs_idle": true,
+            "q5_retype_4min": true
+          },
+          "recall": 1.0,
+          "missing": [],
+          "hallucinated": [],
+          "abstained": 0,
+          "numbered_items": 5,
+          "chars": 320
+        }
+      ],
+      "tokens": {
+        "input_tokens": 44188,
+        "output_tokens": 3228,
+        "cache_read_tokens": 136960,
+        "cache_write_tokens": 0,
+        "api_call_count": 9,
+        "message_count": 20
+      }
+    }
+  },
+  "token_source": "Hermes state.db sessions table (provider-reported)"
+}

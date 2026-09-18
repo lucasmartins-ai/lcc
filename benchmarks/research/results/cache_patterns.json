@@ -1,0 +1,38 @@
+{
+  "corpus": "medium",
+  "calls_per_turn": 2,
+  "price_model": {
+    "cache_read": 0.1,
+    "cache_write": 1.25
+  },
+  "note": "context cost is in read-token-equivalents for the main model only; jev_tokens are counted separately because Jev is billed on its own schedule",
+  "results": [
+    {
+      "pattern": "none",
+      "cost": 8061.9,
+      "tokens_processed": 28800,
+      "passes": 1
+    },
+    {
+      "pattern": "whole",
+      "cost": 7425.6,
+      "tokens_processed": 24012,
+      "jev_tokens": 20311,
+      "passes": 1
+    },
+    {
+      "pattern": "whole",
+      "cost": 6238.9,
+      "tokens_processed": 19896,
+      "jev_tokens": 57567,
+      "passes": 3
+    },
+    {
+      "pattern": "perturn",
+      "cost": 4645.8,
+      "tokens_processed": 19398,
+      "jev_tokens": 33154,
+      "passes": 5
+    }
+  ]
+}

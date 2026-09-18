@@ -1,0 +1,362 @@
+{
+  "small": {
+    "scale": "small",
+    "tokens_in": 1092,
+    "q1_cold_vs_warm": {
+      "cold": {
+        "calls": 5,
+        "reused_decisions": 0,
+        "output_sha256": "a03fde9e72c4324123b7995eb220356866549561124c44d7413954da8b84b17f",
+        "token_count_method": "exact"
+      },
+      "warm": {
+        "calls": 0,
+        "reused_decisions": 34,
+        "output_sha256": "a03fde9e72c4324123b7995eb220356866549561124c44d7413954da8b84b17f",
+        "token_count_method": "exact"
+      },
+      "byte_identical": true,
+      "sha_match": true
+    },
+    "determinism_no_cache": {
+      "byte_identical": true,
+      "sha_match": true
+    },
+    "q2_prefix_protection": {
+      "marker_offset_chars": 450,
+      "unprotected_first_mutation_offset": 1657,
+      "protected_first_mutation_offset": 1657,
+      "protected_prefix_untouched": true,
+      "protected_prefix_protected": true,
+      "protected_blocks_protected": 2,
+      "protected_sha": "cdba2557e81a8647420f288053276238e9ed11b9c9280b72bbea56a8f0f0b534",
+      "unprotected_sha": "9f0dbb34b5a9d8cebca9bcc8db7cc67fb62af69860b9ee57eba8fb4ab27f55e1",
+      "protection_changed_output": true
+    },
+    "q3_economics": {
+      "unprotected": {
+        "1": {
+          "dropped_tokens": 429,
+          "invalidated_tokens": 659,
+          "reuse_count": 1,
+          "saving_read_equiv": 42.9,
+          "penalty_read_equiv": 757.8,
+          "net_read_equiv": -714.9,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 17.67
+        },
+        "5": {
+          "dropped_tokens": 429,
+          "invalidated_tokens": 659,
+          "reuse_count": 5,
+          "saving_read_equiv": 214.5,
+          "penalty_read_equiv": 757.8,
+          "net_read_equiv": -543.3,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 3.53
+        },
+        "20": {
+          "dropped_tokens": 429,
+          "invalidated_tokens": 659,
+          "reuse_count": 20,
+          "saving_read_equiv": 858.0,
+          "penalty_read_equiv": 757.8,
+          "net_read_equiv": 100.2,
+          "pays_off": true,
+          "ratio_penalty_over_saving": 0.88
+        }
+      },
+      "protected": {
+        "1": {
+          "dropped_tokens": 460,
+          "invalidated_tokens": 659,
+          "reuse_count": 1,
+          "saving_read_equiv": 46.0,
+          "penalty_read_equiv": 757.8,
+          "net_read_equiv": -711.8,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 16.47
+        },
+        "5": {
+          "dropped_tokens": 460,
+          "invalidated_tokens": 659,
+          "reuse_count": 5,
+          "saving_read_equiv": 230.0,
+          "penalty_read_equiv": 757.8,
+          "net_read_equiv": -527.8,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 3.29
+        },
+        "20": {
+          "dropped_tokens": 460,
+          "invalidated_tokens": 659,
+          "reuse_count": 20,
+          "saving_read_equiv": 920.0,
+          "penalty_read_equiv": 757.8,
+          "net_read_equiv": 162.2,
+          "pays_off": true,
+          "ratio_penalty_over_saving": 0.82
+        }
+      },
+      "unprotected_reduction_ratio": 0.4389010989010989,
+      "unprotected_worth_it": true,
+      "protected_worth_it": true
+    },
+    "append_only": {
+      "output_extends_warm_prefix": true,
+      "calls": 1,
+      "reused_decisions": 33,
+      "added_tokens": 15
+    },
+    "worth_it_gate": {
+      "default_min_reduction": 0.25,
+      "default_worth_it": true,
+      "min_reduction_0.8_worth_it": false,
+      "reduction_ratio": 0.4389010989010989,
+      "warnings": [
+        "low_reduction: removed 43.9% of chars (< 80% target); a cache epoch may not be worth it",
+        "cache_epoch_risk: this pass invalidates 659 tokens at offset 1657 to drop 429; it only pays off after ~17.7 reuses of the pruned context. Protect the prefix (--prefix-marker/--protect-prefix) or wait for a cache epoch."
+      ]
+    }
+  },
+  "medium": {
+    "scale": "medium",
+    "tokens_in": 4399,
+    "q1_cold_vs_warm": {
+      "cold": {
+        "calls": 19,
+        "reused_decisions": 0,
+        "output_sha256": "edcab5915aa69abf361fa63d8c8c6c5fb8a8e7123fbb586e5854be91dc53fb51",
+        "token_count_method": "exact"
+      },
+      "warm": {
+        "calls": 0,
+        "reused_decisions": 146,
+        "output_sha256": "edcab5915aa69abf361fa63d8c8c6c5fb8a8e7123fbb586e5854be91dc53fb51",
+        "token_count_method": "exact"
+      },
+      "byte_identical": true,
+      "sha_match": true
+    },
+    "determinism_no_cache": {
+      "byte_identical": true,
+      "sha_match": true
+    },
+    "q2_prefix_protection": {
+      "marker_offset_chars": 450,
+      "unprotected_first_mutation_offset": 5381,
+      "protected_first_mutation_offset": 5381,
+      "protected_prefix_untouched": true,
+      "protected_prefix_protected": true,
+      "protected_blocks_protected": 2,
+      "protected_sha": "a82b27c53c60196ba42a111b6513c1697b20a699cab3cbc6176b5d5abfab47c0",
+      "unprotected_sha": "edcab5915aa69abf361fa63d8c8c6c5fb8a8e7123fbb586e5854be91dc53fb51",
+      "protection_changed_output": true
+    },
+    "q3_economics": {
+      "unprotected": {
+        "1": {
+          "dropped_tokens": 2812,
+          "invalidated_tokens": 3014,
+          "reuse_count": 1,
+          "saving_read_equiv": 281.2,
+          "penalty_read_equiv": 3466.1,
+          "net_read_equiv": -3184.9,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 12.33
+        },
+        "5": {
+          "dropped_tokens": 2812,
+          "invalidated_tokens": 3014,
+          "reuse_count": 5,
+          "saving_read_equiv": 1406.0,
+          "penalty_read_equiv": 3466.1,
+          "net_read_equiv": -2060.1,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 2.47
+        },
+        "20": {
+          "dropped_tokens": 2812,
+          "invalidated_tokens": 3014,
+          "reuse_count": 20,
+          "saving_read_equiv": 5624.0,
+          "penalty_read_equiv": 3466.1,
+          "net_read_equiv": 2157.9,
+          "pays_off": true,
+          "ratio_penalty_over_saving": 0.62
+        }
+      },
+      "protected": {
+        "1": {
+          "dropped_tokens": 2761,
+          "invalidated_tokens": 3014,
+          "reuse_count": 1,
+          "saving_read_equiv": 276.1,
+          "penalty_read_equiv": 3466.1,
+          "net_read_equiv": -3190.0,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 12.55
+        },
+        "5": {
+          "dropped_tokens": 2761,
+          "invalidated_tokens": 3014,
+          "reuse_count": 5,
+          "saving_read_equiv": 1380.5,
+          "penalty_read_equiv": 3466.1,
+          "net_read_equiv": -2085.6,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 2.51
+        },
+        "20": {
+          "dropped_tokens": 2761,
+          "invalidated_tokens": 3014,
+          "reuse_count": 20,
+          "saving_read_equiv": 5522.0,
+          "penalty_read_equiv": 3466.1,
+          "net_read_equiv": 2055.9,
+          "pays_off": true,
+          "ratio_penalty_over_saving": 0.63
+        }
+      },
+      "unprotected_reduction_ratio": 0.6740384106661024,
+      "unprotected_worth_it": true,
+      "protected_worth_it": true
+    },
+    "append_only": {
+      "output_extends_warm_prefix": true,
+      "calls": 1,
+      "reused_decisions": 145,
+      "added_tokens": 15
+    },
+    "worth_it_gate": {
+      "default_min_reduction": 0.25,
+      "default_worth_it": true,
+      "min_reduction_0.8_worth_it": false,
+      "reduction_ratio": 0.6740384106661024,
+      "warnings": [
+        "low_reduction: removed 67.4% of chars (< 80% target); a cache epoch may not be worth it",
+        "cache_epoch_risk: this pass invalidates 3014 tokens at offset 5381 to drop 2812; it only pays off after ~12.3 reuses of the pruned context. Protect the prefix (--prefix-marker/--protect-prefix) or wait for a cache epoch."
+      ]
+    }
+  },
+  "large": {
+    "scale": "large",
+    "tokens_in": 11483,
+    "q1_cold_vs_warm": {
+      "cold": {
+        "calls": 49,
+        "reused_decisions": 0,
+        "output_sha256": "1eab4b2dfe4621a303e2bf22b62ead8ea52515e3ab6a358e00b5b90186464624",
+        "token_count_method": "exact"
+      },
+      "warm": {
+        "calls": 0,
+        "reused_decisions": 386,
+        "output_sha256": "1eab4b2dfe4621a303e2bf22b62ead8ea52515e3ab6a358e00b5b90186464624",
+        "token_count_method": "exact"
+      },
+      "byte_identical": true,
+      "sha_match": true
+    },
+    "determinism_no_cache": {
+      "byte_identical": true,
+      "sha_match": true
+    },
+    "q2_prefix_protection": {
+      "marker_offset_chars": 450,
+      "unprotected_first_mutation_offset": 13418,
+      "protected_first_mutation_offset": 13592,
+      "protected_prefix_untouched": true,
+      "protected_prefix_protected": true,
+      "protected_blocks_protected": 2,
+      "protected_sha": "1a0b0c1ebdcfb7204e0413ab3addd9fb78428f9d1ecc95c1270e2b48152fc890",
+      "unprotected_sha": "1eab4b2dfe4621a303e2bf22b62ead8ea52515e3ab6a358e00b5b90186464624",
+      "protection_changed_output": true
+    },
+    "q3_economics": {
+      "unprotected": {
+        "1": {
+          "dropped_tokens": 7894,
+          "invalidated_tokens": 8045,
+          "reuse_count": 1,
+          "saving_read_equiv": 789.4,
+          "penalty_read_equiv": 9251.8,
+          "net_read_equiv": -8462.4,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 11.72
+        },
+        "5": {
+          "dropped_tokens": 7894,
+          "invalidated_tokens": 8045,
+          "reuse_count": 5,
+          "saving_read_equiv": 3947.0,
+          "penalty_read_equiv": 9251.8,
+          "net_read_equiv": -5304.8,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 2.34
+        },
+        "20": {
+          "dropped_tokens": 7894,
+          "invalidated_tokens": 8045,
+          "reuse_count": 20,
+          "saving_read_equiv": 15788.0,
+          "penalty_read_equiv": 9251.8,
+          "net_read_equiv": 6536.3,
+          "pays_off": true,
+          "ratio_penalty_over_saving": 0.59
+        }
+      },
+      "protected": {
+        "1": {
+          "dropped_tokens": 7812,
+          "invalidated_tokens": 8007,
+          "reuse_count": 1,
+          "saving_read_equiv": 781.2,
+          "penalty_read_equiv": 9208.0,
+          "net_read_equiv": -8426.8,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 11.79
+        },
+        "5": {
+          "dropped_tokens": 7812,
+          "invalidated_tokens": 8007,
+          "reuse_count": 5,
+          "saving_read_equiv": 3906.0,
+          "penalty_read_equiv": 9208.0,
+          "net_read_equiv": -5302.0,
+          "pays_off": false,
+          "ratio_penalty_over_saving": 2.36
+        },
+        "20": {
+          "dropped_tokens": 7812,
+          "invalidated_tokens": 8007,
+          "reuse_count": 20,
+          "saving_read_equiv": 15624.0,
+          "penalty_read_equiv": 9208.0,
+          "net_read_equiv": 6416.0,
+          "pays_off": true,
+          "ratio_penalty_over_saving": 0.59
+        }
+      },
+      "unprotected_reduction_ratio": 0.7181099822609257,
+      "unprotected_worth_it": true,
+      "protected_worth_it": true
+    },
+    "append_only": {
+      "output_extends_warm_prefix": true,
+      "calls": 1,
+      "reused_decisions": 385,
+      "added_tokens": 15
+    },
+    "worth_it_gate": {
+      "default_min_reduction": 0.25,
+      "default_worth_it": true,
+      "min_reduction_0.8_worth_it": false,
+      "reduction_ratio": 0.7181099822609257,
+      "warnings": [
+        "low_reduction: removed 71.8% of chars (< 80% target); a cache epoch may not be worth it",
+        "cache_epoch_risk: this pass invalidates 8045 tokens at offset 13418 to drop 7894; it only pays off after ~11.7 reuses of the pruned context. Protect the prefix (--prefix-marker/--protect-prefix) or wait for a cache epoch."
+      ]
+    }
+  }
+}

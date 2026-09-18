@@ -46,6 +46,12 @@ from lcc.token_budget import count_tokens
 
 RELEVANCE_SCHEMA_VERSION = "relevance-compaction-1.1"
 
+#: Prompt-cache cost factors from ``docs/CACHE_ALIGNMENT.md``: a cache read costs ~0.10x the
+#: base token price and a cache write ~1.25x. Used to report the break-even reuse count of a
+#: pass that mutates a warm prefix. Override per provider before trusting the figure.
+_CACHE_READ_FACTOR = 0.10
+_CACHE_WRITE_FACTOR = 1.25
+
 _DEFAULT_THRESHOLD = 0.4
 _DEFAULT_BATCH_SIZE = 8
 _DEFAULT_MAX_STATE_CHARS = 12000
@@ -87,6 +93,15 @@ class RelevanceCompactionRequest:
     max_state_chars: int = _DEFAULT_MAX_STATE_CHARS
     keep_patterns: tuple[str, ...] = ()
     marker: bool = True
+    #: Put scorer values inside the inline drop marker. Off by default: live scores wobble
+    #: between calls, and a marker that embeds them changes the emitted bytes on every run,
+    #: which defeats the prompt cache the pass is meant to protect. Scores stay in the report.
+    marker_scores: bool = False
+    #: Apply the deterministic safety net to locally scored blocks: negations, literals,
+    #: quoted speech, foreign-language evidence and rare-term dependencies survive overlap
+    #: scoring. On by default, because the local scorer is a fallback and a fallback should
+    #: err toward keeping evidence.
+    deterministic_protection: bool = True
     provider: str = "auto"  # auto | jev | mechanical
     model: str = "gpt-4.1"  # token counting model (ADR 0005 honesty contract)
     jev_model: str = "jev-latest"
@@ -146,6 +161,21 @@ class RelevanceCompactionReport:
     first_mutation_offset: int | None
     prefix_sha256: str
     output_sha256: str
+    #: Why the run degraded, when ``degraded`` is true (``jev_unavailable``,
+    #: ``jev_unavailable_mechanical_fallback``, ``jev_batch_failed``).
+    degradation_reason: str | None = None
+    #: What the pass can promise about semantic judgment: ``judged`` (every scored block was
+    #: decided by the model provider), ``partial`` (some blocks fell back), or ``none``
+    #: (mechanical or degraded scoring only). Callers that need evidence preservation must
+    #: refuse ``none``.
+    semantic_guarantee: str = "judged"
+    #: Tokens to the right of the first mutation. Everything here is recomputed by a prompt
+    #: cache whose prefix was warm, so it is the real cost of the pass.
+    invalidated_tokens: int = 0
+    #: Reuses of the pruned context needed before the invalidation pays for the drop, using
+    #: the read/write factors in ``docs/CACHE_ALIGNMENT.md``. ``None`` when nothing was
+    #: dropped or nothing was invalidated.
+    break_even_reuses: float | None = None
     warnings: list[str] = field(default_factory=list)
     decisions: list[BlockDecision] = field(default_factory=list)
 
@@ -169,6 +199,190 @@ def _lexical_terms(text: str) -> set[str]:
         if len(term) >= 3 and term not in _STOPWORDS:
             terms.add(term)
     return terms
+
+
+# --- deterministic safety net for the local scorer --------------------------------------
+#
+# The local scorer judges a block by how many words it shares with the objective, and that is
+# a reasonable first filter with three measurable blind spots. Measured against the adversarial
+# suite, the deterministic scorer fails exactly three of twenty cases:
+#
+#   * `dependency_causal`  a cause and its effect share no words with the objective, and the
+#                          conclusion survives without the evidence that supports it;
+#   * `quoted_instruction` a customer's quoted request reads as noise to overlap scoring;
+#   * `multilingual`       evidence in another language shares no tokens with an English
+#                          objective written by the analyst.
+#
+# Only those three are addressed here. Two broader rules were implemented, measured and
+# removed: protecting every block that contains a negation cue, and every block that contains
+# a literal. Both sound reasonable and both are unusable in practice — on the twenty cases
+# they took compaction from 56% mean reduction to 0.0%, because chatter, log lines and filler
+# are full of words like "not" and numbers with units. A protection that keeps everything is
+# not a protection, it is a disabled compressor. The hazards those rules targeted
+# (negation_consent, numeric_precision, unit_conversion) already pass without them.
+
+#: Third-party speech: it is evidence about what someone said, not background chatter.
+_QUOTED_SPEECH_RE = re.compile(
+    r"[\u201c\"'][^\"\u201c\u201d]{12,}[\u201d\"']"
+    r"|\b(?:wrote|said|reported|stated|asked|complained|replied)\b[^.]{0,40}:",
+    re.IGNORECASE,
+)
+
+#: Function words that identify the language of a passage without a model. Entries must be
+#: unambiguous: a word that is common in two languages would blur the signal.
+_LANGUAGE_MARKERS: dict[str, frozenset[str]] = {
+    "pt": frozenset(
+        {
+            "nao", "são", "sao", "cerca", "porque", "tambem", "também", "muito", "qual",
+            "quando", "onde", "entre", "sobre", "ainda", "depois", "cada", "pode", "ser",
+            "estar",
+        }
+    ),
+    "es": frozenset(
+        {"para", "pero", "porque", "tambien", "cuando", "donde", "entre", "sobre", "muy", "cada"}
+    ),
+    "fr": frozenset(
+        {"pour", "mais", "parce", "quand", "dont", "entre", "sur", "tres", "très", "avec", "chaque"}
+    ),
+    "de": frozenset(
+        {"und", "nicht", "auch", "wenn", "wo", "zwischen", "uber", "über", "sehr", "jede", "sein"}
+    ),
+}
+
+
+def _detect_language(text: str) -> str | None:
+    """Best-effort language tag from unambiguous function words; ``None`` when unsure.
+
+    Only a clear signal counts, so English text and short blocks stay ``None`` rather than
+    being guessed at.
+    """
+    words = [w.lower() for w in _WORD_RE.findall(text)]
+    if len(words) < 12:
+        return None
+    hits: dict[str, int] = {}
+    for tag, markers in _LANGUAGE_MARKERS.items():
+        hits[tag] = sum(1 for w in words if w in markers)
+    if not hits:
+        return None
+    best = max(hits, key=lambda tag: hits[tag])
+    # Require a real signal and a clear winner, so a stray word cannot flip the verdict.
+    if hits[best] < 3 or hits[best] <= 1.5 * max(
+        (count for tag, count in hits.items() if tag != best), default=0
+    ):
+        return None
+    return best
+
+
+def _deterministic_protection(block_text: str, question_language: str | None) -> str | None:
+    """Return the reason a block must survive local scoring, or ``None`` when it may be judged."""
+    if _QUOTED_SPEECH_RE.search(block_text):
+        return "quoted_speech_present"
+    block_language = _detect_language(block_text)
+    if block_language and question_language and block_language != question_language:
+        return f"evidence_in_{block_language}_not_{question_language}"
+    return None
+
+
+#: Shortest term that can act as a link between two blocks. Four rather than five because
+#: concrete nouns and month names are often exactly four characters ("flow", "June"), and a
+#: floor of five silently cut the causal case down to a single shared term.
+_DISTINCTIVE_MIN_TERM_CHARS = 4
+
+
+#: Cues that a block restates a value another block already carries. Dropping the restatement
+#: while keeping the original leaves a stale figure with no sign that it was superseded, which
+#: is the one category the deterministic scorer lost in the categorized benchmark. Kept narrow
+#: on purpose: a broad cue set here would protect half the corpus, which is the mistake the
+#: negation and literal rules already made.
+_SUPERSESSION_CUE_RE = re.compile(
+    r"\b(?:revised|revision|superseded|supersedes|corrected|correction|amended|amendment|"
+    r"restated|restatement|down from|up from)\b",
+    re.IGNORECASE,
+)
+
+
+def _distinctive_terms(
+    blocks: list[TextBlock], question_terms: set[str]
+) -> dict[str, set[str]]:
+    """Map each distinctive term to the ids of blocks containing it.
+
+    Distinctive means two things: the term is not part of the objective (a question term is the
+    topic, not a link between two specific blocks) and it is not corpus-wide boilerplate. The
+    ceiling is relative to the corpus, so a term repeated by duplicated filler stops counting as
+    distinctive while still linking genuinely specific blocks.
+    """
+    ceiling = max(2, len(blocks) // 2)
+    occurrences: dict[str, set[str]] = {}
+    for block in blocks:
+        for term in _lexical_terms(block.text):
+            if len(term) < _DISTINCTIVE_MIN_TERM_CHARS or term in question_terms:
+                continue
+            occurrences.setdefault(term, set()).add(block.id)
+    return {term: ids for term, ids in occurrences.items() if 1 < len(ids) <= ceiling}
+
+
+def _dependency_closures(
+    blocks: list[TextBlock],
+    kept_ids: set[str],
+    question_terms: set[str],
+    min_shared_terms: int = 2,
+    max_hops: int = 1,
+) -> dict[str, str]:
+    """Blocks pulled in because they share distinctive vocabulary with a kept block.
+
+    Two shared distinctive terms are required rather than one, so a single incidental overlap
+    cannot drag half the corpus back in.
+
+    ``max_hops`` bounds how far the pull propagates. One hop fixes the measured failure (a
+    cause block pulled in by its effect). Multi-hop was implemented and measured: it keeps
+    pulling in blocks that merely mention the same nouns, which in the adversarial suite means
+    the trap blocks come along too, and it cost roughly twenty points of mean reduction for no
+    additional case passing. One hop is the default for that reason.
+    """
+    distinctive = _distinctive_terms(blocks, question_terms)
+    terms_for: dict[str, set[str]] = {}
+    for term, ids in distinctive.items():
+        for block_id in ids:
+            terms_for.setdefault(block_id, set()).add(term)
+    supersedes = {
+        block.id: bool(_SUPERSESSION_CUE_RE.search(block.text)) for block in blocks
+    }
+
+    pulled: dict[str, str] = {}
+    seen = set(kept_ids)
+    frontier = set(kept_ids)
+    hops = 0
+    while frontier and hops < max_hops:
+        shared: dict[str, set[str]] = {}
+        for block_id in set(terms_for) - seen:
+            common = set()
+            for source_id in frontier:
+                common |= terms_for.get(source_id, set()) & terms_for[block_id]
+            if len(common) >= min_shared_terms:
+                shared[block_id] = common
+        next_frontier: set[str] = set()
+        for block_id, common in shared.items():
+            pulled[block_id] = f"link_terms:{','.join(sorted(common)[:3])}"
+            seen.add(block_id)
+            next_frontier.add(block_id)
+        frontier = next_frontier
+        hops += 1
+
+    # Supersession pass, deliberately not part of the loop above. A restatement needs one shared
+    # term, not two, because it names the same metric in different words; and it may attach to a
+    # block the closure just pulled in, because a revision often qualifies evidence that was
+    # itself linked rather than natively kept. What it must NOT do is seed further links: making
+    # the general closure transitive cost twenty-seven points of reduction on the medium corpus,
+    # so the extra reach is confined to this one rule.
+    for block_id in set(terms_for) - seen:
+        if not supersedes.get(block_id):
+            continue
+        common = set()
+        for source_id in seen:
+            common |= terms_for.get(source_id, set()) & terms_for[block_id]
+        if common:
+            pulled[block_id] = f"supersedes_value:{','.join(sorted(common)[:3])}"
+    return pulled
 
 
 def _clip_for_scoring(text: str, limit: int = _SCORE_CLIP_HEAD + _SCORE_CLIP_TAIL) -> str:
@@ -214,9 +428,23 @@ def _render_trimmed(
     )
 
 
-def _marker_for_run(run: list[BlockDecision], threshold: float) -> str:
+def _marker_for_run(
+    run: list[BlockDecision], threshold: float, *, include_scores: bool = False
+) -> str:
+    """Inline replacement for a run of dropped blocks.
+
+    Scores are deliberately left out by default. Live scorer values wobble between calls, so
+    a marker that embeds them makes every run emit different bytes and invalidates the prompt
+    cache the pass was supposed to protect. The per-block scores stay in the report, where
+    they can be audited without touching the emitted context. Pass ``include_scores=True``
+    (CLI: ``--marker-scores``) to put them back inline.
+    """
     total_chars = sum(decision.chars for decision in run)
     scores = [decision.score for decision in run if decision.score is not None]
+    label = "block" if len(run) == 1 else "blocks"
+    base = f"{len(run)} {label} ({total_chars} chars)"
+    if not include_scores:
+        return f"[lcc-compact: dropped {base}]"
     if len(run) == 1:
         score_part = f"score {scores[0]:.2f} < {threshold:.2f}" if scores else "no score"
         return f"[lcc-compact: dropped 1 block ({total_chars} chars, {score_part})]"
@@ -332,19 +560,42 @@ def _score_with_jev(
 
 
 def _score_mechanically(
-    blocks: list[TextBlock], question: str
-) -> dict[str, tuple[float, str]]:
-    """Local fallback: drop only blocks with zero lexical overlap with the objective."""
+    blocks: list[TextBlock],
+    question: str,
+    *,
+    protect: bool = True,
+    question_language: str | None = None,
+) -> dict[str, tuple[float, str, str | None]]:
+    """Local fallback: drop only blocks with zero lexical overlap with the objective.
+
+    The returned triple is ``(score, source, protection_reason)``. ``score`` stays the honest
+    lexical overlap even when a block is protected, so the report shows both what overlap said
+    and why the block survived anyway. A non-``None`` reason means the deterministic safety net
+    kept it; the caller turns that into a keep decision.
+    """
     question_terms = _lexical_terms(question)
     if not question_terms:
         # No objective terms: nothing can be judged irrelevant locally; keep everything.
-        return {block.id: (1.0, "mechanical") for block in blocks}
-    results: dict[str, tuple[float, str]] = {}
+        return {block.id: (1.0, "mechanical", None) for block in blocks}
+    results: dict[str, tuple[float, str, str | None]] = {}
     for block in blocks:
         overlap = question_terms & _lexical_terms(block.text)
         denominator = max(1, min(6, len(question_terms)))
         score = round(min(1.0, len(overlap) / denominator), 2)
-        results[block.id] = (score, "mechanical")
+        reason = _deterministic_protection(block.text, question_language) if protect else None
+        results[block.id] = (score, "mechanical", reason)
+    if protect:
+        # Relational pass: a block linked by distinctive vocabulary to something we are keeping
+        # is pulled in too, so a conclusion does not outlive the evidence that supports it.
+        kept = {
+            block_id
+            for block_id, (score, _, reason) in results.items()
+            if score > 0.0 or reason is not None
+        }
+        for block_id, reason in _dependency_closures(blocks, kept, question_terms).items():
+            score, source, existing = results[block_id]
+            if existing is None:
+                results[block_id] = (score, source, reason)
     return results
 
 
@@ -443,6 +694,8 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     provider_requested = request.provider
     provider_used = "mechanical"
     degraded = False
+    degradation_reason: str | None = None
+    semantic_guarantee = "judged"
     calls = 0
     latency_ms = 0
     client: JevClient | None = None
@@ -452,13 +705,31 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             if provider_requested == "jev":
                 degraded = True
                 provider_used = "degraded"
+                degradation_reason = "jev_unavailable"
+                semantic_guarantee = "none"
                 warnings.append(
                     "jev_unavailable: no API key or network disabled; kept every block (fail-safe)"
                 )
             else:
-                warnings.append("jev_unavailable: fell back to mechanical scoring")
+                # ``auto`` used to keep ``degraded: false`` here while quietly swapping the
+                # semantic judge for a lexical scorer. The fallback itself is fine; hiding it
+                # is not, so the degradation is now reported like any other.
+                degraded = True
+                degradation_reason = "jev_unavailable_mechanical_fallback"
+                semantic_guarantee = "none"
+                warnings.append(
+                    "jev_unavailable: fell back to mechanical scoring; semantic judgment is "
+                    "unavailable (degraded)"
+                )
         elif request.jev_model:
             client.model = request.jev_model
+
+    # Which language the objective is written in, so evidence in another language is not
+    # dropped for sharing no tokens with it. The marker lists only non-English languages, so a
+    # question too short to classify falls back to English; that errs toward keeping blocks.
+    question_language: str | None = None
+    if request.deterministic_protection:
+        question_language = _detect_language(request.question) or "en"
 
     if pending and provider_used == "degraded":
         for block in pending:
@@ -476,26 +747,60 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     elif not pending and reused:
         provider_used = "cache"
     elif pending:
-        results: dict[str, tuple[float, str]] = {}
+        results: dict[str, tuple[float, str, str | None]] = {}
         if client is not None:
             provider_used = "jev"
-            results, calls, latency_ms, jev_warnings = _score_with_jev(client, pending, request)
+            jev_results, calls, latency_ms, jev_warnings = _score_with_jev(
+                client, pending, request
+            )
             warnings.extend(jev_warnings)
+            # Normalise to the triple shape the rest of this function uses.
+            results = {
+                block_id: (score, source, None)
+                for block_id, (score, source) in jev_results.items()
+            }
             if len(results) < len(pending):
                 # partial or total Jev failure: score whatever is left mechanically
                 missing = [block for block in pending if block.id not in results]
-                results.update(_score_mechanically(missing, request.question))
-                if any(source == "mechanical" for _, source in results.values()):
+                results.update(
+                    _score_mechanically(
+                        missing,
+                        request.question,
+                        protect=request.deterministic_protection,
+                        question_language=question_language,
+                    )
+                )
+                if any(source.startswith("mechanical") for _, source, _ in results.values()):
                     provider_used = "jev+mechanical_fallback"
                     degraded = True
+                    degradation_reason = "jev_batch_failed"
+                    semantic_guarantee = "partial"
         else:
             provider_used = "mechanical"
-            results = _score_mechanically(pending, request.question)
+            semantic_guarantee = "none"
+            results = _score_mechanically(
+                pending,
+                request.question,
+                protect=request.deterministic_protection,
+                question_language=question_language,
+            )
 
+        # Identical content must receive an identical decision within a run. The decisions
+        # cache is content-addressed, so a cold run that scores two copies of the same block
+        # independently can disagree with the single cached score a warm run reuses, which
+        # changes the emitted bytes. Pin the first judgment per content and reuse it.
+        per_content: dict[str, tuple[float, str, str | None]] = {}
         for block in pending:
-            score, source = results.get(block.id, (0.0, provider_used))
+            score, source, protection = results.get(block.id, (0.0, provider_used, None))
+            first = per_content.setdefault(block.text, (score, source, protection))
+            score, source, protection = first
             chars_after: int | None = None
-            if source == "jev":
+            if protection is not None:
+                # The deterministic safety net keeps the block whatever overlap said. The
+                # score stays as measured so the report shows both halves of that.
+                decision = "keep"
+                reason = protection
+            elif source == "jev":
                 if score >= request.threshold:
                     decision = "keep"
                     reason = "score_above_threshold"
@@ -581,7 +886,11 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     index += 1
                 pieces.append(gaps[run[0].index - 1])
                 if request.marker:
-                    pieces.append(_marker_for_run(run, request.threshold))
+                    pieces.append(
+                        _marker_for_run(
+                            run, request.threshold, include_scores=request.marker_scores
+                        )
+                    )
             else:
                 pieces.append(gaps[decision.index - 1])
                 if decision.decision == "trim":
@@ -626,6 +935,42 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             f"(< {request.min_reduction:.0%} target); a cache epoch may not be worth it"
         )
 
+    if after_count.method.value != "exact":
+        warnings.append(
+            "approximate_token_count: every token figure in this report is an estimate, not a "
+            "measurement. The tokenizer assets are not cached locally and lcc will not fetch "
+            "them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token "
+            "or cost decision, or pass --require-exact-tokens to fail instead of guessing."
+        )
+
+    if request.trim_head_chars == 0 and mutated:
+        warnings.append(
+            "strict_keep_drop: --trim-head-chars 0 disabled the trim middle gear, so "
+            "borderline-scored blocks are dropped outright instead of keeping a bounded head. "
+            "Trimming is the safety net for near-miss evidence; leaving it on is the safer "
+            "default."
+        )
+
+    # --- cache-epoch accounting: what the pass costs a warm prefix, and whether it can pay
+    invalidated_tokens = 0
+    break_even_reuses: float | None = None
+    if mutated and first_mutation_offset is not None:
+        prefix_tokens = count_tokens(text[:first_mutation_offset], request.model).value
+        invalidated_tokens = max(0, before_count.value - prefix_tokens)
+        dropped_tokens = max(0, before_count.value - after_count.value)
+        if invalidated_tokens and dropped_tokens:
+            # docs/CACHE_ALIGNMENT.md factors: read 0.10x, write 1.25x.
+            saving_per_reuse = dropped_tokens * _CACHE_READ_FACTOR
+            invalidation_cost = invalidated_tokens * (_CACHE_WRITE_FACTOR - _CACHE_READ_FACTOR)
+            break_even_reuses = round(invalidation_cost / saving_per_reuse, 1)
+            if break_even_reuses > 1.0:
+                warnings.append(
+                    f"cache_epoch_risk: this pass invalidates {invalidated_tokens} tokens at "
+                    f"offset {first_mutation_offset} to drop {dropped_tokens}; it only pays off "
+                    f"after ~{break_even_reuses:g} reuses of the pruned context. Protect the "
+                    f"prefix (--prefix-marker/--protect-prefix) or wait for a cache epoch."
+                )
+
     report = RelevanceCompactionReport(
         schema_version=RELEVANCE_SCHEMA_VERSION,
         provider_requested=provider_requested,
@@ -664,6 +1009,10 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         first_mutation_offset=first_mutation_offset,
         prefix_sha256=_sha256(prefix_source),
         output_sha256=_sha256(compacted),
+        degradation_reason=degradation_reason,
+        semantic_guarantee=semantic_guarantee,
+        invalidated_tokens=invalidated_tokens,
+        break_even_reuses=break_even_reuses,
         warnings=warnings,
         decisions=ordered,
     )
@@ -704,6 +1053,10 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "first_mutation_offset": report.first_mutation_offset,
         "prefix_sha256": report.prefix_sha256,
         "output_sha256": report.output_sha256,
+        "degradation_reason": report.degradation_reason,
+        "semantic_guarantee": report.semantic_guarantee,
+        "invalidated_tokens": report.invalidated_tokens,
+        "break_even_reuses": report.break_even_reuses,
         "warnings": list(report.warnings),
         "decisions": [
             {

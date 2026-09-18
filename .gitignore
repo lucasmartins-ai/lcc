@@ -38,3 +38,6 @@ node_modules/
 *.env
 
 
+
+# Demo renders
+__pycache__/

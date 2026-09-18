@@ -1,0 +1,123 @@
+{
+  "scale": {
+    "corpus_chars": 192785,
+    "blocks_total": 1492,
+    "reduction_pct": 51.5,
+    "tokens_before": 44128,
+    "tokens_after": 22651,
+    "token_count_method": "exact",
+    "calls": 0,
+    "cold_wall_ms": 520,
+    "warm_wall_ms": 460,
+    "warm_calls": 0,
+    "warm_reused_decisions": 1491,
+    "byte_identical_cold_warm": true,
+    "sha_match": true,
+    "semantic_guarantee": "judged",
+    "break_even_reuses": 16.6,
+    "per_category": {
+      "critical_fact": {
+        "kept": 5,
+        "total": 5,
+        "recall": 1.0
+      },
+      "constraint": {
+        "kept": 1,
+        "total": 1,
+        "recall": 1.0
+      },
+      "negative_constraint": {
+        "kept": 1,
+        "total": 1,
+        "recall": 1.0
+      },
+      "exception": {
+        "kept": 1,
+        "total": 1,
+        "recall": 1.0
+      },
+      "temporal": {
+        "kept": 1,
+        "total": 1,
+        "recall": 1.0
+      },
+      "contradiction": {
+        "kept": 1,
+        "total": 1,
+        "recall": 1.0
+      }
+    },
+    "perfect_recall": true
+  },
+  "edges": [
+    {
+      "case": "empty",
+      "input_chars": 0,
+      "exit_code": 0,
+      "wall_ms": 371,
+      "output_chars": 0,
+      "passed": true
+    },
+    {
+      "case": "whitespace_only",
+      "input_chars": 11,
+      "exit_code": 0,
+      "wall_ms": 377,
+      "output_chars": 11,
+      "passed": true
+    },
+    {
+      "case": "single_tiny_block",
+      "input_chars": 11,
+      "exit_code": 0,
+      "wall_ms": 396,
+      "output_chars": 11,
+      "passed": true
+    },
+    {
+      "case": "giant_single_block",
+      "input_chars": 264030,
+      "exit_code": 0,
+      "wall_ms": 4309,
+      "output_chars": 77,
+      "kept_expected": true,
+      "output_ratio": 0.0,
+      "passed": true
+    },
+    {
+      "case": "crlf_line_endings",
+      "input_chars": 83,
+      "exit_code": 0,
+      "wall_ms": 379,
+      "output_chars": 78,
+      "passed": true
+    },
+    {
+      "case": "unicode_and_emoji",
+      "input_chars": 498,
+      "exit_code": 0,
+      "wall_ms": 374,
+      "output_chars": 498,
+      "kept_expected": true,
+      "passed": true
+    },
+    {
+      "case": "many_tiny_blocks",
+      "input_chars": 7488,
+      "exit_code": 0,
+      "wall_ms": 385,
+      "output_chars": 7488,
+      "kept_expected": true,
+      "passed": true
+    },
+    {
+      "case": "one_very_long_line",
+      "input_chars": 40006,
+      "exit_code": 0,
+      "wall_ms": 1206,
+      "output_chars": 36386,
+      "kept_expected": true,
+      "passed": true
+    }
+  ]
+}
