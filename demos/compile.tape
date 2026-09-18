@@ -5,7 +5,7 @@
 # Deterministic: normalize, remove boilerplate, drop near-duplicates, build the prompt.
 # Same input, same output, every time, with no model in the loop.
 
-Output demos/compile.gif
+Output "demos/compile.gif"
 
 Set Shell bash
 Set FontSize 14
@@ -24,11 +24,7 @@ Type "# A brief dumped from three places: repeated paragraphs, page markers, a s
 Enter
 Sleep 800ms
 
-Type "lcc optimize demos/messy-brief.md \"
-Enter
-Type "  -q 'What should we change about the checkout?' \"
-Enter
-Type "  --template claude_xml -o /tmp/compiled.md -r /tmp/compiled.json"
+Type "lcc optimize demos/messy-brief.md -q 'What should we change about the checkout?' --template claude_xml -o /tmp/compiled.md -r /tmp/compiled.json"
 Enter
 Sleep 2s
 
