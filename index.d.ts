@@ -86,6 +86,27 @@ export function processIngestion(rawInput: string, options?: IntakeOptions): Int
 
 export function compressContext(text: string, options?: LccOptions): CompressionResult;
 export function estimateTokens(text: string, model?: string): number;
+
+export interface TokenizerIdentity {
+  tokenizer: string;
+  tokenizer_id: string;
+  tokenizer_version: string | null;
+  exact: boolean;
+  model: string;
+  note: string;
+}
+
+export interface TokenEstimateWithMeta {
+  value: number;
+  method: 'approximate';
+  counter: 'heuristic';
+  encoding: null;
+  isEstimate: true;
+  tokenizer: TokenizerIdentity;
+}
+
+export function tokenizerIdentity(model?: string): TokenizerIdentity;
+export function estimateTokensWithMeta(text: string, model?: string): TokenEstimateWithMeta;
 export function buildPrompt(spec: PromptSpec, templateName?: PromptTemplateName): string;
 export const TEMPLATES: Record<string, (spec: PromptSpec) => string>;
 

@@ -19,5 +19,6 @@ public / cross-module contracts that are expensive to change after release.
 | [0011](0011-phase-2-opt-in-semantic-retrieval-boundary.md) | Accepted Phase 2 opt-in semantic retrieval boundary with a disabled-by-default scaffold; retrieval execution is not implemented |
 | [0012](0012-semantic-retrieval-execution-boundary.md) | Future semantic retrieval execution must use a separate opt-in local-index adapter; execution is not implemented |
 | [0013](0013-instant-relevance-compaction-boundary.md) | Opt-in instant relevance compaction (`lcc compact`) via narrow model judgment (Jev): fail-safe, byte-faithful, cache-aligned sticky decisions |
+| [0014](0014-minimum-sufficient-context.md) | Minimum sufficient context: safety model, v1.1 cache identity, tokenizer contract, type-aware trim, context graph, sufficiency verification, confidence policy |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.

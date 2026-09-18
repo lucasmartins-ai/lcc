@@ -681,6 +681,48 @@ and repeatedly. Three rules follow, in order of how much they matter:
    mutates a warm prefix needs 12 to 20 reuses of the pruned context before it pays for itself.
    Below that, keep the original bytes and the cache.
 
+## Finding 14 — sufficiency restoration costs reduction, most of it on small corpora
+
+Everything above measured a relevance filter. `lcc compact` now also verifies sufficiency
+(ADR 0014): after selection it asks whether the objective can still be solved from what remains,
+and restores dropped blocks that are linked to kept content. The reduction figures in Findings 9,
+10, 12 and 13 predate this, so the tables below supersede their reduction columns. Recall columns
+and the cache findings are unaffected in kind.
+
+48 of the 52 matrix rows moved. Only `baseline_raw` did not, because it compacts nothing.
+
+**`compact_mechanical`** (exact tokens, `run_matrix.py`):
+
+| scale | reduction before | reduction after | delta | recall |
+|---|---|---|---|---|
+| small | 44.8 % | **26.2 %** | −18.6 | 1.00 → 1.00 |
+| medium | 64.0 % | **55.3 %** | −8.7 | 1.00 → 1.00 |
+| large | 68.0 % | 64.6 % | −3.4 | 1.00 → 1.00 |
+| xl | 70.7 % | 69.8 % | −0.9 | 1.00 → 1.00 |
+
+**`compact_jev`** gives up less: 32.5 → 21.2 % on small, 43.3 → 39.4 % on medium, and under half a
+point at large and xl.
+
+The cost shrinks as the dossier grows, and the reason is structural rather than a tuning artefact.
+Restoration is bounded by how many dropped blocks carry a link to kept content, and on a small
+corpus a larger share of blocks is linked. So the penalty is worst exactly where the corpus is
+smallest, which is also where the least context is at stake.
+
+Two results worth stating plainly rather than burying in the table:
+
+- **`compact_jev_strict` recall moved in both directions.** 0.9 → 1.00 on small and large, but
+  1.00 → 0.9 on medium. The strict arm is the one that gains most from restoration on two scales
+  and loses a category on the third. Treat it as one measurement on one corpus, not as a
+  general improvement or a regression.
+- **The `optimize_*` and `intake_default` arms gained about a point** of reduction
+  (small −11.6 → −10.6 %, and larger gains at xl). They route through the same pipeline, so a
+  change in block selection moves them too.
+
+**What this buys.** Every `compact_*` arm holds recall at 1.00 across all four scales, and the
+adversarial suite that exercises the hazards restoration exists for goes 26/26. The trade is
+compression for not severing evidence, and it is now the default rather than an option:
+`--no-sufficiency` restores the reduction figures above.
+
 ## Limitations
 
 - The corpora are synthetic and shaped by hand. Fact placement inside the volatile tail is a

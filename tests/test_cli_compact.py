@@ -287,3 +287,40 @@ def test_append_respects_dry_run(tmp_path: Path):
     result = _invoke_append(session, payload, "--dry-run")
     assert result.exit_code == 0, result.output
     assert not session.exists(), "--dry-run must not append anything"
+
+
+# --- sufficiency + confidence policy flags (ADR 0014) ---------------------------
+
+
+def test_compact_accepts_sufficiency_and_confidence_flags(tmp_path: Path):
+    src = tmp_path / "in.md"
+    src.write_text(SAMPLE, encoding="utf-8")
+    report = tmp_path / "r.json"
+    result = runner.invoke(
+        app,
+        [
+            "compact", str(src),
+            "--question", "reduce mobile booking friction funnel",
+            "--provider", "mechanical",
+            "--no-sufficiency",
+            "--max-restorations", "3",
+            "--confidence-threshold", "0.7",
+            "--report", str(report),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads(report.read_text(encoding="utf-8"))
+    assert data["sufficiency_checks"] == 0
+    assert data["blocks_restored"] == 0
+    assert data["policy_version"] == "relevance-compaction-1.1"
+    assert data["tokenizer_id"]
+    assert "compilation_ms" in data
+
+
+def test_compact_rejects_bad_restorations(tmp_path: Path):
+    src = tmp_path / "in.md"
+    src.write_text(SAMPLE, encoding="utf-8")
+    result = runner.invoke(
+        app, ["compact", str(src), "--question", "x", "--max-restorations", "-1"]
+    )
+    assert result.exit_code == 2

@@ -41,7 +41,44 @@ function estimateTokens(text, model = "gpt-4.1") {
 }
 
 /**
+ * Tokenizer contract for the Node engine.
+ *
+ * The Node engine ships no tokenizer model: every count is a heuristic estimate.
+ * This function states that honestly so callers never mistake it for a measurement
+ * and never compare it 1:1 with Python's exact tiktoken counts. Python remains the
+ * reference for billable token decisions; Node estimates are for local budgeting only.
+ */
+function tokenizerIdentity(model = "gpt-4.1") {
+  return {
+    tokenizer: "heuristic",
+    tokenizer_id: "heuristic-bpe-v1",
+    tokenizer_version: null,
+    exact: false,
+    model: model || "gpt-4.1",
+    note: "Node estimate only; not equivalent to Python tiktoken exact counts."
+  };
+}
+
+/**
+ * Token estimate with its honesty metadata attached.
+ */
+function estimateTokensWithMeta(text, model = "gpt-4.1") {
+  return {
+    value: estimateTokens(text, model),
+    method: "approximate",
+    counter: "heuristic",
+    encoding: null,
+    isEstimate: true,
+    tokenizer: tokenizerIdentity(model)
+  };
+}
+
+/**
  * Normalizes text line endings, repeated spaces, and excessive newlines.
+ *
+ * Parity note (ADR 0014): intentionally simpler than Python's `normalize_text`,
+ * which protects fenced code and tables. On plain prose both agree; on
+ * code/tables Python is the reference.
  */
 function normalizeText(text) {
   if (!text) return { text: "", removedChars: 0 };
@@ -395,6 +432,8 @@ module.exports = {
   LccIntake,
   compressContext,
   estimateTokens,
+  estimateTokensWithMeta,
+  tokenizerIdentity,
   buildPrompt,
   parseIntake,
   parseInput: parseIntake,

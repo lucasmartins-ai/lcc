@@ -18,6 +18,12 @@ from lcc.benchmarking.case_loader import (
     load_case,
     load_suite,
 )
+from lcc.benchmarking.metadata import (
+    BENCH_METADATA_VERSION,
+    BenchmarkMetadata,
+    build_metadata,
+    metadata_to_dict,
+)
 from lcc.benchmarking.report import (
     suite_to_dict,
     suite_to_json,
@@ -36,15 +42,19 @@ from lcc.benchmarking.schemas import (
 
 __all__ = [
     "BENCH_SCHEMA_VERSION",
+    "BENCH_METADATA_VERSION",
     "BenchmarkCase",
     "BenchmarkCaseError",
     "BenchmarkExpectations",
+    "BenchmarkMetadata",
     "CaseResult",
     "SuiteResult",
+    "build_metadata",
     "discover_case_dirs",
     "find_markers",
     "load_case",
     "load_suite",
+    "metadata_to_dict",
     "run_case",
     "run_suite",
     "suite_to_dict",
