@@ -108,6 +108,83 @@ def approximate_token_count(text: str) -> int:
     return max(1, round(estimate))
 
 
+def _tiktoken_version() -> str | None:
+    if not _HAS_TIKTOKEN:
+        return None
+    try:
+        from importlib.metadata import version
+
+        return version("tiktoken")
+    except Exception:
+        return getattr(tiktoken, "__version__", None)
+
+
+def tokenizer_identity(model: str | None = None) -> dict[str, Any]:
+    """Formal tokenizer identity for reports and cache keys.
+
+    Never implies equivalence across tokenizers: ``tokenizer_id`` binds the concrete
+    encoding (or ``heuristic-v1``), and ``exact`` states whether counts from this
+    identity are measurements or estimates. Callers must refuse to compare values
+    across differing ``tokenizer_id`` without re-counting.
+    """
+    if not _HAS_TIKTOKEN:
+        return {
+            "tokenizer": "heuristic",
+            "tokenizer_id": "heuristic-v1",
+            "tokenizer_version": None,
+            "exact": False,
+        }
+    # Resolve without network: probe which encoding would be used, but never fetch.
+    encoding_name: str | None = None
+    exact_for_model = False
+    try:
+        with _no_network_guard():
+            if model:
+                try:
+                    enc = tiktoken.encoding_for_model(model)
+                    encoding_name = enc.name
+                    exact_for_model = True
+                except KeyError:
+                    encoding_name = _DEFAULT_ENCODING
+            else:
+                encoding_name = _DEFAULT_ENCODING
+    except TokenizerNetworkBlocked:
+        return {
+            "tokenizer": "tiktoken-unavailable-offline",
+            "tokenizer_id": "heuristic-v1",
+            "tokenizer_version": _tiktoken_version(),
+            "exact": False,
+        }
+    except Exception:
+        return {
+            "tokenizer": "heuristic",
+            "tokenizer_id": "heuristic-v1",
+            "tokenizer_version": _tiktoken_version(),
+            "exact": False,
+        }
+    return {
+        "tokenizer": "tiktoken",
+        "tokenizer_id": encoding_name or _DEFAULT_ENCODING,
+        "tokenizer_version": _tiktoken_version(),
+        "exact": bool(exact_for_model and model),
+    }
+
+
+def tokenizer_identity_for_count(count: TokenCount) -> dict[str, Any]:
+    """Identity bound to an actual ``TokenCount`` result (what was really used)."""
+    if count.method == TokenCountMethod.EXACT:
+        return {
+            "tokenizer": count.counter,
+            "tokenizer_id": count.encoding or "unknown",
+            "tokenizer_version": _tiktoken_version(),
+            "exact": True,
+        }
+    return {
+        "tokenizer": count.counter,
+        "tokenizer_id": count.encoding or "heuristic-v1",
+        "tokenizer_version": _tiktoken_version(),
+        "exact": False,
+    }
 def _resolve_encoding(model: str | None) -> tuple[Any, bool]:
     """Return ``(encoding, is_exact)`` for a model, falling back to the default encoding.
 

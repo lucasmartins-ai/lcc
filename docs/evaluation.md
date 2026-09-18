@@ -1,11 +1,14 @@
 # Evaluation
 
-`lcc` provides two levels of evaluation:
+`lcc` provides three levels of evaluation:
 
 
 1. **Deterministic Core Benchmark Harness** (`lcc bench`): Reports mechanical metrics (character reduction, token savings, duplicate groups, timing) for the core compression pipeline. LCC deterministic prepare and question-aware lexical selection remain governed by [ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md). The original LCC harness reports mechanical metrics and is not LLM answer quality evaluation.
 
 2. **Hybrid Router & Local Agent Evaluation Harness** (`lcc route eval`): A deterministic development evaluation suite that assesses routing accuracy, token savings, quality gates pass rate, and escalation rates across structured task fixtures.
+
+3. **Compaction safety & answer-level evaluation** (`benchmarks/research/`): the adversarial suite (`run_adversarial.py`, 26 cases: negation, contradiction, temporal, dependency, precision, injection incl. HTML/log variants, structured payloads, multilingual, scope quantifiers, coreference, paraphrase duplicates, set-level chains) gates evidence preservation through the real compactor, and `run_answer_eval.py` compares original vs compacted context by required-fact recall (`quality_delta`; a tokens-down/recall-down case is a regression and fails the run). Every measurement should carry `lcc.benchmarking.metadata` identity (corpus/objective hashes, requested vs resolved model, policy/schema/tokenizer versions, config, thresholds, seed) so results are reproducible.
+
 
 ---
 

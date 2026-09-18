@@ -29,6 +29,12 @@ REASON_EXPLANATIONS: dict[str, str] = {
     "negation_or_exception_present": "carries a negation or an exception",
     "literal_value_present": "carries a literal value (number, unit, date or identifier)",
     "quoted_speech_present": "carries quoted third-party speech",
+    # sufficiency + confidence + type-aware trim (ADR 0014)
+    "semantic_sufficiency_restoration": "restored by sufficiency: linked to kept content",
+    "high_risk_conservative_retention": "high-stakes content kept despite a low score",
+    "low_confidence_kept": "low judge confidence, kept instead of dropped",
+    "low_confidence_trimmed": "low judge confidence, trimmed instead of dropped",
+    "trim_unsafe_kept_whole": "borderline but no safe trim boundary exists, kept whole",
 }
 
 #: Reason codes whose explanation depends on the payload after the prefix.
@@ -39,8 +45,14 @@ DYNAMIC_REASONS: dict[str, str] = {
     "is pulled in to avoid keeping a conclusion without its supporting evidence",
     "supersedes_value:": "revises or corrects a value carried by a kept block ({payload}), so it "
     "is kept to avoid leaving a superseded figure with no sign that it was replaced",
+    "supports:": "supports kept content ({payload})",
+    "qualifies:": "qualifies kept content ({payload})",
+    "contradicts:": "contradicts kept content ({payload}), kept for review rather than dropped",
+    "supersedes:": "supersedes kept content ({payload})",
+    "duplicates:": "duplicates kept content ({payload})",
     "protected:": "explicitly protected ({payload}), never scored",
     "kept_by:": "kept by an explicit rule ({payload})",
+    "sticky_decision:": "reused sticky decision first made by {payload}",
 }
 
 
