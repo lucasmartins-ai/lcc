@@ -315,6 +315,33 @@ hazards.** In particular the prompt-injection case passes on both counts, with t
 instruction dropped and the evidence kept. That is the baseline Etapa 2 has to hold, and the
 gate any scoring change now has to clear.
 
+### Escalation: the suite was pushed until it broke, and it did not
+
+A suite that passes at one copy of its noise has not been tested. Real dossiers are an order of
+magnitude larger, and size is what forces a scorer to choose, so `build_corpus(case, pressure)`
+multiplies the filler and the trap while keeping the case assertions fixed.
+
+| pressure | corpus | cases passing | mean reduction | mean blocks dropped |
+|---|---|---|---|---|
+| 1 | ~2 k chars | 20 / 20 | 56.0 % | 9.0 |
+| 3 | ~6 k chars | 20 / 20 | 61.8 % | 25.4 |
+| 6 | ~14 k chars | 20 / 20 | **64.0 %** (max 86.2 %) | **50.2** (max 60) |
+
+At the hardest factor the compactor drops fifty blocks out of sixty and still keeps every
+critical block across negation, contradiction, temporal supersession, source authority,
+cross-block dependency, prompt injection and all five structured payloads.
+
+**The honest reading: the semantic-preservation work has no measured justification on the Jev
+path.** Contradiction detection, negation preservation, qualifier preservation, dependency
+tracking, temporal awareness, source authority and literal protection were all proposed as
+fixes. On this suite, at up to six times the noise, none of the hazards they address actually
+fails. Building them would be speculative work defended by argument rather than by a
+reproduced failure, which is the exact thing this study exists to avoid.
+
+The one measured gap is the deterministic path: three cases fail under mechanical scoring, and
+that path is reachable whenever a key is missing or `--provider auto` degrades. If Etapa 2 is to
+be evidence-driven, that is where the evidence points.
+
 ## Limitations
 
 - The corpora are synthetic and shaped by hand. Fact placement inside the volatile tail is a
