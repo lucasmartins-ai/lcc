@@ -1,0 +1,5 @@
+1. 63 percent of mobile visitors are lost before the second step of the form.
+2. p75 mobile load time is 4.2 seconds on a throttled 3G profile.
+3. 41 percent of inbound WhatsApp messages arrive outside 09:00-18:00 opening hours.
+4. 2 of the 3 chairs sit idle after 17:00 on weekdays.
+5. Front desk spends about 4 minutes per booking re-typing into a paper diary.

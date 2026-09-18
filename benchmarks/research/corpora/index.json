@@ -1,0 +1,59 @@
+{
+  "small": {
+    "scale": "small",
+    "seed": 42,
+    "blocks": 35,
+    "chars": 4550,
+    "sha256": "3f301c2aa69a78ae15a93ea983a8bded5f6a6a7f63f25813db32a820f84f8b36",
+    "objective": "What is the measured mobile conversion problem for the clinic?",
+    "required": [
+      "GROUND TRUTH A: The clinic booking widget loses 63 percent of mobile visitors before the second step of the form.",
+      "GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.",
+      "GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.",
+      "GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.",
+      "GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking."
+    ],
+    "forbidden": [
+      "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
+      "DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot."
+    ]
+  },
+  "medium": {
+    "scale": "medium",
+    "seed": 42,
+    "blocks": 147,
+    "chars": 18901,
+    "sha256": "fbe59bf24f2ad45e45bb7c936ee6854e53fcbee48e488fba7863ab1f0676b011",
+    "objective": "What is the measured mobile conversion problem for the clinic?",
+    "required": [
+      "GROUND TRUTH A: The clinic booking widget loses 63 percent of mobile visitors before the second step of the form.",
+      "GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.",
+      "GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.",
+      "GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.",
+      "GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking."
+    ],
+    "forbidden": [
+      "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
+      "DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot."
+    ]
+  },
+  "large": {
+    "scale": "large",
+    "seed": 42,
+    "blocks": 387,
+    "chars": 49608,
+    "sha256": "833b344f19f4c86a5ed7883c2b27cfa44de190d57161296b70814992e45d813b",
+    "objective": "What is the measured mobile conversion problem for the clinic?",
+    "required": [
+      "GROUND TRUTH A: The clinic booking widget loses 63 percent of mobile visitors before the second step of the form.",
+      "GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.",
+      "GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.",
+      "GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.",
+      "GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking."
+    ],
+    "forbidden": [
+      "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
+      "DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot."
+    ]
+  }
+}

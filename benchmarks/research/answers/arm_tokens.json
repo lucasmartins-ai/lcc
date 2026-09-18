@@ -1,0 +1,117 @@
+{
+  "per_session": [
+    {
+      "session": "20260918_090447_9521d3",
+      "arm": "lcc_optimize",
+      "in": 6133,
+      "cache_read": 54528,
+      "out": 1227,
+      "api_calls": 3,
+      "tool_calls": 3
+    },
+    {
+      "session": "20260918_090447_915453",
+      "arm": "lcc_optimize",
+      "in": 19314,
+      "cache_read": 41216,
+      "out": 1243,
+      "api_calls": 3,
+      "tool_calls": 3
+    },
+    {
+      "session": "20260918_090447_b3ac16",
+      "arm": "raw",
+      "in": 13731,
+      "cache_read": 24960,
+      "out": 322,
+      "api_calls": 2,
+      "tool_calls": 1
+    },
+    {
+      "session": "20260918_090447_bb19d6",
+      "arm": "lcc_optimize",
+      "in": 18741,
+      "cache_read": 41216,
+      "out": 758,
+      "api_calls": 3,
+      "tool_calls": 2
+    },
+    {
+      "session": "20260918_090447_4536fb",
+      "arm": "raw",
+      "in": 19357,
+      "cache_read": 19328,
+      "out": 573,
+      "api_calls": 2,
+      "tool_calls": 1
+    },
+    {
+      "session": "20260918_090447_bb88c5",
+      "arm": "lcc_jev",
+      "in": 11427,
+      "cache_read": 23808,
+      "out": 370,
+      "api_calls": 2,
+      "tool_calls": 1
+    },
+    {
+      "session": "20260918_090447_2021b4",
+      "arm": "lcc_jev",
+      "in": 15907,
+      "cache_read": 19328,
+      "out": 389,
+      "api_calls": 2,
+      "tool_calls": 1
+    },
+    {
+      "session": "20260918_090447_f609c6",
+      "arm": "raw",
+      "in": 19363,
+      "cache_read": 19328,
+      "out": 334,
+      "api_calls": 2,
+      "tool_calls": 1
+    },
+    {
+      "session": "20260918_090447_7ae77c",
+      "arm": "lcc_jev",
+      "in": 2466,
+      "cache_read": 32768,
+      "out": 801,
+      "api_calls": 2,
+      "tool_calls": 1
+    }
+  ],
+  "per_arm": {
+    "raw": {
+      "n": 3,
+      "ctx_tokens": 4399,
+      "mean_input": 17483,
+      "mean_cache_read": 21205,
+      "mean_output": 409,
+      "sum_input": 52451,
+      "sum_cache_read": 63616,
+      "sum_output": 1229
+    },
+    "lcc_jev": {
+      "n": 3,
+      "ctx_tokens": 1647,
+      "mean_input": 9933,
+      "mean_cache_read": 25301,
+      "mean_output": 520,
+      "sum_input": 29800,
+      "sum_cache_read": 75904,
+      "sum_output": 1560
+    },
+    "lcc_optimize": {
+      "n": 3,
+      "ctx_tokens": 4628,
+      "mean_input": 14729,
+      "mean_cache_read": 45653,
+      "mean_output": 1076,
+      "sum_input": 44188,
+      "sum_cache_read": 136960,
+      "sum_output": 3228
+    }
+  }
+}

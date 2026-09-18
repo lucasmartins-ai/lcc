@@ -1,0 +1,20 @@
+{
+  "lcc_optimize": {
+    "input_tokens": 42299,
+    "output_tokens": 2454,
+    "cache_read_tokens": 94208,
+    "api_call_count": 7
+  },
+  "raw": {
+    "input_tokens": 35174,
+    "output_tokens": 1416,
+    "cache_read_tokens": 80896,
+    "api_call_count": 6
+  },
+  "lcc_jev": {
+    "input_tokens": 33315,
+    "output_tokens": 1290,
+    "cache_read_tokens": 72192,
+    "api_call_count": 6
+  }
+}
