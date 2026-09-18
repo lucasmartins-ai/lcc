@@ -40,11 +40,25 @@ from lcc.relevance.blocks import (
     gaps_between,
     split_blocks,
 )
-from lcc.relevance.decisions import CachedDecision, DecisionCache, decision_key
-from lcc.relevance.jev import JevClient, JevError
+from lcc.relevance.decisions import (
+    BLOCK_PARSER_VERSION,
+    POLICY_VERSION,
+    PROTECTION_VERSION,
+    RELATIONSHIP_VERSION,
+    CachedDecision,
+    DecisionCache,
+    build_decision_identity,
+    decision_key_v2,
+)
+from lcc.relevance.graph import build_graph
+from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
+from lcc.relevance.sufficiency import verify_sufficiency
+from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
 from lcc.token_budget import count_tokens
+from lcc.token_budget.counters import tokenizer_identity_for_count
 
 RELEVANCE_SCHEMA_VERSION = "relevance-compaction-1.1"
+POLICY_VERSION_ALIAS = POLICY_VERSION
 
 #: Prompt-cache cost factors from ``docs/CACHE_ALIGNMENT.md``: a cache read costs ~0.10x the
 #: base token price and a cache write ~1.25x. Used to report the break-even reuse count of a
@@ -109,6 +123,14 @@ class RelevanceCompactionRequest:
     prefix_marker: str | None = None
     decisions_cache_path: Path | None = None
     client: JevClient | None = None  # dependency injection for tests
+    #: Semantic sufficiency verification (P0-6): after candidate compression, verify the
+    #: remaining context still entails the objective and restore linked evidence.
+    enable_sufficiency: bool = True
+    #: Maximum dropped blocks restored by sufficiency in one pass.
+    max_restorations: int = 8
+    #: Confidence below which a DROP degrades to TRIM, and below half of which to KEEP.
+    #: Risk scales it: high-risk content requires higher confidence to drop.
+    confidence_threshold: float = 0.5
 
 
 @dataclass(frozen=True)
@@ -125,6 +147,16 @@ class BlockDecision:
     score: float | None
     reason: str
     chars_after: int | None = None  # set for ``trim`` (head kept + note)
+    #: Confidence in this decision (Jev answer confidence when present, else 1.0 for
+    #: deterministic rules). A policy input, not decoration: low confidence degrades
+    #: DROP->TRIM->KEEP.
+    confidence: float | None = None
+    #: Typed relationships that affected the decision (e.g. ``QUALIFIES:blk_0003_…``).
+    relationships: tuple[str, ...] = ()
+    #: Policy that produced the decision (``relevance-compaction-1.1``).
+    policy_version: str = POLICY_VERSION
+    #: Content type used for the trim policy (prose, json, code, …).
+    content_type: str | None = None
 
 
 @dataclass(frozen=True)
@@ -176,6 +208,38 @@ class RelevanceCompactionReport:
     #: the read/write factors in ``docs/CACHE_ALIGNMENT.md``. ``None`` when nothing was
     #: dropped or nothing was invalidated.
     break_even_reuses: float | None = None
+    #: Tokenizer contract: what actually counted the tokens (never imply equivalence
+    #: across tokenizers). ``token_count_method`` stays for back-compat; the identity
+    #: fields say which tokenizer and whether the figures are estimates.
+    tokenizer: str = "heuristic"
+    tokenizer_id: str = "heuristic-v1"
+    tokenizer_version: str | None = None
+    is_estimate: bool = True
+    #: Model identity: requested vs resolved (a moving alias like ``jev-latest`` is never
+    #: the only recorded identifier).
+    jev_model_requested: str = "jev-latest"
+    jev_model_resolved: str | None = None
+    #: Sufficiency + relationship observability (machine-readable, never in the prompt).
+    blocks_restored: int = 0
+    sufficiency_checks: int = 0
+    sufficiency_failures: int = 0
+    sufficiency_confidence: float | None = None
+    relationship_edges: int = 0
+    semantic_decisions: int = 0
+    semantic_cache_hits: int = 0
+    semantic_cache_misses: int = 0
+    #: Marker economics: markers cost tokens too. ``marker_tokens`` is measured, and the
+    #: report warns when markers erase the saving they were meant to protect.
+    marker_tokens: int = 0
+    policy_version: str = POLICY_VERSION
+    trim_policy_version: str = TRIM_POLICY_VERSION
+    parser_version: str = BLOCK_PARSER_VERSION
+    protection_version: str = PROTECTION_VERSION
+    relationship_version: str = RELATIONSHIP_VERSION
+    #: Wall-clock cost of the whole pass (deterministic + semantic + sufficiency).
+    #: Compare `mechanical only` vs `mechanical + Jev` vs `mechanical + cached Jev` by
+    #: reading this alongside `calls`/`latency_ms`/`reused_decisions`.
+    compilation_ms: int = 0
     warnings: list[str] = field(default_factory=list)
     decisions: list[BlockDecision] = field(default_factory=list)
 
@@ -413,8 +477,17 @@ def _render_trimmed(
     threshold: float,
     head_chars: int,
 ) -> str:
-    """Rendered form of a trimmed block: bounded head plus one audit note line."""
-    head = block_text[:head_chars]
+    """Rendered form of a trimmed block: safe head plus one audit note line.
+
+    Type-aware: structured content trims only at safe boundaries (valid syntax,
+    whole table rows, whole code lines); when no safe boundary exists the caller
+    must KEEP instead — this function then returns the whole block and the caller
+    is expected to check :func:`trim_block_safe` first. Kept for back-compat: the
+    safe path is resolved here so existing callers get safety by default.
+    """
+    head, ok, _ctype = trim_block_safe(block_text, head_chars)
+    if not ok:
+        head = _cut_prose_head(block_text, head_chars)
     if score is None:
         score_part = ""
     elif trim_threshold is not None:
@@ -423,9 +496,21 @@ def _render_trimmed(
         score_part = f", score {score:.2f}"
     return (
         f"{head.rstrip()}\n"
-        f"[lcc-compact: trimmed {len(block_text) - head_chars} of {len(block_text)} chars "
+        f"[lcc-compact: trimmed {len(block_text) - len(head)} of {len(block_text)} chars "
         f"of this block{score_part}]"
     )
+
+
+def _cut_prose_head(text: str, budget: int) -> str:
+    cut = text.rfind(" ", 0, budget)
+    if cut < max(20, budget // 2):
+        cut = budget
+    return text[:cut]
+
+
+def _safe_trim_head(block_text: str, head_chars: int) -> tuple[str, bool, str]:
+    """Safe head for a trim decision; ``ok=False`` means the block must be kept whole."""
+    return trim_block_safe(block_text, head_chars)
 
 
 def _marker_for_run(
@@ -455,6 +540,17 @@ def _marker_for_run(
     return f"[lcc-compact: dropped {len(run)} blocks ({total_chars} chars, {score_part})]"
 
 
+def _marker_tokens(compacted: str, model: str) -> int:
+    """Tokens consumed by inline drop/trim markers in the emitted context."""
+    markers = re.findall(r"\[lcc-compact: (?:dropped|trimmed)[^\]]*\]", compacted)
+    if not markers:
+        return 0
+    try:
+        return count_tokens("\n".join(markers), model).value
+    except Exception:
+        return 0
+
+
 def _batch_blocks(
     blocks: list[TextBlock], batch_size: int, max_state_chars: int
 ) -> list[list[TextBlock]]:
@@ -480,14 +576,15 @@ def _score_with_jev(
     client: JevClient,
     blocks: list[TextBlock],
     request: RelevanceCompactionRequest,
-) -> tuple[dict[str, tuple[float, str]], int, int, list[str]]:
+) -> tuple[dict[str, tuple[float, str, float | None]], int, int, list[str], str | None]:
     """Score blocks with Jev, concurrently when several batches exist.
 
-    Returns (results, calls, latency_ms, warnings). A failed batch does not abort the
-    remaining ones: blocks left without an answer are reported so the caller scores them
-    mechanically (fail-safe, unchanged contract).
+    Returns (results, calls, latency_ms, warnings, resolved_model). Each result is
+    ``(score, source, confidence)``. Answers that are missing, malformed, or outside
+    [0, 1] are left out so the caller scores them mechanically (fail-safe, unchanged
+    contract); every such case is reported as a warning with a typed reason.
     """
-    results: dict[str, tuple[float, str]] = {}
+    results: dict[str, tuple[float, str, float | None]] = {}
     warnings: list[str] = []
     batches = _batch_blocks(blocks, request.batch_size, request.max_state_chars)
 
@@ -539,6 +636,7 @@ def _score_with_jev(
 
     calls = 0
     latency_ms = 0
+    resolved_model: str | None = None
     for batch_index, response, batch_latency, failure in outcomes:
         latency_ms += batch_latency
         if response is None:
@@ -546,17 +644,35 @@ def _score_with_jev(
             warnings.append(fallback)
             continue
         calls += 1
+        resolved_model = getattr(client, "last_resolved_model", None) or resolved_model
         batch = batches[batch_index - 1]
-        answers = response.get("answers") or {}
+        answers = response.get("answers") if isinstance(response, dict) else None
+        if not isinstance(answers, dict):
+            warnings.append(f"jev_malformed_response:batch_{batch_index}")
+            continue
         for block in batch:
-            answer = answers.get(f"keep_{block.id}") or {}
-            noul = answer.get("noul")
-            if isinstance(noul, (int, float)):
-                results[block.id] = (float(noul), "jev")
+            answer = answers.get(f"keep_{block.id}")
+            score, confidence, problem = parse_noul_answer(answer)
+            if score is None:
+                if problem == "out_of_range":
+                    warnings.append(f"jev_answer_out_of_range:{block.id}")
+                else:
+                    warnings.append(f"jev_missing_answer:{block.id}")
+                continue
+            if problem in ("confidence_missing", "confidence_out_of_range"):
+                warnings.append(f"jev_{problem}:{block.id}")
+                confidence = None
+            results[block.id] = (score, "jev", confidence)
         for block in batch:
             if block.id not in results:
+                continue
+            already_warned = (
+                f"jev_missing_answer:{block.id}" in warnings
+                or f"jev_answer_out_of_range:{block.id}" in warnings
+            )
+            if not already_warned:
                 warnings.append(f"jev_missing_answer:{block.id}")
-    return results, calls, latency_ms, warnings
+    return results, calls, latency_ms, warnings, resolved_model
 
 
 def _score_mechanically(
@@ -601,6 +717,7 @@ def _score_mechanically(
 
 def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionResult:
     """Run an opt-in relevance compaction pass over ``request.text``."""
+    started_total = time.perf_counter()
     warnings: list[str] = []
     text = request.text
     if not request.question.strip():
@@ -654,13 +771,59 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     scoreable = [block for block in blocks if block.id not in protected_reasons]
 
     # --- sticky decisions (cache alignment): reuse previous outcomes for unchanged blocks
+    # v1.1 identity: same content + same policy = reusable; any policy/model/threshold
+    # change is a different decision (a cache epoch, fail-safe direction).
     cache = DecisionCache(request.decisions_cache_path)
     cache.load()
+    try:
+        _tokenizer_id = tokenizer_identity_for_count(count_tokens("", request.model))[
+            "tokenizer_id"
+        ]
+    except Exception:
+        _tokenizer_id = "heuristic-v1"
+    # Tokenizer identity for the key should reflect the counting model, not the probe
+    # above (which counted empty text). Recompute cheaply without counting.
+    try:
+        from lcc.token_budget.counters import tokenizer_identity as _tok_ident
+
+        _tokenizer_id = _tok_ident(request.model)["tokenizer_id"]
+    except Exception:
+        pass
+    resolved_trim = (
+        None
+        if request.trim_head_chars <= 0
+        else (
+            request.trim_threshold
+            if request.trim_threshold is not None
+            else request.threshold * 0.5
+        )
+    )
+
+    def _cache_key_for(block_text: str) -> str:
+        return decision_key_v2(
+            build_decision_identity(
+                objective=request.question,
+                block_text=block_text,
+                provider=request.provider,
+                model=request.jev_model,
+                policy_version=POLICY_VERSION,
+                threshold=request.threshold,
+                trim_threshold=resolved_trim,
+                trim_head_chars=request.trim_head_chars,
+                trim_policy_version=TRIM_POLICY_VERSION,
+                parser_version=BLOCK_PARSER_VERSION,
+                protection_version=PROTECTION_VERSION,
+                relationship_version=RELATIONSHIP_VERSION,
+                tokenizer_id=_tokenizer_id,
+                deterministic_protection=request.deterministic_protection,
+            )
+        )
+
     decisions: dict[str, BlockDecision] = {}
     pending: list[TextBlock] = []
     reused = 0
     for block in scoreable:
-        key = decision_key(request.question, block.text)
+        key = _cache_key_for(block.text)
         cached = cache.get(key) if request.decisions_cache_path is not None else None
         if cached is not None:
             reused += 1
@@ -686,6 +849,10 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 score=cached.score,
                 reason=f"sticky_decision:{cached.provider}",
                 chars_after=chars_after,
+                confidence=None,
+                relationships=(),
+                policy_version=POLICY_VERSION,
+                content_type=detect_content_type(block.text),
             )
         else:
             pending.append(block)
@@ -698,6 +865,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     semantic_guarantee = "judged"
     calls = 0
     latency_ms = 0
+    jev_resolved: str | None = None
     client: JevClient | None = None
     if provider_requested in ("auto", "jev"):
         client = request.client if request.client is not None else _resolve_client()
@@ -743,34 +911,38 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 source="degraded",
                 score=None,
                 reason="jev_unavailable_fail_safe",
+                confidence=None,
+                relationships=(),
+                policy_version=POLICY_VERSION,
+                content_type=detect_content_type(block.text),
             )
     elif not pending and reused:
         provider_used = "cache"
     elif pending:
-        results: dict[str, tuple[float, str, str | None]] = {}
+        results: dict[str, tuple[float, str, str | None, float | None]] = {}
+        jev_resolved = None
         if client is not None:
             provider_used = "jev"
-            jev_results, calls, latency_ms, jev_warnings = _score_with_jev(
+            jev_results, calls, latency_ms, jev_warnings, jev_resolved = _score_with_jev(
                 client, pending, request
             )
             warnings.extend(jev_warnings)
-            # Normalise to the triple shape the rest of this function uses.
+            # Normalise to the quad shape the rest of this function uses.
             results = {
-                block_id: (score, source, None)
-                for block_id, (score, source) in jev_results.items()
+                block_id: (score, source, None, conf)
+                for block_id, (score, source, conf) in jev_results.items()
             }
             if len(results) < len(pending):
                 # partial or total Jev failure: score whatever is left mechanically
                 missing = [block for block in pending if block.id not in results]
-                results.update(
-                    _score_mechanically(
-                        missing,
-                        request.question,
-                        protect=request.deterministic_protection,
-                        question_language=question_language,
-                    )
-                )
-                if any(source.startswith("mechanical") for _, source, _ in results.values()):
+                for block_id, (s, src, prot) in _score_mechanically(
+                    missing,
+                    request.question,
+                    protect=request.deterministic_protection,
+                    question_language=question_language,
+                ).items():
+                    results[block_id] = (s, src, prot, None)
+                if any(source.startswith("mechanical") for _, source, _, _ in results.values()):
                     provider_used = "jev+mechanical_fallback"
                     degraded = True
                     degradation_reason = "jev_batch_failed"
@@ -778,23 +950,27 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         else:
             provider_used = "mechanical"
             semantic_guarantee = "none"
-            results = _score_mechanically(
+            for block_id, (s, src, prot) in _score_mechanically(
                 pending,
                 request.question,
                 protect=request.deterministic_protection,
                 question_language=question_language,
-            )
+            ).items():
+                results[block_id] = (s, src, prot, None)
 
         # Identical content must receive an identical decision within a run. The decisions
         # cache is content-addressed, so a cold run that scores two copies of the same block
         # independently can disagree with the single cached score a warm run reuses, which
         # changes the emitted bytes. Pin the first judgment per content and reuse it.
-        per_content: dict[str, tuple[float, str, str | None]] = {}
+        per_content: dict[str, tuple[float, str, str | None, float | None]] = {}
         for block in pending:
-            score, source, protection = results.get(block.id, (0.0, provider_used, None))
-            first = per_content.setdefault(block.text, (score, source, protection))
-            score, source, protection = first
-            chars_after: int | None = None
+            score, source, protection, confidence = results.get(
+                block.id, (0.0, provider_used, None, None)
+            )
+            first = per_content.setdefault(block.text, (score, source, protection, confidence))
+            score, source, protection, confidence = first
+            chars_after = None
+            ctype = detect_content_type(block.text)
             if protection is not None:
                 # The deterministic safety net keeps the block whatever overlap said. The
                 # score stays as measured so the report shows both halves of that.
@@ -806,26 +982,68 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     reason = "score_above_threshold"
                 elif trim_threshold is not None and score >= trim_threshold:
                     if len(block.text) > request.trim_head_chars + _TRIM_HEAD_SLACK:
-                        decision = "trim"
-                        reason = "score_in_trim_band"
-                        chars_after = len(
-                            _render_trimmed(
-                                block.text,
-                                score,
-                                trim_threshold,
-                                request.threshold,
-                                request.trim_head_chars,
+                        head, ok, _ = trim_block_safe(block.text, request.trim_head_chars)
+                        if not ok:
+                            decision = "keep"
+                            reason = "trim_unsafe_kept_whole"
+                        else:
+                            decision = "trim"
+                            reason = "score_in_trim_band"
+                            chars_after = len(
+                                _render_trimmed(
+                                    block.text,
+                                    score,
+                                    trim_threshold,
+                                    request.threshold,
+                                    request.trim_head_chars,
+                                )
                             )
-                        )
                     else:
                         decision = "keep"
                         reason = "score_in_trim_band_kept_whole"
                 else:
                     decision = "drop"
                     reason = "score_below_threshold"
+                # Confidence is a policy input, not decoration: low confidence degrades
+                # toward safety. High-risk content needs high confidence to drop at all.
+                if ctype == "high_risk" and decision in ("drop", "trim") and score < 0.9:
+                    decision = "keep"
+                    reason = "high_risk_conservative_retention"
+                    chars_after = None
+                elif confidence is not None:
+                    if decision == "drop" and confidence < request.confidence_threshold:
+                        if confidence < request.confidence_threshold / 2:
+                            decision = "keep"
+                            reason = "low_confidence_kept"
+                        else:
+                            head, ok, _ = trim_block_safe(
+                                block.text, request.trim_head_chars
+                            )
+                            if ok and trim_threshold is not None:
+                                decision = "trim"
+                                reason = "low_confidence_trimmed"
+                                chars_after = len(
+                                    _render_trimmed(
+                                        block.text,
+                                        score,
+                                        trim_threshold,
+                                        request.threshold,
+                                        request.trim_head_chars,
+                                    )
+                                )
+                            else:
+                                decision = "keep"
+                                reason = "low_confidence_kept"
+                                chars_after = None
             else:
-                decision = "drop" if score <= 0.0 else "keep"
-                reason = "no_lexical_overlap" if decision == "drop" else "lexical_overlap"
+                if ctype == "high_risk" and score <= 0.0:
+                    # Mechanical zero-overlap on high-risk text is not evidence of
+                    # irrelevance; the fallback must err toward keeping.
+                    decision = "keep"
+                    reason = "high_risk_conservative_retention"
+                else:
+                    decision = "drop" if score <= 0.0 else "keep"
+                    reason = "no_lexical_overlap" if decision == "drop" else "lexical_overlap"
             decisions[block.id] = BlockDecision(
                 id=block.id,
                 index=block.index,
@@ -837,16 +1055,167 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 score=score,
                 reason=reason,
                 chars_after=chars_after,
+                confidence=confidence,
+                relationships=(),
+                policy_version=POLICY_VERSION,
+                content_type=ctype,
             )
             if request.decisions_cache_path is not None:
                 cache.put(
-                    decision_key(request.question, block.text),
+                    _cache_key_for(block.text),
                     objective=request.question,
                     block_text=block.text,
                     entry=CachedDecision(
                         score=score, decision=decision, provider=source
                     ),
+                    identity=build_decision_identity(
+                        objective=request.question,
+                        block_text=block.text,
+                        provider=request.provider,
+                        model=request.jev_model,
+                        policy_version=POLICY_VERSION,
+                        threshold=request.threshold,
+                        trim_threshold=resolved_trim,
+                        trim_head_chars=request.trim_head_chars,
+                        trim_policy_version=TRIM_POLICY_VERSION,
+                        parser_version=BLOCK_PARSER_VERSION,
+                        protection_version=PROTECTION_VERSION,
+                        relationship_version=RELATIONSHIP_VERSION,
+                        tokenizer_id=_tokenizer_id,
+                        deterministic_protection=request.deterministic_protection,
+                    ),
                 )
+
+    # --- relationship graph + sufficiency verification (P0-6, P1-7)
+    # Candidate compression asks "is this block relevant?". Sufficiency asks the second
+    # question: "after these drops, can the objective still be solved from what remains?"
+    # The typed graph makes cross-block dependencies explicit; the verifier restores
+    # dropped evidence linked to kept content, up to a bounded restoration budget.
+    relationship_edges = 0
+    blocks_restored = 0
+    sufficiency_checks = 0
+    sufficiency_failures = 0
+    sufficiency_confidence: float | None = None
+    graph_relationships: dict[str, str] = {}
+    _graph = None
+    try:
+        _qterms = _lexical_terms(request.question)
+        _graph = build_graph(
+            [(b.id, b.text) for b in blocks], _qterms, min_shared_terms=2
+        )
+        relationship_edges = len(_graph.edges)
+        kept_candidate = {
+            d.id for d in decisions.values() if d.decision == "keep"
+        } | set(protected_reasons.keys())
+        # Annotate every scored decision with the relationships touching it.
+        annotated: dict[str, BlockDecision] = {}
+        for bid, dec in decisions.items():
+            rels = tuple(
+                f"{e.type.value}:{e.target if e.source == bid else e.source}"
+                for e in _graph.edges_touching(bid)
+            )
+            annotated[bid] = BlockDecision(
+                id=dec.id, index=dec.index, line_start=dec.line_start,
+                line_end=dec.line_end, chars=dec.chars, decision=dec.decision,
+                source=dec.source, score=dec.score, reason=dec.reason,
+                chars_after=dec.chars_after, confidence=dec.confidence,
+                relationships=rels, policy_version=dec.policy_version,
+                content_type=dec.content_type,
+            )
+        decisions = annotated
+        graph_relationships = _graph.closure(kept_candidate, max_hops=1)
+        # NOTE: no legacy _dependency_closures backstop here. Its union-across-frontier
+        # counting (1 term from each of two kept blocks summing to 2) over-restores:
+        # measured, it kept a zero-overlap funnel block via "block"+“mobile” split across
+        # two different kept blocks. The graph requires >=2 shared terms with a single
+        # kept block, which is the correct per-pair link strength.
+    except Exception as exc:  # graph must never break compaction
+        warnings.append(f"relationship_analysis_failed: {exc}")
+        _graph = None
+    # Restoration is part of the deterministic safety net: --no-deterministic-protection
+    # disables it, so the flag keeps its meaning ("raw scoring, no safety nets") and the
+    # adversarial suite can still prove what the net fixes.
+    if request.enable_sufficiency and request.deterministic_protection and graph_relationships:
+        sufficiency_checks += 1
+        dropped_candidate = [
+            bid for bid, d in decisions.items() if d.decision == "drop"
+        ]
+        reasons_map = {bid: d.reason for bid, d in decisions.items()}
+        verdict = verify_sufficiency(
+            dropped_ids=dropped_candidate,
+            kept_ids={
+                bid for bid, d in decisions.items() if d.decision == "keep"
+            } | set(protected_reasons.keys()),
+            reasons=reasons_map,
+            relationships={
+                bid: rel
+                for bid, rel in graph_relationships.items()
+                if bid in set(dropped_candidate)
+            },
+        )
+        sufficiency_confidence = verdict.confidence
+        if not verdict.sufficient:
+            sufficiency_failures += 1
+            # Restore critical blocks, most-linked first, within budget.
+            restorable = list(verdict.critical_dropped_blocks)
+            # Prefer restoring blocks linked to kept content over pure protection hits.
+            restorable.sort(
+                key=lambda b: (
+                    0 if b in graph_relationships else 1,
+                    b,
+                )
+            )
+            budget = max(0, int(request.max_restorations))
+            for bid in restorable[:budget]:
+                existing = decisions.get(bid)
+                if existing is None or existing.decision == "keep":
+                    continue
+                rel = graph_relationships.get(bid, "")
+                decisions[bid] = BlockDecision(
+                    id=existing.id, index=existing.index, line_start=existing.line_start,
+                    line_end=existing.line_end, chars=existing.chars, decision="keep",
+                    source=existing.source, score=existing.score,
+                    reason="semantic_sufficiency_restoration",
+                    chars_after=None, confidence=existing.confidence,
+                    relationships=tuple([rel] if rel else list(existing.relationships)),
+                    policy_version=existing.policy_version,
+                    content_type=existing.content_type,
+                )
+                blocks_restored += 1
+            if len(restorable) > budget:
+                warnings.append(
+                    f"sufficiency_restoration_budget_exceeded: {len(restorable)} critical "
+                    f"blocks, restored {blocks_restored} (max {budget}); "
+                    "KEEP more context instead of trusting this output"
+                )
+            else:
+                warnings.append(
+                    f"semantic_sufficiency_restoration: restored {blocks_restored} "
+                    f"block(s) linked to kept content ({', '.join(restorable[:budget])})"
+                )
+            # Verify again after restoration (bounded: one re-check, no loop).
+            sufficiency_checks += 1
+            remaining = [
+                bid for bid, d in decisions.items() if d.decision == "drop"
+            ]
+            verdict2 = verify_sufficiency(
+                dropped_ids=remaining,
+                kept_ids={
+                    bid for bid, d in decisions.items() if d.decision == "keep"
+                } | set(protected_reasons.keys()),
+                reasons={bid: d.reason for bid, d in decisions.items()},
+                relationships={
+                    bid: rel
+                    for bid, rel in graph_relationships.items()
+                    if bid in set(remaining)
+                },
+            )
+            sufficiency_confidence = verdict2.confidence
+            if not verdict2.sufficient:
+                sufficiency_failures += 1
+    elif request.enable_sufficiency:
+        sufficiency_checks += 1
+        sufficiency_confidence = 1.0
 
     # --- assemble output: keep bytes exact; replace dropped runs with one marker line
     ordered: list[BlockDecision] = []
@@ -863,6 +1232,13 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     source="protected",
                     score=None,
                     reason=protected_reasons[block.id],
+                    confidence=None,
+                    relationships=tuple(
+                        f"{e.type.value}:{e.target if e.source == block.id else e.source}"
+                        for e in (_graph.edges_touching(block.id) if _graph is not None else [])
+                    ),
+                    policy_version=POLICY_VERSION,
+                    content_type=detect_content_type(block.text),
                 )
             )
         else:
@@ -971,6 +1347,19 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     f"prefix (--prefix-marker/--protect-prefix) or wait for a cache epoch."
                 )
 
+    # --- marker economics: markers cost tokens too; a pass whose markers erase its
+    # saving is pathological and must say so explicitly.
+    if mutated and chars_after >= chars_before:
+        warnings.append(
+            "marker_overhead_pathological: markers consumed the entire saving; "
+            "compression produced equal or larger output (use --no-marker or keep more)"
+        )
+    if mutated and after_count.value >= before_count.value:
+        warnings.append(
+            "marker_overhead_pathological: token count did not decrease after markers; "
+            "the pass is not worth a cache epoch"
+        )
+
     report = RelevanceCompactionReport(
         schema_version=RELEVANCE_SCHEMA_VERSION,
         provider_requested=provider_requested,
@@ -996,6 +1385,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         min_reduction=request.min_reduction,
         calls=calls,
         latency_ms=latency_ms,
+        compilation_ms=int((time.perf_counter() - started_total) * 1000),
         reused_decisions=reused,
         prefix_protected=protect_boundary is not None,
         prefix_untouched=(
@@ -1013,6 +1403,26 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         semantic_guarantee=semantic_guarantee,
         invalidated_tokens=invalidated_tokens,
         break_even_reuses=break_even_reuses,
+        tokenizer=tokenizer_identity_for_count(after_count)["tokenizer"],
+        tokenizer_id=tokenizer_identity_for_count(after_count)["tokenizer_id"],
+        tokenizer_version=tokenizer_identity_for_count(after_count)["tokenizer_version"],
+        is_estimate=after_count.method.value != "exact",
+        jev_model_requested=request.jev_model,
+        jev_model_resolved=jev_resolved,
+        blocks_restored=blocks_restored,
+        sufficiency_checks=sufficiency_checks,
+        sufficiency_failures=sufficiency_failures,
+        sufficiency_confidence=sufficiency_confidence,
+        relationship_edges=relationship_edges,
+        semantic_decisions=calls,
+        semantic_cache_hits=reused,
+        semantic_cache_misses=len(pending) - reused if pending else 0,
+        marker_tokens=_marker_tokens(compacted, request.model),
+        policy_version=POLICY_VERSION,
+        trim_policy_version=TRIM_POLICY_VERSION,
+        parser_version=BLOCK_PARSER_VERSION,
+        protection_version=PROTECTION_VERSION,
+        relationship_version=RELATIONSHIP_VERSION,
         warnings=warnings,
         decisions=ordered,
     )
@@ -1036,18 +1446,39 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "blocks_protected": report.blocks_protected,
         "blocks_dropped": report.blocks_dropped,
         "blocks_trimmed": report.blocks_trimmed,
+        "blocks_restored": report.blocks_restored,
         "chars_before": report.chars_before,
         "chars_after": report.chars_after,
         "chars_removed": report.chars_removed,
         "tokens_before": report.tokens_before,
         "tokens_after": report.tokens_after,
         "token_count_method": report.token_count_method,
+        "tokenizer": report.tokenizer,
+        "tokenizer_id": report.tokenizer_id,
+        "tokenizer_version": report.tokenizer_version,
+        "is_estimate": report.is_estimate,
+        "jev_model_requested": report.jev_model_requested,
+        "jev_model_resolved": report.jev_model_resolved,
         "reduction_ratio": report.reduction_ratio,
         "worth_it": report.worth_it,
         "min_reduction": report.min_reduction,
         "calls": report.calls,
         "latency_ms": report.latency_ms,
+        "compilation_ms": report.compilation_ms,
         "reused_decisions": report.reused_decisions,
+        "semantic_decisions": report.semantic_decisions,
+        "semantic_cache_hits": report.semantic_cache_hits,
+        "semantic_cache_misses": report.semantic_cache_misses,
+        "sufficiency_checks": report.sufficiency_checks,
+        "sufficiency_failures": report.sufficiency_failures,
+        "sufficiency_confidence": report.sufficiency_confidence,
+        "relationship_edges": report.relationship_edges,
+        "marker_tokens": report.marker_tokens,
+        "policy_version": report.policy_version,
+        "trim_policy_version": report.trim_policy_version,
+        "parser_version": report.parser_version,
+        "protection_version": report.protection_version,
+        "relationship_version": report.relationship_version,
         "prefix_protected": report.prefix_protected,
         "prefix_untouched": report.prefix_untouched,
         "first_mutation_offset": report.first_mutation_offset,
@@ -1070,6 +1501,10 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
                 "score": decision.score,
                 "reason": decision.reason,
                 "chars_after": decision.chars_after,
+                "confidence": decision.confidence,
+                "relationships": list(decision.relationships),
+                "policy_version": decision.policy_version,
+                "content_type": decision.content_type,
             }
             for decision in report.decisions
         ],

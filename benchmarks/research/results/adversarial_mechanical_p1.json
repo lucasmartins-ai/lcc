@@ -1,8 +1,8 @@
 {
   "provider": "mechanical",
   "pressure": 1,
-  "cases": 20,
-  "passed": 20,
+  "cases": 26,
+  "passed": 26,
   "failed": 0,
   "rows": [
     {
@@ -29,7 +29,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 46.3,
       "passed": true,
-      "wall_ms": 437,
+      "wall_ms": 475,
       "pressure": 1
     },
     {
@@ -56,7 +56,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 35.8,
       "passed": true,
-      "wall_ms": 393,
+      "wall_ms": 380,
       "pressure": 1
     },
     {
@@ -88,7 +88,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 40.5,
       "passed": true,
-      "wall_ms": 380,
+      "wall_ms": 387,
       "pressure": 1
     },
     {
@@ -115,7 +115,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 46.0,
       "passed": true,
-      "wall_ms": 391,
+      "wall_ms": 382,
       "pressure": 1
     },
     {
@@ -142,7 +142,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 40.9,
       "passed": true,
-      "wall_ms": 373,
+      "wall_ms": 379,
       "pressure": 1
     },
     {
@@ -174,7 +174,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.0,
       "passed": true,
-      "wall_ms": 381,
+      "wall_ms": 374,
       "pressure": 1
     },
     {
@@ -206,7 +206,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.4,
       "passed": true,
-      "wall_ms": 381,
+      "wall_ms": 379,
       "pressure": 1
     },
     {
@@ -235,7 +235,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.9,
       "passed": true,
-      "wall_ms": 375,
+      "wall_ms": 379,
       "pressure": 1
     },
     {
@@ -262,7 +262,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.5,
       "passed": true,
-      "wall_ms": 385,
+      "wall_ms": 379,
       "pressure": 1
     },
     {
@@ -296,7 +296,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.9,
       "passed": true,
-      "wall_ms": 449,
+      "wall_ms": 379,
       "pressure": 1
     },
     {
@@ -323,7 +323,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.6,
       "passed": true,
-      "wall_ms": 384,
+      "wall_ms": 374,
       "pressure": 1
     },
     {
@@ -350,7 +350,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 36.4,
       "passed": true,
-      "wall_ms": 383,
+      "wall_ms": 378,
       "pressure": 1
     },
     {
@@ -377,7 +377,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.1,
       "passed": true,
-      "wall_ms": 379,
+      "wall_ms": 378,
       "pressure": 1
     },
     {
@@ -404,7 +404,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 35.3,
       "passed": true,
-      "wall_ms": 382,
+      "wall_ms": 378,
       "pressure": 1
     },
     {
@@ -431,7 +431,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 37.0,
       "passed": true,
-      "wall_ms": 385,
+      "wall_ms": 377,
       "pressure": 1
     },
     {
@@ -458,7 +458,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.9,
       "passed": true,
-      "wall_ms": 436,
+      "wall_ms": 382,
       "pressure": 1
     },
     {
@@ -485,7 +485,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.9,
       "passed": true,
-      "wall_ms": 395,
+      "wall_ms": 385,
       "pressure": 1
     },
     {
@@ -512,7 +512,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.0,
       "passed": true,
-      "wall_ms": 381,
+      "wall_ms": 380,
       "pressure": 1
     },
     {
@@ -539,7 +539,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 95.7,
       "passed": true,
-      "wall_ms": 378,
+      "wall_ms": 382,
       "pressure": 1
     },
     {
@@ -571,7 +571,204 @@
       "token_count_method": "exact",
       "break_even_reuses": 38.7,
       "passed": true,
-      "wall_ms": 379,
+      "wall_ms": 377,
+      "pressure": 1
+    },
+    {
+      "id": "scope_quantifiers",
+      "hazard": "scope",
+      "description": "All/only/none/except scope words change who a rule covers; dropping one inverts it.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "universal_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "exception_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 22.8,
+      "blocks_dropped": 5,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 44.0,
+      "passed": true,
+      "wall_ms": 375,
+      "pressure": 1
+    },
+    {
+      "id": "coreference_resolution",
+      "hazard": "coreference",
+      "description": "Pronouns and referring phrases point at other blocks; alone they are dangling.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "failover_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "primary_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 67.0,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 17.0,
+      "passed": true,
+      "wall_ms": 378,
+      "pressure": 1
+    },
+    {
+      "id": "paraphrase_duplicates",
+      "hazard": "duplication",
+      "description": "Two paraphrases state the same cause; exact dedup cannot see it, and at least one wording of the cause must survive.",
+      "critical_blocks": 2,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "cause_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 67.4,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 16.8,
+      "passed": true,
+      "wall_ms": 378,
+      "pressure": 1
+    },
+    {
+      "id": "multiblock_vat_set",
+      "hazard": "dependency",
+      "description": "No single block answers the question; the four blocks form a chain and dropping any one breaks the conclusion.",
+      "critical_blocks": 4,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "germany_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "vat_rule_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "exempt_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "business_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 46.6,
+      "blocks_dropped": 10,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 22.0,
+      "passed": true,
+      "wall_ms": 376,
+      "pressure": 1
+    },
+    {
+      "id": "injection_html",
+      "hazard": "injection",
+      "description": "An HTML payload hides an instruction inside evidence; the compiler must keep the evidence (including the payload text as data) without treating it as authority.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "hours_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "payload_preserved_as_data",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 77.1,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 15.1,
+      "passed": true,
+      "wall_ms": 377,
+      "pressure": 1
+    },
+    {
+      "id": "injection_log",
+      "hazard": "injection",
+      "description": "A log line carries an instruction-shaped string; it is log data, and the surrounding evidence must survive verbatim.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "cause_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "payload_preserved_as_data",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 76.4,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 14.9,
+      "passed": true,
+      "wall_ms": 380,
       "pressure": 1
     }
   ]

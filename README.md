@@ -362,7 +362,9 @@ lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical
 
 `--trim-head-chars 0` disables the middle gear and drops borderline blocks outright. The trim band is the safety net for near-miss evidence, so that setting is measurably *less* safe, not stricter. Pass `--provider jev` explicitly rather than relying on `auto`: `auto` may fall back to mechanical scoring, and while it now reports `degraded: true` with `semantic_guarantee: none` when it does, an explicit provider makes the guarantee a decision rather than a fallback.
 
-The `relevance-compaction-1.1` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`, `invalidated_tokens`, `break_even_reuses`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`), plus `degraded` / `degradation_reason` / `semantic_guarantee` for honest fallback reporting. See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013), and `benchmarks/research/` for the measured study behind these defaults.
+Trimming is type-aware: JSON/YAML/XML trim only to still-parseable boundaries, tables keep whole rows, code cuts at line ends, logs keep head+tail, and high-stakes content refuses trimming (TRIM→KEEP). After candidate selection, sufficiency verification asks whether the objective can still be solved from what remains and restores linked evidence (up to `--max-restorations`, disable with `--no-sufficiency`); low judge confidence degrades DROP→TRIM→KEEP (`--confidence-threshold`).
+
+The `relevance-compaction-1.1` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks, plus `confidence`, `relationships`, `policy_version` and `content_type` per decision) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`, `invalidated_tokens`, `break_even_reuses`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`), plus `degraded` / `degradation_reason` / `semantic_guarantee` for honest fallback reporting, sufficiency fields (`blocks_restored`, `sufficiency_checks`, `sufficiency_failures`), relationship counts, `marker_tokens`, tokenizer identity (`tokenizer`, `tokenizer_id`, `tokenizer_version`, `is_estimate`), `jev_model_requested` / `jev_model_resolved`, and `compilation_ms`. Sticky decision keys bind the full policy identity (provider, model, thresholds, parser/protection/relationship/trim versions, tokenizer), so a policy change is a new cache epoch rather than a stale hit. See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013), `docs/adr/0014-minimum-sufficient-context.md` for the safety model, and `benchmarks/research/` for the measured study behind these defaults.
 
 ### 7. `lcc explain` — audit a compaction pass after the fact
 
@@ -427,6 +429,13 @@ print(answer.answer)
 ```
 
 ### TypeScript / Node.js API
+
+> Parity boundary (ADR 0014): the Node engine implements the deterministic cleaning
+> surface (normalize, boilerplate removal, dedup, prompt templates, intake). Relevance
+> compaction (`compact`), the decision cache, the context graph and sufficiency
+> verification are Python-only; `compact` parity is roadmap, not implied. Node token
+> counts are heuristic estimates — see `tokenizerIdentity()` / `estimateTokensWithMeta()`
+> — and must never be compared 1:1 with Python's exact tiktoken counts.
 
 ```typescript
 import { LccIntake, LccCompressor, parseIntake, processIntake } from 'local-context-compiler';
