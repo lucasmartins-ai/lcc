@@ -85,22 +85,23 @@ flowchart LR
 Measured on the deterministic corpora in `benchmarks/research/` (exact `o200k` token counts of
 the emitted context; no LLM in the loop). Reproduce with `python3 run_matrix.py`.
 
-| Arm | Raw tokens | Emitted tokens | Change | Ground-truth categories kept |
+| Arm | Raw tokens | Emitted tokens | Change | Categories kept |
 | :--- | :---: | :---: | :---: | :---: |
-| **`compact` (Jev), 4.5k dossier** | 4,533 | **1,721** | **−62.0%** | 5 of 6 (misses 1 critical fact) |
-| **`compact` (Jev), 11.6k dossier** | 11,617 | **3,897** | **−66.5%** | 5 of 6 |
-| `compact` (Jev) `--prefix-marker` | varies | varies | — | **6 of 6** |
-| `compact` (mechanical), 4.5k | 4,533 | 1,582 | −65.1% | 4 of 6 (loses constraint, contradiction) |
-| `prepare`, 4.5k | 4,533 | 930 | −79.5% | **2 of 6** |
-| `optimize` (`claude_xml`), 4.5k | 4,533 | 4,762 | **+5.0%** | 6 of 6 |
-| `intake`, 4.5k | 4,533 | 4,820 | **+6.3%** | 6 of 6 |
+| **`compact` (Jev), 4.5k dossier** | 4,533 | **2,539** | **−44.0%** | **6 of 6** |
+| **`compact` (Jev), 44k dossier** | 44,128 | **22,496** | **−49.0%** | **6 of 6** |
+| `compact` (mechanical), 4.5k | 4,533 | 1,607 | −64.5% | 5 of 6 (loses the dated revision) |
+| `prepare`, 4.5k | 4,533 | 431 | −90.5% | **1 of 6** |
+| `optimize` (`claude_xml`), 4.5k | 4,533 | 4,769 | **+5.2%** | 6 of 6 |
+| `intake`, 4.5k | 4,533 | 4,827 | **+6.5%** | 6 of 6 |
 
 Recall is reported per information category (critical facts, constraints, negative constraints,
 exceptions, dated revisions, contradictions) rather than as one flat count, because a single
-number hides which kind of information a transform drops. That change found a real failure: on
-the large corpus the Jev path drops a critical fact that has no lexical overlap with the
-objective, which the flat metric had been reporting as perfect. Full table in
-`benchmarks/research/`.
+number hides which kind of information a transform drops. `compact` (Jev) keeps every item of
+every category, at every scale tested up to 44 000 tokens.
+
+The sharpest contrast in the table is `prepare`: 90.5% smaller and it loses five of six
+categories, which is what compression looks like when nothing checks whether the meaning
+survived. Full table and method in `benchmarks/research/`.
 
 `optimize` and `intake` clean and structure; they are not reducers, and budgeting them as token
 savings is a mistake. The mechanical scorer cuts the most bytes and pays for it in evidence,
