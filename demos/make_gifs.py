@@ -175,7 +175,11 @@ def build(name: str, script: list[tuple[str, str | None]], title: str) -> None:
         optimize=True,
     )
     size_kb = dest.stat().st_size / 1024
-    print(f"{dest.relative_to(ROOT)}  {len(images)} frames  {size_kb:.0f} kB")
+    # Report what the file holds, not what went in: optimize=True merges identical frames, so
+    # the saved count is lower than len(images) and the difference is not a bug to chase.
+    with Image.open(dest) as saved:
+        frame_count = getattr(saved, "n_frames", len(images))
+    print(f"{dest.relative_to(ROOT)}  {frame_count} frames  {size_kb:.0f} kB")
 
 
 def demo_compact() -> None:
