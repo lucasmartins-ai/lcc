@@ -83,9 +83,11 @@ All notable changes to this project are documented here. The format is based on
 - Recall by information category in the research benchmark. The corpora now carry categorized
   ground truth (critical facts, a constraint, a negative constraint, an exception, a dated
   revision and a contradictory measurement) and `run_matrix.py` reports recall per category
-  instead of one flat count. The change found a real failure: on the large corpus the Jev path
-  drops a critical fact with no lexical overlap with the objective, which the flat metric had
-  been reporting as perfect.
+  instead of one flat count.
+- `benchmarks/research/stress_edges.py`: a stress and edge-case suite. The `xl` corpus is roughly
+  four times `large` (1 492 blocks, 44 128 tokens) and confirms that category recall, reduction
+  and cache byte-stability hold at that scale; eight edge cases cover empty input, whitespace, a
+  single oversized block, CRLF, unicode, 400 sub-floor blocks and a 40 kB line.
 - Deterministic safety net for locally scored blocks (`--deterministic-protection`, on by
   default). When `lcc compact` falls back to the lexical scorer, three classes of evidence now
   survive it: quoted third-party speech, evidence written in another language than the
