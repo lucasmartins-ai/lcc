@@ -5,7 +5,7 @@
 # Shows the speech cleaner doing its job on a Whisper-style capture: fillers dropped
 # in English and Portuguese, audio tags stripped, speaker turns collapsed.
 
-Output demos/audio-to-prompt.gif
+Output "demos/audio-to-prompt.gif"
 
 Set Shell bash
 Set FontSize 14

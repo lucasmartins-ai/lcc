@@ -192,7 +192,8 @@ def demo_compact() -> None:
         ),
         ("# Every decision is recorded, with the reason behind it", None),
         (
-            "lcc explain /tmp/lcc-demo.json --source demos/compact-dossier.md --only drop --limit 3",
+            "lcc explain /tmp/lcc-demo.json --source demos/compact-dossier.md "
+            "--only drop --limit 3",
             run([
                 "lcc", "explain", "/tmp/lcc-demo.json",
                 "--source", "demos/compact-dossier.md", "--only", "drop", "--limit", "3",
@@ -204,7 +205,11 @@ def demo_compact() -> None:
 
 def demo_compile() -> None:
     script = [
-        ("# A brief dumped from three places: repeated paragraphs, page markers, a signature", None),
+        (
+            "# A brief dumped from three places: repeated paragraphs, page markers, "
+            "a signature",
+            None,
+        ),
         (
             "lcc optimize demos/messy-brief.md -q 'What should we change about the checkout?' "
             "--template claude_xml -o /tmp/lcc-compiled.md -r /tmp/lcc-compiled.json",
@@ -215,8 +220,11 @@ def demo_compile() -> None:
                 "-o", "/tmp/lcc-compiled.md", "-r", "/tmp/lcc-compiled.json",
             ]),
         ),
-        ("# Nothing is summarised or rewritten. Redundant text is removed, and the report says what",
-         run(["python3", "demos/cleaning_steps.py", "/tmp/lcc-compiled.json"])),
+        (
+            "# Nothing is summarised or rewritten. Redundant text is removed, and the "
+            "report says what",
+            run(["python3", "demos/cleaning_steps.py", "/tmp/lcc-compiled.json"]),
+        ),
         ("# And the head of the compiled prompt",
          run(["head", "-n", "14", "/tmp/lcc-compiled.md"])),
     ]
@@ -226,7 +234,10 @@ def demo_compile() -> None:
 def demo_audio() -> None:
     script = [
         ("# What a Whisper capture actually looks like: fillers, [Music], a subtitle credit", None),
-        ("head -n 9 demos/audio-transcript.txt", run(["head", "-n", "9", "demos/audio-transcript.txt"])),
+        (
+            "head -n 9 demos/audio-transcript.txt",
+            run(["head", "-n", "9", "demos/audio-transcript.txt"]),
+        ),
         ("# lcc detects the transcript, cleans it, and compiles a prompt from it",
          run([
              "lcc", "intake", "demos/audio-transcript.txt",

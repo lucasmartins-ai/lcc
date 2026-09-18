@@ -5,7 +5,7 @@
 # Uses the local provider on purpose: no API key, no network, so the recording is
 # reproducible by anyone who clones the repository.
 
-Output /Users/Master/LCC/demos/compact.gif
+Output "demos/compact.gif"
 
 Set Shell bash
 Set FontSize 14
@@ -21,15 +21,11 @@ Set WindowBar Colorful
 Set BorderRadius 8
 
 # --- the transform --------------------------------------------------------------
-Type "# 22 blocks from a real dossier: a stable prefix, tool output, logs, chatter"
+Type "# 23 blocks from a real dossier: a stable prefix, tool output, logs, chatter"
 Enter
 Sleep 700ms
 
-Type "lcc compact demos/compact-dossier.md \"
-Enter
-Type "  -q 'What is wrong with the booking operation?' \"
-Enter
-Type "  --provider mechanical -o /tmp/compacted.md -r /tmp/report.json"
+Type "lcc compact demos/compact-dossier.md -q 'What is wrong with the booking operation?' --provider mechanical -o /tmp/compacted.md -r /tmp/report.json"
 Enter
 Sleep 2s
 
