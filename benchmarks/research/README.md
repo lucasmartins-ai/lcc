@@ -281,6 +281,40 @@ failure is pre-existing on `main` (`test_bundled_suite_passes_with_tiktoken`, a 
 marker surviving in the bundled benchmark case) and is unrelated to these changes — it fails
 identically on a clean checkout.
 
+## Finding 8 — adversarial semantic-safety suite (Etapa 1)
+
+The first suite measured fact recall on a corpus whose evidence blocks carried literal
+`GROUND TRUTH A:` labels: easy to find and easy to keep. The adversarial suite in
+`adversarial_cases.py` probes the ways a scorer that reads relevance can still destroy the
+answer, with twenty cases covering negation, double negation, contradiction, temporal
+supersession, source authority, cross-block dependency (qualifier and causal), numerical
+precision, units, prompt injection, quoted instructions, five structured payloads, multilingual
+and Unicode content, and the two size extremes.
+
+Every case carries a **trap block**: text that mirrors the question's vocabulary while carrying
+no evidence at all. Without it the suite is vacuous, because a lexical scorer keeps anything
+that shares words with the question. `test_trap_blocks_share_vocabulary_with_the_question` in the
+repo suite enforces that every case keeps its trap meaningful.
+
+Baseline, measured with `python3 run_adversarial.py <provider>`:
+
+| provider | cases passing | known failures |
+|---|---|---|
+| `jev` | **20 / 20** | none |
+| `mechanical` | 17 / 20 | `dependency_causal`, `quoted_instruction`, `multilingual` |
+
+The three deterministic failures are the suite proving it discriminates rather than passing
+everything. All three are the same underlying limitation: a lexical scorer cannot connect a
+cause to its effect, cannot tell a quotation from noise, and shares no tokens with evidence
+written in another language. They are recorded as strict `xfail` markers in
+`tests/test_adversarial_compaction.py`, so fixing one is a visible act and breaking one of the
+seventeen working cases fails the suite.
+
+What the suite found about the current Jev path: **no semantic-safety failure on these twenty
+hazards.** In particular the prompt-injection case passes on both counts, with the injected
+instruction dropped and the evidence kept. That is the baseline Etapa 2 has to hold, and the
+gate any scoring change now has to clear.
+
 ## Limitations
 
 - The corpora are synthetic and shaped by hand. Fact placement inside the volatile tail is a
