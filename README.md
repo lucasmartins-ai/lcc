@@ -18,6 +18,7 @@
 ## 📌 Table of Contents
 
 - [Overview & The 3 Pillars](#-overview--the-3-pillars)
+- [Does it work without a model API key?](#-does-it-work-without-a-model-api-key-yes-and-that-is-the-default-path)
 - [Proven Token Savings & Cache Alignment](#-proven-token-savings--cache-alignment)
 - [Single-Step Installation](#-single-step-installation)
 - [The Unified Workflow](#-the-unified-workflow)
@@ -77,6 +78,41 @@ flowchart LR
 1. **Deterministic Context Engine Core** (`lcc.cleaning`, `lcc.token_budget`, `lcc.inspection`, `lcc.pipeline`): 100% deterministic, local-first context optimization with zero network requests and zero LLMs inside the core.
 2. **Intelligent Prompt Intake & Triage** (`lcc.intake`): Analyzes messy audio transcripts, voice notes, and rambling prompts, assigning operational readiness status (`READY_TO_EXECUTE`, `NEEDS_LIGHT_REFINEMENT`, `NEEDS_INTAKE`, `BLOCKED`).
 3. **Local Agents & Hybrid Router** (`lcc.agents`, `lcc.router`): Runs edge-quantized local LLMs (**Gemma 4 e4b** and **Qwen3.5-4B**) with 0 remote tokens, verifying candidate quality before selective escalation to frontier cloud models.
+
+---
+
+## 🔑 Does it work without a model API key? Yes, and that is the default path
+
+Everything except the semantic judge runs locally. `lcc optimize`, `prepare`, `inspect`, `intake`,
+`bench` and `compact --provider mechanical` need no key, no account and no network. The package
+depends on nothing outside the standard library; `tiktoken` is optional and only improves token
+counting from an honest estimate to an exact count.
+
+The semantic judge (TypeSafe System One, "Jev") is **optional**. It is one scorer behind one flag,
+and it changes what `lcc compact` can promise:
+
+| | `--provider mechanical` | `--provider jev` |
+|---|---|---|
+| API key | none | `TYPESAFE_API_KEY` |
+| network | never | yes |
+| how it scores | lexical overlap, plus a deterministic safety net | narrow model judgment per block |
+| measured recall | **every item of every information category**, all four corpus sizes | the same |
+| measured reduction (4.5k / 44k dossier) | 64.0 % / 70.7 % | 44.0 % / 49.0 % |
+
+Neither path drops evidence in the current measurements. The lexical path reaches that by keeping
+more, which is the right trade for a fallback; the model path reaches it while removing about
+twenty points more, which is what you are paying for. Pick `--provider jev` if you have a key and
+want the smaller context, `--provider mechanical` if you do not, and `auto` if you want the first
+with an honest fallback to the second (`degraded: true` and `semantic_guarantee: none` are set
+when it falls back).
+
+```bash
+# No key, no network, still compacts and still keeps the evidence
+lcc compact dossier.md -q "<objective>" --provider mechanical -o compacted.md -r report.json
+```
+
+The full evidence for both paths is in `benchmarks/research/`, including which item each arm
+drops (`show_losses.py`) and how to re-run every number.
 
 ---
 
@@ -276,7 +312,10 @@ Drop context blocks that are irrelevant to an objective before any large model s
 
 ```bash
 # Preferred: compact the payload while it is still standalone, then append it.
-lcc compact tool-result.md -q "reduce mobile booking friction" --provider jev -o clean.md
+# --append-to never rewrites the bytes already in the file, so a session's
+# prefix stays byte-stable and its prompt cache is not invalidated.
+lcc compact tool-result.md -q "reduce mobile booking friction" \
+  --provider jev --append-to session.md
 
 # A whole dossier, cold, before anything is cached: no prefix to invalidate.
 lcc compact dossier.md -q "reduce mobile booking friction" \

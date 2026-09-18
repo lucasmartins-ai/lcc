@@ -28,11 +28,11 @@ removed, while a per-payload drop pays fresh-input price on smaller content and 
 nothing at all. (Finding 13)
 
 ```bash
-# Compact the tool result while it is still standalone, then append the result.
+# Compact the tool result while it is still standalone, then append it in one step.
+# --append-to never rewrites the bytes already in the file, so the session's prefix
+# stays byte-stable and its prompt cache survives.
 lcc compact fetched-page.md -q "<what you are trying to find out>" \
-  -o clean.md -r report.json
-
-# Then append clean.md to the session. The session prefix never changes, so its cache survives.
+  --provider jev --append-to session.md -r report.json
 ```
 
 **Why the prefix matters that much.** Prompt caches are keyed on byte-stable prefixes. A cache
@@ -41,6 +41,11 @@ by mutating a 40 000-token warm prefix invalidates far more than it saves. (Find
 
 **Check afterwards:** `token_count_method: exact`, and `first_mutation_offset` should be `null`
 or far past anything you already sent.
+
+**No model API key?** `--append-to` works the same way with `--provider mechanical`, which needs
+no key and no network, and which the measurements show keeps every item of every information
+category on every corpus size tested. You get a larger context than the model-scored path (64.0 %
+against 44.0 % reduction at 4.5k tokens) and the same evidence retention.
 
 ---
 

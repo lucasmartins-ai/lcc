@@ -75,6 +75,14 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- `lcc compact --append-to <session>`: compacts the payload and appends it in one step, never
+  rewriting the bytes already in the file. This makes the placement the measurements favour — a
+  per-payload pass instead of a whole-session rewrite — a first-class operation rather than shell
+  plumbing, and it is what keeps a session's prefix byte-stable so its prompt cache survives.
+- The Jev scorer is documented as optional everywhere it is mentioned. `--provider mechanical`
+  needs no key and no network and the measurements show it keeps every item of every information
+  category on every corpus size tested, so the README now answers "does it work without a model
+  API key?" directly, and `lcc compact --help` says which path needs what.
 - `benchmarks/research/run_cache_patterns.py`: measures where compaction is placed, which turns
   out to matter more than how much it removes. Per-payload compaction (the tool result, before it
   is appended) saved 42.4% of context cost against 7.9% for a single whole-session pass, and spent
