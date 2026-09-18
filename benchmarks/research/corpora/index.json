@@ -2,16 +2,59 @@
   "small": {
     "scale": "small",
     "seed": 42,
-    "blocks": 35,
-    "chars": 4550,
-    "sha256": "3f301c2aa69a78ae15a93ea983a8bded5f6a6a7f63f25813db32a820f84f8b36",
+    "blocks": 40,
+    "chars": 5169,
+    "sha256": "3c87a3e4282e7da506a9b229a3a2319cb42340a3dd7548a3bced35d5feba571d",
     "objective": "What is the measured mobile conversion problem for the clinic?",
-    "required": [
-      "GROUND TRUTH A: The clinic booking widget loses 63 percent of mobile visitors before the second step of the form.",
-      "GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.",
-      "GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.",
-      "GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.",
-      "GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking."
+    "categories": [
+      "critical_fact",
+      "constraint",
+      "negative_constraint",
+      "exception",
+      "temporal",
+      "contradiction"
+    ],
+    "items": [
+      {
+        "category": "critical_fact",
+        "marker": "63 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4\\.2 seconds"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "41 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "3 chairs"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4 minutes"
+      },
+      {
+        "category": "constraint",
+        "marker": "within 48 hours"
+      },
+      {
+        "category": "negative_constraint",
+        "marker": "must not be contacted"
+      },
+      {
+        "category": "exception",
+        "marker": "excludes returning (?:customers|visitors|patients)"
+      },
+      {
+        "category": "temporal",
+        "marker": "revised on 3 September|5\\.8 seconds"
+      },
+      {
+        "category": "contradiction",
+        "marker": "8\\.7 percent"
+      }
     ],
     "forbidden": [
       "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
@@ -21,16 +64,59 @@
   "medium": {
     "scale": "medium",
     "seed": 42,
-    "blocks": 147,
-    "chars": 18901,
-    "sha256": "fbe59bf24f2ad45e45bb7c936ee6854e53fcbee48e488fba7863ab1f0676b011",
+    "blocks": 152,
+    "chars": 19520,
+    "sha256": "4b5c75b7f952d0a51e18df2f2334b2cd0750759a8f7b93c2c5c508057a536cf2",
     "objective": "What is the measured mobile conversion problem for the clinic?",
-    "required": [
-      "GROUND TRUTH A: The clinic booking widget loses 63 percent of mobile visitors before the second step of the form.",
-      "GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.",
-      "GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.",
-      "GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.",
-      "GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking."
+    "categories": [
+      "critical_fact",
+      "constraint",
+      "negative_constraint",
+      "exception",
+      "temporal",
+      "contradiction"
+    ],
+    "items": [
+      {
+        "category": "critical_fact",
+        "marker": "63 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4\\.2 seconds"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "41 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "3 chairs"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4 minutes"
+      },
+      {
+        "category": "constraint",
+        "marker": "within 48 hours"
+      },
+      {
+        "category": "negative_constraint",
+        "marker": "must not be contacted"
+      },
+      {
+        "category": "exception",
+        "marker": "excludes returning (?:customers|visitors|patients)"
+      },
+      {
+        "category": "temporal",
+        "marker": "revised on 3 September|5\\.8 seconds"
+      },
+      {
+        "category": "contradiction",
+        "marker": "8\\.7 percent"
+      }
     ],
     "forbidden": [
       "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
@@ -40,16 +126,59 @@
   "large": {
     "scale": "large",
     "seed": 42,
-    "blocks": 387,
-    "chars": 49608,
-    "sha256": "833b344f19f4c86a5ed7883c2b27cfa44de190d57161296b70814992e45d813b",
+    "blocks": 392,
+    "chars": 50227,
+    "sha256": "61d2ba48de8a07adfd9cc4600d7bc14b4516462f1a73b17ae8b1ae0b2a8075eb",
     "objective": "What is the measured mobile conversion problem for the clinic?",
-    "required": [
-      "GROUND TRUTH A: The clinic booking widget loses 63 percent of mobile visitors before the second step of the form.",
-      "GROUND TRUTH B: p75 mobile load time on the treatment landing page is 4.2 seconds on a throttled 3G profile.",
-      "GROUND TRUTH C: 41 percent of inbound WhatsApp messages to the clinic arrive outside 09:00-18:00 opening hours.",
-      "GROUND TRUTH D: The practice has 3 chairs, 2 of which sit idle after 17:00 on weekdays.",
-      "GROUND TRUTH E: Front desk currently re-types every booking into a paper diary, averaging 4 minutes per booking."
+    "categories": [
+      "critical_fact",
+      "constraint",
+      "negative_constraint",
+      "exception",
+      "temporal",
+      "contradiction"
+    ],
+    "items": [
+      {
+        "category": "critical_fact",
+        "marker": "63 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4\\.2 seconds"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "41 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "3 chairs"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4 minutes"
+      },
+      {
+        "category": "constraint",
+        "marker": "within 48 hours"
+      },
+      {
+        "category": "negative_constraint",
+        "marker": "must not be contacted"
+      },
+      {
+        "category": "exception",
+        "marker": "excludes returning (?:customers|visitors|patients)"
+      },
+      {
+        "category": "temporal",
+        "marker": "revised on 3 September|5\\.8 seconds"
+      },
+      {
+        "category": "contradiction",
+        "marker": "8\\.7 percent"
+      }
     ],
     "forbidden": [
       "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
