@@ -907,7 +907,13 @@ def compact_command(
     provider: str = typer.Option(
         "auto",
         "--provider",
-        help="Scoring provider: auto, jev (narrow model judgment), or mechanical (local only).",
+        help=(
+            "Scoring provider. 'mechanical' is fully local and needs no API key or network, "
+            "so LCC works on its own; measured, it keeps every item of every information "
+            "category on every corpus size tested. 'jev' uses TypeSafe System One as a semantic "
+            "judge and needs a TYPESAFE_API_KEY; it is optional. 'auto' prefers Jev and falls "
+            "back to mechanical, reporting 'degraded: true' when it does."
+        ),
     ),
     model: str = typer.Option(
         "gpt-4.1", "--model", "-m", help="Model for token counting (default: gpt-4.1)."
@@ -963,6 +969,16 @@ def compact_command(
     ),
     output_path: Path | None = typer.Option(
         None, "--output", "-o", help="Write the compacted text here (otherwise stdout)."
+    ),
+    append_to: Path | None = typer.Option(
+        None,
+        "--append-to",
+        help=(
+            "Append the compacted text to this file instead of writing a new one. The existing "
+            "bytes are never touched, so an accumulated session's prefix stays byte-stable and "
+            "its prompt cache survives. This is the placement the measurements favour: compact "
+            "each payload, then append it."
+        ),
     ),
     report_path: Path | None = typer.Option(
         None, "--report", "-r", help="Write the JSON report to this file."
@@ -1032,8 +1048,30 @@ def compact_command(
             "persistent directory) or drop --require-exact-tokens to accept estimates.",
             code=3,
         )
+    if append_to is not None and output_path is not None:
+        _fail("--append-to and --output are mutually exclusive; pick one.", code=2)
+
     if not dry_run:
-        if output_path is not None:
+        if append_to is not None:
+            # Append only. The bytes already in the file are never rewritten, which is the whole
+            # point: a session's prefix stays byte-stable, so its prompt cache is not invalidated
+            # by adding to it. Measured, this placement saves several times what rewriting the
+            # accumulated context saves.
+            try:
+                existing = append_to.read_text(encoding="utf-8") if append_to.exists() else ""
+                separator = "" if not existing or existing.endswith("\n\n") else (
+                    "\n" if existing.endswith("\n") else "\n\n"
+                )
+                with append_to.open("a", encoding="utf-8") as handle:
+                    handle.write(separator + result.compacted_text)
+            except OSError as exc:
+                _fail(f"could not append compacted text to {append_to}: {exc}")
+            appended = separator + result.compacted_text
+            err_console.print(
+                f"Appended {len(appended)} chars to [green]{append_to}[/green]; "
+                f"the {len(existing)} chars already there were left untouched."
+            )
+        elif output_path is not None:
             try:
                 output_path.write_text(result.compacted_text, encoding="utf-8")
             except OSError as exc:
