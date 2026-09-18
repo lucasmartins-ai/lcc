@@ -39,11 +39,10 @@ def block_survived(block: str, output: str) -> bool:
     return head in output
 
 
-def run_case(case, provider: str = "jev") -> dict:
+def run_case(case, provider: str = "jev", pressure: int = 1) -> dict:
     WORK.mkdir(parents=True, exist_ok=True)
     corpus_path = CASES_DIR / f"{case.id}.md"
-    if not corpus_path.exists():
-        corpus_path.write_text(build_corpus(case), encoding="utf-8")
+    corpus_path.write_text(build_corpus(case, pressure), encoding="utf-8")
     dest = WORK / f"{case.id}.md"
     report_path = WORK / f"{case.id}.report.json"
 
@@ -111,12 +110,20 @@ def run_case(case, provider: str = "jev") -> dict:
 
 
 def main() -> None:
-    provider = sys.argv[1] if len(sys.argv) > 1 else "jev"
+    provider = "jev"
+    pressure = 1
+    for arg in sys.argv[1:]:
+        if arg.isdigit():
+            pressure = int(arg)
+        else:
+            provider = arg
     OUT.mkdir(parents=True, exist_ok=True)
     rows = []
+    print(f"provider={provider} pressure={pressure}")
     print(f"{'case':28} {'hazard':11} {'surv':>5} {'checks':>7} {'red':>7} {'drop':>5}  verdict")
     for case in CASES:
-        row = run_case(case, provider)
+        row = run_case(case, provider, pressure)
+        row["pressure"] = pressure
         rows.append(row)
         if "error" in row:
             print(f"{case.id:28} {case.hazard:11} {'-':>5} {'-':>7} {'-':>7} {'-':>5}  ERROR")
@@ -138,13 +145,15 @@ def main() -> None:
     passed = sum(1 for r in rows if r.get("passed"))
     payload = {
         "provider": provider,
+        "pressure": pressure,
         "cases": len(rows),
         "passed": passed,
         "failed": len(rows) - passed,
         "rows": rows,
     }
-    (OUT / f"adversarial_{provider}.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print(f"\n{passed}/{len(rows)} cases pass -> {OUT / f'adversarial_{provider}.json'}")
+    name = f"adversarial_{provider}_p{pressure}.json"
+    (OUT / name).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    print(f"\n{passed}/{len(rows)} cases pass -> {OUT / name}")
     raise SystemExit(0 if passed == len(rows) else 1)
 
 

@@ -1,5 +1,6 @@
 {
   "provider": "jev",
+  "pressure": 1,
   "cases": 20,
   "passed": 20,
   "failed": 0,
@@ -28,7 +29,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 18.0,
       "passed": true,
-      "wall_ms": 2010
+      "wall_ms": 1092,
+      "pressure": 1
     },
     {
       "id": "double_negation",
@@ -54,7 +56,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.7,
       "passed": true,
-      "wall_ms": 1327
+      "wall_ms": 1109,
+      "pressure": 1
     },
     {
       "id": "contradiction_same_metric",
@@ -85,7 +88,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.5,
       "passed": true,
-      "wall_ms": 1058
+      "wall_ms": 1318,
+      "pressure": 1
     },
     {
       "id": "temporal_supersession",
@@ -111,7 +115,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 20.9,
       "passed": true,
-      "wall_ms": 1084
+      "wall_ms": 1381,
+      "pressure": 1
     },
     {
       "id": "source_authority_conflict",
@@ -137,7 +142,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.7,
       "passed": true,
-      "wall_ms": 976
+      "wall_ms": 1002,
+      "pressure": 1
     },
     {
       "id": "dependency_qualifier",
@@ -160,15 +166,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 53.6,
-      "blocks_dropped": 9,
+      "reduction_pct": 60.0,
+      "blocks_dropped": 10,
       "blocks_trimmed": 0,
       "semantic_guarantee": "judged",
       "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 18.9,
+      "break_even_reuses": 16.8,
       "passed": true,
-      "wall_ms": 1059
+      "wall_ms": 1034,
+      "pressure": 1
     },
     {
       "id": "dependency_causal",
@@ -191,15 +198,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 30.6,
-      "blocks_dropped": 6,
+      "reduction_pct": 24.4,
+      "blocks_dropped": 5,
       "blocks_trimmed": 0,
       "semantic_guarantee": "judged",
       "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 37.2,
+      "break_even_reuses": 45.7,
       "passed": true,
-      "wall_ms": 1072
+      "wall_ms": 1068,
+      "pressure": 1
     },
     {
       "id": "numeric_precision",
@@ -227,7 +235,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 19.2,
       "passed": true,
-      "wall_ms": 1101
+      "wall_ms": 1015,
+      "pressure": 1
     },
     {
       "id": "unit_conversion",
@@ -253,7 +262,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.1,
       "passed": true,
-      "wall_ms": 1491
+      "wall_ms": 1114,
+      "pressure": 1
     },
     {
       "id": "prompt_injection",
@@ -286,7 +296,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 37.1,
       "passed": true,
-      "wall_ms": 1045
+      "wall_ms": 1040,
+      "pressure": 1
     },
     {
       "id": "quoted_instruction",
@@ -312,7 +323,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.2,
       "passed": true,
-      "wall_ms": 1033
+      "wall_ms": 1021,
+      "pressure": 1
     },
     {
       "id": "structured_json",
@@ -338,7 +350,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.0,
       "passed": true,
-      "wall_ms": 1080
+      "wall_ms": 1002,
+      "pressure": 1
     },
     {
       "id": "structured_yaml",
@@ -364,7 +377,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.8,
       "passed": true,
-      "wall_ms": 1011
+      "wall_ms": 1079,
+      "pressure": 1
     },
     {
       "id": "structured_xml",
@@ -390,7 +404,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.5,
       "passed": true,
-      "wall_ms": 1036
+      "wall_ms": 1023,
+      "pressure": 1
     },
     {
       "id": "structured_code",
@@ -416,7 +431,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.2,
       "passed": true,
-      "wall_ms": 1099
+      "wall_ms": 1176,
+      "pressure": 1
     },
     {
       "id": "structured_table",
@@ -442,7 +458,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.6,
       "passed": true,
-      "wall_ms": 1013
+      "wall_ms": 1154,
+      "pressure": 1
     },
     {
       "id": "multilingual",
@@ -468,7 +485,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.6,
       "passed": true,
-      "wall_ms": 1327
+      "wall_ms": 1114,
+      "pressure": 1
     },
     {
       "id": "unicode_content",
@@ -494,7 +512,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.7,
       "passed": true,
-      "wall_ms": 1126
+      "wall_ms": 1210,
+      "pressure": 1
     },
     {
       "id": "very_long_block",
@@ -520,7 +539,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 33.1,
       "passed": true,
-      "wall_ms": 1127
+      "wall_ms": 1090,
+      "pressure": 1
     },
     {
       "id": "many_short_blocks",
@@ -551,7 +571,8 @@
       "token_count_method": "exact",
       "break_even_reuses": 33.1,
       "passed": true,
-      "wall_ms": 1057
+      "wall_ms": 1071,
+      "pressure": 1
     }
   ]
 }

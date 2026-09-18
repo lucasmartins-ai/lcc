@@ -1,8 +1,9 @@
 {
-  "provider": "mechanical",
+  "provider": "jev",
+  "pressure": 6,
   "cases": 20,
-  "passed": 17,
-  "failed": 3,
+  "passed": 20,
+  "failed": 0,
   "rows": [
     {
       "id": "negation_consent",
@@ -20,15 +21,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 55.0,
-      "blocks_dropped": 10,
+      "reduction_pct": 69.6,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 18.0,
+      "break_even_reuses": 15.4,
       "passed": true,
-      "wall_ms": 382
+      "wall_ms": 2351,
+      "pressure": 6
     },
     {
       "id": "double_negation",
@@ -46,15 +48,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 76.0,
-      "blocks_dropped": 11,
+      "reduction_pct": 83.5,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 15.1,
+      "break_even_reuses": 13.2,
       "passed": true,
-      "wall_ms": 378
+      "wall_ms": 2342,
+      "pressure": 6
     },
     {
       "id": "contradiction_same_metric",
@@ -77,15 +80,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 64.0,
-      "blocks_dropped": 11,
+      "reduction_pct": 73.6,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 17.6,
+      "break_even_reuses": 14.7,
       "passed": true,
-      "wall_ms": 380
+      "wall_ms": 2306,
+      "pressure": 6
     },
     {
       "id": "temporal_supersession",
@@ -103,15 +107,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 25.2,
-      "blocks_dropped": 6,
+      "reduction_pct": 64.4,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 46.0,
+      "break_even_reuses": 16.6,
       "passed": true,
-      "wall_ms": 387
+      "wall_ms": 2641,
+      "pressure": 6
     },
     {
       "id": "source_authority_conflict",
@@ -129,15 +134,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 63.8,
-      "blocks_dropped": 11,
+      "reduction_pct": 74.1,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 17.8,
+      "break_even_reuses": 14.6,
       "passed": true,
-      "wall_ms": 395
+      "wall_ms": 2629,
+      "pressure": 6
     },
     {
       "id": "dependency_qualifier",
@@ -160,32 +166,29 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 66.7,
-      "blocks_dropped": 11,
+      "reduction_pct": 57.7,
+      "blocks_dropped": 48,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 17.0,
+      "break_even_reuses": 19.1,
       "passed": true,
-      "wall_ms": 383
+      "wall_ms": 2484,
+      "pressure": 6
     },
     {
       "id": "dependency_causal",
       "hazard": "dependency",
       "description": "A cause and its effect sit in different blocks; each looks weak alone.",
       "critical_blocks": 2,
-      "lost_blocks": [
-        0
-      ],
-      "lost_required": [
-        0
-      ],
+      "lost_blocks": [],
+      "lost_required": [],
       "checks": [
         {
           "name": "cause_present",
           "expectation": "present",
-          "ok": false
+          "ok": true
         },
         {
           "name": "effect_present",
@@ -193,19 +196,18 @@
           "ok": true
         }
       ],
-      "failed_checks": [
-        "cause_present"
-      ],
-      "survival_ratio": 0.5,
-      "reduction_pct": 69.2,
-      "blocks_dropped": 12,
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 28.4,
+      "blocks_dropped": 30,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 16.5,
-      "passed": false,
-      "wall_ms": 380
+      "break_even_reuses": 45.7,
+      "passed": true,
+      "wall_ms": 2376,
+      "pressure": 6
     },
     {
       "id": "numeric_precision",
@@ -225,15 +227,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 71.9,
-      "blocks_dropped": 12,
+      "reduction_pct": 30.1,
+      "blocks_dropped": 31,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 15.9,
+      "break_even_reuses": 43.1,
       "passed": true,
-      "wall_ms": 379
+      "wall_ms": 2634,
+      "pressure": 6
     },
     {
       "id": "unit_conversion",
@@ -251,15 +254,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 78.8,
-      "blocks_dropped": 11,
+      "reduction_pct": 85.9,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 14.5,
+      "break_even_reuses": 12.8,
       "passed": true,
-      "wall_ms": 380
+      "wall_ms": 2427,
+      "pressure": 6
     },
     {
       "id": "prompt_injection",
@@ -284,47 +288,43 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 71.2,
-      "blocks_dropped": 12,
+      "reduction_pct": 30.0,
+      "blocks_dropped": 31,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 15.9,
+      "break_even_reuses": 43.1,
       "passed": true,
-      "wall_ms": 375
+      "wall_ms": 2577,
+      "pressure": 6
     },
     {
       "id": "quoted_instruction",
       "hazard": "injection",
       "description": "An instruction inside quoted user text is evidence, not a command.",
       "critical_blocks": 1,
-      "lost_blocks": [
-        0
-      ],
-      "lost_required": [
-        0
-      ],
+      "lost_blocks": [],
+      "lost_required": [],
       "checks": [
         {
           "name": "quoted_text_present",
           "expectation": "present",
-          "ok": false
+          "ok": true
         }
       ],
-      "failed_checks": [
-        "quoted_text_present"
-      ],
-      "survival_ratio": 0.0,
-      "reduction_pct": 82.7,
-      "blocks_dropped": 12,
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 42.8,
+      "blocks_dropped": 36,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 13.9,
-      "passed": false,
-      "wall_ms": 382
+      "break_even_reuses": 27.9,
+      "passed": true,
+      "wall_ms": 2250,
+      "pressure": 6
     },
     {
       "id": "structured_json",
@@ -342,15 +342,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 34.4,
-      "blocks_dropped": 6,
+      "reduction_pct": 85.6,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 36.4,
+      "break_even_reuses": 12.9,
       "passed": true,
-      "wall_ms": 383
+      "wall_ms": 2393,
+      "pressure": 6
     },
     {
       "id": "structured_yaml",
@@ -368,15 +369,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 77.8,
-      "blocks_dropped": 11,
+      "reduction_pct": 86.2,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 15.1,
+      "break_even_reuses": 12.9,
       "passed": true,
-      "wall_ms": 379
+      "wall_ms": 2370,
+      "pressure": 6
     },
     {
       "id": "structured_xml",
@@ -394,15 +396,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 34.7,
-      "blocks_dropped": 6,
+      "reduction_pct": 75.6,
+      "blocks_dropped": 54,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 35.3,
+      "break_even_reuses": 14.5,
       "passed": true,
-      "wall_ms": 378
+      "wall_ms": 2353,
+      "pressure": 6
     },
     {
       "id": "structured_code",
@@ -420,15 +423,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 33.7,
-      "blocks_dropped": 6,
+      "reduction_pct": 85.8,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 37.0,
+      "break_even_reuses": 13.0,
       "passed": true,
-      "wall_ms": 384
+      "wall_ms": 2356,
+      "pressure": 6
     },
     {
       "id": "structured_table",
@@ -446,47 +450,43 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 77.8,
-      "blocks_dropped": 11,
+      "reduction_pct": 86.1,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 15.9,
+      "break_even_reuses": 13.0,
       "passed": true,
-      "wall_ms": 379
+      "wall_ms": 2359,
+      "pressure": 6
     },
     {
       "id": "multilingual",
       "hazard": "language",
       "description": "Evidence in another language is relevant content, not noise.",
       "critical_blocks": 1,
-      "lost_blocks": [
-        0
-      ],
-      "lost_required": [
-        0
-      ],
+      "lost_blocks": [],
+      "lost_required": [],
       "checks": [
         {
           "name": "portuguese_evidence_present",
           "expectation": "present",
-          "ok": false
+          "ok": true
         }
       ],
-      "failed_checks": [
-        "portuguese_evidence_present"
-      ],
-      "survival_ratio": 0.0,
-      "reduction_pct": 84.1,
-      "blocks_dropped": 12,
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 85.4,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 13.8,
-      "passed": false,
-      "wall_ms": 373
+      "break_even_reuses": 13.0,
+      "passed": true,
+      "wall_ms": 2348,
+      "pressure": 6
     },
     {
       "id": "unicode_content",
@@ -504,15 +504,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 78.6,
-      "blocks_dropped": 11,
+      "reduction_pct": 86.0,
+      "blocks_dropped": 60,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 15.0,
+      "break_even_reuses": 12.9,
       "passed": true,
-      "wall_ms": 375
+      "wall_ms": 2273,
+      "pressure": 6
     },
     {
       "id": "very_long_block",
@@ -530,15 +531,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 22.3,
-      "blocks_dropped": 11,
+      "reduction_pct": 17.7,
+      "blocks_dropped": 24,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 39.1,
+      "break_even_reuses": 45.3,
       "passed": true,
-      "wall_ms": 376
+      "wall_ms": 2354,
+      "pressure": 6
     },
     {
       "id": "many_short_blocks",
@@ -561,15 +563,16 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 76.7,
-      "blocks_dropped": 11,
+      "reduction_pct": 32.2,
+      "blocks_dropped": 30,
       "blocks_trimmed": 0,
-      "semantic_guarantee": "none",
-      "provider_used": "mechanical",
+      "semantic_guarantee": "judged",
+      "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 15.8,
+      "break_even_reuses": 36.3,
       "passed": true,
-      "wall_ms": 378
+      "wall_ms": 2341,
+      "pressure": 6
     }
   ]
 }
