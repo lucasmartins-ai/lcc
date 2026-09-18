@@ -12,7 +12,7 @@ m = importlib.util.module_from_spec(spec)
 sys.modules["_rm"] = m
 spec.loader.exec_module(m)
 
-rows = [json.loads(l) for l in pathlib.Path("results/matrix.jsonl").read_text().splitlines()]
+rows = [json.loads(line) for line in pathlib.Path("results/matrix.jsonl").read_text().splitlines()]
 index = json.loads(pathlib.Path("corpora/index.json").read_text())
 
 print(f"{'arm':24} {'escala':7} {'categoria perdida':22} marcador")

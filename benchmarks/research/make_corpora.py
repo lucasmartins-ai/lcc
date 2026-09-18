@@ -151,6 +151,9 @@ def build(scale: str, seed: int = 42) -> dict:
         "small": {"tools": 8, "logs": 6, "chatter": 6},
         "medium": {"tools": 40, "logs": 30, "chatter": 30},
         "large": {"tools": 110, "logs": 80, "chatter": 80},
+        # Stress scale: roughly four times `large`, to check that category recall and cache
+        # behaviour hold when the corpus stops fitting comfortably in a small context.
+        "xl": {"tools": 420, "logs": 320, "chatter": 320},
     }[scale]
 
     blocks: list[str] = [PREFIX.strip()]
@@ -188,7 +191,11 @@ def build(scale: str, seed: int = 42) -> dict:
         "blocks": len(blocks),
         "chars": len(text),
         "sha256": digest,
-        "objective": "What is the measured mobile conversion problem for the clinic?",
+        # The objective has to match what the ground truth actually claims is needed. A narrow
+        # "mobile conversion" question cannot honestly require a chair-capacity fact or a
+        # rebooking rule, and a benchmark whose ground truth is not needed to answer its own
+        # question measures nothing. This objective covers every category the corpus carries.
+        "objective": "What is wrong with the clinic's booking operation, and what limits what we can change?",
         "task": TASK,
         "categories": list(CATEGORIES),
         "items": [
@@ -198,10 +205,14 @@ def build(scale: str, seed: int = 42) -> dict:
     }
 
 
+#: Canonical scale order. `xl` is the stress scale: roughly four times `large`.
+SCALES: tuple[str, ...] = ("small", "medium", "large", "xl")
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     index = {}
-    for scale in ("small", "medium", "large"):
+    for scale in SCALES:
         case = build(scale)
         (OUT / f"{scale}.md").write_text(case["text"], encoding="utf-8")
         (OUT / f"{scale}.task.md").write_text(case["task"], encoding="utf-8")

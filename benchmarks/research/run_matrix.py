@@ -29,6 +29,15 @@ LCC = "lcc"
 
 # Ground truth is loaded from the corpus index so the categories and markers live in one place
 # (make_corpora.py) instead of being duplicated here and drifting.
+def _scales() -> list[str]:
+    """Every corpus the index knows about, in canonical order, so adding a scale is one edit."""
+    index = json.loads((CORPORA / "index.json").read_text(encoding="utf-8"))
+    order = ("small", "medium", "large", "xl")
+    return [scale for scale in order if scale in index] + [
+        scale for scale in index if scale not in order
+    ]
+
+
 def _load_items(scale: str) -> list[dict[str, str]]:
     index = json.loads((CORPORA / "index.json").read_text(encoding="utf-8"))
     return index[scale]["items"]
@@ -59,7 +68,7 @@ def recall(text: str, scale: str) -> dict:
         "distractor_leak": len(re.findall(DISTRACTOR_PAT, text)),
     }
 
-OBJECTIVE = "What is the measured mobile conversion problem for the clinic?"
+OBJECTIVE = "What is wrong with the clinic's booking operation, and what limits what we can change?"
 
 ARMS: dict[str, dict] = {
     "baseline_raw": {"kind": "identity"},
@@ -182,7 +191,7 @@ def run_arm(scale: str, arm: str, spec: dict) -> dict:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     rows = []
-    for scale in ("small", "medium", "large"):
+    for scale in _scales():
         for arm, spec in ARMS.items():
             row = run_arm(scale, arm, spec)
             rows.append(row)
