@@ -88,7 +88,7 @@ the emitted context; no LLM in the loop). Reproduce with `python3 run_matrix.py`
 | :--- | :---: | :---: | :---: | :---: |
 | **`compact` (Jev), 4.4k dossier** | 4,399 | **1,587** | **−63.9%** | 5 / 5 |
 | **`compact` (Jev), 11.5k dossier** | 11,483 | **3,589** | **−68.8%** | 5 / 5 |
-| `compact` (mechanical), 4.4k | 4,399 | 941 | −78.6% | **3 / 5** |
+| `compact` (mechanical), 4.4k | 4,399 | 1,498 | −66.0% | 5 / 5 |
 | `prepare`, 4.4k | 4,399 | 905 | −79.4% | **3 / 5** |
 | `optimize` (`claude_xml`), 4.4k | 4,399 | 4,628 | **+5.2%** | 5 / 5 |
 | `intake`, 4.4k | 4,399 | 4,686 | **+6.5%** | 5 / 5 |

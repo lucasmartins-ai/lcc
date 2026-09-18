@@ -39,10 +39,15 @@ def block_survived(block: str, output: str) -> bool:
     return head in output
 
 
-def run_case(case, provider: str = "jev", pressure: int = 1) -> dict:
+def run_case(case, provider: str = "jev", pressure: int = 1, extra: list[str] | None = None) -> dict:
     WORK.mkdir(parents=True, exist_ok=True)
     corpus_path = CASES_DIR / f"{case.id}.md"
-    corpus_path.write_text(build_corpus(case, pressure), encoding="utf-8")
+    if pressure == 1:
+        # The committed corpora are the pressure-1 shape; higher factors stay in the scratch
+        # directory so a sweep does not rewrite the evidence files under version control.
+        corpus_path.write_text(build_corpus(case, pressure), encoding="utf-8")
+    elif not corpus_path.exists():
+        corpus_path.write_text(build_corpus(case), encoding="utf-8")
     dest = WORK / f"{case.id}.md"
     report_path = WORK / f"{case.id}.report.json"
 
@@ -54,6 +59,7 @@ def run_case(case, provider: str = "jev", pressure: int = 1) -> dict:
             "--provider", provider,
             "-o", str(dest),
             "-r", str(report_path),
+            *(extra or []),
         ],
         capture_output=True,
         text=True,
@@ -112,17 +118,21 @@ def run_case(case, provider: str = "jev", pressure: int = 1) -> dict:
 def main() -> None:
     provider = "jev"
     pressure = 1
+    extra: list[str] = []
     for arg in sys.argv[1:]:
         if arg.isdigit():
             pressure = int(arg)
+        elif arg == "noprot":
+            extra.append("--no-deterministic-protection")
         else:
             provider = arg
     OUT.mkdir(parents=True, exist_ok=True)
     rows = []
-    print(f"provider={provider} pressure={pressure}")
+    suffix = "_noprot" if extra else ""
+    print(f"provider={provider} pressure={pressure} extra={extra or 'none'}")
     print(f"{'case':28} {'hazard':11} {'surv':>5} {'checks':>7} {'red':>7} {'drop':>5}  verdict")
     for case in CASES:
-        row = run_case(case, provider, pressure)
+        row = run_case(case, provider, pressure, extra)
         row["pressure"] = pressure
         rows.append(row)
         if "error" in row:
@@ -151,7 +161,7 @@ def main() -> None:
         "failed": len(rows) - passed,
         "rows": rows,
     }
-    name = f"adversarial_{provider}_p{pressure}.json"
+    name = f"adversarial_{provider}_p{pressure}{suffix}.json"
     (OUT / name).write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"\n{passed}/{len(rows)} cases pass -> {OUT / name}")
     raise SystemExit(0 if passed == len(rows) else 1)

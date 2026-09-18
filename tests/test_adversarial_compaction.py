@@ -46,15 +46,14 @@ def _load_cases():
 MODULE = _load_cases()
 CASES = {case.id: case for case in MODULE.CASES}
 
-#: Cases the deterministic scorer is known to fail, with the reason. Measured, not assumed.
-MECHANICAL_GAPS = {
-    "dependency_causal": "a lexical scorer cannot link a cause block to its effect block",
-    "quoted_instruction": "a quoted customer request reads as noise to overlap scoring",
-    "multilingual": "evidence in another language shares no tokens with an English question",
-}
+#: Cases the deterministic scorer still fails. Empty since the deterministic safety net landed:
+#: all twenty pass. Keep the mechanism, because the next gap should be recorded here rather
+#: than discovered in production. Each entry becomes a strict xfail, so fixing one is a visible
+#: act and breaking a passing case fails the suite.
+MECHANICAL_GAPS: dict[str, str] = {}
 
 
-def _compact(case_id: str, tmp_path: Path) -> tuple[str, str]:
+def _compact(case_id: str, tmp_path: Path, extra: list[str] | None = None) -> tuple[str, str]:
     case = CASES[case_id]
     corpus = tmp_path / f"{case_id}.md"
     corpus.write_text(MODULE.build_corpus(case), encoding="utf-8")
@@ -66,6 +65,7 @@ def _compact(case_id: str, tmp_path: Path) -> tuple[str, str]:
             "--question", case.question,
             "--provider", "mechanical",
             "--output", str(out),
+            *(extra or []),
         ],
     )
     assert result.exit_code == 0, result.output
@@ -91,22 +91,42 @@ def _checks_hold(case, output: str) -> list[str]:
     return failed
 
 
-@pytest.mark.parametrize("case_id", sorted(c for c in CASES if c not in MECHANICAL_GAPS))
+@pytest.mark.parametrize("case_id", sorted(CASES))
 def test_mechanical_keeps_evidence_for_safe_cases(case_id: str, tmp_path: Path):
-    """Every case outside the known gaps must keep its evidence under the deterministic scorer."""
+    """Every case must keep its evidence under the deterministic scorer."""
     output, _ = _compact(case_id, tmp_path)
     case = CASES[case_id]
     assert _evidence_kept(case, output), f"{case_id}: critical block dropped"
     assert not _checks_hold(case, output), f"{case_id}: assertions failed"
 
 
+@pytest.mark.skipif(not MECHANICAL_GAPS, reason="no recorded deterministic-scorer gaps")
 @pytest.mark.xfail(strict=True, reason="documented deterministic-scorer gap")
 @pytest.mark.parametrize("case_id", sorted(MECHANICAL_GAPS))
 def test_mechanical_gaps_are_still_gaps(case_id: str, tmp_path: Path):
-    """The three known gaps stay documented: fixing one should be a deliberate, visible act."""
+    """Recorded gaps stay recorded until a fix is deliberate and visible."""
     output, _ = _compact(case_id, tmp_path)
     case = CASES[case_id]
     assert _evidence_kept(case, output) and not _checks_hold(case, output), MECHANICAL_GAPS[case_id]
+
+
+@pytest.mark.parametrize(
+    "case_id", ["multilingual", "quoted_instruction", "dependency_causal"]
+)
+def test_cases_the_safety_net_was_built_for(case_id: str, tmp_path: Path):
+    """The three measured failures the deterministic safety net exists to fix.
+
+    Disabling the net must bring them back, otherwise the test is not actually exercising it.
+    """
+    output, _ = _compact(case_id, tmp_path)
+    case = CASES[case_id]
+    assert _evidence_kept(case, output) and not _checks_hold(case, output)
+
+    unguarded, _ = _compact(case_id, tmp_path, ["--no-deterministic-protection"])
+    assert not _evidence_kept(case, unguarded) or _checks_hold(case, unguarded), (
+        f"{case_id}: passes without the safety net, so the protection is not what fixes it "
+        "and this case should not be counted as a fix"
+    )
 
 
 def test_every_case_probes_something():
@@ -135,3 +155,89 @@ def test_trap_blocks_share_vocabulary_with_the_question():
             f"shared={sorted(shared)} question={sorted(stems(case.question))} "
             f"trap={sorted(stems(case.trap))}"
         )
+
+
+# --- the deterministic safety net itself ------------------------------------------------
+
+
+def test_quoted_speech_is_recognised():
+    from lcc.relevance.compactor import _deterministic_protection
+
+    assert _deterministic_protection('A customer wrote in the review: please cancel now.', "en")
+    assert _deterministic_protection('She said: "the form never loads on mobile".', "en")
+    # Ordinary prose is not quoted speech and stays judgeable.
+    assert _deterministic_protection("The scanner returned 41 kB of HTML with no console errors.", "en") is None
+
+
+def test_language_detection_is_conservative():
+    from lcc.relevance.compactor import _detect_language
+
+    portuguese = (
+        "Relato da clinica: cerca de 41 por cento dos agendamentos sao perdidos porque o "
+        "paciente nao recebe confirmacao fora do horario, e isso tambem nao melhora depois."
+    )
+    assert _detect_language(portuguese) == "pt"
+    english = (
+        "The scanner returned 41 kB of HTML with no console errors and the viewport meta tag "
+        "is present in every run of the audit."
+    )
+    assert _detect_language(english) is None
+    # Too short to judge: guessing here would be worse than not guessing.
+    assert _detect_language("nao pode ser") is None
+
+
+def test_foreign_language_evidence_is_protected():
+    from lcc.relevance.compactor import _deterministic_protection
+
+    block = (
+        "Relato da clinica: cerca de 41 por cento dos agendamentos sao perdidos porque o "
+        "paciente nao recebe confirmacao fora do horario de atendimento da clinica."
+    )
+    reason = _deterministic_protection(block, "en")
+    assert reason is not None and reason.startswith("evidence_in_pt")
+
+
+def test_dependency_closure_links_a_cause_to_its_effect():
+    from lcc.relevance.blocks import split_blocks
+    from lcc.relevance.compactor import _dependency_closures, _lexical_terms
+
+    cause = (
+        "The checkout flow was refactored in June, replacing the multi-step form with a "
+        "single page for every visitor."
+    )
+    effect = (
+        "Conversion dropped by 12 percent in June, immediately after the checkout flow "
+        "refactor shipped to production."
+    )
+    noise = (
+        "TOOL OUTPUT: the scanner returned HTTP 200 with 41 kB of HTML and no console "
+        "errors at all."
+    )
+    blocks = split_blocks(f"{cause}\n\n{noise}\n\n{effect}\n")
+    question_terms = _lexical_terms("Why did conversion move?")
+    kept = {blocks[2].id}  # the effect is kept; the cause shares nothing with the question
+
+    closures = _dependency_closures(blocks, kept, question_terms)
+    assert blocks[0].id in closures, "the cause block was not linked to its effect"
+    assert blocks[1].id not in closures, "unrelated noise was pulled in"
+
+
+def test_dependency_closure_never_pulls_in_corpus_wide_boilerplate():
+    from lcc.relevance.blocks import split_blocks
+    from lcc.relevance.compactor import _dependency_closures, _lexical_terms
+
+    boiler = "TOOL OUTPUT: the scanner returned HTTP 200 with 41 kB of HTML and no errors."
+    repeated = "\n\n".join(boiler for _ in range(8))
+    blocks = split_blocks(f"{repeated}\n")
+    kept = {blocks[0].id}
+    closures = _dependency_closures(blocks, kept, _lexical_terms("anything at all here"))
+    assert not closures, f"boilerplate was treated as a dependency: {closures}"
+
+
+def test_protection_can_be_disabled(tmp_path: Path):
+    output, _ = _compact("multilingual", tmp_path, ["--no-deterministic-protection"])
+    case = CASES["multilingual"]
+    assert not _evidence_kept(case, output), (
+        "with the net off the foreign-language block should be dropped, which is what makes "
+        "the protected run meaningful"
+    )

@@ -75,6 +75,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- Deterministic safety net for locally scored blocks (`--deterministic-protection`, on by
+  default). When `lcc compact` falls back to the lexical scorer, three classes of evidence now
+  survive it: quoted third-party speech, evidence written in another language than the
+  objective, and blocks sharing two or more distinctive terms with a block that is being kept.
+  Measured against the adversarial suite in `benchmarks/research/`, this takes the deterministic
+  path from 17/20 cases passing to 20/20, and on the main corpora from 3/5 ground-truth facts
+  retained to 5/5, at a cost of 10 to 23 points of reduction. The Jev path is unaffected.
 - `invalidated_tokens` and `break_even_reuses` in the relevance compaction report, plus a
   `cache_epoch_risk` warning when a pass mutates a warm prefix earlier than the reuse count can
   pay for. Measured break-even sits between 11.8 and 20.3 reuses across three corpus sizes.
