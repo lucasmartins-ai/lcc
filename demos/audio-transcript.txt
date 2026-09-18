@@ -1,0 +1,17 @@
+Um, okay so basically we need to, you know, make the checkout faster, né? Tipo assim, the current flow has like three steps and people drop off at the second one you know?
+
+[Music]
+
+So the plan is, we're going to merge the address and the payment step into a single screen. That should cut one full page load out of the funnel. Basically the second step is where 63 percent of mobile users leave, you know?
+
+Speaker 1: and the validation has to happen inline, not after a submit.
+
+Speaker 2: agreed, but we also need to keep the keyboard open between fields or people retype everything.
+
+Also we should take care of the retry when the payment provider times out, literally just retry twice with a backoff.
+
+Subtitles by the usual channel
+
+Thanks for watching
+
+So yeah, ship the single page checkout behind a flag, measure the drop-off at step two for a week, and then roll it out if the number moves.
