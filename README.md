@@ -272,9 +272,15 @@ lcc route eval --cases examples/tasks --output eval/reports/report.json
 
 Drop context blocks that are irrelevant to an objective before any large model sees them. Narrow model judgment (TypeSafe System One / Jev) scores blocks in batched calls sent concurrently (~0.7s per call for up to 8 blocks); without an API key it falls back to a fully local mechanical pass. Blocks end in one of three states: **keep** (bytes re-emitted exactly), **trim** (a bounded head plus an audit note — the middle gear between keep and drop), or **drop**. Provider failures never drop content. The inline drop marker carries no scorer values by default, so repeated runs emit the same bytes; per-block scores stay in the report. Sticky decisions plus a warm decisions cache extend that stability across runs and make rescoring free.
 
+**Where you compact matters more than how much you remove.** Compacting a whole session rewrites a byte-stable prefix, so it pays to rewrite everything to the right of the first drop; compacting a payload *before* it is appended invalidates nothing. Measured over the same session shape, per-payload compaction saved **42.4%** of context cost against **7.9%** for a single whole-session pass, and spent fewer scorer tokens doing it. Compact the tool result, not the transcript, whenever you have the choice. The full comparison and the arithmetic are in `benchmarks/research/` (Finding 13) and `docs/CACHE_ALIGNMENT.md`.
+
 ```bash
-# Full pass (Jev-scored): drops noise, keeps an auditable decision trail
-lcc compact dossier.md -q "reduce mobile booking friction" -o compacted.md -r report.json
+# Preferred: compact the payload while it is still standalone, then append it.
+lcc compact tool-result.md -q "reduce mobile booking friction" --provider jev -o clean.md
+
+# A whole dossier, cold, before anything is cached: no prefix to invalidate.
+lcc compact dossier.md -q "reduce mobile booking friction" \
+  --provider jev -o compacted.md -r report.json
 
 # Cache-safe incremental pattern for live sessions (never touch the newest blocks)
 lcc compact dossier.md -q "reduce mobile booking friction" \

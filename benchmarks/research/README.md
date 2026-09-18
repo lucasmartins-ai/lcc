@@ -13,7 +13,45 @@ python3 run_matrix.py       # 3 corpora x 13 arms   -> results/matrix.jsonl
 python3 run_cache.py        # cache-safety suite    -> results/cache_safety.json
 python3 make_payloads.py    # agent A/B payloads    -> payloads/
 python3 score_agents.py     # agent A/B scoring     -> results/agent_ab.json
+python3 adversarial_cases.py && python3 run_adversarial.py jev
+python3 stress_edges.py     # xl scale + edge cases -> results/stress.json
+python3 run_cache_patterns.py   # where-to-compact economics -> results/cache_patterns.json
+python3 show_losses.py      # which categorized item each arm drops
 ```
+
+## How to audit this
+
+Every number below is produced by a script in this directory, and every script is re-runnable
+against the committed corpora. If you want to check a claim rather than trust it:
+
+| what to check | how |
+|---|---|
+| the study's numbers | run `run_matrix.py`, diff `results/matrix.jsonl` against your run |
+| the corpora are what the generator says | `pytest tests/test_benchmark_categories.py` asserts it, item by item |
+| the ground truth actually measures something | that test also asserts every marker matches its own block, and every item is above the 80-char scoring floor |
+| a claim about quality, not tokens | `run_adversarial.py` prints one row per hazard with the assertions it checked |
+| the cache claims | `run_cache.py` (cold vs warm, determinism, prefix protection, append-only, break-even) and `run_cache_patterns.py` (whole-context vs per-payload) |
+| what a pass actually decided | `lcc explain results/....json --source corpora/....md` reads the report and shows the reason behind every block |
+| which categorized item an arm loses | `show_losses.py` |
+
+Two habits keep this honest, and both were learned the hard way here. **A metric that only
+reports a pass/fail hides which kind of failure occurred**, so recall is reported per
+information category, and `show_losses.py` names the item. **A benchmark can be wrong instead of
+the thing it measures**, so before concluding that a component failed, check that the corpus's
+objective actually requires the item you declared as ground truth (Finding 11).
+
+### What each script proves
+
+| script | question it answers |
+|---|---|
+| `make_corpora.py` | builds four deterministic corpora with categorized ground truth, byte-identical every run |
+| `run_matrix.py` | what each of thirteen transforms does to tokens, and which categories it keeps, across four scales |
+| `run_cache.py` | whether the output is byte-stable, whether a warm run is free, where a pass mutates the prefix, and whether it pays off |
+| `run_cache_patterns.py` | whether compacting the session or compacting each payload costs less, under a cache price model |
+| `run_adversarial.py` | whether twenty specific semantic hazards survive compaction, with a trap block in every case |
+| `stress_edges.py` | whether behaviour holds at four times the largest curated corpus, and on eight pathological inputs |
+| `show_losses.py` | which categorized item each arm actually drops, by marker |
+| `make_payloads.py` + `score_agents.py` | what real agents answer, and what their billed tokens were |
 
 ## Setup
 
@@ -585,6 +623,63 @@ fire on a revision cue alone, and it does not seed a second hop. Writing them wa
 too — the first version of the tests passed without exercising the new path at all, because the
 objective in the fixture contained the very term the rule links on, and a term that appears in
 the objective is correctly excluded as a link.
+
+## Finding 13 — where you compact matters more than how much you remove
+
+Everything up to here compacted the **accumulated context**. This finding measures the
+alternative the cache economics actually favour, and the gap is large enough to change the
+recommendation.
+
+**Whole-context** (`lcc compact session.md`): the pass rewrites the session, so the first drop
+mutates a byte-stable prefix. Every warm byte to the right of that offset stops being a cache
+read and becomes a cache write.
+
+**Per-payload** (`lcc compact result.txt` before appending it): the tool result is compacted
+while it is still standalone, and only the compacted version ever enters the session. The prefix
+never changes, so no warm byte is invalidated.
+
+Simulated over a real session shape (`run_cache_patterns.py`: a 255-token prefix, five
+tool-result turns, 4 254 tokens of appended payload, two model calls per turn), priced with the
+repository's own model (read 0.10x, write 1.25x):
+
+| pattern | passes | context cost | tokens seen | Jev tokens | vs no compaction |
+|---|---|---|---|---|---|
+| none | — | 8 062 | 28 800 | 0 | — |
+| whole-context | 1 | 7 426 | 24 012 | 20 311 | **−7.9 %** |
+| whole-context | 3 | 6 239 | 19 896 | 57 567 | **−22.6 %** |
+| **per-payload** | 5 | **4 646** | 19 398 | **33 154** | **−42.4 %** |
+
+Two things stand out.
+
+**Per-payload compaction saves 5.4 times more context cost than a single whole-context pass**
+(−42.4 % against −7.9 %), and it beats three whole-context passes (−22.6 %) as well. The reason
+is arithmetic, not judgement: a whole-context drop pays to rewrite everything it invalidates, so
+most of what it removed is handed straight back. A per-payload drop pays fresh-input price on
+smaller content and never invalidates anything.
+
+**Per-payload is also cheaper to run.** Five small passes spend 33 154 Jev tokens, while three
+whole-context passes spend 57 567, because a whole-context pass re-scores the entire session
+every time. Compacting often and locally costs less than compacting rarely and globally.
+
+The numbers above are context cost in read-token-equivalents for the main model, with Jev tokens
+reported separately. They are not added together: Jev is billed on its own schedule and
+converting one into the other would be inventing a rate.
+
+### What this means for a model that hides its reasoning
+
+This is the case the pattern distinction exists for. When the reasoning trace is not visible, the
+context you send is the context you pay for on every call, so a broken cache is felt immediately
+and repeatedly. Three rules follow, in order of how much they matter:
+
+1. **Compact the payload, not the session.** Run `lcc compact` on the tool result, the fetched
+   page, the log bundle, before it is appended. The appended bytes are then final, and the
+   session's prefix stays byte-stable for its whole life.
+2. **If you must compact the session, protect the prefix.** `--prefix-marker` with the marker
+   placed after the stable material makes mid-prefix mutation impossible, and the report proves
+   it with `prefix_untouched: true`.
+3. **Check `break_even_reuses` before keeping a whole-context pass.** Measured, a pass that
+   mutates a warm prefix needs 12 to 20 reuses of the pruned context before it pays for itself.
+   Below that, keep the original bytes and the cache.
 
 ## Limitations
 
