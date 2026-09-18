@@ -89,14 +89,14 @@ the emitted context; no LLM in the loop). Reproduce with `python3 run_matrix.py`
 | :--- | :---: | :---: | :---: | :---: |
 | **`compact` (Jev), 4.5k dossier** | 4,533 | **2,539** | **−44.0%** | **6 of 6** |
 | **`compact` (Jev), 44k dossier** | 44,128 | **22,496** | **−49.0%** | **6 of 6** |
-| `compact` (mechanical), 4.5k | 4,533 | 1,607 | −64.5% | 5 of 6 (loses the dated revision) |
+| `compact` (mechanical), 4.5k | 4,533 | 1,632 | −64.0% | **6 of 6** |
 | `prepare`, 4.5k | 4,533 | 431 | −90.5% | **1 of 6** |
 | `optimize` (`claude_xml`), 4.5k | 4,533 | 4,769 | **+5.2%** | 6 of 6 |
 | `intake`, 4.5k | 4,533 | 4,827 | **+6.5%** | 6 of 6 |
 
 Recall is reported per information category (critical facts, constraints, negative constraints,
 exceptions, dated revisions, contradictions) rather than as one flat count, because a single
-number hides which kind of information a transform drops. `compact` (Jev) keeps every item of
+number hides which kind of information a transform drops. Both `compact` paths keep every item of
 every category, at every scale tested up to 44 000 tokens.
 
 The sharpest contrast in the table is `prepare`: 90.5% smaller and it loses five of six

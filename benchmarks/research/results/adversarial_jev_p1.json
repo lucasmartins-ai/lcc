@@ -29,7 +29,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 18.0,
       "passed": true,
-      "wall_ms": 1092,
+      "wall_ms": 1048,
       "pressure": 1
     },
     {
@@ -56,7 +56,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.7,
       "passed": true,
-      "wall_ms": 1109,
+      "wall_ms": 1059,
       "pressure": 1
     },
     {
@@ -88,7 +88,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.5,
       "passed": true,
-      "wall_ms": 1318,
+      "wall_ms": 1062,
       "pressure": 1
     },
     {
@@ -115,7 +115,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 20.9,
       "passed": true,
-      "wall_ms": 1381,
+      "wall_ms": 1327,
       "pressure": 1
     },
     {
@@ -142,7 +142,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.7,
       "passed": true,
-      "wall_ms": 1002,
+      "wall_ms": 1132,
       "pressure": 1
     },
     {
@@ -166,15 +166,15 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 60.0,
-      "blocks_dropped": 10,
+      "reduction_pct": 53.6,
+      "blocks_dropped": 9,
       "blocks_trimmed": 0,
       "semantic_guarantee": "judged",
       "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 16.8,
+      "break_even_reuses": 18.9,
       "passed": true,
-      "wall_ms": 1034,
+      "wall_ms": 1014,
       "pressure": 1
     },
     {
@@ -206,7 +206,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 45.7,
       "passed": true,
-      "wall_ms": 1068,
+      "wall_ms": 1040,
       "pressure": 1
     },
     {
@@ -235,7 +235,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 19.2,
       "passed": true,
-      "wall_ms": 1015,
+      "wall_ms": 1095,
       "pressure": 1
     },
     {
@@ -262,7 +262,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.1,
       "passed": true,
-      "wall_ms": 1114,
+      "wall_ms": 1070,
       "pressure": 1
     },
     {
@@ -296,7 +296,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 37.1,
       "passed": true,
-      "wall_ms": 1040,
+      "wall_ms": 1226,
       "pressure": 1
     },
     {
@@ -323,7 +323,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.2,
       "passed": true,
-      "wall_ms": 1021,
+      "wall_ms": 1225,
       "pressure": 1
     },
     {
@@ -350,7 +350,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.0,
       "passed": true,
-      "wall_ms": 1002,
+      "wall_ms": 1099,
       "pressure": 1
     },
     {
@@ -377,7 +377,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.8,
       "passed": true,
-      "wall_ms": 1079,
+      "wall_ms": 1023,
       "pressure": 1
     },
     {
@@ -404,7 +404,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.5,
       "passed": true,
-      "wall_ms": 1023,
+      "wall_ms": 1091,
       "pressure": 1
     },
     {
@@ -431,7 +431,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.2,
       "passed": true,
-      "wall_ms": 1176,
+      "wall_ms": 1039,
       "pressure": 1
     },
     {
@@ -458,7 +458,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.6,
       "passed": true,
-      "wall_ms": 1154,
+      "wall_ms": 1057,
       "pressure": 1
     },
     {
@@ -485,7 +485,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.6,
       "passed": true,
-      "wall_ms": 1114,
+      "wall_ms": 1083,
       "pressure": 1
     },
     {
@@ -512,7 +512,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.7,
       "passed": true,
-      "wall_ms": 1210,
+      "wall_ms": 1064,
       "pressure": 1
     },
     {
@@ -531,15 +531,15 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 7.9,
-      "blocks_dropped": 5,
+      "reduction_pct": 6.3,
+      "blocks_dropped": 4,
       "blocks_trimmed": 0,
       "semantic_guarantee": "judged",
       "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 33.1,
+      "break_even_reuses": 32.1,
       "passed": true,
-      "wall_ms": 1090,
+      "wall_ms": 1009,
       "pressure": 1
     },
     {
@@ -571,7 +571,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 33.1,
       "passed": true,
-      "wall_ms": 1071,
+      "wall_ms": 1035,
       "pressure": 1
     }
   ]

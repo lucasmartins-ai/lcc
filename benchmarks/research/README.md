@@ -424,16 +424,16 @@ Recall by information category, averaged over the four scales (small, medium, la
 | `compact_jev_tail6` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
 | `chain_compact_optimize` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
 | `optimize_*`, `intake` | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
-| `compact_jev_strict` | 0.95 | 1.00 | 1.00 | 1.00 | **0.75** | 1.00 |
-| `compact_mechanical` | 1.00 | 1.00 | 1.00 | 1.00 | **0.00** | 1.00 |
+| `compact_jev_strict` | 0.95 | 1.00 | 1.00 | 1.00 | **0.50** | 1.00 |
+| `compact_mechanical` | 1.00 | 1.00 | 1.00 | 1.00 | **1.00** | 1.00 |
 | `prepare_default` | **0.40** | **0.00** | 1.00 | **0.00** | **0.00** | **0.00** |
 
 With a question its ground truth can actually serve, the Jev path keeps every item of every
 category on every scale, at 49 % reduction on the 1 492-block stress corpus. The deterministic
-path now holds five of six categories, and `temporal` is its gap: a dated revision reads as a
-restatement of the value it revises. `compact_jev_strict` inherits the same temporal weakness,
-which is a second reason not to disable the trim gear. `prepare_default` remains the worst arm in
-the suite, losing four of six categories outright.
+path matches it category for category after the supersession rule in Finding 12, at 70.7 %
+reduction on the same corpus. `compact_jev_strict` is the only model-scored arm with a gap left,
+and it is the one that disables the trim gear, which is now a third reason not to touch that
+flag. `prepare_default` remains the worst arm in the suite, losing four of six categories.
 
 ### What the metric found before the correction
 
@@ -535,6 +535,56 @@ decisions cache turns a 32-second pass into half a second.
 The oversized-block case is the one to remember: a quarter of a megabyte of repeated filler
 collapses to its verdict line plus a drop marker, which is exactly the shape a compaction pass
 should have on a pathological input.
+
+## Finding 12 — supersession: closing the last deterministic gap
+
+`temporal` was the one category the deterministic scorer lost, on every scale: 0.00. The datum is
+a dated revision —
+
+> `REVISION: the p75 figure was revised on 3 September, down from 5.8 seconds measured in June.`
+
+— and the diagnosis, from the block's own term sets, was precise: it shares **one** distinctive
+term with each of the two blocks that matter (`seconds` with the figure it revises, `figure` with
+the exception that qualifies it). The linkage closure requires two shared terms, so it never
+fired, and the revision was dropped while the value it corrects was kept. That is the worst
+possible ordering: the stale figure survives with no sign it was replaced.
+
+### Two attempts, and only the second one shipped
+
+**Attempt one: make the closure transitive (two hops).** It worked and it was far too expensive.
+Reduction on the medium corpus fell from 64.5 % to 37.0 %, because the closure cascades: the five
+`GROUND TRUTH` blocks share `ground` and `truth`, so one kept fact pulls the other four, and a
+second hop pulls everything that mentions the same nouns. Twenty-seven points of reduction for one
+category.
+
+**Attempt two: a supersession pass, separate from the loop.** A block that restates a value needs
+one shared distinctive term, not two — it names the same metric in different words, so a single
+term is the signal. And it may attach to a block the closure itself pulled in, because a revision
+often qualifies evidence that was linked rather than natively kept. What it must never do is seed
+further links, so the pass runs once, after the loop, against a frozen set of kept blocks.
+
+The cue set is deliberately narrow — `revised|revision|superseded|supersedes|corrected|
+correction|amended|amendment|restated|restatement|down from|up from` — because the negation and
+literal experiments already showed what a broad rule does to a compressor.
+
+### Result
+
+| corpus | reduction before | reduction after | delta | categories lost |
+|---|---|---|---|---|
+| small | 46.8 % | 44.8 % | −2.0 | 1 → **0** |
+| medium | 64.5 % | 64.0 % | −0.5 | 1 → **0** |
+| large | 68.2 % | 68.0 % | −0.2 | 1 → **0** |
+| xl | 70.7 % | 70.7 % | −0.1 | 1 → **0** |
+
+The deterministic scorer now keeps every item of every category on every scale, and the price is
+between one and two points of reduction. The Jev path is untouched, the adversarial suite stays
+20/20 on both providers, and the stress suite stays green at four times `large`.
+
+Three tests hold the rule in place: it fires for a revision sharing exactly one term, it does not
+fire on a revision cue alone, and it does not seed a second hop. Writing them was instructive
+too — the first version of the tests passed without exercising the new path at all, because the
+objective in the fixture contained the very term the rule links on, and a term that appears in
+the objective is correctly excluded as a link.
 
 ## Limitations
 

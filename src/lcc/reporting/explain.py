@@ -37,6 +37,8 @@ DYNAMIC_REASONS: dict[str, str] = {
     "sharing no tokens with an English objective is not evidence of irrelevance",
     "link_terms:": "shares distinctive terms ({payload}) with a block that is being kept, so it "
     "is pulled in to avoid keeping a conclusion without its supporting evidence",
+    "supersedes_value:": "revises or corrects a value carried by a kept block ({payload}), so it "
+    "is kept to avoid leaving a superseded figure with no sign that it was replaced",
     "protected:": "explicitly protected ({payload}), never scored",
     "kept_by:": "kept by an explicit rule ({payload})",
 }

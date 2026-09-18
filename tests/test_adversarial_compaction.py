@@ -241,3 +241,74 @@ def test_protection_can_be_disabled(tmp_path: Path):
         "with the net off the foreign-language block should be dropped, which is what makes "
         "the protected run meaningful"
     )
+
+
+# --- the supersession rule ----------------------------------------------------------------
+
+
+def _closure_for(text: str, kept_index: int, question: str = "what changed"):
+    """Closures for a corpus where the objective deliberately avoids the link terms.
+
+    A term that appears in the objective is not a link between two blocks, so a test that wants
+    the supersession pass to fire must keep the objective out of the shared vocabulary.
+    """
+    from lcc.relevance.blocks import split_blocks
+    from lcc.relevance.compactor import _dependency_closures, _lexical_terms
+
+    blocks = split_blocks(text)
+    closures = _dependency_closures(
+        blocks, {blocks[kept_index].id}, _lexical_terms(question)
+    )
+    return blocks, closures
+
+
+SUPERSESSION_SAMPLE = (
+    "The measured p95 response time for the endpoint is 4.2 seconds under the standard load.\n\n"
+    "TOOL OUTPUT: the scanner returned HTTP 200 with 41 kB of HTML and no console errors.\n\n"
+    "REVISION: the earlier figure for the endpoint was superseded by a lower value entirely.\n\n"
+    "REVISION: the annual pricing schedule was updated for every plan in the coming year.\n"
+)
+
+
+def test_supersession_links_a_revision_to_the_value_it_replaces():
+    """A restatement that shares exactly one distinctive term still reaches the value it corrects.
+
+    The general closure needs two shared terms, so this case only passes through the
+    supersession pass; that is what makes it a test of that pass rather than of the closure.
+    """
+    blocks, closures = _closure_for(SUPERSESSION_SAMPLE, 0)
+    revision, unrelated = blocks[2], blocks[3]
+    assert revision.id in closures, "the revision was not linked to the value it replaces"
+    assert closures[revision.id].startswith("supersedes_value"), (
+        f"linked by the general closure instead of the supersession pass: {closures[revision.id]}"
+    )
+
+
+def test_supersession_needs_a_cue_and_a_shared_term():
+    """Only restatements qualify: a revision cue alone, or a shared term alone, is not enough."""
+    blocks, closures = _closure_for(SUPERSESSION_SAMPLE, 0)
+    # `unrelated` mentions no term the kept block uses, so the cue alone must not rescue it.
+    assert blocks[3].id not in closures
+
+
+def test_supersession_does_not_seed_further_links():
+    """The pass reaches one level deeper without becoming transitive.
+
+    Making the general closure transitive cost 27 points of reduction on the medium corpus, so
+    the extra reach is confined to restatements. A block that shares terms only with a pulled
+    revision, and carries no revision cue of its own, must stay out.
+    """
+    from lcc.relevance.blocks import split_blocks
+    from lcc.relevance.compactor import _dependency_closures, _lexical_terms
+
+    text = (
+        "The measured p95 response time for the endpoint is 4.2 seconds under the standard load.\n\n"
+        "REVISION: the earlier figure for the endpoint was superseded by a lower value entirely.\n\n"
+        "The paragraph discusses the earlier figure in broad terms and adds nothing kept.\n"
+    )
+    blocks = split_blocks(text)
+    closures = _dependency_closures(blocks, {blocks[0].id}, _lexical_terms("what changed"))
+    assert blocks[1].id in closures, "the revision itself must still be pulled in"
+    assert blocks[2].id not in closures, (
+        "a block linking only to a pulled revision, with no cue of its own, must not follow"
+    )

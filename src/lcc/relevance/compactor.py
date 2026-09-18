@@ -289,6 +289,18 @@ def _deterministic_protection(block_text: str, question_language: str | None) ->
 _DISTINCTIVE_MIN_TERM_CHARS = 4
 
 
+#: Cues that a block restates a value another block already carries. Dropping the restatement
+#: while keeping the original leaves a stale figure with no sign that it was superseded, which
+#: is the one category the deterministic scorer lost in the categorized benchmark. Kept narrow
+#: on purpose: a broad cue set here would protect half the corpus, which is the mistake the
+#: negation and literal rules already made.
+_SUPERSESSION_CUE_RE = re.compile(
+    r"\b(?:revised|revision|superseded|supersedes|corrected|correction|amended|amendment|"
+    r"restated|restatement|down from|up from)\b",
+    re.IGNORECASE,
+)
+
+
 def _distinctive_terms(
     blocks: list[TextBlock], question_terms: set[str]
 ) -> dict[str, set[str]]:
@@ -332,6 +344,9 @@ def _dependency_closures(
     for term, ids in distinctive.items():
         for block_id in ids:
             terms_for.setdefault(block_id, set()).add(term)
+    supersedes = {
+        block.id: bool(_SUPERSESSION_CUE_RE.search(block.text)) for block in blocks
+    }
 
     pulled: dict[str, str] = {}
     seen = set(kept_ids)
@@ -352,6 +367,21 @@ def _dependency_closures(
             next_frontier.add(block_id)
         frontier = next_frontier
         hops += 1
+
+    # Supersession pass, deliberately not part of the loop above. A restatement needs one shared
+    # term, not two, because it names the same metric in different words; and it may attach to a
+    # block the closure just pulled in, because a revision often qualifies evidence that was
+    # itself linked rather than natively kept. What it must NOT do is seed further links: making
+    # the general closure transitive cost twenty-seven points of reduction on the medium corpus,
+    # so the extra reach is confined to this one rule.
+    for block_id in set(terms_for) - seen:
+        if not supersedes.get(block_id):
+            continue
+        common = set()
+        for source_id in seen:
+            common |= terms_for.get(source_id, set()) & terms_for[block_id]
+        if common:
+            pulled[block_id] = f"supersedes_value:{','.join(sorted(common)[:3])}"
     return pulled
 
 
