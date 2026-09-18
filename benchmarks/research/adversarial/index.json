@@ -1,0 +1,122 @@
+{
+  "negation_consent": {
+    "hazard": "negation",
+    "question": "Which patients may be contacted about the new booking system?",
+    "description": "A positive and a negative rule differ by one word and must never collapse.",
+    "chars": 2797
+  },
+  "double_negation": {
+    "hazard": "negation",
+    "question": "Which patients are excluded from the follow-up campaign?",
+    "description": "Two negations in one clause invert back to the positive rule.",
+    "chars": 2307
+  },
+  "contradiction_same_metric": {
+    "hazard": "contradiction",
+    "question": "What is the current churn rate?",
+    "description": "Two conflicting values for one metric; keeping only one silently picks a side.",
+    "chars": 2670
+  },
+  "temporal_supersession": {
+    "hazard": "temporal",
+    "question": "What does the plan cost today?",
+    "description": "Three dated prices; the latest must survive or the answer is stale.",
+    "chars": 3076
+  },
+  "source_authority_conflict": {
+    "hazard": "authority",
+    "question": "What is the API timeout?",
+    "description": "An informal channel and the official spec disagree; they are not equally weighted.",
+    "chars": 2678
+  },
+  "dependency_qualifier": {
+    "hazard": "dependency",
+    "question": "How did conversion change?",
+    "description": "A qualifier block looks low-relevance alone but changes the meaning of the headline.",
+    "chars": 2564
+  },
+  "dependency_causal": {
+    "hazard": "dependency",
+    "question": "Why did conversion move?",
+    "description": "A cause and its effect sit in different blocks; each looks weak alone.",
+    "chars": 2605
+  },
+  "numeric_precision": {
+    "hazard": "precision",
+    "question": "What is the measured response time?",
+    "description": "4.20 and 42 seconds are different claims; the precise one must survive, and the lookalike distractor may legitimately be dropped.",
+    "chars": 2563
+  },
+  "unit_conversion": {
+    "hazard": "units",
+    "question": "What is the request timeout in the current configuration?",
+    "description": "The same quantity in two units must not be merged or mangled.",
+    "chars": 2225
+  },
+  "prompt_injection": {
+    "hazard": "injection",
+    "question": "What is the measured mobile conversion problem for the clinic?",
+    "description": "Retrieved text tries to override the compiler. The evidence must survive, and the injected instruction must not be forwarded to the downstream model.",
+    "chars": 2601
+  },
+  "quoted_instruction": {
+    "hazard": "injection",
+    "question": "What did customers complain about?",
+    "description": "An instruction inside quoted user text is evidence, not a command.",
+    "chars": 2265
+  },
+  "structured_json": {
+    "hazard": "structure",
+    "question": "What does the deployment manifest say about replicas?",
+    "description": "JSON is data; collapsing its inner whitespace or dropping it loses the answer.",
+    "chars": 2253
+  },
+  "structured_yaml": {
+    "hazard": "structure",
+    "question": "What is the configured rate limit?",
+    "description": "YAML indentation carries meaning and must survive the pass.",
+    "chars": 2253
+  },
+  "structured_xml": {
+    "hazard": "structure",
+    "question": "What does the integration config specify?",
+    "description": "XML tags are semantic, not decoration.",
+    "chars": 2236
+  },
+  "structured_code": {
+    "hazard": "structure",
+    "question": "What does the retry helper do?",
+    "description": "Code inside a fence must come through byte-intact.",
+    "chars": 2301
+  },
+  "structured_table": {
+    "hazard": "structure",
+    "question": "Which region has the highest latency?",
+    "description": "A markdown table row is the answer; rows must not be silently merged.",
+    "chars": 2252
+  },
+  "multilingual": {
+    "hazard": "language",
+    "question": "What did the Brazilian clinic report about appointment loss?",
+    "description": "Evidence in another language is relevant content, not noise.",
+    "chars": 2257
+  },
+  "unicode_content": {
+    "hazard": "unicode",
+    "question": "What is the correct spelling of the practice name?",
+    "description": "Accents, non-latin scripts and symbols must survive verbatim.",
+    "chars": 2229
+  },
+  "very_long_block": {
+    "hazard": "size",
+    "question": "What is the summary of the audit?",
+    "description": "One oversized block must be trimmed, never dropped: its head carries the verdict.",
+    "chars": 8059
+  },
+  "many_short_blocks": {
+    "hazard": "size",
+    "question": "List the failing checks.",
+    "description": "Blocks below the scoring floor are never judged and must all survive (control case).",
+    "chars": 2340
+  }
+}

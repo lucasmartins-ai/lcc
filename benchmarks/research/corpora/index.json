@@ -1,0 +1,250 @@
+{
+  "small": {
+    "scale": "small",
+    "seed": 42,
+    "blocks": 40,
+    "chars": 5169,
+    "sha256": "3c87a3e4282e7da506a9b229a3a2319cb42340a3dd7548a3bced35d5feba571d",
+    "objective": "What is wrong with the clinic's booking operation, and what limits what we can change?",
+    "categories": [
+      "critical_fact",
+      "constraint",
+      "negative_constraint",
+      "exception",
+      "temporal",
+      "contradiction"
+    ],
+    "items": [
+      {
+        "category": "critical_fact",
+        "marker": "63 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4\\.2 seconds"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "41 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "3 chairs"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4 minutes"
+      },
+      {
+        "category": "constraint",
+        "marker": "within 48 hours"
+      },
+      {
+        "category": "negative_constraint",
+        "marker": "must not be contacted"
+      },
+      {
+        "category": "exception",
+        "marker": "excludes returning (?:customers|visitors|patients)"
+      },
+      {
+        "category": "temporal",
+        "marker": "revised on 3 September|5\\.8 seconds"
+      },
+      {
+        "category": "contradiction",
+        "marker": "8\\.7 percent"
+      }
+    ],
+    "forbidden": [
+      "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
+      "DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot."
+    ]
+  },
+  "medium": {
+    "scale": "medium",
+    "seed": 42,
+    "blocks": 152,
+    "chars": 19520,
+    "sha256": "4b5c75b7f952d0a51e18df2f2334b2cd0750759a8f7b93c2c5c508057a536cf2",
+    "objective": "What is wrong with the clinic's booking operation, and what limits what we can change?",
+    "categories": [
+      "critical_fact",
+      "constraint",
+      "negative_constraint",
+      "exception",
+      "temporal",
+      "contradiction"
+    ],
+    "items": [
+      {
+        "category": "critical_fact",
+        "marker": "63 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4\\.2 seconds"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "41 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "3 chairs"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4 minutes"
+      },
+      {
+        "category": "constraint",
+        "marker": "within 48 hours"
+      },
+      {
+        "category": "negative_constraint",
+        "marker": "must not be contacted"
+      },
+      {
+        "category": "exception",
+        "marker": "excludes returning (?:customers|visitors|patients)"
+      },
+      {
+        "category": "temporal",
+        "marker": "revised on 3 September|5\\.8 seconds"
+      },
+      {
+        "category": "contradiction",
+        "marker": "8\\.7 percent"
+      }
+    ],
+    "forbidden": [
+      "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
+      "DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot."
+    ]
+  },
+  "large": {
+    "scale": "large",
+    "seed": 42,
+    "blocks": 392,
+    "chars": 50227,
+    "sha256": "61d2ba48de8a07adfd9cc4600d7bc14b4516462f1a73b17ae8b1ae0b2a8075eb",
+    "objective": "What is wrong with the clinic's booking operation, and what limits what we can change?",
+    "categories": [
+      "critical_fact",
+      "constraint",
+      "negative_constraint",
+      "exception",
+      "temporal",
+      "contradiction"
+    ],
+    "items": [
+      {
+        "category": "critical_fact",
+        "marker": "63 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4\\.2 seconds"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "41 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "3 chairs"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4 minutes"
+      },
+      {
+        "category": "constraint",
+        "marker": "within 48 hours"
+      },
+      {
+        "category": "negative_constraint",
+        "marker": "must not be contacted"
+      },
+      {
+        "category": "exception",
+        "marker": "excludes returning (?:customers|visitors|patients)"
+      },
+      {
+        "category": "temporal",
+        "marker": "revised on 3 September|5\\.8 seconds"
+      },
+      {
+        "category": "contradiction",
+        "marker": "8\\.7 percent"
+      }
+    ],
+    "forbidden": [
+      "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
+      "DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot."
+    ]
+  },
+  "xl": {
+    "scale": "xl",
+    "seed": 42,
+    "blocks": 1492,
+    "chars": 192785,
+    "sha256": "9f6d0cd79309fae3911a187bb0eab560a089b5ce1ff314e5ae1063189976f1c4",
+    "objective": "What is wrong with the clinic's booking operation, and what limits what we can change?",
+    "categories": [
+      "critical_fact",
+      "constraint",
+      "negative_constraint",
+      "exception",
+      "temporal",
+      "contradiction"
+    ],
+    "items": [
+      {
+        "category": "critical_fact",
+        "marker": "63 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4\\.2 seconds"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "41 percent"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "3 chairs"
+      },
+      {
+        "category": "critical_fact",
+        "marker": "4 minutes"
+      },
+      {
+        "category": "constraint",
+        "marker": "within 48 hours"
+      },
+      {
+        "category": "negative_constraint",
+        "marker": "must not be contacted"
+      },
+      {
+        "category": "exception",
+        "marker": "excludes returning (?:customers|visitors|patients)"
+      },
+      {
+        "category": "temporal",
+        "marker": "revised on 3 September|5\\.8 seconds"
+      },
+      {
+        "category": "contradiction",
+        "marker": "8\\.7 percent"
+      }
+    ],
+    "forbidden": [
+      "DISTRACTOR 1 (not evidence, ignore): a competitor blog claims a 300 percent revenue lift after a redesign.",
+      "DISTRACTOR 2 (not evidence, ignore): an unrelated vendor promises 12x ROI on an AI chatbot."
+    ]
+  }
+}

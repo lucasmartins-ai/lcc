@@ -112,3 +112,32 @@ def test_clean_speech_empty_and_noop() -> None:
 
     clean_prose = "The system architecture is based on microservices."
     assert clean_speech_transcript(clean_prose) == clean_prose
+
+
+def test_prose_with_times_is_not_a_transcript() -> None:
+    """A document that merely contains clock times must not be read as a conversation.
+
+    Regression: the speaker-label pattern used to accept any run of alphanumerics before a
+    colon, so "The deployment finished at 09:00 UTC" was parsed as a speaker called "The
+    deployment finished at 09". Two such lines declared the file a transcript, the speech
+    cleaner then joined every paragraph into one line, and whole-line boilerplate removal
+    could no longer see the signatures it exists to remove.
+    """
+    deployment_log = (
+        "The deployment completed successfully at 09:00 UTC across all three regions.\n\n"
+        "The rollback procedure requires admin approval before execution.\n\n"
+        "Sent from my iPhone\n\n"
+        "The deployment completed successfully at 09:00 UTC across all three regions.\n"
+    )
+    assert is_speech_transcript(deployment_log) is False
+
+
+def test_one_repeated_label_is_not_a_conversation() -> None:
+    """Prose that repeats a label-like word is still prose; a conversation alternates."""
+    assert is_speech_transcript("Note: check the logs.\nNote: then retry.\n") is False
+    assert is_speech_transcript("Alice: check the logs.\nBob: then retry.\n") is True
+
+
+def test_real_transcript_labels_still_detected() -> None:
+    assert is_speech_transcript("Speaker 1: hello.\nSpeaker 2: hi.\n") is True
+    assert is_speech_transcript("Dr. Smith: we should retry.\nHost: agreed.\n") is True

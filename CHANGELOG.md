@@ -56,6 +56,82 @@ All notable changes to this project are documented here. The format is based on
   command guide, architecture map, and explicit scope boundaries.
 - Tightened CLI-facing and visitor-facing docs around the deterministic Phase 1.7 prepare
   boundary, diagnostic-only inspection, and mechanical-only benchmark claims.
+- The inline drop marker no longer carries scorer values, so repeated `lcc compact` runs emit
+  byte-identical output without extra flags; `--marker-scores` restores the previous verbose
+  form. Per-block scores remain in the report. Measured over five identical runs, this took the
+  output from five distinct hashes to one.
+- `--provider auto` reports a mechanical fallback honestly: `degraded` is now true with a
+  `degradation_reason` and `semantic_guarantee: none`, instead of claiming success while a
+  lexical scorer replaced the semantic judge.
+- `lcc compact` exits 3 under `--require-exact-tokens` when token counting degrades to the
+  heuristic estimator, and always warns (`approximate_token_count`) that every token figure in
+  the report is an estimate.
+- Passing `--trim-head-chars 0` now warns (`strict_keep_drop`) that the trim middle gear is
+  disabled and borderline blocks are dropped outright instead of keeping a bounded head.
+- `lcc compact --help` and the README document `--provider jev` as the recommended explicit
+  choice, and describe the trim band as the safety net rather than an optional extra.
+- `docs/CACHE_ALIGNMENT.md` corrects the byte-stability claim (scorer values in the marker and
+  uncached threshold drift were two distinct causes) and documents the new report fields.
+
+### Added
+
+- `lcc compact --append-to <session>`: compacts the payload and appends it in one step, never
+  rewriting the bytes already in the file. This makes the placement the measurements favour — a
+  per-payload pass instead of a whole-session rewrite — a first-class operation rather than shell
+  plumbing, and it is what keeps a session's prefix byte-stable so its prompt cache survives.
+- The Jev scorer is documented as optional everywhere it is mentioned. `--provider mechanical`
+  needs no key and no network and the measurements show it keeps every item of every information
+  category on every corpus size tested, so the README now answers "does it work without a model
+  API key?" directly, and `lcc compact --help` says which path needs what.
+- `benchmarks/research/run_cache_patterns.py`: measures where compaction is placed, which turns
+  out to matter more than how much it removes. Per-payload compaction (the tool result, before it
+  is appended) saved 42.4% of context cost against 7.9% for a single whole-session pass, and spent
+  fewer scorer tokens, because a whole-session drop pays to rewrite everything it invalidates.
+  `docs/CACHE_ALIGNMENT.md` now carries the placement guidance and the recommended order.
+- An audit guide in `benchmarks/research/README.md`: what each script proves, how to re-run every
+  number, and the two habits that keep the benchmark honest (report recall per information
+  category, and check that the objective actually requires the ground truth before blaming a
+  component).
+- Supersession rule in the deterministic safety net: a block that revises or corrects a value
+  carried by a kept block is kept too, even when it shares only one distinctive term with it. It
+  closes the last category the local scorer was losing (`temporal`, at 0.00 on every scale) for
+  between one and two points of reduction. The rule is a separate pass rather than a transitive
+  closure, because making the closure transitive cost 27 points of reduction on the medium corpus.
+- `lcc explain`: reads a report written by `lcc compact -r` and prints why every block was kept,
+  trimmed or dropped, in plain language, with the original text behind each decision when
+  `--source` is given. `--only` filters to one decision kind and `--limit` caps the trail. It
+  never re-runs compaction and never touches the network, so a pass stays auditable after the
+  fact.
+- Recall by information category in the research benchmark. The corpora now carry categorized
+  ground truth (critical facts, a constraint, a negative constraint, an exception, a dated
+  revision and a contradictory measurement) and `run_matrix.py` reports recall per category
+  instead of one flat count.
+- `benchmarks/research/stress_edges.py`: a stress and edge-case suite. The `xl` corpus is roughly
+  four times `large` (1 492 blocks, 44 128 tokens) and confirms that category recall, reduction
+  and cache byte-stability hold at that scale; eight edge cases cover empty input, whitespace, a
+  single oversized block, CRLF, unicode, 400 sub-floor blocks and a 40 kB line.
+- Deterministic safety net for locally scored blocks (`--deterministic-protection`, on by
+  default). When `lcc compact` falls back to the lexical scorer, three classes of evidence now
+  survive it: quoted third-party speech, evidence written in another language than the
+  objective, and blocks sharing two or more distinctive terms with a block that is being kept.
+  Measured against the adversarial suite in `benchmarks/research/`, this takes the deterministic
+  path from 17/20 cases passing to 20/20, and on the main corpora from 3/5 ground-truth facts
+  retained to 5/5, at a cost of 10 to 23 points of reduction. The Jev path is unaffected.
+- `invalidated_tokens` and `break_even_reuses` in the relevance compaction report, plus a
+  `cache_epoch_risk` warning when a pass mutates a warm prefix earlier than the reuse count can
+  pay for. Measured break-even sits between 11.8 and 20.3 reuses across three corpus sizes.
+- `degradation_reason` and `semantic_guarantee` (`judged` / `partial` / `none`) in the relevance
+  compaction report so callers can decide whether a pass is trustworthy without parsing prose.
+- `--marker-scores` and `--require-exact-tokens` CLI flags for `lcc compact`.
+- `benchmarks/research/`: a measured study of compaction effectiveness, evidence retention and
+  prompt-cache safety, with reproducible corpora, a 39-run transform matrix, a cache-safety
+  suite, and a real 9-agent A/B against a no-LCC baseline.
+
+### Fixed
+
+- Identical blocks are now decided once per run. The decisions cache is content-addressed, so a
+  run that scored two copies of the same block independently could disagree with the single
+  cached score a warm run reuses, changing the emitted bytes between runs.
 
 ## [0.2.0] - 2026-06-22
 
