@@ -514,7 +514,7 @@ _RAW_CASES: tuple[Case, ...] = (
         critical=(
             "timeout_seconds: 30\nretries: 3\nbackoff: exponential\nendpoint: /bookings\n"
             "region: eu-west\nowner: platform\nnotes: padding line to extend the block past "
-            "the trim head budget for this test case, repeated for length. " * 4,
+            "the trim head budget for this test case, repeated for length." * 4,
         ),
         checks=(
             ("unit_present", r"timeout_seconds:\s*30", "present"),

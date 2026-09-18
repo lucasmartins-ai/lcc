@@ -148,7 +148,7 @@ class BlockDecision:
     line_end: int
     chars: int
     decision: str  # keep | trim | drop
-    source: str  # protected | reused | jev | mechanical | mechanical_fallback | degraded
+    source: str  # protected | reused | jev | mechanical | fallback | sanitized | degraded
     score: float | None
     reason: str
     chars_after: int | None = None  # set for ``trim`` (head kept + note)
@@ -158,7 +158,7 @@ class BlockDecision:
     confidence: float | None = None
     #: Typed relationships that affected the decision (e.g. ``QUALIFIES:blk_0003_…``).
     relationships: tuple[str, ...] = ()
-    #: Policy that produced the decision (``relevance-compaction-1.1``).
+    #: Policy that produced the decision (``relevance-compaction-1.2``).
     policy_version: str = POLICY_VERSION
     #: Content type used for the trim policy (prose, json, code, …).
     content_type: str | None = None
@@ -305,6 +305,37 @@ _QUOTED_SPEECH_RE = re.compile(
     r"|\b(?:wrote|said|reported|stated|asked|complained|replied)\b[^.]{0,40}:",
     re.IGNORECASE,
 )
+
+_INSTRUCTION_CUE_RE = re.compile(
+    r"\b(?:ignore|disregard|forget|override)\s+(?:all\s+)?"
+    r"(?:the\s+)?(?:previous|prior|above|earlier)?\s*"
+    r"(?:instructions?|directions?|rules?)\b"
+    r"|\b(?:you\s+are\s+now|reveal\s+the\s+system\s+prompt|delete\s+the\s+user\s+account)\b",
+    re.IGNORECASE,
+)
+_STANDALONE_INSTRUCTION_RE = re.compile(
+    r"^\s*(?:ignore|disregard|forget|override)\s+(?:all\s+)?"
+    r"(?:the\s+)?(?:previous|prior|above|earlier)?\s*"
+    r"(?:instructions?|directions?|rules?)\b"
+    r"|^\s*you\s+are\s+now\b.*\b(?:reveal|delete|send|execute|disable|secrets?|configuration)\b",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _classify_instruction_block(text: str) -> str | None:
+    """Classify instruction-shaped text without treating retrieved data as authority."""
+    if _INSTRUCTION_CUE_RE.search(text) is None:
+        return None
+    instruction = _STANDALONE_INSTRUCTION_RE.search(text)
+    if instruction is None:
+        return "embedded_instruction_data"
+    if any(
+        quote.start() <= instruction.start() < quote.end()
+        for quote in _QUOTED_SPEECH_RE.finditer(text)
+    ):
+        return "embedded_instruction_data"
+    return "standalone_instruction"
+
 
 #: Function words that identify the language of a passage without a model. Entries must be
 #: unambiguous: a word that is common in two languages would blur the signal.
@@ -484,6 +515,11 @@ def _resolve_client() -> JevClient | None:
 _TRIM_HEAD_SLACK = 200
 
 
+def _score_bucket(score: float) -> float:
+    """Round live scores to a stable, half-up tenth for policy and markers."""
+    return int(score * 10 + 0.5) / 10.0
+
+
 def _render_trimmed(
     block_text: str,
     score: float | None,
@@ -502,12 +538,13 @@ def _render_trimmed(
     head, ok, _ctype = trim_block_safe(block_text, head_chars)
     if not ok:
         head = _cut_prose_head(block_text, head_chars)
-    if score is None:
-        score_part = ""
-    elif trim_threshold is not None:
-        score_part = f", score {score:.2f} in band {trim_threshold:.2f}-{threshold:.2f}"
-    else:
-        score_part = f", score {score:.2f}"
+    score_part = ""
+    if score is not None:
+        display_score = _score_bucket(score)
+        if trim_threshold is not None:
+            score_part = f", score {display_score:.2f} in band {trim_threshold:.2f}-{threshold:.2f}"
+        else:
+            score_part = f", score {display_score:.2f}"
     return (
         f"{head.rstrip()}\n"
         f"[lcc-compact: trimmed {len(block_text) - len(head)} of {len(block_text)} chars "
@@ -746,8 +783,13 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             protect_boundary = marker_index
 
     keep_regexes = [re.compile(pattern) for pattern in request.keep_patterns]
+    sanitized_reasons: dict[str, str] = {}
     protected_reasons: dict[str, str] = {}
     for block in blocks:
+        instruction_class = _classify_instruction_block(block.text)
+        if instruction_class == "standalone_instruction":
+            sanitized_reasons[block.id] = "standalone_instruction_sanitized"
+            continue
         if block.protected:
             protected_reasons[block.id] = block.protected_reason or "short_block"
             continue
@@ -756,6 +798,12 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             continue
         if any(regex.search(block.text) for regex in keep_regexes):
             protected_reasons[block.id] = "keep_pattern"
+
+    if sanitized_reasons:
+        warnings.append(
+            f"instruction_sanitization: removed {len(sanitized_reasons)} standalone "
+            "instruction block(s); embedded instruction-shaped text was retained as data"
+        )
 
     # --- live contexts: pin the newest N blocks untouched (fast-jev-compaction review)
     if request.preserve_tail_blocks > 0:
@@ -773,7 +821,11 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         warnings.append("trim_threshold_out_of_range: trim disabled")
         trim_threshold = None
 
-    scoreable = [block for block in blocks if block.id not in protected_reasons]
+    scoreable = [
+        block
+        for block in blocks
+        if block.id not in protected_reasons and block.id not in sanitized_reasons
+    ]
 
     # --- sticky decisions (cache alignment): reuse previous outcomes for unchanged blocks
     # v1.1 identity: same content + same policy = reusable; any policy/model/threshold
@@ -853,11 +905,29 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 relationship_version=RELATIONSHIP_VERSION,
                 tokenizer_id=_tokenizer_id,
                 deterministic_protection=request.deterministic_protection,
-                relationship_context=_neighbourhood.get(block_id or "", None),
+                relationship_context=_neighbourhood.get(block_id or ""),
             )
         )
 
     decisions: dict[str, BlockDecision] = {}
+    for block in blocks:
+        if block.id not in sanitized_reasons:
+            continue
+        decisions[block.id] = BlockDecision(
+            id=block.id,
+            index=block.index,
+            line_start=block.line_start,
+            line_end=block.line_end,
+            chars=len(block.text),
+            decision="drop",
+            source="sanitized",
+            score=None,
+            reason=sanitized_reasons[block.id],
+            confidence=1.0,
+            relationships=(),
+            policy_version=POLICY_VERSION,
+            content_type=detect_content_type(block.text),
+        )
     pending: list[TextBlock] = []
     reused = 0
     for block in scoreable:
@@ -885,7 +955,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 decision=cached.decision,
                 source="reused",
                 score=cached.score,
-                reason=f"sticky_decision:{cached.provider}",
+                reason=cached.reason or f"sticky_decision:{cached.provider}",
                 chars_after=chars_after,
                 confidence=None,
                 relationships=(),
@@ -1005,27 +1075,32 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             score, source, protection, confidence = results.get(
                 block.id, (0.0, provider_used, None, None)
             )
+            # JEV scores are live probabilities; bucket policy decisions to one decimal so
+            # small scorer jitter cannot rewrite the emitted context. The raw score remains
+            # available in the audit report. Exact trim-boundary buckets drop rather than
+            # switching between drop and trim.
             first = per_content.setdefault(block.text, (score, source, protection, confidence))
             score, source, protection, confidence = first
+            decision_score = _score_bucket(score)
             chars_after = None
             ctype = detect_content_type(block.text)
             if protection is not None:
                 # The deterministic safety net keeps the block whatever overlap said. The
                 # score stays as measured so the report shows both halves of that.
-                decision = "keep"
+                decision_kind = "keep"
                 reason = protection
             elif source == "jev":
-                if score >= request.threshold:
-                    decision = "keep"
+                if decision_score >= request.threshold:
+                    decision_kind = "keep"
                     reason = "score_above_threshold"
-                elif trim_threshold is not None and score >= trim_threshold:
+                elif trim_threshold is not None and decision_score > trim_threshold:
                     if len(block.text) > request.trim_head_chars + _TRIM_HEAD_SLACK:
                         head, ok, _ = trim_block_safe(block.text, request.trim_head_chars)
                         if not ok:
-                            decision = "keep"
+                            decision_kind = "keep"
                             reason = "trim_unsafe_kept_whole"
                         else:
-                            decision = "trim"
+                            decision_kind = "trim"
                             reason = "score_in_trim_band"
                             chars_after = len(
                                 _render_trimmed(
@@ -1037,28 +1112,32 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                                 )
                             )
                     else:
-                        decision = "keep"
+                        decision_kind = "keep"
                         reason = "score_in_trim_band_kept_whole"
                 else:
-                    decision = "drop"
+                    decision_kind = "drop"
                     reason = "score_below_threshold"
                 # Confidence is a policy input, not decoration: low confidence degrades
                 # toward safety. High-risk content needs high confidence to drop at all.
-                if ctype == "high_risk" and decision in ("drop", "trim") and score < 0.9:
-                    decision = "keep"
+                if (
+                    ctype == "high_risk"
+                    and decision_kind in ("drop", "trim")
+                    and decision_score < 0.9
+                ):
+                    decision_kind = "keep"
                     reason = "high_risk_conservative_retention"
                     chars_after = None
                 elif confidence is not None:
-                    if decision == "drop" and confidence < request.confidence_threshold:
+                    if decision_kind == "drop" and confidence < request.confidence_threshold:
                         if confidence < request.confidence_threshold / 2:
-                            decision = "keep"
+                            decision_kind = "keep"
                             reason = "low_confidence_kept"
                         else:
                             head, ok, _ = trim_block_safe(
                                 block.text, request.trim_head_chars
                             )
                             if ok and trim_threshold is not None:
-                                decision = "trim"
+                                decision_kind = "trim"
                                 reason = "low_confidence_trimmed"
                                 chars_after = len(
                                     _render_trimmed(
@@ -1070,25 +1149,27 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                                     )
                                 )
                             else:
-                                decision = "keep"
+                                decision_kind = "keep"
                                 reason = "low_confidence_kept"
                                 chars_after = None
             else:
                 if ctype == "high_risk" and score <= 0.0:
                     # Mechanical zero-overlap on high-risk text is not evidence of
                     # irrelevance; the fallback must err toward keeping.
-                    decision = "keep"
+                    decision_kind = "keep"
                     reason = "high_risk_conservative_retention"
                 else:
-                    decision = "drop" if score <= 0.0 else "keep"
-                    reason = "no_lexical_overlap" if decision == "drop" else "lexical_overlap"
+                    decision_kind = "drop" if score <= 0.0 else "keep"
+                    reason = (
+                        "no_lexical_overlap" if decision_kind == "drop" else "lexical_overlap"
+                    )
             decisions[block.id] = BlockDecision(
                 id=block.id,
                 index=block.index,
                 line_start=block.line_start,
                 line_end=block.line_end,
                 chars=len(block.text),
-                decision=decision,
+                decision=decision_kind,
                 source=source,
                 score=score,
                 reason=reason,
@@ -1104,7 +1185,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     objective=request.question,
                     block_text=block.text,
                     entry=CachedDecision(
-                        score=score, decision=decision, provider=source
+                        score=score, decision=decision_kind, provider=source, reason=reason
                     ),
                     identity=build_decision_identity(
                         objective=request.question,
@@ -1121,7 +1202,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                         relationship_version=RELATIONSHIP_VERSION,
                         tokenizer_id=_tokenizer_id,
                         deterministic_protection=request.deterministic_protection,
-                        relationship_context=_neighbourhood.get(block.id, None),
+                        relationship_context=_neighbourhood.get(block.id),
                     ),
                 )
 
@@ -1199,7 +1280,11 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             # Score = edge_count + Σconfidence + risk bonus (QUALIFIES/CONTRADICTS/
             # SUPERSEDES/DEPENDS_ON weigh more) + kept dependents. Deterministic
             # tie-break by block id so identical runs emit identical bytes.
-            restorable = list(verdict.critical_dropped_blocks)
+            restorable = [
+                bid
+                for bid in verdict.critical_dropped_blocks
+                if bid not in sanitized_reasons
+            ]
             kept_ids_for_rank = {
                 bid for bid, d in decisions.items() if d.decision == "keep"
             } | set(protected_reasons.keys())
@@ -1344,8 +1429,8 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         index = 0
         total = len(ordered)
         while index < total:
-            decision = ordered[index]
-            if decision.id in dropped_ids:
+            ordered_decision = ordered[index]
+            if ordered_decision.id in dropped_ids:
                 run = []
                 while index < total and ordered[index].id in dropped_ids:
                     run.append(ordered[index])
@@ -1358,12 +1443,12 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                         )
                     )
             else:
-                pieces.append(gaps[decision.index - 1])
-                if decision.decision == "trim":
+                pieces.append(gaps[ordered_decision.index - 1])
+                if ordered_decision.decision == "trim":
                     pieces.append(
                         _render_trimmed(
                             blocks[index].text,
-                            decision.score,
+                            ordered_decision.score,
                             trim_threshold,
                             request.threshold,
                             request.trim_head_chars,
