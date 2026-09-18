@@ -48,6 +48,37 @@ class JevRequestError(JevError):
     """The API answered with a non-retryable error or kept failing after retries."""
 
 
+class JevMalformedResponseError(JevRequestError):
+    """The API answered 200 but the payload was not a usable System One response."""
+
+
+def parse_noul_answer(answer: Any) -> tuple[float | None, float | None, str | None]:
+    """Validate one ``noul`` answer. Returns ``(score, confidence, problem)``.
+
+    ``problem`` is None on success; otherwise one of ``missing``, ``wrong_type``,
+    ``out_of_range``, ``confidence_missing``, ``confidence_out_of_range``. Scores and
+    confidences outside [0, 1] are rejected — a judge that returns 1.7 is not judging
+    the 0-1 question it was asked, and the caller must fall back, not clamp.
+    """
+    if not isinstance(answer, dict):
+        return None, None, "missing"
+    noul = answer.get("noul")
+    if isinstance(noul, bool) or not isinstance(noul, (int, float)):
+        return None, None, "missing"
+    score = float(noul)
+    if not 0.0 <= score <= 1.0:
+        return None, None, "out_of_range"
+    confidence = answer.get("confidence", None)
+    if confidence is None:
+        return score, None, "confidence_missing"
+    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
+        return score, None, "confidence_missing"
+    conf = float(confidence)
+    if not 0.0 <= conf <= 1.0:
+        return score, None, "confidence_out_of_range"
+    return score, conf, None
+
+
 def _lookaorchestrator_dir() -> Path:
     override = os.environ.get("LCC_LOOKAORCHESTRATOR_DIR")
     if override:
@@ -146,6 +177,10 @@ class JevClient:
         self.ledger_path = ledger_path
         self.feature = feature
         self._opener = opener  # test seam: callable(urlopen_request, timeout=...) -> response
+        #: Resolved model version from the last successful response (``model`` field when
+        #: the API echoes it, else the requested model). Recorded by benchmarks so a moving
+        #: alias like ``jev-latest`` never appears as the only model identifier.
+        self.last_resolved_model: str = model
 
     @classmethod
     def from_env(cls, **kwargs: Any) -> JevClient | None:
@@ -235,6 +270,23 @@ class JevClient:
                     continue
                 raise last_error from exc
 
+            if not isinstance(data, dict) or not isinstance(data.get("answers"), dict):
+                self._ledger_append(
+                    {
+                        "ts": _iso_timestamp(),
+                        "feature": self.feature,
+                        "model": self.model,
+                        "status": "error",
+                        "error": "malformed_response: missing 'answers' mapping",
+                        "attempt": attempt,
+                        "latency_ms": int((time.time() - started) * 1000),
+                        "state_chars": state_chars,
+                    }
+                )
+                raise JevMalformedResponseError("TypeSafe response has no 'answers' mapping")
+            resolved = data.get("model") or data.get("resolved_model") or self.model
+            if isinstance(resolved, str) and resolved:
+                self.last_resolved_model = resolved
             answers = data.get("answers") or {}
             digest: dict[str, Any] = {}
             for question_id, answer in answers.items():
@@ -257,6 +309,7 @@ class JevClient:
                     "ts": _iso_timestamp(),
                     "feature": self.feature,
                     "model": self.model,
+                    "resolved_model": self.last_resolved_model,
                     "status": "ok",
                     "latency_ms": int((time.time() - started) * 1000),
                     "input_tokens": usage.get("input_tokens", 0),

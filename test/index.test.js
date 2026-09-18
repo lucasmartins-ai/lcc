@@ -73,4 +73,17 @@ assert(!intakeRes.formattedPrompt.includes("Sent from my iPhone"));
 assert(intakeRes.formattedPrompt.includes("<system_instructions>"));
 assert(intakeRes.compression !== null);
 
+// Tokenizer contract (ADR 0014): Node counts are estimates, labelled as such.
+const { tokenizerIdentity, estimateTokensWithMeta } = require("../index.js");
+const ident = tokenizerIdentity("gpt-4.1");
+assert.strictEqual(ident.exact, false);
+assert.strictEqual(ident.tokenizer, "heuristic");
+assert.ok(ident.tokenizer_id);
+const meta = estimateTokensWithMeta("Hello world, budgeting locally.");
+assert.strictEqual(meta.method, "approximate");
+assert.strictEqual(meta.isEstimate, true);
+assert.strictEqual(meta.value, estimateTokens("Hello world, budgeting locally."));
+assert.strictEqual(meta.value > 0, true);
+assert.strictEqual(estimateTokensWithMeta("").value, 0);
+
 console.log("✓ All lcc JS unit tests passed cleanly!");

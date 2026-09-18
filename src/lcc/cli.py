@@ -995,6 +995,24 @@ def compact_command(
             "counts exact offline."
         ),
     ),
+    enable_sufficiency: bool = typer.Option(
+        True,
+        "--sufficiency/--no-sufficiency",
+        help=(
+            "Verify the compiled context still entails the objective and restore linked "
+            "evidence when it does not. On by default; disable for raw relevance scoring."
+        ),
+    ),
+    max_restorations: int = typer.Option(
+        8,
+        "--max-restorations",
+        help="Maximum dropped blocks restored by sufficiency verification in one pass.",
+    ),
+    confidence_threshold: float = typer.Option(
+        0.5,
+        "--confidence-threshold",
+        help="Judge confidence below this degrades a DROP toward TRIM/KEEP.",
+    ),
 ) -> None:
     """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
     if provider not in ("auto", "jev", "mechanical"):
@@ -1011,6 +1029,10 @@ def compact_command(
         _fail("--max-workers must be between 1 and 8.", code=2)
     if not 0.0 <= min_reduction <= 1.0:
         _fail("--min-reduction must be between 0 and 1.", code=2)
+    if max_restorations < 0:
+        _fail("--max-restorations must be >= 0.", code=2)
+    if not 0.0 <= confidence_threshold <= 1.0:
+        _fail("--confidence-threshold must be between 0 and 1.", code=2)
 
     raw = _read_input(input_path)
     request = RelevanceCompactionRequest(
@@ -1034,6 +1056,9 @@ def compact_command(
         protect_prefix_chars=protect_prefix_chars,
         prefix_marker=prefix_marker,
         decisions_cache_path=decisions_cache,
+        enable_sufficiency=enable_sufficiency,
+        max_restorations=max_restorations,
+        confidence_threshold=confidence_threshold,
     )
     try:
         result = compact_context(request)
@@ -1110,6 +1135,13 @@ def compact_command(
         table.add_row(
             "Trimmed",
             f"{report.blocks_trimmed} (head {report.trim_head_chars} chars, band {band})",
+        )
+    if report.blocks_restored:
+        table.add_row("Restored (sufficiency)", str(report.blocks_restored))
+    if report.sufficiency_checks:
+        table.add_row(
+            "Sufficiency",
+            f"{report.sufficiency_checks} check(s), {report.sufficiency_failures} failure(s)",
         )
     table.add_row(
         "Chars", f"{report.chars_before} -> {report.chars_after} (-{report.chars_removed})"
