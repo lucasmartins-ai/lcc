@@ -1361,9 +1361,22 @@ def intake_cmd(
 
     # Rich summary display on stderr
     readiness = result.parsed.readiness
-    badge_style = "green" if readiness == ReadinessState.READY_TO_EXECUTE else "yellow" if readiness == ReadinessState.NEEDS_LIGHT_REFINEMENT else "magenta" if readiness == ReadinessState.NEEDS_INTAKE else "red"
+    badge_style = (
+        "green"
+        if readiness == ReadinessState.READY_TO_EXECUTE
+        else "yellow"
+        if readiness == ReadinessState.NEEDS_LIGHT_REFINEMENT
+        else "magenta"
+        if readiness == ReadinessState.NEEDS_INTAKE
+        else "red"
+    )
 
-    table = Table(title="lcc -- prompt intake & context compilation", show_header=False, box=None, pad_edge=False)
+    table = Table(
+        title="lcc -- prompt intake & context compilation",
+        show_header=False,
+        box=None,
+        pad_edge=False,
+    )
     table.add_column("field", style="bold cyan", no_wrap=True)
     table.add_column("value")
 
@@ -1390,11 +1403,20 @@ def intake_cmd(
 
     if result.parsed.assumptions:
         assump_text = "\n".join(f"- {a}" for a in result.parsed.assumptions)
-        err_console.print(Panel(assump_text, title="Assumptions", border_style="yellow", expand=False))
+        err_console.print(
+            Panel(assump_text, title="Assumptions", border_style="yellow", expand=False)
+        )
 
     if result.parsed.questions:
-        q_text = "\n".join(f"{i+1}. {q}" for i, q in enumerate(result.parsed.questions))
-        err_console.print(Panel(q_text, title="Clarifying Questions Needed", border_style="magenta", expand=False))
+        q_text = "\n".join(f"{i + 1}. {q}" for i, q in enumerate(result.parsed.questions))
+        err_console.print(
+            Panel(
+                q_text,
+                title="Clarifying Questions Needed",
+                border_style="magenta",
+                expand=False,
+            )
+        )
 
     if output_path is not None:
         err_console.print(f"Compiled prompt written to: [green]{output_path}[/green]")
@@ -1404,12 +1426,22 @@ def intake_cmd(
 
 @app.command("agent")
 def agent_cmd(
-    action: str = typer.Argument("health", help="Action: 'health' to check status, or 'run' to execute prompt"),
-    prompt: str = typer.Option("", "--prompt", "-p", help="Prompt or task instruction for the local agent"),
-    backend: str | None = typer.Option(None, "--backend", "-b", help="Backend (ollama, llamacpp, vllm, mock)"),
-    model: str | None = typer.Option(None, "--model", "-m", help="Model name (e.g. gemma-4-e4b, qwen3.5-4b)"),
+    action: str = typer.Argument(
+        "health", help="Action: 'health' to check status, or 'run' to execute prompt"
+    ),
+    prompt: str = typer.Option(
+        "", "--prompt", "-p", help="Prompt or task instruction for the local agent"
+    ),
+    backend: str | None = typer.Option(
+        None, "--backend", "-b", help="Backend (ollama, llamacpp, vllm, mock)"
+    ),
+    model: str | None = typer.Option(
+        None, "--model", "-m", help="Model name (e.g. gemma-4-e4b, qwen3.5-4b)"
+    ),
     endpoint: str | None = typer.Option(None, "--endpoint", "-e", help="Backend endpoint URL"),
-    expected_format: str | None = typer.Option(None, "--format", "-f", help="Expected format (json, table, text)"),
+    expected_format: str | None = typer.Option(
+        None, "--format", "-f", help="Expected format (json, table, text)"
+    ),
 ) -> None:
     """Manage and execute local LLM agents (Gemma 4 e4b, Qwen3.5-4B)."""
     from lcc.agents.local_agent import LocalAgent, create_local_agent_from_env
@@ -1455,10 +1487,16 @@ def agent_cmd(
 
 @app.command("route")
 def route_cmd(
-    action: str = typer.Argument("run", help="Action: 'run' for a single task, or 'eval' for a test suite"),
+    action: str = typer.Argument(
+        "run", help="Action: 'run' for a single task, or 'eval' for a test suite"
+    ),
     task: Path | None = typer.Option(None, "--task", "-t", help="Path to task JSON/YAML fixture"),
-    cases: Path | None = typer.Option(None, "--cases", "-c", help="Directory containing task case fixtures"),
-    output: Path = typer.Option(Path("eval/reports/report.json"), "--output", "-o", help="Output JSON report path"),
+    cases: Path | None = typer.Option(
+        None, "--cases", "-c", help="Directory containing task case fixtures"
+    ),
+    output: Path = typer.Option(
+        Path("eval/reports/report.json"), "--output", "-o", help="Output JSON report path"
+    ),
 ) -> None:
     """Hybrid local/cloud context routing and evaluation."""
     from lcc.router.eval_runner import load_task, run_evaluation, write_reports
@@ -1484,7 +1522,9 @@ def route_cmd(
         report = run_evaluation(cases)
         out = write_reports(report, output)
         console.print(json.dumps(report["result"], indent=2, ensure_ascii=False))
-        err_console.print(f"[green]Wrote evaluation report to {out} and {out.with_suffix('.md')}[/green]")
+        err_console.print(
+            f"[green]Wrote evaluation report to {out} and {out.with_suffix('.md')}[/green]"
+        )
         return
 
     _fail(f"unknown route action: {action}. Use 'run' or 'eval'")

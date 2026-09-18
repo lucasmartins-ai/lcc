@@ -119,7 +119,7 @@ def normalize_text(text: str) -> NormalizeResult:
     all_ranges, blocks = _extract_protected_regions(raw_lines)
 
     # Build line list with placeholders for protected blocks
-    range_map: dict[int, tuple[int, int, int]] = {}  # start_idx -> (end_idx, block_idx)
+    range_map: dict[int, tuple[int, int]] = {}  # start_idx -> (end_idx, block_idx)
     for block_idx, (start, end) in enumerate(all_ranges):
         range_map[start] = (end, block_idx)
 

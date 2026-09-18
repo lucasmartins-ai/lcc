@@ -95,8 +95,16 @@ def create_remote_solver_from_env() -> RemoteSolver:
     key = os.getenv("FIREWORKS_API_KEY") or os.getenv("CLOUD_API_KEY")
     if not key:
         return MockRemoteSolver()
-    base_url = os.getenv("FIREWORKS_BASE_URL", os.getenv("CLOUD_BASE_URL", "https://api.fireworks.ai/inference/v1"))
-    model_id = os.getenv("FIREWORKS_MODEL_ID", os.getenv("CLOUD_MODEL_ID", "accounts/fireworks/models/llama-v3p3-70b-instruct"))
+    base_url = os.getenv(
+        "FIREWORKS_BASE_URL",
+        os.getenv("CLOUD_BASE_URL", "https://api.fireworks.ai/inference/v1"),
+    )
+    model_id = os.getenv(
+        "FIREWORKS_MODEL_ID",
+        os.getenv(
+            "CLOUD_MODEL_ID", "accounts/fireworks/models/llama-v3p3-70b-instruct"
+        ),
+    )
     return FireworksRemoteSolver(api_key=key, base_url=base_url, model_id=model_id)
 
 
