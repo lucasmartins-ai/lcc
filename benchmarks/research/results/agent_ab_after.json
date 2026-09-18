@@ -1,0 +1,80 @@
+{
+  "raw": {
+    "n": 3,
+    "recall_mean": 1.0,
+    "perfect": 3,
+    "hallucinations": 0,
+    "per_sample": [
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 376
+      },
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 385
+      },
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 339
+      }
+    ]
+  },
+  "lcc_jev": {
+    "n": 3,
+    "recall_mean": 1.0,
+    "perfect": 3,
+    "hallucinations": 0,
+    "per_sample": [
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 362
+      },
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 363
+      },
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 336
+      }
+    ]
+  },
+  "lcc_optimize": {
+    "n": 3,
+    "recall_mean": 1.0,
+    "perfect": 3,
+    "hallucinations": 0,
+    "per_sample": [
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 414
+      },
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 474
+      },
+      {
+        "recall": 1.0,
+        "missing": [],
+        "hallucinated": [],
+        "chars": 359
+      }
+    ]
+  }
+}
