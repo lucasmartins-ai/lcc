@@ -31,6 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from adversarial_cases import CASES, build_corpus  # noqa: E402
+
 from lcc.relevance import RelevanceCompactionRequest, compact_context  # noqa: E402
 
 DOMAIN_OF = {

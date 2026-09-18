@@ -12,7 +12,7 @@ import re
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from lcc.router.schemas import (
@@ -24,7 +24,6 @@ from lcc.router.schemas import (
     VerificationDecision,
     VerificationResult,
 )
-
 
 
 def detect_model_family(name: str, explicit_family: str | None = None) -> ModelFamily:
@@ -72,7 +71,9 @@ class ChatFormatter:
                 if system_message
                 else "<|im_start|>system\nYou are a helpful and precise assistant.<|im_end|>\n"
             )
-            prompt = f"{sys_part}<|im_start|>user\n{user_message}<|im_end|>\n<|im_start|>assistant\n"
+            prompt = (
+                f"{sys_part}<|im_start|>user\n{user_message}<|im_end|>\n<|im_start|>assistant\n"
+            )
             return prompt, stop_tokens
 
         # Generic / default
@@ -182,13 +183,19 @@ class LocalAgent:
                 decision=VerificationDecision(str(payload["decision"])),
                 confidence=float(payload.get("confidence", 0.85)),
                 format_valid=bool(payload.get("format_valid", True)),
-                missing_requirements=[str(item) for item in payload.get("missing_requirements", [])],
+                missing_requirements=[
+                    str(item) for item in payload.get("missing_requirements", [])
+                ],
                 risk_reasons=[str(item) for item in payload.get("risk_reasons", [])],
                 explanation=str(payload.get("explanation", "Verified by local LLM")),
             )
         except Exception as exc:
             return VerificationResult(
-                decision=VerificationDecision.ACCEPT_LOCAL if candidate_ans.answer.strip() else VerificationDecision.ESCALATE_REMOTE,
+                decision=(
+                    VerificationDecision.ACCEPT_LOCAL
+                    if candidate_ans.answer.strip()
+                    else VerificationDecision.ESCALATE_REMOTE
+                ),
                 confidence=0.75 if candidate_ans.answer.strip() else 0.0,
                 format_valid=bool(candidate_ans.answer.strip()),
                 missing_requirements=[] if candidate_ans.answer.strip() else ["non-empty answer"],
@@ -210,7 +217,11 @@ class LocalAgent:
                 details={"mode": "deterministic mock", "quantization": self.config.quantization},
             )
 
-        test_url = f"{self.endpoint}/api/version" if self.backend == "ollama" else f"{self.endpoint}/v1/models"
+        test_url = (
+            f"{self.endpoint}/api/version"
+            if self.backend == "ollama"
+            else f"{self.endpoint}/v1/models"
+        )
         try:
             req = urllib.request.Request(test_url, headers={"User-Agent": "lcc-local-agent/1.0"})
             with urllib.request.urlopen(req, timeout=3.0) as resp:  # noqa: S310
@@ -295,7 +306,9 @@ class LocalAgent:
         context = task.context.strip()
         expected = (task.expected_format or "").lower()
         if "json" in expected:
-            answer = json.dumps({"answer": _first_sentence(context) or f"Answer for {task.task_id}"})
+            answer = json.dumps(
+                {"answer": _first_sentence(context) or f"Answer for {task.task_id}"}
+            )
         elif "markdown table" in expected or "table" in expected:
             ans_val = _first_sentence(context) or f"Answer for {task.task_id}"
             answer = f"| Item | Value |\n| --- | --- |\n| Result | {ans_val} |"
@@ -330,7 +343,11 @@ class LocalAgent:
                 format_valid = False
                 missing.append("valid JSON")
 
-        decision = VerificationDecision.ACCEPT_LOCAL if format_valid else VerificationDecision.ESCALATE_REMOTE
+        decision = (
+            VerificationDecision.ACCEPT_LOCAL
+            if format_valid
+            else VerificationDecision.ESCALATE_REMOTE
+        )
         confidence = 0.90 if format_valid else 0.20
         return VerificationResult(
             decision=decision,

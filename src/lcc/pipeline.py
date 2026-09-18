@@ -59,7 +59,8 @@ def optimize(request: OptimizationRequest) -> OptimizationResult:
 
     Steps: speech cleaning (if transcript detected) -> normalize -> remove boilerplate
     -> deduplicate -> count tokens -> build prompt -> estimate cost -> assemble report.
-    Nothing is summarized or rewritten; cleaning only removes safe, redundant, or non-meaningful text.
+    Nothing is summarized or rewritten; cleaning only removes safe, redundant, or
+    non-meaningful text.
     """
     warnings: list[str] = []
     raw = request.raw_text

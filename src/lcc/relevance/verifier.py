@@ -17,7 +17,6 @@ confidence 0.0 so the caller flags REVIEW instead of trusting the output.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
 

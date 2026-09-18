@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -15,7 +15,7 @@ from lcc.agents.local_agent import (
     create_local_agent_from_env,
     detect_model_family,
 )
-from lcc.agents.local_solver import HTTPLocalSolver, LocalAgentSolver, MockLocalSolver
+from lcc.agents.local_solver import LocalAgentSolver, MockLocalSolver
 from lcc.router.router import LCCRouter
 from lcc.router.schemas import (
     ModelFamily,
@@ -23,7 +23,6 @@ from lcc.router.schemas import (
     TaskInput,
     VerificationDecision,
 )
-
 
 
 def test_detect_model_family() -> None:

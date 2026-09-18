@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 
-class ReadinessState(str, Enum):
+class ReadinessState(StrEnum):
     """Readiness classification for incoming prompt context."""
 
     READY_TO_EXECUTE = "READY_TO_EXECUTE"
@@ -58,7 +58,10 @@ class ParsedIntake:
 
 
 _UNSAFE_PATTERNS = [
-    re.compile(r"\b(bypass\s+security|exploit\s+vulnerability|steal\s+credentials|dump\s+passwords)\b", re.IGNORECASE),
+    re.compile(
+        r"\b(bypass\s+security|exploit\s+vulnerability|steal\s+credentials|dump\s+passwords)\b",
+        re.IGNORECASE,
+    ),
     re.compile(r"\b(ignore\s+all\s+previous\s+instructions|jailbreak)\b", re.IGNORECASE),
 ]
 
@@ -132,7 +135,11 @@ def parse_intake(raw_input: str) -> ParsedIntake:
     assumptions: list[str] = []
     critical_gaps: list[str] = []
 
-    if vague_hits or (word_count < 6 and not has_question and ("test" in lowered or "check" in lowered or "fix" in lowered)):
+    if vague_hits or (
+        word_count < 6
+        and not has_question
+        and ("test" in lowered or "check" in lowered or "fix" in lowered)
+    ):
         if vague_hits:
             readiness = ReadinessState.NEEDS_INTAKE
             readiness_score = 40

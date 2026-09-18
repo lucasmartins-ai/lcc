@@ -154,9 +154,7 @@ def _straddles_qualifier(text: str, cut: int) -> bool:
     if _QUALIFIER_SEMANTIC_RE.search(text[cut:]):
         return True
     # A qualifier in the last 120 chars of the head likely spans the cut.
-    if _QUALIFIER_SEMANTIC_RE.search(text[max(0, cut - 120) : cut]):
-        return True
-    return False
+    return bool(_QUALIFIER_SEMANTIC_RE.search(text[max(0, cut - 120) : cut]))
 
 
 def trim_block_safe(

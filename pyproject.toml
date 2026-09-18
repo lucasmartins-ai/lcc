@@ -82,6 +82,10 @@ select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["E501"]
+# Compatibility facades intentionally re-export their public modules.
+"act2_router/*" = ["F403"]
+# Benchmark evidence and fixed-width output contain intentionally long lines.
+"benchmarks/research/*.py" = ["E501"]
 # Typer expects callables (typer.Option/Argument) as parameter defaults.
 "src/lcc/cli.py" = ["B008"]
 
