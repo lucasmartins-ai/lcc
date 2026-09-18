@@ -44,6 +44,7 @@ from lcc.relevance import (
     compact_context,
 )
 from lcc.relevance import report_to_dict as relevance_report_to_dict
+from lcc.reporting.explain import render as render_explanation
 from lcc.reporting.report import report_to_dict, summary_rows, write_report
 from lcc.semantic_retrieval import (
     LOCAL_INDEX_V1_ADAPTER,
@@ -1108,6 +1109,62 @@ def compact_command(
         err_console.print(f"Compacted context written to: [green]{output_path}[/green]")
     if report_path is not None:
         err_console.print(f"Compaction report written to: [green]{report_path}[/green]")
+
+
+@app.command(name="explain")
+def explain_cmd(
+    report_path: Path = typer.Argument(
+        ...,
+        help="Path to a relevance compaction report written by `lcc compact -r`.",
+        show_default=False,
+    ),
+    source: Path | None = typer.Option(
+        None,
+        "--source",
+        "-s",
+        help="Original input file, to show what each block actually contained.",
+    ),
+    only: str | None = typer.Option(
+        None, "--only", help="Show only keep, trim or drop decisions."
+    ),
+    limit: int | None = typer.Option(None, "--limit", help="Show at most N blocks per group."),
+) -> None:
+    """Explain a compaction report: why each block was kept, trimmed or dropped.
+
+    Reads the report, never re-runs compaction and never touches the network, so a pass can be
+    audited after the fact. Pass --source to see the text behind each decision.
+    """
+    try:
+        payload = json.loads(report_path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        _fail(f"could not read {report_path}: {exc}")
+    except json.JSONDecodeError as exc:
+        _fail(f"{report_path} is not valid JSON: {exc}")
+    if not isinstance(payload, dict):
+        _fail(f"{report_path} does not contain a report object")
+    if "decisions" not in payload:
+        _fail(
+            f"{report_path} does not look like a compaction report (no 'decisions' key); "
+            "generate one with `lcc compact -r report.json`"
+        )
+
+    source_text: str | None = None
+    if source is not None:
+        try:
+            source_text = source.read_text(encoding="utf-8")
+        except OSError as exc:
+            _fail(f"could not read {source}: {exc}")
+
+    if limit is not None and limit < 1:
+        _fail("--limit must be at least 1", code=2)
+
+    try:
+        rendered = render_explanation(
+            payload, only=only, limit=limit, source_text=source_text
+        )
+    except ValueError as exc:
+        _fail(str(exc), code=2)
+    sys.stdout.write(rendered + "\n")
 
 
 @app.command(name="intake")
