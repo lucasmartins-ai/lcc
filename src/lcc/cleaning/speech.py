@@ -85,7 +85,8 @@ _FILLERS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"(?i),\s*right\s*,\s*"), " "),
     # Standalone interjections (uh, er, ah) with optional surrounding commas
     (re.compile(r"(?i)(?:,\s*)?\b(?:uh+|er+|ah+|ahh+|eh+)\b\s*[,.\u2026]*\s*"), " "),
-    # English "Um" filler (case-sensitive to avoid matching Portuguese lowercase 'um' as in 'um container')
+    # English "Um" filler (case-sensitive to avoid matching Portuguese lowercase
+    # 'um' as in 'um container')
     (re.compile(r"\bUm\b\s*[,.\u2026-]+\s*"), ""),
     (re.compile(r",\s*um\s*[,.\u2026-]+\s*"), " "),
     # Portuguese fillers
@@ -227,7 +228,7 @@ def clean_speech_transcript(text: str) -> str:
     # Step 2: Mask protected regions (fenced code blocks and tables)
     raw_lines = normalized.split("\n")
     all_ranges, blocks = _extract_protected_regions(raw_lines)
-    range_map: dict[int, tuple[int, int, int]] = {}
+    range_map: dict[int, tuple[int, int]] = {}
     for block_idx, (start, end) in enumerate(all_ranges):
         range_map[start] = (end, block_idx)
 
@@ -250,7 +251,11 @@ def clean_speech_transcript(text: str) -> str:
         stripped = line.strip()
 
         # Skip SRT sequence numbers if followed by timing line
-        if _SRT_SEQ_NUM.match(stripped) and line_idx + 1 < n and _TIMING_LINE.match(raw_lines[line_idx + 1].strip()):
+        if (
+            _SRT_SEQ_NUM.match(stripped)
+            and line_idx + 1 < n
+            and _TIMING_LINE.match(raw_lines[line_idx + 1].strip())
+        ):
             line_idx += 1
             continue
 

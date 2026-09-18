@@ -1,6 +1,12 @@
 """LCC Hybrid Routing and Quality Verification Engine."""
 
-from lcc.router.config import ModelConfig, PolicyConfig, RouterPolicyConfig, load_model_config, load_policy
+from lcc.router.config import (
+    ModelConfig,
+    PolicyConfig,
+    RouterPolicyConfig,
+    load_model_config,
+    load_policy,
+)
 from lcc.router.context_adapter import inspect_context, optimize_context_if_needed, prepare_context
 from lcc.router.features import extract_features
 from lcc.router.policy import RoutePlan, choose_route

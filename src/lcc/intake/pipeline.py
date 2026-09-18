@@ -72,7 +72,9 @@ class LccIntake:
         """Execute full intake & LCC compilation pipeline."""
         from lcc.cleaning import clean_speech_transcript, is_speech_transcript
 
-        input_text = clean_speech_transcript(raw_input) if is_speech_transcript(raw_input) else raw_input
+        input_text = (
+            clean_speech_transcript(raw_input) if is_speech_transcript(raw_input) else raw_input
+        )
         parsed = parse_intake(input_text)
         relevance_result: RelevanceCompactionResult | None = None
         if self.enable_relevance and parsed.readiness != ReadinessState.BLOCKED:
@@ -120,7 +122,7 @@ class LccIntake:
                 "questions": parsed.questions,
                 "payload": cleaned_text,
             }
-            formatted_prompt = encode_toon(toon_data, key="intake")
+            formatted_prompt = encode_toon(toon_data, root_name="intake")
         elif output_format == "json":
             json_data = {
                 "readiness": parsed.readiness.value,
@@ -136,12 +138,15 @@ class LccIntake:
             # Build using registered prompt template
             rendered = build_prompt(spec, template_name=self.template_name)
             header_comments = [
-                f"<!-- lcc-intake:readiness status=\"{parsed.readiness.value}\" score=\"{parsed.readiness_score}\" -->"
+                "<!-- lcc-intake:readiness "
+                f'status="{parsed.readiness.value}" score="{parsed.readiness_score}" -->'
             ]
             if parsed.assumptions:
                 header_comments.append(f"<!-- assumptions: {'; '.join(parsed.assumptions)} -->")
             if parsed.questions:
-                header_comments.append(f"<!-- clarifying_questions: {'; '.join(parsed.questions)} -->")
+                header_comments.append(
+                    f"<!-- clarifying_questions: {'; '.join(parsed.questions)} -->"
+                )
             formatted_prompt = "\n".join(header_comments) + "\n\n" + rendered
 
         return IntakeResult(
@@ -157,7 +162,9 @@ class LccIntake:
 IntakePipeline = LccIntake
 
 
-def process_intake(raw_input: str, model: str = "claude-sonnet-5", template: str = "claude_xml") -> IntakeResult:
+def process_intake(
+    raw_input: str, model: str = "claude-sonnet-5", template: str = "claude_xml"
+) -> IntakeResult:
     """Convenience helper to run unified intake in a single function call."""
     pipeline = LccIntake(model=model, template_name=template)
     return pipeline.process(raw_input)

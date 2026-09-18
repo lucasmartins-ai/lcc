@@ -73,7 +73,8 @@ def render_default(spec: PromptSpec) -> str:
 
 
 def render_claude_xml(spec: PromptSpec) -> str:
-    """Render an XML-tagged contract prompt optimized for Claude (Sonnet 5/Opus 5/3.7), Gemini 3.6, and KV-Cache."""
+    """Render an XML-tagged contract prompt optimized for Claude
+    (Sonnet 5/Opus 5/3.7), Gemini 3.6, and KV-Cache."""
     if spec.allow_external_knowledge:
         role = (
             "You are a frontier technical assistant. Prefer the provided context. If you "
@@ -110,7 +111,10 @@ def render_claude_xml(spec: PromptSpec) -> str:
         "  <definition_of_done>\n" + reqs_xml + "\n  </definition_of_done>",
     ]
     if spec.max_output_tokens is not None:
-        sections.append(f"  <length_guidance>Keep response within ~{spec.max_output_tokens} tokens.</length_guidance>")
+        sections.append(
+            f"  <length_guidance>Keep response within ~{spec.max_output_tokens} "
+            "tokens.</length_guidance>"
+        )
     sections.append("</system_instructions>")
 
     context_body = spec.context.strip() or "(no context provided)"
@@ -123,7 +127,8 @@ def render_claude_xml(spec: PromptSpec) -> str:
 
 
 def render_code_agent(spec: PromptSpec) -> str:
-    """Render an agentic contract prompt optimized for AI IDEs (Cursor, Antigravity, Codex, Claude Code)."""
+    """Render an agentic contract prompt optimized for AI IDEs
+    (Cursor, Antigravity, Codex, Claude Code)."""
     if spec.allow_external_knowledge:
         constraints = list(_SAFETY_CONSTRAINTS_OPEN)
     else:
@@ -150,9 +155,12 @@ def render_code_agent(spec: PromptSpec) -> str:
         "# System: AI Coding Agent Instructions & Operational Contract",
         f"**Task Type:** `{spec.task_type}`",
         "### Operational Boundaries & Negative Constraints:\n" + _render_bullets(constraints),
-        "### Reference Context & Codebase Memory:\n```\n" + (spec.context.strip() or "(no context provided)") + "\n```",
+        "### Reference Context & Codebase Memory:\n```\n"
+        + (spec.context.strip() or "(no context provided)")
+        + "\n```",
         "### User Task / Objective:\n" + (spec.question.strip() or "(no question provided)"),
-        "### Definition of Done:\n" + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
+        "### Definition of Done:\n"
+        + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
     ]
     if spec.max_output_tokens is not None:
         sections.append(f"**Length Guidance:** Limit response to ~{spec.max_output_tokens} tokens.")
@@ -161,7 +169,8 @@ def render_code_agent(spec: PromptSpec) -> str:
 
 
 def render_structured_markdown(spec: PromptSpec) -> str:
-    """Render a clean structured markdown prompt for OpenAI (gpt-4o, o1, o3-mini) and general LLMs."""
+    """Render a clean structured markdown prompt for OpenAI
+    (gpt-4o, o1, o3-mini) and general LLMs."""
     if spec.allow_external_knowledge:
         role = (
             "You are a careful technical assistant. Prefer the provided context. If you "
@@ -191,7 +200,8 @@ def render_structured_markdown(spec: PromptSpec) -> str:
         "## Constraints\n" + _render_bullets(constraints),
         "## Context\n" + (spec.context.strip() or "(no context provided)"),
         "## Task\n" + (spec.question.strip() or "(no question provided)"),
-        "## Response Requirements\n" + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
+        "## Response Requirements\n"
+        + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
     ]
     if spec.max_output_tokens is not None:
         sections.append(f"**Length Guidance:** Keep within ~{spec.max_output_tokens} tokens.")
