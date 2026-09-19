@@ -1,0 +1,19 @@
+Local Context Compiler (LCC)
+Copyright (c) 2026 Local Context Compiler contributors.
+
+This product includes software and models developed by third parties:
+
+================================================================================
+Laya: Fast, non-autoregressive System 1 decision engine
+================================================================================
+Origin: https://github.com/NandhaKishorM/laya
+Author: NandhaKishorM / Convai Innovations
+License: Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+Laya is integrated into LCC as an optional local semantic decision backend.
+LCC's Laya adapter interfaces with the Laya library and model checkpoints
+(convaiinnovations/laya, convaiinnovations/laya-multilingual, and
+convaiinnovations/laya-typed-decisions).
+
+LCC is an independent project and is neither endorsed by nor affiliated with
+the authors of Laya.
