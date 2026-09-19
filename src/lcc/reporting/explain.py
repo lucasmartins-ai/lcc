@@ -25,6 +25,15 @@ REASON_EXPLANATIONS: dict[str, str] = {
     "no_lexical_overlap": "shares no words with the objective (local scorer)",
     "short_block": "below the scoring floor, so it was never judged",
     "jev_unavailable_fail_safe": "the model scorer was unavailable, so nothing was dropped",
+    # laya local model path
+    "laya_unavailable_fail_safe": (
+        "the local Laya decision model was unavailable, so nothing was dropped"
+    ),
+    "laya_context_limit_exceeded": (
+        "context exceeded Laya's verified token limit without naive truncation, kept fail-safe"
+    ),
+    "insufficient_context": "context too large for the local decision model",
+    "laya": "scored by local Laya decision model",
     # deterministic safety net
     "negation_or_exception_present": "carries a negation or an exception",
     "literal_value_present": "carries a literal value (number, unit, date or identifier)",
@@ -93,6 +102,16 @@ def summarize(report: dict[str, Any]) -> list[tuple[str, str]]:
         ),
         ("Semantic guarantee", str(report.get("semantic_guarantee", "?"))),
     ]
+    if report.get("laya_model_resolved") or report.get("laya_model_requested"):
+        laya_m = report.get("laya_model_resolved") or report.get("laya_model_requested")
+        limit = report.get("laya_context_limit")
+        limit_str = f" (limit {limit} tokens)" if limit else ""
+        rows.append(("Laya Model", f"{laya_m}{limit_str}"))
+    elif report.get("jev_model_resolved") or report.get("jev_model_requested"):
+        if report.get("provider_used") == "jev":
+            jev_m = report.get("jev_model_resolved") or report.get("jev_model_requested")
+            rows.append(("Jev Model", str(jev_m)))
+
     if report.get("degraded"):
         rows.append(("Degraded", str(report.get("degradation_reason") or "yes, reason unrecorded")))
 

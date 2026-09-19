@@ -52,6 +52,7 @@ from lcc.relevance.decisions import (
 )
 from lcc.relevance.graph import build_graph
 from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
+from lcc.relevance.laya import DEFAULT_LAYA_MODEL
 from lcc.relevance.sufficiency import verify_sufficiency
 from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
 from lcc.token_budget import count_tokens
@@ -116,13 +117,16 @@ class RelevanceCompactionRequest:
     #: scoring. On by default, because the local scorer is a fallback and a fallback should
     #: err toward keeping evidence.
     deterministic_protection: bool = True
-    provider: str = "auto"  # auto | jev | mechanical
+    provider: str = "auto"  # auto | jev | laya | mechanical
     model: str = "gpt-4.1"  # token counting model (ADR 0005 honesty contract)
     jev_model: str = "jev-latest"
+    laya_model: str = DEFAULT_LAYA_MODEL
+    laya_device: str | None = None
+    laya_context_limit: int | None = None
     protect_prefix_chars: int | None = None
     prefix_marker: str | None = None
     decisions_cache_path: Path | None = None
-    client: JevClient | None = None  # dependency injection for tests
+    client: Any | None = None  # dependency injection for tests
     #: Semantic sufficiency verification (P0-6): after candidate compression, verify the
     #: remaining context still entails the objective and restore linked evidence.
     enable_sufficiency: bool = True
@@ -224,6 +228,9 @@ class RelevanceCompactionReport:
     #: the only recorded identifier).
     jev_model_requested: str = "jev-latest"
     jev_model_resolved: str | None = None
+    laya_model_requested: str | None = None
+    laya_model_resolved: str | None = None
+    laya_context_limit: int | None = None
     #: Sufficiency + relationship observability (machine-readable, never in the prompt).
     blocks_restored: int = 0
     sufficiency_checks: int = 0
@@ -512,6 +519,20 @@ def _resolve_client() -> JevClient | None:
     return JevClient.from_env(ledger_path=default_ledger_path())
 
 
+def _resolve_laya_client(request: RelevanceCompactionRequest) -> Any | None:
+    """Default Laya provider resolution; tests monkeypatch this seam to stay offline."""
+    from lcc.relevance.laya import LayaClient, LayaError
+
+    try:
+        return LayaClient(
+            model=request.laya_model,
+            device=request.laya_device,
+            context_limit=request.laya_context_limit,
+        )
+    except LayaError:
+        return None
+
+
 _TRIM_HEAD_SLACK = 200
 
 
@@ -717,6 +738,159 @@ def _score_with_jev(
     return results, calls, latency_ms, warnings, resolved_model
 
 
+def _batch_blocks_for_laya(
+    blocks: list[TextBlock],
+    client: Any,
+    objective: str,
+    max_batch_size: int = 8,
+) -> tuple[list[list[TextBlock]], list[tuple[TextBlock, int]]]:
+    """Batch blocks for Laya ensuring total state tokens fit within Laya's context budget.
+
+    Returns (valid_batches, oversized_blocks_with_token_counts).
+    Oversized blocks exceed available state tokens even as a single item,
+    and must fail safe without naive truncation.
+    """
+    available_tokens = getattr(client, "available_state_tokens", 831)
+    obj_tokens = count_tokens(objective, "gpt-4.1").value
+    room_for_blocks = max(16, available_tokens - obj_tokens - 10)
+
+    batches: list[list[TextBlock]] = []
+    current_batch: list[TextBlock] = []
+    current_tokens = 0
+    oversized: list[tuple[TextBlock, int]] = []
+
+    for block in blocks:
+        block_tokens = count_tokens(block.text, "gpt-4.1").value
+        if block_tokens > room_for_blocks:
+            oversized.append((block, block_tokens))
+            continue
+
+        if current_batch and (
+            len(current_batch) >= max_batch_size
+            or (current_tokens + block_tokens) > room_for_blocks
+        ):
+            batches.append(current_batch)
+            current_batch = []
+            current_tokens = 0
+
+        current_batch.append(block)
+        current_tokens += block_tokens
+
+    if current_batch:
+        batches.append(current_batch)
+
+    return batches, oversized
+
+
+def _score_with_laya(
+    client: Any,
+    blocks: list[TextBlock],
+    request: RelevanceCompactionRequest,
+) -> tuple[
+    dict[str, tuple[float, str, float | None]],
+    int,
+    int,
+    list[str],
+    str | None,
+    list[str],
+]:
+    """Score blocks with Laya, enforcing verified context limits without naive truncation.
+
+    Returns (results, calls, latency_ms, warnings, resolved_model, oversized_block_ids).
+    """
+    from lcc.relevance.laya import LayaError
+
+    results: dict[str, tuple[float, str, float | None]] = {}
+    warnings: list[str] = []
+    oversized_ids: list[str] = []
+
+    batches, oversized = _batch_blocks_for_laya(
+        blocks, client, request.question, request.batch_size
+    )
+
+    # Handle oversized blocks that exceed Laya's verified context limit
+    for block, block_tokens in oversized:
+        oversized_ids.append(block.id)
+        limit = getattr(client, "context_limit", 1024)
+        warnings.append(
+            f"laya_context_limit_exceeded:{block.id} (block_tokens={block_tokens}, "
+            f"laya_limit={limit}); status: insufficient_context; kept (fail-safe)"
+        )
+        # Score as fail-safe retention so it is kept whole with an explicit audit reason
+        results[block.id] = (1.0, "laya_context_limit_exceeded", 0.0)
+
+    calls = 0
+    latency_ms = 0
+    resolved_model: str | None = None
+
+    for batch_index, batch in enumerate(batches, start=1):
+        state = {
+            "objective": request.question,
+            "blocks": [{"id": block.id, "text": block.text} for block in batch],
+        }
+        questions = {
+            f"keep_{block.id}": {
+                "type": "noul",
+                "instructions": (
+                    f"Judge the probability that block {block.id} (in the state) is relevant and "
+                    "worth keeping in the context that will be shown to a larger model. The "
+                    "objective is also in the state. Irrelevant noise, redundant logs, and "
+                    "unrelated chatter should score low; when unsure, prefer keeping."
+                ),
+                "criteria": {
+                    "true": "The block is relevant or plausibly useful for the objective.",
+                    "false": "The block is unrelated noise for the objective.",
+                },
+            }
+            for block in batch
+        }
+
+        started = time.perf_counter()
+        try:
+            response = client.evaluate(state, questions)
+            batch_latency = int((time.perf_counter() - started) * 1000)
+        except LayaError as exc:
+            batch_latency = int((time.perf_counter() - started) * 1000)
+            latency_ms += batch_latency
+            warnings.append(
+                f"laya_batch_{batch_index}_failed: {exc}; "
+                "those blocks scored mechanically"
+            )
+            continue
+        except Exception as exc:
+            batch_latency = int((time.perf_counter() - started) * 1000)
+            latency_ms += batch_latency
+            warnings.append(
+                f"laya_batch_{batch_index}_error: {exc}; "
+                "those blocks scored mechanically"
+            )
+            continue
+
+        latency_ms += batch_latency
+        calls += 1
+        resolved_model = getattr(client, "last_resolved_model", None) or resolved_model
+        answers = response.get("answers") if isinstance(response, dict) else None
+        if not isinstance(answers, dict):
+            warnings.append(f"laya_malformed_response:batch_{batch_index}")
+            continue
+
+        for block in batch:
+            answer = answers.get(f"keep_{block.id}")
+            score, confidence, problem = parse_noul_answer(answer)
+            if score is None:
+                if problem == "out_of_range":
+                    warnings.append(f"laya_answer_out_of_range:{block.id}")
+                else:
+                    warnings.append(f"laya_missing_answer:{block.id}")
+                continue
+            if problem in ("confidence_missing", "confidence_out_of_range"):
+                warnings.append(f"laya_{problem}:{block.id}")
+                confidence = None
+            results[block.id] = (score, "laya", confidence)
+
+    return results, calls, latency_ms, warnings, resolved_model, oversized_ids
+
+
 def _score_mechanically(
     blocks: list[TextBlock],
     question: str,
@@ -889,12 +1063,17 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         _neighbourhood = {}
 
     def _cache_key_for(block_text: str, block_id: str | None = None) -> str:
+        cache_model = (
+            request.laya_model
+            if request.provider == "laya"
+            else request.jev_model
+        )
         return decision_key_v2(
             build_decision_identity(
                 objective=request.question,
                 block_text=block_text,
                 provider=request.provider,
-                model=request.jev_model,
+                model=cache_model,
                 policy_version=POLICY_VERSION,
                 threshold=request.threshold,
                 trim_threshold=resolved_trim,
@@ -974,7 +1153,8 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     calls = 0
     latency_ms = 0
     jev_resolved: str | None = None
-    client: JevClient | None = None
+    laya_resolved: str | None = None
+    client: Any | None = None
     if provider_requested in ("auto", "jev"):
         client = request.client if request.client is not None else _resolve_client()
         if client is None:
@@ -987,9 +1167,6 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     "jev_unavailable: no API key or network disabled; kept every block (fail-safe)"
                 )
             else:
-                # ``auto`` used to keep ``degraded: false`` here while quietly swapping the
-                # semantic judge for a lexical scorer. The fallback itself is fine; hiding it
-                # is not, so the degradation is now reported like any other.
                 degraded = True
                 degradation_reason = "jev_unavailable_mechanical_fallback"
                 semantic_guarantee = "none"
@@ -997,8 +1174,21 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     "jev_unavailable: fell back to mechanical scoring; semantic judgment is "
                     "unavailable (degraded)"
                 )
-        elif request.jev_model:
+        elif request.jev_model and hasattr(client, "model"):
             client.model = request.jev_model
+    elif provider_requested == "laya":
+        client = request.client if request.client is not None else _resolve_laya_client(request)
+        if client is None:
+            degraded = True
+            provider_used = "degraded"
+            degradation_reason = "laya_unavailable"
+            semantic_guarantee = "none"
+            warnings.append(
+                "laya_unavailable: dependencies not installed or model missing; "
+                "kept every block (fail-safe)"
+            )
+        elif request.laya_model and hasattr(client, "model"):
+            client.model = request.laya_model
 
     # Which language the objective is written in, so evidence in another language is not
     # dropped for sharing no tokens with it. The marker lists only non-English languages, so a
@@ -1009,6 +1199,11 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
 
     if pending and provider_used == "degraded":
         for block in pending:
+            reason = (
+                "laya_unavailable_fail_safe"
+                if provider_requested == "laya"
+                else "jev_unavailable_fail_safe"
+            )
             decisions[block.id] = BlockDecision(
                 id=block.id,
                 index=block.index,
@@ -1018,7 +1213,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 decision="keep",
                 source="degraded",
                 score=None,
-                reason="jev_unavailable_fail_safe",
+                reason=reason,
                 confidence=None,
                 relationships=(),
                 policy_version=POLICY_VERSION,
@@ -1029,7 +1224,39 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     elif pending:
         results: dict[str, tuple[float, str, str | None, float | None]] = {}
         jev_resolved = None
-        if client is not None:
+        laya_resolved = None
+        if provider_requested == "laya" and client is not None:
+            provider_used = "laya"
+            (
+                laya_results,
+                calls,
+                latency_ms,
+                laya_warnings,
+                laya_resolved,
+                oversized_ids,
+            ) = _score_with_laya(client, pending, request)
+            warnings.extend(laya_warnings)
+            for block_id, (score, source, conf) in laya_results.items():
+                if source == "laya_context_limit_exceeded":
+                    results[block_id] = (score, "fallback", "laya_context_limit_exceeded", conf)
+                else:
+                    results[block_id] = (score, source, None, conf)
+            if len(results) < len(pending):
+                # partial Laya failure: score whatever is left mechanically
+                missing = [block for block in pending if block.id not in results]
+                for block_id, (s, src, prot) in _score_mechanically(
+                    missing,
+                    request.question,
+                    protect=request.deterministic_protection,
+                    question_language=question_language,
+                ).items():
+                    results[block_id] = (s, src, prot, None)
+                if any(source.startswith("mechanical") for _, source, _, _ in results.values()):
+                    provider_used = "laya+mechanical_fallback"
+                    degraded = True
+                    degradation_reason = "laya_batch_failed"
+                    semantic_guarantee = "partial"
+        elif client is not None and provider_requested in ("auto", "jev"):
             provider_used = "jev"
             jev_results, calls, latency_ms, jev_warnings, jev_resolved = _score_with_jev(
                 client, pending, request
@@ -1089,7 +1316,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 # score stays as measured so the report shows both halves of that.
                 decision_kind = "keep"
                 reason = protection
-            elif source == "jev":
+            elif source in ("jev", "laya"):
                 if decision_score >= request.threshold:
                     decision_kind = "keep"
                     reason = "score_above_threshold"
@@ -1191,7 +1418,14 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                         objective=request.question,
                         block_text=block.text,
                         provider=request.provider,
-                        model=request.jev_model,
+                        model=(
+                            request.laya_model
+                            if request.provider == "laya"
+                            else request.jev_model
+                        ),
+                        resolved_model=(
+                            laya_resolved if request.provider == "laya" else jev_resolved
+                        ),
                         policy_version=POLICY_VERSION,
                         threshold=request.threshold,
                         trim_threshold=resolved_trim,
@@ -1642,6 +1876,13 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         is_estimate=after_count.method.value != "exact",
         jev_model_requested=request.jev_model,
         jev_model_resolved=jev_resolved,
+        laya_model_requested=request.laya_model if provider_requested == "laya" else None,
+        laya_model_resolved=laya_resolved,
+        laya_context_limit=(
+            getattr(client, "context_limit", None)
+            if provider_requested == "laya"
+            else None
+        ),
         blocks_restored=blocks_restored,
         sufficiency_checks=sufficiency_checks,
         sufficiency_failures=sufficiency_failures,
@@ -1697,6 +1938,9 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "is_estimate": report.is_estimate,
         "jev_model_requested": report.jev_model_requested,
         "jev_model_resolved": report.jev_model_resolved,
+        "laya_model_requested": report.laya_model_requested,
+        "laya_model_resolved": report.laya_model_resolved,
+        "laya_context_limit": report.laya_context_limit,
         "reduction_ratio": report.reduction_ratio,
         "worth_it": report.worth_it,
         "min_reduction": report.min_reduction,

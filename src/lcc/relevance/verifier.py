@@ -17,8 +17,9 @@ confidence 0.0 so the caller flags REVIEW instead of trusting the output.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
-from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
+from lcc.relevance.jev import parse_noul_answer
 
 _VERIFIER_MAX_CONTEXT_CHARS = 12000
 
@@ -45,7 +46,7 @@ def verify_semantic(
     *,
     objective: str,
     candidate_context: str,
-    client: JevClient,
+    client: Any,
 ) -> SemanticVerificationResult:
     """Run the independent verification question over objective + candidate only."""
     state = {"objective": objective, "context": _clip(candidate_context)}
@@ -76,7 +77,7 @@ def verify_semantic(
     }
     try:
         response = client.evaluate(state, questions)
-    except JevError as exc:
+    except Exception as exc:
         return SemanticVerificationResult(
             sufficient=False,
             missing_evidence=[f"verifier_unavailable:{exc}"],
