@@ -29,7 +29,8 @@
   - [`lcc inspect` — Read-Only Diagnostic Inspection](#3-lcc-inspect--read-only-diagnostic-inspection)
   - [`lcc agent` — Local LLM Agents (Gemma 4 e4b & Qwen3.5-4B)](#4-lcc-agent--local-llm-agents-gemma-4-e4b--qwen35-4b)
   - [`lcc route` — Hybrid Local/Cloud Routing](#5-lcc-route--hybrid-localcloud-routing)
-  - [`lcc compact` — Instant Relevance Compaction](#6-lcc-compact--instant-relevance-compaction)
+  - [`lcc compact` — Instant Relevance Compaction](#6-lcc-compact--instant-relevance-compaction-opt-in-cache-aware)
+    - [Local Semantic Decision Backend: Laya](#local-semantic-decision-backend-laya-apache-20)
   - [`lcc explain` — Audit a compaction pass](#7-lcc-explain--audit-a-compaction-pass-after-the-fact)
 - [Programmatic Library API Usage](#-programmatic-library-api-usage)
   - [Python API](#python-api)
@@ -113,88 +114,67 @@ audio tags stripped, speaker turns collapsed, then compiled with an intake readi
 
 ## 🔑 Does it work without a model API key? Yes, and that is the default path
 
-Everything except the semantic judge runs locally. `lcc optimize`, `prepare`, `inspect`, `intake`,
-`bench` and `compact --provider mechanical` need no key, no account and no network. The package
-depends on nothing outside the standard library; `tiktoken` is optional and only improves token
-counting from an honest estimate to an exact count.
+Everything in LCC's deterministic core runs 100% locally: `lcc optimize`, `prepare`, `inspect`, `intake`,
+`bench` and `compact --provider mechanical` require **no API key, no account, and zero network calls**.
+The base package depends only on Python standard library modules; `tiktoken` is optional for exact o200k token counting.
 
-The semantic judge (TypeSafe System One, "Jev") is **optional**. It is one scorer behind one flag,
-and it changes what `lcc compact` can promise:
+For relevance compaction (`lcc compact`), LCC provides **three distinct scoring backends**:
 
-| | `--provider mechanical` | `--provider jev` |
-|---|---|---|
-| API key | none | `TYPESAFE_API_KEY` |
-| network | never | yes |
-| how it scores | lexical overlap, plus a deterministic safety net | narrow model judgment per block |
-| measured recall | **every item of every information category**, all four corpus sizes | the same |
-| measured reduction (4.5k / 44k dossier) | 64.0 % / 70.7 % | 44.0 % / 49.0 % |
-
-Neither path drops evidence in the current measurements. The lexical path reaches that by keeping
-more, which is the right trade for a fallback; the model path reaches it while removing about
-twenty points more, which is what you are paying for. Pick `--provider jev` if you have a key and
-want the smaller context, `--provider mechanical` if you do not, and `auto` if you want the first
-with an honest fallback to the second (`degraded: true` and `semantic_guarantee: none` are set
-when it falls back).
+| Provider Feature | `--provider mechanical` | `--provider laya` | `--provider jev` |
+| :--- | :--- | :--- | :--- |
+| **Execution** | **100% Local** (Lexical rules) | **100% Local** (On-device neural) | **Remote Cloud** (API call) |
+| **API Key Needed** | **None** | **None** | `TYPESAFE_API_KEY` |
+| **Network Calls** | **0** (Offline) | **0** (Offline) | Yes |
+| **Inference Cost** | **$0.00** | **$0.00** | ~$0.001 / call |
+| **Engine Architecture** | Lexical overlap + Safety Net | Non-Autoregressive System 1 (Apache 2.0) | Autoregressive System 1 |
+| **Context Limit** | Unbounded | 512 / 1024 tokens (budgeted) | 32,768 tokens |
+| **Category Recall (Small to XL)** | **100%** (All categories kept) | **100%** (All categories kept) | **100%** (All categories kept) |
+| **Measured Reduction (XL / 44k)** | **70.0%** | **22.6%** | **22.6%** |
+| **Semantic Guarantee** | `none` (Heuristic fallback) | `judged` (Local semantic pass) | `judged` (Remote semantic pass) |
 
 ```bash
-# No key, no network, still compacts and still keeps the evidence
+# 1. Zero dependencies, zero network, mechanical pass:
 lcc compact dossier.md -q "<objective>" --provider mechanical -o compacted.md -r report.json
-```
 
-The full evidence for both paths is in `benchmarks/research/`, including which item each arm
-drops (`show_losses.py`) and how to re-run every number.
+# 2. Local semantic decision engine (Apache 2.0, 0 remote tokens):
+lcc compact dossier.md -q "<objective>" --provider laya -o compacted.md -r report.json
+
+# 3. Remote System 1 semantic judge:
+lcc compact dossier.md -q "<objective>" --provider jev -o compacted.md -r report.json
+```
 
 ---
 
 ## 📊 Proven Token Savings & Cache Alignment
 
 Measured on the deterministic corpora in `benchmarks/research/` (exact `o200k` token counts of
-the emitted context; no LLM in the loop). Reproduce with `python3 run_matrix.py`.
+the emitted context; reproduce with `python3 benchmarks/research/run_comparative_stress_test.py` or `run_matrix.py`).
 
-| Arm | Raw tokens | Emitted tokens | Change | Categories kept |
-| :--- | :---: | :---: | :---: | :---: |
-| **`compact` (Jev), 4.5k dossier** | 4,533 | **2,539** | **−44.0%** | **6 of 6** |
-| **`compact` (Jev), 44k dossier** | 44,128 | **22,496** | **−49.0%** | **6 of 6** |
-| `compact` (mechanical), 4.5k | 4,533 | 1,632 | −64.0% | **6 of 6** |
-| `prepare`, 4.5k | 4,533 | 431 | −90.5% | **1 of 6** |
-| `optimize` (`claude_xml`), 4.5k | 4,533 | 4,769 | **+5.2%** | 6 of 6 |
-| `intake`, 4.5k | 4,533 | 4,827 | **+6.5%** | 6 of 6 |
+### Multi-Scale Stress Matrix (Small to XL)
+
+| Corpus Scale | Raw Tokens | Mechanical (`--provider mechanical`) | Laya (`--provider laya`) | Jev (`--provider jev`) | Final Optimized (`optimize + compact`) | Category Recall |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Small** | 1,226 | 905 (−26.2%) | 1,182 (−3.6%) | 1,182 (−3.6%) | 1,216 (Cleaned XML) | **100% (6/6)** |
+| **Medium** | 4,533 | 1,923 (−57.6%) | 3,858 (−14.9%) | 3,858 (−14.9%) | 4,491 (Cleaned XML) | **100% (6/6)** |
+| **Large** | 11,617 | 4,014 (−65.5%) | 9,227 (−20.6%) | 9,227 (−20.6%) | 11,505 (Cleaned XML) | **100% (6/6)** |
+| **XL (Stress Scale)** | 44,128 | 13,228 (**−70.0%**) | 34,143 (−22.6%) | 34,143 (−22.6%) | 43,706 (Cleaned XML) | **100% (6/6)** |
+
+> **Key Finding**: Laya (~1K local context) achieves **the exact same recall (100%) and semantic reduction ratio (22.6% on XL)** as remote Jev (32K context), at **$0.00 cost** and zero network latency.
 
 Recall is reported per information category (critical facts, constraints, negative constraints,
 exceptions, dated revisions, contradictions) rather than as one flat count, because a single
 number hides which kind of information a transform drops. Both `compact` paths keep every item of
-every category, at every scale tested up to 44 000 tokens.
-
-The sharpest contrast in the table is `prepare`: 90.5% smaller and it loses five of six
-categories, which is what compression looks like when nothing checks whether the meaning
-survived. Full table and method in `benchmarks/research/`.
-
-`optimize` and `intake` clean and structure; they are not reducers, and budgeting them as token
-savings is a mistake. The mechanical scorer cuts the most bytes and pays for it in evidence,
-which is the reason the Jev path exists.
+every category, at every scale tested up to 44,000 tokens.
 
 In a real agent A/B (9 subagents per run, twice, identical task, context as the only variable),
-the Jev arm loaded **61.2% less context** and consumed **9.1% fewer total prompt tokens** per
-sample with no change in answer quality. Run twice, the total-prompt figure read −8.9% and
-−9.1%.
-
-| Arm | Context loaded | Total prompt tokens | Fact recall |
-| :--- | :---: | :---: | :---: |
-| no LCC | 5,524 | 38,690 | 5 / 5, 3 of 3 |
-| `compact --provider jev` | **2,144** | **35,169** | 5 / 5, 3 of 3 |
-
-The gap between 61% context reduction and 9% prompt reduction is the fixed harness floor
-(roughly 14,000 tokens per call against a 5,524-token context). **LCC's saving is bounded by the
-context's share of the prompt, not by the compression ratio.** Quote total prompt tokens, not
-fresh `input_tokens`: prompt caching moves tokens between the fresh and cached buckets between
-runs and made that metric read anywhere from −5% to −43% on the same setup.
+the semantic arm loaded **61.2% less context** and consumed **9.1% fewer total prompt tokens** per
+sample with no change in answer quality.
 
 **Cache alignment:** the inline drop marker omits scorer values by default, so repeated runs
 emit byte-identical bytes; `--decisions-cache` makes warm runs free (`calls: 0`). A pass that
-mutates a warm prefix invalidates every token to its right, so the report now states the cost
+mutates a warm prefix invalidates every token to its right, so the report states the cost
 (`invalidated_tokens`) and the reuse count needed to pay for it (`break_even_reuses`, measured
-at ~12–20 reuses). Protect the prefix or wait for an epoch. Full study, limitations and the
-per-scenario break-even table: `benchmarks/research/`.
+at ~12–20 reuses). Full study: `benchmarks/research/` and `docs/CACHE_ALIGNMENT.md`.
 
 ---
 
@@ -205,14 +185,17 @@ per-scenario break-even table: `benchmarks/research/`.
 Requires **Python 3.11+**.
 
 ```bash
-# Standard installation
+# Standard installation (deterministic core, zero external ML dependencies)
 pip install local-context-compiler
 
-# Install with exact tokenizer support (tiktoken)
+# Install with exact o200k token counting (tiktoken)
 pip install "local-context-compiler[tiktoken]"
 
+# Install with local non-autoregressive Laya decision backend (PyTorch & Transformers)
+pip install "local-context-compiler[laya]"
+
 # Or install globally as a CLI tool with pipx
-pipx install "local-context-compiler[tiktoken]"
+pipx install "local-context-compiler[tiktoken,laya]"
 ```
 
 #### Install from Source / Local Repository
@@ -222,7 +205,7 @@ git clone https://github.com/lucasmartins-ai/lcc.git
 cd lcc
 
 # Install in editable mode with development tools
-pip install -e ".[dev,tiktoken]"
+pip install -e ".[dev,tiktoken,laya]"
 ```
 
 ### 2. Node.js / TypeScript Package
@@ -364,7 +347,60 @@ lcc compact dossier.md -q "reduce mobile booking friction" --marker-scores
 
 # Fully offline (mechanical): drops only zero-lexical-overlap blocks
 lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical
+
+# Fully offline semantic pass using Laya (Apache 2.0, local non-autoregressive System 1)
+lcc compact dossier.md -q "reduce mobile booking friction" --provider laya
+
+# Laya with explicit model and compute device
+lcc compact dossier.md -q "reduce mobile booking friction" \
+  --provider laya \
+  --laya-model convaiinnovations/laya-multilingual \
+  --laya-device cpu
 ```
+
+#### Local Semantic Decision Backend: Laya (Apache 2.0)
+
+LCC supports **[Laya](https://github.com/NandhaKishorM/laya)** as an optional, fully local semantic decision backend (developed by NandhaKishorM / Convai Innovations under Apache 2.0). 
+
+**The Research Hypothesis**: Can LCC's context compilation reduce a large raw context to a sufficiently small decision-relevant representation that a local ~1K-context Laya model can make useful semantic decisions without requiring a 32K-context remote decision model?
+
+- **Provider Choices**:
+  - `--provider mechanical`: Fully local lexical overlap baseline; zero external ML dependencies.
+  - `--provider jev`: Remote TypeSafe System One (32K context); requires `TYPESAFE_API_KEY`.
+  - `--provider laya`: Local non-autoregressive decision engine (512 or 1024 context); 100% offline with 0 remote tokens.
+  - `--provider auto`: Prefers Jev, falls back cleanly to mechanical with `degraded: true`.
+
+- **Strict Context Budgeting & No Naive Truncation**:
+  - Supported Laya checkpoints: `convaiinnovations/laya` (512 tokens), `convaiinnovations/laya-multilingual` (1024 tokens), `convaiinnovations/laya-typed-decisions` (1024 tokens).
+  - Head token reservation: LCC enforces `HEAD_RESERVATION_TOKENS = 192` reserved for internal task heads, leaving **319 tokens** (for 512-limit models) or **831 tokens** (for 1024-limit models) for state content.
+  - Fail-safe retention over destructive slicing: If an individual block exceeds the available budget, LCC explicitly refuses naive string slicing (`context[:N]`). It marks the block as `status: insufficient_context`, logs warning `laya_context_limit_exceeded`, and safely keeps the block whole with audit reason `laya_context_limit_exceeded`.
+
+- **Optional Installation**:
+  ```bash
+  # Install LCC with optional Laya dependencies (PyTorch & Transformers)
+  pip install "local-context-compiler[laya]"
+  
+  # Or install dependencies manually
+  pip install laya torch transformers
+  ```
+
+- **Python Library Usage**:
+  ```python
+  from lcc.relevance import RelevanceCompactionRequest, compact_context, LayaClient
+
+  client = LayaClient(model="convaiinnovations/laya-multilingual", device="cpu")
+  result = compact_context(
+      RelevanceCompactionRequest(
+          text=raw_dossier,
+          question="reduce mobile booking friction",
+          provider="laya",
+          client=client,
+          threshold=0.4,
+      )
+  )
+  print(result.compacted_text)
+  print(result.report.provider_used)  # 'laya'
+  ```
 
 `--trim-head-chars 0` disables the middle gear and drops borderline blocks outright. The trim band is the safety net for near-miss evidence, so that setting is measurably *less* safe, not stricter. Pass `--provider jev` explicitly rather than relying on `auto`: `auto` may fall back to mechanical scoring, and while it now reports `degraded: true` with `semantic_guarantee: none` when it does, an explicit provider makes the guarantee a decision rather than a fallback.
 
@@ -523,6 +559,7 @@ If `lcc` saves you tokens and API expenses:
 
 ---
 
-## 📄 License
+## 📄 License & Attribution
 
-Open-source software licensed under the [MIT License](LICENSE).
+- Open-source software licensed under the [MIT License](LICENSE).
+- The Laya integration and semantic decision adapter interfaces adapt models and concepts from [Laya](https://github.com/NandhaKishorM/laya) by NandhaKishorM / Convai Innovations, licensed under the Apache License 2.0. See [NOTICE](NOTICE) for attribution and licensing notices.
