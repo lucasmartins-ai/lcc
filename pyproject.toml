@@ -47,6 +47,15 @@ dependencies = [
 [project.optional-dependencies]
 # tiktoken enables EXACT token counting; lcc falls back to a heuristic without it.
 tiktoken = ["tiktoken>=0.7"]
+# laya enables the local non-autoregressive System 1 decision engine.
+laya = [
+  "laya>=0.3.0",
+  "torch>=2.0.0",
+  "transformers>=4.45.0",
+  "safetensors>=0.4.0",
+  "huggingface_hub>=0.20.0",
+  "numpy>=1.20.0",
+]
 dev = [
   "build>=1.2",
   "pytest>=8.0",

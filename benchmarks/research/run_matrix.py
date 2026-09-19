@@ -91,6 +91,7 @@ ARMS: dict[str, dict] = {
         "cmd": ["compact", "-q", OBJECTIVE, "--provider", "mechanical"],
     },
     "compact_jev": {"kind": "compact", "cmd": ["compact", "-q", OBJECTIVE, "--provider", "jev"]},
+    "compact_laya": {"kind": "compact", "cmd": ["compact", "-q", OBJECTIVE, "--provider", "laya"]},
     "compact_jev_prefix": {
         "kind": "compact",
         "cmd": [

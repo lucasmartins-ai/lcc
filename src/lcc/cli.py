@@ -911,8 +911,10 @@ def compact_command(
             "Scoring provider. 'mechanical' is fully local and needs no API key or network, "
             "so LCC works on its own; measured, it keeps every item of every information "
             "category on every corpus size tested. 'jev' uses TypeSafe System One as a semantic "
-            "judge and needs a TYPESAFE_API_KEY; it is optional. 'auto' prefers Jev and falls "
-            "back to mechanical, reporting 'degraded: true' when it does."
+            "judge and needs a TYPESAFE_API_KEY; it is optional. 'laya' uses the local "
+            "non-autoregressive Laya decision engine (Apache 2.0) and runs 100% offline. "
+            "'auto' prefers Jev and falls back to mechanical, reporting 'degraded: true' "
+            "when it does."
         ),
     ),
     model: str = typer.Option(
@@ -920,6 +922,16 @@ def compact_command(
     ),
     jev_model: str = typer.Option(
         "jev-latest", "--jev-model", help="TypeSafe model id used for relevance scoring."
+    ),
+    laya_model: str = typer.Option(
+        "convaiinnovations/laya-multilingual",
+        "--laya-model",
+        help="Laya model checkpoint or local directory path for relevance scoring.",
+    ),
+    laya_device: str | None = typer.Option(
+        None,
+        "--laya-device",
+        help="Device for local Laya inference: auto, cpu, mps, cuda (default: auto).",
     ),
     batch_size: int = typer.Option(8, "--batch-size", help="Blocks scored per Jev call."),
     min_block_chars: int = typer.Option(
@@ -1023,8 +1035,8 @@ def compact_command(
     ),
 ) -> None:
     """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
-    if provider not in ("auto", "jev", "mechanical"):
-        _fail(f"unknown provider {provider!r}; expected auto, jev, or mechanical.", code=2)
+    if provider not in ("auto", "jev", "laya", "mechanical"):
+        _fail(f"unknown provider {provider!r}; expected auto, jev, laya, or mechanical.", code=2)
     if not 0.0 <= threshold <= 1.0:
         _fail("--threshold must be between 0 and 1.", code=2)
     if trim_head_chars < 0:
@@ -1055,6 +1067,8 @@ def compact_command(
         provider=provider,
         model=model,
         jev_model=jev_model,
+        laya_model=laya_model,
+        laya_device=laya_device,
         batch_size=batch_size,
         min_block_chars=min_block_chars,
         keep_patterns=tuple(keep_regex or ()),
@@ -1163,7 +1177,8 @@ def compact_command(
         "Tokens", f"{report.tokens_before} -> {report.tokens_after} ({report.token_count_method})"
     )
     if report.calls:
-        table.add_row("Jev calls", f"{report.calls} ({report.latency_ms} ms)")
+        call_label = "Laya calls" if report.provider_used.startswith("laya") else "Jev calls"
+        table.add_row(call_label, f"{report.calls} ({report.latency_ms} ms)")
     if report.reused_decisions:
         table.add_row("Sticky decisions reused", str(report.reused_decisions))
     guarantee = report.semantic_guarantee
@@ -1302,7 +1317,7 @@ def intake_cmd(
     relevance_provider: str = typer.Option(
         "auto",
         "--relevance-provider",
-        help="Relevance scoring provider: auto, jev, or mechanical.",
+        help="Relevance scoring provider: auto, jev, laya, or mechanical.",
     ),
 ) -> None:
     """Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC."""
