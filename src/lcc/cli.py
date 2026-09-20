@@ -933,6 +933,16 @@ def compact_command(
         "--laya-device",
         help="Device for local Laya inference: auto, cpu, mps, cuda (default: auto).",
     ),
+    laya_context_limit: int | None = typer.Option(
+        None,
+        "--laya-context-limit",
+        help="Override Laya context window (default: 512/1024 from checkpoint).",
+    ),
+    laya_temperature: float | None = typer.Option(
+        None,
+        "--laya-temperature",
+        help="Temperature for Laya noul scores: T>1 softens over-confidence (default: 1.0).",
+    ),
     batch_size: int = typer.Option(8, "--batch-size", help="Blocks scored per Jev call."),
     min_block_chars: int = typer.Option(
         80, "--min-block-chars", help="Blocks shorter than this are always kept (never scored)."
@@ -1053,6 +1063,10 @@ def compact_command(
         _fail("--max-restorations must be >= 0.", code=2)
     if not 0.0 <= confidence_threshold <= 1.0:
         _fail("--confidence-threshold must be between 0 and 1.", code=2)
+    if laya_temperature is not None and laya_temperature <= 0:
+        _fail("--laya-temperature must be > 0.", code=2)
+    if laya_context_limit is not None and laya_context_limit < 64:
+        _fail("--laya-context-limit must be >= 64.", code=2)
 
     raw = _read_input(input_path)
     request = RelevanceCompactionRequest(
@@ -1069,6 +1083,8 @@ def compact_command(
         jev_model=jev_model,
         laya_model=laya_model,
         laya_device=laya_device,
+        laya_context_limit=laya_context_limit,
+        laya_temperature=laya_temperature,
         batch_size=batch_size,
         min_block_chars=min_block_chars,
         keep_patterns=tuple(keep_regex or ()),

@@ -123,6 +123,7 @@ class RelevanceCompactionRequest:
     laya_model: str = DEFAULT_LAYA_MODEL
     laya_device: str | None = None
     laya_context_limit: int | None = None
+    laya_temperature: float | None = None
     protect_prefix_chars: int | None = None
     prefix_marker: str | None = None
     decisions_cache_path: Path | None = None
@@ -528,8 +529,9 @@ def _resolve_laya_client(request: RelevanceCompactionRequest) -> Any | None:
             model=request.laya_model,
             device=request.laya_device,
             context_limit=request.laya_context_limit,
+            temperature=request.laya_temperature or None,
         )
-    except LayaError:
+    except (LayaError, ValueError):
         return None
 
 
@@ -1085,6 +1087,9 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 tokenizer_id=_tokenizer_id,
                 deterministic_protection=request.deterministic_protection,
                 relationship_context=_neighbourhood.get(block_id or ""),
+                laya_temperature=request.laya_temperature
+                if request.provider == "laya"
+                else None,
             )
         )
 
@@ -1189,6 +1194,10 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             )
         elif request.laya_model and hasattr(client, "model"):
             client.model = request.laya_model
+        if request.laya_temperature is not None and hasattr(client, "temperature"):
+            temp = request.laya_temperature
+            if isinstance(temp, (int, float)) and temp > 0:
+                client.temperature = float(temp)
 
     # Which language the objective is written in, so evidence in another language is not
     # dropped for sharing no tokens with it. The marker lists only non-English languages, so a
@@ -1437,6 +1446,9 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                         tokenizer_id=_tokenizer_id,
                         deterministic_protection=request.deterministic_protection,
                         relationship_context=_neighbourhood.get(block.id),
+                        laya_temperature=request.laya_temperature
+                        if request.provider == "laya"
+                        else None,
                     ),
                 )
 
