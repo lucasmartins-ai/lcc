@@ -15,6 +15,7 @@ from lcc.relevance import (
     LayaUnavailableError,
     RelevanceCompactionRequest,
     UnsupportedOperationError,
+    calibrate_noul,
     compact_context,
     get_semantic_provider,
 )
@@ -78,6 +79,12 @@ SAMPLE_TEXT = (
     "Noise block: zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz zzz.\n\n"
     "Another relevant line about the objective and the booking funnel details across mobile users.\n"
 )
+
+
+def test_calibrate_noul_softens_overconfidence():
+    assert calibrate_noul(0.9) == 0.9
+    assert 0.5 < calibrate_noul(0.9, 2.0) < 0.9
+    assert 0.1 < calibrate_noul(0.1, 2.0) < 0.5
 
 
 def test_provider_registration():

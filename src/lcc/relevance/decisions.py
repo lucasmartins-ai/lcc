@@ -104,6 +104,7 @@ def build_decision_identity(
     tokenizer_id: str | None = None,
     deterministic_protection: bool = True,
     relationship_context: str | None = None,
+    laya_temperature: float | None = None,
 ) -> dict[str, Any]:
     """Build the canonical identity dict hashed by :func:`decision_key_v2`.
 
@@ -128,6 +129,9 @@ def build_decision_identity(
         "tokenizer_id": tokenizer_id,
         "deterministic_protection": bool(deterministic_protection),
         "relationship_context": relationship_context,
+        "laya_temperature": None
+        if laya_temperature is None
+        else round(float(laya_temperature), 6),
     }
 
 

@@ -60,6 +60,7 @@ from lcc.relevance.jev import (
 )
 from lcc.relevance.laya import (
     DEFAULT_LAYA_MODEL,
+    DEFAULT_LAYA_TEMPERATURE,
     HEAD_RESERVATION_TOKENS,
     LayaClient,
     LayaContextLimitExceededError,
@@ -67,6 +68,7 @@ from lcc.relevance.laya import (
     LayaExecutionError,
     LayaModelNotFoundError,
     LayaUnavailableError,
+    calibrate_noul,
     get_laya_context_limit,
 )
 from lcc.relevance.provider import (
@@ -88,6 +90,7 @@ __all__ = [
     "BLOCK_PARSER_VERSION",
     "DECISIONS_CACHE_SCHEMA_VERSION",
     "DEFAULT_LAYA_MODEL",
+    "DEFAULT_LAYA_TEMPERATURE",
     "DEFAULT_MAX_BLOCK_CHARS",
     "DEFAULT_MIN_BLOCK_CHARS",
     "HEAD_RESERVATION_TOKENS",
@@ -133,6 +136,7 @@ __all__ = [
     "decide_assessment",
     "decision_key",
     "decision_key_v2",
+    "calibrate_noul",
     "default_ledger_path",
     "detect_content_type",
     "gaps_between",
