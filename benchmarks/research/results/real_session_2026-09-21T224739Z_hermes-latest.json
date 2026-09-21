@@ -1,0 +1,97 @@
+{
+  "run_id": "2026-09-21T22:47:39+00:00",
+  "options": {
+    "threshold": 0.5,
+    "preserve_recent": 6,
+    "trim_head_chars": 300,
+    "max_state_tokens": 25000,
+    "max_request_tokens": 30000,
+    "min_reduction_ratio": 0.25,
+    "question": "ship 0.5.0: Jev-first docs, tool-call compaction mode, Claude Code plugin, benchmark"
+  },
+  "source_stats": {
+    "records": 359,
+    "text_blocks": 58,
+    "thinking_blocks": 0,
+    "tool_uses": 187,
+    "tool_results": 186
+  },
+  "rows": [
+    {
+      "label": "hermes:latest (full)",
+      "messages": 337,
+      "tool_calls": 187,
+      "tokens_before": 199717,
+      "tokens_after": 36645,
+      "reduction": 0.8165,
+      "token_count_method": "exact",
+      "messages_after": 157,
+      "outcomes": {
+        "kept": 14,
+        "trimmed": 53,
+        "dropped": 119
+      },
+      "outcome_source": {
+        "keep": 15,
+        "trim": 53,
+        "drop": 119
+      },
+      "texts_checked": 58,
+      "texts_lost": [],
+      "compacted": true,
+      "state_tokens": 23546,
+      "state_fit_stage": "calls-one-line",
+      "requests": 23,
+      "calls": 23,
+      "semantic_guarantee": "judged",
+      "degraded": false,
+      "jev_model_resolved": "jev-1.13.0",
+      "hook_would_replace": true,
+      "hook_reason": "judged pass, 81.7% removed",
+      "latency_ms": 4399,
+      "ledger": {
+        "input_tokens": 715590,
+        "output_tokens": 14798,
+        "calls": 23
+      }
+    },
+    {
+      "label": "hermes:latest (newest 60 messages)",
+      "messages": 60,
+      "tool_calls": 30,
+      "tokens_before": 19867,
+      "tokens_after": 7261,
+      "reduction": 0.6345,
+      "token_count_method": "exact",
+      "messages_after": 34,
+      "outcomes": {
+        "kept": 4,
+        "trimmed": 9,
+        "dropped": 17
+      },
+      "outcome_source": {
+        "keep": 5,
+        "trim": 9,
+        "drop": 16
+      },
+      "texts_checked": 14,
+      "texts_lost": [],
+      "compacted": true,
+      "state_tokens": 14372,
+      "state_fit_stage": "full",
+      "requests": 4,
+      "calls": 4,
+      "semantic_guarantee": "judged",
+      "degraded": false,
+      "jev_model_resolved": "jev-1.13.0",
+      "hook_would_replace": true,
+      "hook_reason": "judged pass, 63.5% removed",
+      "latency_ms": 1201,
+      "ledger": {
+        "input_tokens": 68425,
+        "output_tokens": 2192,
+        "calls": 4
+      }
+    }
+  ]
+}

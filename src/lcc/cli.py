@@ -861,6 +861,148 @@ def _print_inspect_summary(report: Any, report_path: Path | None, summary: str) 
         err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
 
 
+def _compact_tool_calls(
+    *,
+    raw: str,
+    question: str,
+    provider: str,
+    threshold: float,
+    trim_head_chars: int,
+    preserve_recent: int,
+    max_state_tokens: int,
+    max_request_tokens: int,
+    batch_calls: int,
+    max_workers: int,
+    min_reduction: float,
+    model: str,
+    jev_model: str,
+    output_path: Path | None,
+    report_path: Path | None,
+    dry_run: bool,
+    inapplicable: list[str],
+) -> None:
+    """`lcc compact --mode tool-calls`: message-level compaction of a session transcript.
+
+    Block-level flags are refused instead of ignored: a pass that silently drops a flag the
+    operator set is a pass whose report cannot be trusted.
+    """
+    from lcc.relevance.transcript import (
+        TranscriptCompactionRequest,
+        TranscriptError,
+        TranscriptFitError,
+        UnsupportedTranscriptProviderError,
+        compact_transcript,
+        messages_to_payload,
+    )
+
+    if inapplicable:
+        _fail(
+            "these options do not apply to --mode tool-calls: " + ", ".join(inapplicable),
+            code=2,
+        )
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        _fail(
+            "tool-calls mode reads a JSON transcript (messages array or "
+            f"{{'messages': [...]}}): {exc}",
+            code=2,
+        )
+
+    try:
+        result = compact_transcript(
+            TranscriptCompactionRequest(
+                payload=payload,
+                question=question,
+                provider=provider,
+                threshold=threshold,
+                preserve_recent=preserve_recent,
+                trim_head_chars=trim_head_chars,
+                max_state_tokens=max_state_tokens,
+                max_request_tokens=max_request_tokens,
+                batch_calls=batch_calls,
+                max_workers=max_workers,
+                min_reduction=min_reduction,
+                model=model,
+                jev_model=jev_model,
+            )
+        )
+    except (UnsupportedTranscriptProviderError, TranscriptFitError, TranscriptError) as exc:
+        _fail(str(exc), code=2)
+
+    report = result.report
+    if not dry_run:
+        rendered = json.dumps(messages_to_payload(result.messages), indent=2, ensure_ascii=False)
+        if output_path is not None:
+            try:
+                output_path.write_text(rendered, encoding="utf-8")
+            except OSError as exc:
+                _fail(f"could not write the compacted transcript to {output_path}: {exc}")
+        else:
+            sys.stdout.write(rendered + "\n")
+    if report_path is not None:
+        try:
+            report_path.write_text(
+                json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+        except OSError as exc:
+            _fail(f"could not write report to {report_path}: {exc}")
+
+    table = Table(title="lcc -- tool-call compaction", show_header=False, box=None, pad_edge=False)
+    table.add_column("field", style="bold cyan", no_wrap=True)
+    table.add_column("value")
+    provider_label = report["provider_used"]
+    if report["degraded"]:
+        provider_label += " [yellow](degraded)[/yellow]"
+    table.add_row("Provider", provider_label)
+    table.add_row(
+        "Tool calls",
+        f"{report['blocks_total']} total | {report['blocks_scored']} scored | "
+        f"{report['blocks_protected']} pinned",
+    )
+    table.add_row(
+        "Decisions",
+        f"{report['tool_calls_kept']} kept | {report['tool_calls_trimmed']} trimmed | "
+        f"{report['tool_calls_dropped']} dropped",
+    )
+    table.add_row(
+        "Messages",
+        f"{report['messages_before']} -> {report['messages_after']}",
+    )
+    table.add_row(
+        "Chars",
+        f"{report['chars_before']} -> {report['chars_after']} "
+        f"({report['tool_reduction_ratio']:.1%} of the judged tool payload)",
+    )
+    table.add_row(
+        "Reduction",
+        f"{report['reduction_ratio']:.1%}"
+        + ("" if report["worth_it"] else " (below target)"),
+    )
+    table.add_row(
+        "Tokens",
+        f"{report['tokens_before']} -> {report['tokens_after']} ({report['token_count_method']})",
+    )
+    if report["calls"]:
+        table.add_row("Jev calls", f"{report['calls']} ({report['latency_ms']} ms)")
+    table.add_row(
+        "State",
+        f"{report['state_tokens']} tokens, fit '{report['state_fit_stage']}', "
+        f"{report['requests']} request(s)",
+    )
+    guarantee = report["semantic_guarantee"]
+    if report["degraded"]:
+        guarantee += f" (degraded: {report['degradation_reason'] or 'unknown'})"
+    table.add_row("Semantic guarantee", guarantee)
+    err_console.print(table)
+    for warning in report["warnings"]:
+        err_console.print(f"[yellow]warning:[/yellow] {warning}")
+    if output_path is not None and not dry_run:
+        err_console.print(f"Compacted transcript written to: [green]{output_path}[/green]")
+    if report_path is not None:
+        err_console.print(f"Compaction report written to: [green]{report_path}[/green]")
+
+
 @app.command("compact")
 def compact_command(
     input_path: str = typer.Argument(
@@ -892,6 +1034,35 @@ def compact_command(
         0,
         "--preserve-tail",
         help="Never score or mutate the newest N blocks (live append-only contexts).",
+    ),
+    mode: str = typer.Option(
+        "blocks",
+        "--mode",
+        help=(
+            "What to compact. 'blocks' (default): text blocks inside INPUT. 'tool-calls': "
+            "INPUT is a session transcript (JSON messages array or {'messages': [...]}) and "
+            "the unit of decision is a tool call paired with its result; user and assistant "
+            "text is never scored, trimmed or rewritten. Needs --provider jev/auto. "
+            "See docs/TOOL_CALLS.md."
+        ),
+    ),
+    preserve_recent: int = typer.Option(
+        6,
+        "--preserve-recent",
+        help=(
+            "tool-calls mode: first and newest N messages are never scored or mutated "
+            "(0 keeps only the first message pinned)."
+        ),
+    ),
+    max_state_tokens: int = typer.Option(
+        25000,
+        "--max-state-tokens",
+        help="tool-calls mode: token ceiling for the conversation sent to the judge.",
+    ),
+    max_request_tokens: int = typer.Option(
+        30000,
+        "--max-request-tokens",
+        help="tool-calls mode: ceiling for state plus one batch of questions per request.",
     ),
     max_workers: int = typer.Option(
         4, "--max-workers", help="Scoring batches sent concurrently (1 = sequential, max 8)."
@@ -1094,6 +1265,63 @@ def compact_command(
         _fail("--laya-temperature must be > 0.", code=2)
     if laya_context_limit is not None and laya_context_limit < 64:
         _fail("--laya-context-limit must be >= 64.", code=2)
+    if mode not in ("blocks", "tool-calls"):
+        _fail("--mode must be 'blocks' or 'tool-calls'.", code=2)
+    if preserve_recent < 0:
+        _fail("--preserve-recent must be >= 0.", code=2)
+    if max_state_tokens < 64:
+        _fail("--max-state-tokens must be >= 64.", code=2)
+    if max_request_tokens <= max_state_tokens:
+        _fail("--max-request-tokens must be greater than --max-state-tokens.", code=2)
+
+    if mode == "tool-calls":
+        # Block-level flags are refused rather than ignored: a pass that quietly drops an
+        # option the operator set produces a report nobody can trust.
+        inapplicable = [
+            flag
+            for flag, value, unset_value in (
+                ("--trim-threshold", trim_threshold, None),
+                ("--preserve-tail", preserve_tail, 0),
+                ("--min-block-chars", min_block_chars, 80),
+                ("--keep-regex", keep_regex, None),
+                ("--protect-prefix", protect_prefix_chars, None),
+                ("--prefix-marker", prefix_marker, None),
+                ("--decisions-cache", decisions_cache, None),
+                ("--no-marker", no_marker, False),
+                ("--marker-scores", marker_scores, False),
+                ("--append-to", append_to, None),
+                ("--require-exact-tokens", require_exact_tokens, False),
+                ("--semantic-verify", enable_semantic_verify, False),
+                ("--no-sufficiency", not enable_sufficiency, False),
+                ("--max-restorations", max_restorations, 8),
+                ("--confidence-threshold", confidence_threshold, 0.5),
+                ("--laya-model", laya_model, "convaiinnovations/laya-multilingual"),
+                ("--laya-device", laya_device, None),
+                ("--laya-context-limit", laya_context_limit, None),
+                ("--laya-temperature", laya_temperature, None),
+            )
+            if value != unset_value
+        ]
+        _compact_tool_calls(
+            raw=_read_input(input_path),
+            question=question,
+            provider=provider,
+            threshold=threshold,
+            trim_head_chars=trim_head_chars,
+            preserve_recent=preserve_recent,
+            max_state_tokens=max_state_tokens,
+            max_request_tokens=max_request_tokens,
+            batch_calls=batch_size,
+            max_workers=max_workers,
+            min_reduction=min_reduction,
+            model=model,
+            jev_model=jev_model,
+            output_path=output_path,
+            report_path=report_path,
+            dry_run=dry_run,
+            inapplicable=inapplicable,
+        )
+        return
 
     raw = _read_input(input_path)
     request = RelevanceCompactionRequest(

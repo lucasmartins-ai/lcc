@@ -2,11 +2,12 @@
 
 `src/lcc/mcp_server.py` is a minimal
 [Model Context Protocol](https://modelcontextprotocol.io/) server over stdio
-(JSON-RPC 2.0, `Content-Length` framing). It exposes five tools:
+(JSON-RPC 2.0, `Content-Length` framing). It exposes six tools:
 
 | Tool | What it does | Offline? |
 | :--- | :--- | :--- |
 | `compact` | Relevance compaction (`text`, `question`, `provider=mechanical`, `threshold=0.4`); returns `compacted_text` + full report | Yes with `mechanical`/`laya`; `jev` needs `TYPESAFE_API_KEY` |
+| `compact_transcript` | Tool-call compaction of a session transcript (`messages`, `question`, `preserve_recent=6`): pairs each tool call with its result and keeps, trims or drops the pair; kept messages are verbatim. Contract and limits: [`docs/TOOL_CALLS.md`](TOOL_CALLS.md) | `jev`/`auto` only (needs `TYPESAFE_API_KEY`); failures keep every call |
 | `inspect` | Read-only diagnostic inspection; returns the inspection report | Yes |
 | `prepare` | Inspect-first deterministic preparation; returns `action` + `prompt` (or skip note) | Yes |
 | `explain` | Audits a `compact` report object (`report`, optional `source_text`/`only`/`limit`) | Yes |
@@ -35,6 +36,18 @@ Claude Code / generic MCP client (`~/.claude.json`, `.mcp.json`, or equivalent):
   }
 }
 ```
+
+Claude Desktop — `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS,
+`%APPDATA%\Claude\claude_desktop_config.json` on Windows, same `mcpServers` block.
+
+Cursor — `.cursor/mcp.json` in the project, or `~/.cursor/mcp.json` for every project, same
+`mcpServers` block.
+
+Any other stdio client works with `command: "lcc", args: ["mcp"]`. With `pipx`, replace
+`"command": "lcc"` with the absolute path from `which lcc`: desktop applications do not inherit
+your shell's `PATH`, and that is the usual cause of a server that "fails to start" there.
+`lcc mcp` writes nothing to stdout except framed JSON-RPC, so a client that shows garbage is
+usually reading stderr or a wrapper that prints a banner.
 
 With `pipx`: replace `"command"` with the full path from
 `pipx --global-home` (or `which lcc`). With an editable checkout, use
