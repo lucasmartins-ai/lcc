@@ -1,0 +1,71 @@
+{
+  "judge": "laya",
+  "live": true,
+  "rows": [
+    {
+      "judge": "laya",
+      "arm": "A_raw_judge",
+      "selector_precision": 0.5,
+      "selector_recall": 1.0,
+      "false_drops": 0,
+      "false_keeps": 6,
+      "critical_evidence_recall": 1.0,
+      "reduction": 0.0,
+      "calls": 2,
+      "latency_ms": 33222,
+      "needs_review": false
+    },
+    {
+      "judge": "laya",
+      "arm": "B_judge_safety",
+      "selector_precision": 0.5,
+      "selector_recall": 1.0,
+      "false_drops": 0,
+      "false_keeps": 6,
+      "critical_evidence_recall": 1.0,
+      "reduction": 0.0,
+      "calls": 2,
+      "latency_ms": 31559,
+      "needs_review": false
+    },
+    {
+      "judge": "laya",
+      "arm": "C_judge_safety_verifier",
+      "selector_precision": 0.5,
+      "selector_recall": 1.0,
+      "false_drops": 0,
+      "false_keeps": 6,
+      "critical_evidence_recall": 1.0,
+      "reduction": 0.0,
+      "calls": 2,
+      "latency_ms": 31147,
+      "needs_review": false
+    }
+  ],
+  "live_extra": {
+    "A_raw_judge": {
+      "provider_used": "laya",
+      "semantic_guarantee": "judged",
+      "verifier_decision": null,
+      "verifier_confidence": null,
+      "blocks_restored": 0,
+      "resolved_model": "laya-rl-agent"
+    },
+    "B_judge_safety": {
+      "provider_used": "laya",
+      "semantic_guarantee": "judged",
+      "verifier_decision": null,
+      "verifier_confidence": null,
+      "blocks_restored": 0,
+      "resolved_model": "laya-rl-agent"
+    },
+    "C_judge_safety_verifier": {
+      "provider_used": "laya",
+      "semantic_guarantee": "judged",
+      "verifier_decision": null,
+      "verifier_confidence": null,
+      "blocks_restored": 0,
+      "resolved_model": "laya-rl-agent"
+    }
+  }
+}

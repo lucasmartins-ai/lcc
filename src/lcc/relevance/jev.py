@@ -216,6 +216,12 @@ class JevClient:
             method="POST",
         )
         opener = self._opener or urllib.request.urlopen
+        if self._opener is None:
+            # uv-built interpreters ship an empty CA store: without an explicit
+            # bundle urlopen raises CERTIFICATE_VERIFY_FAILED whenever SSL_CERT_FILE
+            # is not exported (cron/agent shells), which took every remote pass down.
+            with opener(request, timeout=self.timeout, context=_ssl_context()) as response:  # noqa: S310
+                return json.loads(response.read().decode("utf-8"))
         with opener(request, timeout=self.timeout) as response:  # noqa: S310
             return json.loads(response.read().decode("utf-8"))
 
@@ -321,3 +327,21 @@ class JevClient:
             )
             return data
         raise last_error or JevRequestError("unknown Jev failure")
+
+
+def _ssl_context():
+    """TLS context for the remote judge.
+
+    uv-built pythons ship an empty CA store, so urlopen fails with
+    CERTIFICATE_VERIFY_FAILED ("unable to get local issuer certificate") unless
+    SSL_CERT_FILE is exported, which it is not under cron. Prefer certifi's bundle,
+    fall back to the interpreter default.
+    """
+    import ssl
+
+    try:
+        import certifi
+
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:  # noqa: BLE001 - certifi is optional
+        return ssl.create_default_context()
