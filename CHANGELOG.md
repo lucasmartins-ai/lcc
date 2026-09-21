@@ -4,7 +4,17 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2026-09-21
+
+**Release focus: Jev first, and enough of it shipped to prove it.** The Jev provider is now the
+headline path in the documentation (`docs/JEV.md`), the compiler learned a message-level mode
+(`lcc compact --mode tool-calls`) that drops spent tool calls and results from an agent
+transcript without ever summarizing, and a Claude Code plugin replaces that editor's built-in
+compaction summary with the same pass. A head-to-head study against `fast-jev-compaction` 0.4.0
+on the same transcripts with live Jev is published in `benchmarks/research/TRANSCRIPT_AB.md`:
+this mode removed 13.3 / 39.2 / 55.7% of the transcript at fact recall 1.00 / 1.00 / 1.00, where
+that library removed 70.5 / 78.9 / 83.4% at recall 0.00. Two defects the study found in the new
+mode are fixed below.
 
 ### Added
 
@@ -233,7 +243,8 @@ response verification — those remain roadmap items (see `docs/roadmap.md`).
   `CODE_OF_CONDUCT.md`, the `docs/` set (architecture, evaluation, roadmap, release, ADRs),
   examples, and agent guidance (`CLAUDE.md`, `AGENTS.md`).
 
-[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.2.0...v0.4.0
 [0.2.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/lucasmartins-ai/lcc/releases/tag/v0.1.0

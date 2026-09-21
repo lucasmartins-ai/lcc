@@ -37,6 +37,18 @@ Claude Code / generic MCP client (`~/.claude.json`, `.mcp.json`, or equivalent):
 }
 ```
 
+Claude Desktop — `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS,
+`%APPDATA%\Claude\claude_desktop_config.json` on Windows, same `mcpServers` block.
+
+Cursor — `.cursor/mcp.json` in the project, or `~/.cursor/mcp.json` for every project, same
+`mcpServers` block.
+
+Any other stdio client works with `command: "lcc", args: ["mcp"]`. With `pipx`, replace
+`"command": "lcc"` with the absolute path from `which lcc`: desktop applications do not inherit
+your shell's `PATH`, and that is the usual cause of a server that "fails to start" there.
+`lcc mcp` writes nothing to stdout except framed JSON-RPC, so a client that shows garbage is
+usually reading stderr or a wrapper that prints a banner.
+
 With `pipx`: replace `"command"` with the full path from
 `pipx --global-home` (or `which lcc`). With an editable checkout, use
 `<repo>/.venv/bin/lcc`.
