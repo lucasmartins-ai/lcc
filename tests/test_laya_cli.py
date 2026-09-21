@@ -68,14 +68,17 @@ def test_cli_compact_provider_laya_fail_safe(tmp_path: Path):
 
     assert result.exit_code == 0
     assert out.exists()
-    assert out.read_text(encoding="utf-8") == SAMPLE_TEXT
 
     data = json.loads(report.read_text(encoding="utf-8"))
     assert data["provider_requested"] == "laya"
-    assert data["provider_used"] == "degraded"
+    assert data["provider_used"] == "laya+mechanical_fallback"
     assert data["degraded"] is True
-    assert data["degradation_reason"] == "laya_unavailable"
-    assert data["blocks_dropped"] == 0
+    assert data["degradation_reason"] == "laya_unavailable_mechanical_fallback"
+    assert data["semantic_guarantee"] == "none"
+    assert any("laya_unavailable" in w for w in data["warnings"])
+    # Observability fields are present even on the fallback path.
+    for field in ("provider_used", "latency_ms", "laya_model_requested"):
+        assert field in data, field
 
 
 def test_cli_compact_provider_laya_with_mock_client(tmp_path: Path):
@@ -160,3 +163,24 @@ def test_cli_explain_with_laya_report(tmp_path: Path):
     assert explain_res.exit_code == 0
     explain_out = explain_res.stdout
     assert "laya" in explain_out.lower()
+
+
+def test_cli_compact_help_guides_provider_choice():
+    res = runner.invoke(app, ["compact", "--help"])
+    assert res.exit_code == 0
+    out = res.stdout.lower()
+    for cue in ("mechanical", "laya", "jev", "docs/laya.md", "degraded"):
+        assert cue in out, cue
+
+
+def test_laya_docs_cover_limits_and_tradeoff():
+    from pathlib import Path as _P
+
+    root = _P(__file__).resolve().parents[1]
+    doc = (root / "docs" / "LAYA.md").read_text(encoding="utf-8").lower()
+    for cue in ("512", "1024", "319", "831", "latency_ms", "when to use",
+                "conservative", "context_budget_used", "degraded"):
+        assert cue in doc, cue
+    readme = (root / "README.md").read_text(encoding="utf-8")
+    assert "docs/LAYA.md" in readme
+    assert "relevance-compaction-1.2" in readme

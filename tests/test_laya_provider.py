@@ -194,7 +194,9 @@ def test_laya_compactor_integration():
 
 
 def test_laya_degraded_fail_safe_when_unavailable():
-    # When laya is requested but unavailable (client=None and no deps), must fail-safe keep all
+    # When laya is requested but unavailable (client=None and no deps),
+    # fall back honestly to mechanical scoring with degraded=True —
+    # never a fake `judged`, never a silent keep-all.
     req = RelevanceCompactionRequest(
         text=SAMPLE_TEXT,
         question="engineering specifications",
@@ -205,10 +207,44 @@ def test_laya_degraded_fail_safe_when_unavailable():
         result = compact_context(req)
 
     assert result.report.provider_requested == "laya"
-    assert result.report.provider_used == "degraded"
-    assert result.report.degradation_reason == "laya_unavailable"
-    assert result.report.blocks_dropped == 0
-    assert result.report.chars_after == len(SAMPLE_TEXT)
+    assert result.report.provider_used == "laya+mechanical_fallback"
+    assert result.report.degraded is True
+    assert result.report.degradation_reason == "laya_unavailable_mechanical_fallback"
+    assert result.report.semantic_guarantee == "none"
+    assert any("laya_unavailable" in w for w in result.report.warnings)
+    # Mechanical fallback: no decision may claim a Laya source.
     for dec in result.report.decisions:
-        assert dec.decision == "keep"
-        assert dec.reason == "laya_unavailable_fail_safe"
+        assert dec.source != "laya"
+
+
+def test_laya_report_carries_observability_fields():
+    agent = FakeLayaAgent()
+    client = LayaClient(agent=agent)
+    req = RelevanceCompactionRequest(
+        text=SAMPLE_TEXT,
+        question="booking funnel objective",
+        provider="laya",
+        client=client,
+        threshold=0.4,
+    )
+    result = compact_context(req)
+    payload = result.report
+    assert payload.provider_used == "laya"
+    assert payload.laya_model_requested is not None
+    assert payload.laya_model_resolved is not None
+    assert payload.laya_context_limit in (512, 1024)
+    assert payload.context_budget_used is not None
+    assert payload.context_budget_used <= (payload.laya_context_limit or 1024)
+    assert payload.latency_ms >= 0
+    d = __import__("lcc.relevance.compactor", fromlist=["report_to_dict"]).report_to_dict(
+        payload
+    )
+    for field in (
+        "provider_used",
+        "laya_model_requested",
+        "laya_model_resolved",
+        "laya_context_limit",
+        "context_budget_used",
+        "latency_ms",
+    ):
+        assert field in d, field

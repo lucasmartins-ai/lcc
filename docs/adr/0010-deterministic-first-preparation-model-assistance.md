@@ -44,3 +44,15 @@ remote model calls, model-assisted rewriting, model-backed inspection, or answer
 scoring inside the deterministic core, inspection, or benchmark harness. Those capabilities
 remain roadmap work behind separate, opt-in boundaries and must not weaken ADR 0005, ADR 0006,
 ADR 0007, ADR 0008, or ADR 0009.
+
+**Clarification (0.4.0, decision unchanged).** The opt-in layers foreseen above now
+exist and stay outside the core: `lcc compact` relevance providers (mechanical /
+Jev / Laya, ADRs 0013/0016), the minimum-sufficient-context machinery — safety
+model, context graph, type-aware trim, sufficiency verification, independent
+semantic verifier (ADRs 0014/0015) — and the agent/router/retrieval scaffolds.
+Concretely: no network, autoregressive LLM, embedding, download, torch /
+transformers / Laya, or LLM-SDK import may enter `cleaning`, `token_budget`
+(beyond its fail-closed download guard), `inspection`, `pipeline`,
+`lexical_selection`, or `benchmarking` (beyond `*_VERSION` identity constants);
+pinned by `tests/test_deterministic_boundary.py`. `mechanical` and `laya`
+paths run with no API key and no network.
