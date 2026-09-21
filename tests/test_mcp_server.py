@@ -23,7 +23,14 @@ QUESTION = "reduce mobile booking friction"
 
 
 def test_tools_registered():
-    assert set(TOOLS) == {"compact", "inspect", "prepare", "explain", "intake"}
+    assert set(TOOLS) == {
+        "compact",
+        "compact_transcript",
+        "inspect",
+        "prepare",
+        "explain",
+        "intake",
+    }
     for name, spec in TOOLS.items():
         assert spec["description"] and spec["schema"].get("type") == "object", name
 
@@ -39,7 +46,14 @@ def test_tools_list_shape():
     resp = handle_message({"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}})
     assert resp is not None
     names = [t["name"] for t in resp["result"]["tools"]]
-    assert names == ["compact", "inspect", "prepare", "explain", "intake"]
+    assert names == [
+        "compact",
+        "compact_transcript",
+        "inspect",
+        "prepare",
+        "explain",
+        "intake",
+    ]
     for tool in resp["result"]["tools"]:
         assert tool["inputSchema"]["type"] == "object"
 
@@ -73,6 +87,65 @@ def test_compact_rejects_bad_input_as_tool_error():
     resp = handle_message(
         {"jsonrpc": "2.0", "id": 5, "method": "tools/call",
          "params": {"name": "compact", "arguments": {"text": "", "question": QUESTION}}}
+    )
+    assert resp is not None and resp["result"]["isError"] is True
+
+
+def test_compact_transcript_offline_keeps_every_call(monkeypatch):
+    import lcc.relevance.transcript as transcript_module
+
+    monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    monkeypatch.setattr(transcript_module, "_resolve_client", lambda: None)
+    resp = handle_message(
+        {
+            "jsonrpc": "2.0",
+            "id": 7,
+            "method": "tools/call",
+            "params": {
+                "name": "compact_transcript",
+                "arguments": {
+                    "messages": [
+                        {"role": "user", "text": "Fix the parser."},
+                        {
+                            "role": "assistant",
+                            "toolUses": [
+                                {"tool_use_id": "toolu_1", "tool": "Bash", "input": {"command": "pytest"}}
+                            ],
+                        },
+                        {
+                            "role": "user",
+                            "toolResults": [{"tool_use_id": "toolu_1", "text": "1 failed"}],
+                        },
+                    ],
+                    "question": "fix the parser",
+                    "preserve_recent": 0,
+                },
+            },
+        }
+    )
+    assert resp is not None and "error" not in resp
+    payload = json.loads(resp["result"]["content"][0]["text"])
+    assert payload["report"]["mode"] == "tool-calls"
+    assert payload["report"]["semantic_guarantee"] == "none"
+    assert [message["role"] for message in payload["messages"]] == ["user", "assistant", "user"]
+    assert payload["messages"][2]["toolResults"][0]["text"] == "1 failed"
+
+
+def test_compact_transcript_refuses_a_non_semantic_provider():
+    resp = handle_message(
+        {
+            "jsonrpc": "2.0",
+            "id": 8,
+            "method": "tools/call",
+            "params": {
+                "name": "compact_transcript",
+                "arguments": {
+                    "messages": [{"role": "user", "text": "hi"}],
+                    "question": "q",
+                    "provider": "mechanical",
+                },
+            },
+        }
     )
     assert resp is not None and resp["result"]["isError"] is True
 
@@ -154,7 +227,7 @@ def test_stdio_end_to_end_offline():
     # 1 notification -> no response: 3 responses for 4 messages.
     assert [r["id"] for r in responses] == [1, 2, 3]
     assert responses[0]["result"]["serverInfo"]["name"] == "lcc"
-    assert len(responses[1]["result"]["tools"]) == 5
+    assert len(responses[1]["result"]["tools"]) == 6
     payload = json.loads(responses[2]["result"]["content"][0]["text"])
     assert payload["report"]["provider_used"] == "mechanical"
 

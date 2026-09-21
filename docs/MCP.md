@@ -2,11 +2,12 @@
 
 `src/lcc/mcp_server.py` is a minimal
 [Model Context Protocol](https://modelcontextprotocol.io/) server over stdio
-(JSON-RPC 2.0, `Content-Length` framing). It exposes five tools:
+(JSON-RPC 2.0, `Content-Length` framing). It exposes six tools:
 
 | Tool | What it does | Offline? |
 | :--- | :--- | :--- |
 | `compact` | Relevance compaction (`text`, `question`, `provider=mechanical`, `threshold=0.4`); returns `compacted_text` + full report | Yes with `mechanical`/`laya`; `jev` needs `TYPESAFE_API_KEY` |
+| `compact_transcript` | Tool-call compaction of a session transcript (`messages`, `question`, `preserve_recent=6`): pairs each tool call with its result and keeps, trims or drops the pair; kept messages are verbatim. Contract and limits: [`docs/TOOL_CALLS.md`](TOOL_CALLS.md) | `jev`/`auto` only (needs `TYPESAFE_API_KEY`); failures keep every call |
 | `inspect` | Read-only diagnostic inspection; returns the inspection report | Yes |
 | `prepare` | Inspect-first deterministic preparation; returns `action` + `prompt` (or skip note) | Yes |
 | `explain` | Audits a `compact` report object (`report`, optional `source_text`/`only`/`limit`) | Yes |

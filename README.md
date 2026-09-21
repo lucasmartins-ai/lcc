@@ -425,6 +425,13 @@ lcc compact dossier.md -q "reduce mobile booking friction" \
   --provider laya \
   --laya-model convaiinnovations/laya-multilingual \
   --laya-device cpu
+
+# Tool-call mode: compact a session transcript instead of a document. Each tool call is
+# paired with its result and scored twice (does the call still matter, is its output still
+# needed); user and assistant text is never touched. Needs --provider jev. See docs/TOOL_CALLS.md.
+lcc compact transcript.json -q "finish the parser fix" \
+  --mode tool-calls --preserve-recent 6 \
+  -o compacted.json -r report.json
 ```
 
 #### Local Semantic Decision Backend: Laya (Apache 2.0)

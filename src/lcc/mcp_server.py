@@ -4,6 +4,8 @@ Exposes the local-first capabilities to MCP-capable agents over JSON-RPC 2.0
 on stdio (LSP-style ``Content-Length`` framing):
 
 - ``compact`` — relevance compaction (default ``mechanical``: offline, no key)
+- ``compact_transcript`` — tool-call compaction of a session transcript (pairs tool calls with
+  their results and drops the pairs Jev no longer needs; needs a semantic judge)
 - ``inspect`` — read-only diagnostic inspection (offline)
 - ``prepare`` — inspect-first deterministic prompt preparation (offline)
 - ``explain`` — audit a compaction report (offline, never re-runs)
@@ -58,6 +60,54 @@ def _tool_compact(args: dict[str, Any]) -> dict[str, Any]:
         )
     )
     return {"compacted_text": result.compacted_text, "report": report_to_dict(result.report)}
+
+
+def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
+    from lcc.relevance.transcript import (
+        TranscriptCompactionRequest,
+        compact_transcript,
+        messages_to_payload,
+    )
+
+    payload = args.get("messages") if "messages" in args else args.get("payload")
+    if not isinstance(payload, (list, dict)) or not payload:
+        raise ValueError("compact_transcript requires 'messages' (a list or {'messages': [...]})")
+    question = args.get("question", "")
+    if not isinstance(question, str) or not question.strip():
+        raise ValueError("compact_transcript requires non-empty 'question'")
+    provider = args.get("provider", "jev")
+    if provider not in ("auto", "jev"):
+        raise ValueError(
+            "compact_transcript needs a semantic judge: use 'jev' or 'auto' "
+            "(mechanical and laya cannot judge tool-call relevance)"
+        )
+    threshold = float(args.get("threshold", 0.5))
+    if not 0.0 <= threshold <= 1.0:
+        raise ValueError("threshold must be between 0 and 1")
+    preserve_recent = int(args.get("preserve_recent", 6))
+    trim_head_chars = int(args.get("trim_head_chars", 300))
+    if preserve_recent < 0 or trim_head_chars < 0:
+        raise ValueError("preserve_recent and trim_head_chars must be >= 0")
+    result = compact_transcript(
+        TranscriptCompactionRequest(
+            payload=payload if isinstance(payload, dict) else {"messages": payload},
+            question=question,
+            provider=provider,
+            threshold=threshold,
+            preserve_recent=preserve_recent,
+            trim_head_chars=trim_head_chars,
+            max_state_tokens=int(args.get("max_state_tokens", 25000)),
+            max_request_tokens=int(args.get("max_request_tokens", 30000)),
+            max_workers=int(args.get("max_workers", 4)),
+            min_reduction=float(args.get("min_reduction", 0.25)),
+            jev_model=str(args.get("jev_model", "jev-latest")),
+        )
+    )
+    return {
+        "messages": messages_to_payload(result.messages),
+        "decisions": result.decisions,
+        "report": result.report,
+    }
 
 
 def _tool_inspect(args: dict[str, Any]) -> dict[str, Any]:
@@ -174,6 +224,39 @@ TOOLS: dict[str, dict[str, Any]] = {
                 "threshold": {"type": "number", "default": 0.4},
             },
             "required": ["text", "question"],
+        },
+    },
+    "compact_transcript": {
+        "handler": _tool_compact_transcript,
+        "description": (
+            "Tool-call compaction for a session transcript: pairs each tool call with its "
+            "result, pins the first and newest messages, and drops the pairs a semantic "
+            "judge says are spent — kept messages stay verbatim, so nothing is summarized. "
+            "Needs TYPESAFE_API_KEY (provider jev/auto); every failure keeps the call."
+        ),
+        "schema": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "type": "array",
+                    "description": (
+                        "Messages with role/text and toolUses/toolResults blocks (Claude Code "
+                        "hook shape) or tool_calls/tool_results."
+                    ),
+                    "items": {"type": "object"},
+                },
+                "question": {"type": "string"},
+                "provider": {"type": "string", "enum": ["jev", "auto"], "default": "jev"},
+                "threshold": {"type": "number", "default": 0.5},
+                "preserve_recent": {"type": "integer", "default": 6},
+                "trim_head_chars": {"type": "integer", "default": 300},
+                "max_state_tokens": {"type": "integer", "default": 25000},
+                "max_request_tokens": {"type": "integer", "default": 30000},
+                "max_workers": {"type": "integer", "default": 4},
+                "min_reduction": {"type": "number", "default": 0.25},
+                "jev_model": {"type": "string", "default": "jev-latest"},
+            },
+            "required": ["messages", "question"],
         },
     },
     "inspect": {

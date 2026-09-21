@@ -182,6 +182,31 @@ def test_jev_path_is_documented_consistently() -> None:
     assert "docs/JEV.md" in _read("CHANGELOG.md")
 
 
+def test_tool_call_mode_is_documented() -> None:
+    path = "docs/TOOL_CALLS.md"
+    assert (ROOT / path).is_file()
+
+    doc = _words(path).lower()
+    for phrase in (
+        "--mode tool-calls",
+        "transcript-compaction-1.0",
+        "tool_use_id",
+        "preserve-recent",
+        "max-state-tokens",
+        "keep_result",
+        "semantic_guarantee",
+        "never scored",
+        "fails closed",
+        "compact_transcript",
+    ):
+        assert phrase in doc, phrase
+
+    assert path in _read("README.md")
+    assert path in _read("CHANGELOG.md")
+    assert path in _read("docs/MCP.md")
+    assert path in _read("docs/QUICKSTART.md")
+
+
 def test_local_doc_links_resolve_to_existing_files() -> None:
     import re
 
