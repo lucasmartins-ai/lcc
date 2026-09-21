@@ -59,7 +59,7 @@ _No changes yet._
   disabled-by-default `lcc.semantic_retrieval` / `lcc semantic-retrieval` scaffold that reports
   disabled or blocked status only. Retrieval execution, embeddings, RAG, model calls, network
   access, and local-model behavior are still not implemented.
-- Visitor-facing project presentation in `docs/project-presentation.md`.
+- Visitor-facing project presentation (added during this cycle, since removed as hackathon-specific; pitch content folded into README).
 
 ### Changed
 

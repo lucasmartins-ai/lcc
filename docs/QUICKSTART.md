@@ -79,3 +79,4 @@ touches the network.
 | Cache math and epoch discipline? | `docs/CACHE_ALIGNMENT.md` |
 | What is guaranteed deterministic? | `README.md` § Architectural Boundaries & ADRs 0001–0016 |
 | Full command reference? | `lcc --help`, `lcc compact --help` |
+| Connect an agent (Claude Code, etc.)? | `lcc mcp` — stdio server, see `docs/MCP.md` |
