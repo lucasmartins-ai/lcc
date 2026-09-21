@@ -33,6 +33,7 @@
   - [`lcc compact` — Instant Relevance Compaction](#6-lcc-compact--instant-relevance-compaction-opt-in-cache-aware)
     - [Local Semantic Decision Backend: Laya](#local-semantic-decision-backend-laya-apache-20)
   - [`lcc explain` — Audit a compaction pass](#7-lcc-explain--audit-a-compaction-pass-after-the-fact)
+  - [`lcc mcp` — MCP server for agents](#8-lcc-mcp--mcp-server-for-agents)
 - [Programmatic Library API Usage](#-programmatic-library-api-usage)
   - [Python API](#python-api)
   - [TypeScript / Node.js API](#typescript--nodejs-api)
@@ -488,6 +489,22 @@ DROPPED (17)
       why: scored below the drop threshold
       text: LOG 1: queue worker heartbeat ok in 554ms, backlog 287 jobs, retry budget untouched…
 ```
+
+### 8. `lcc mcp` — MCP server for agents
+
+Stdio JSON-RPC server (stdlib only, zero new dependencies) exposing `compact`
+(defaults to offline `mechanical`), `inspect`, `prepare`, `explain` and `intake`
+to any MCP client:
+
+```bash
+lcc mcp
+```
+
+```json
+{ "mcpServers": { "lcc": { "command": "lcc", "args": ["mcp"] } } }
+```
+
+Contract, smoke test and integrator notes: [`docs/MCP.md`](docs/MCP.md).
 
 ---
 

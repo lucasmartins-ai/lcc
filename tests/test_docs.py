@@ -140,3 +140,26 @@ def test_phase_2_first_slice_boundary_stub_is_documented() -> None:
     assert "local vector file references" in roadmap
     assert "validation does not read vector contents" in roadmap
     assert "no retrieval adapter is implemented" in roadmap
+
+
+def test_adr_0014_exists_and_is_referenced() -> None:
+    assert (ROOT / "docs/adr/0014-minimum-sufficient-context.md").is_file()
+    assert "docs/adr/0014-minimum-sufficient-context.md" in _read("README.md")
+    assert "ADR 0014" in _read("CHANGELOG.md")
+
+
+def test_local_doc_links_resolve_to_existing_files() -> None:
+    import re
+
+    candidates = [
+        ROOT / "README.md",
+        ROOT / "CHANGELOG.md",
+        *sorted((ROOT / "docs").rglob("*.md")),
+    ]
+    pattern = re.compile(r"\bdocs/[A-Za-z0-9_.\-/]+\.md\b")
+    missing: list[str] = []
+    for path in candidates:
+        for match in pattern.findall(path.read_text(encoding="utf-8")):
+            if not (ROOT / match).is_file():
+                missing.append(f"{path.relative_to(ROOT)} -> {match}")
+    assert not missing, "broken doc links:\n" + "\n".join(missing)
