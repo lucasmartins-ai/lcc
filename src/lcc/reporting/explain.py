@@ -44,6 +44,18 @@ REASON_EXPLANATIONS: dict[str, str] = {
     "low_confidence_kept": "low judge confidence, kept instead of dropped",
     "low_confidence_trimmed": "low judge confidence, trimmed instead of dropped",
     "trim_unsafe_kept_whole": "borderline but no safe trim boundary exists, kept whole",
+    # tool-call mode (docs/TOOL_CALLS.md)
+    "result_still_needed": "the judge says this tool output is still needed",
+    "call_kept_result_trimmed": (
+        "the call still matters but its output is spent: only the head was kept"
+    ),
+    "short_result_kept_whole": (
+        "the call still matters and the output was too short to trim, so it was kept whole"
+    ),
+    "call_and_result_not_needed": "the judge says this call and its output are spent",
+    "pinned_first_message": "the first message is never scored",
+    "pinned_recent": "inside the newest messages, which are never scored",
+    "not_judged_fail_safe": "the judge was unavailable, so this call was kept unjudged",
 }
 
 #: Reason codes whose explanation depends on the payload after the prefix.

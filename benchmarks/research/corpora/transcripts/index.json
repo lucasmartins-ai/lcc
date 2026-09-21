@@ -1,0 +1,41 @@
+[
+  {
+    "id": "small",
+    "path": "benchmarks/research/corpora/transcripts/small.json",
+    "messages": 23,
+    "calls": 11,
+    "counts": {
+      "spent": 4,
+      "noise": 2,
+      "evidence": 2,
+      "pinned": 3
+    },
+    "chars": 248
+  },
+  {
+    "id": "medium",
+    "path": "benchmarks/research/corpora/transcripts/medium.json",
+    "messages": 41,
+    "calls": 20,
+    "counts": {
+      "spent": 8,
+      "noise": 6,
+      "evidence": 3,
+      "pinned": 3
+    },
+    "chars": 320
+  },
+  {
+    "id": "large",
+    "path": "benchmarks/research/corpora/transcripts/large.json",
+    "messages": 65,
+    "calls": 32,
+    "counts": {
+      "spent": 14,
+      "noise": 10,
+      "evidence": 5,
+      "pinned": 3
+    },
+    "chars": 416
+  }
+]

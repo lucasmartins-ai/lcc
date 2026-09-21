@@ -1,0 +1,924 @@
+{
+  "id": "large",
+  "objective": "cut the retry storm on checkout",
+  "task": "Cut the retry storm on checkout. Constraints from the platform review: billing/legacy must not be touched, and the change ships behind RETRY_V2. Report what you changed.",
+  "messages": [
+    {
+      "role": "user",
+      "text": "Cut the retry storm on checkout. Constraints from the platform review: billing/legacy must not be touched, and the change ships behind RETRY_V2. Report what you changed."
+    },
+    {
+      "role": "assistant",
+      "text": "Step 1.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0001",
+          "tool": "Bash",
+          "input": {
+            "command": "cat reports/latency-tail.txt"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0001",
+          "text": "metrics export (02:00-03:00 UTC)\nseries: http_server_duration_ms{route=\"POST /pay\"}\nquantile 0.99 value 4310 window 02:10..02:40\nsample: the spike starts right after the first client in the pool reconnects"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 2.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0002",
+          "tool": "Read",
+          "input": {
+            "file_path": "src/checkout/attempts.ts"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0002",
+          "text": "stale output for {'file_path': 'src/checkout/attempts.ts'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 3.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0003",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0003",
+          "text": "ci: nightly build finished, 41 artifacts uploaded, cache hit ratio 0.62"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 4.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0004",
+          "tool": "Bash",
+          "input": {
+            "command": "cat reports/idempotency.txt"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0004",
+          "text": "request capture, three consecutive attempts\nattempt 1 header Idempotency-Key: 9f2c-...\nattempt 2 header Idempotency-Key: 9f2c-...\nattempt 3 header Idempotency-Key: 9f2c-...\nthe server treats every attempt as a new charge"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 5.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0005",
+          "tool": "Bash",
+          "input": {
+            "command": "ls -la src/checkout"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0005",
+          "text": "stale output for {'command': 'ls -la src/checkout'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 6.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0006",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0006",
+          "text": "docs: the style guide still lists the old font stack and colour tokens"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 7.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0007",
+          "tool": "Bash",
+          "input": {
+            "command": "cat reports/flag.txt"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0007",
+          "text": "feature flags (exported)\nRETRY_V2 audience none region all rollout 0 state off\nthe worker reads the value once at boot"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 8.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0008",
+          "tool": "Read",
+          "input": {
+            "file_path": "src/checkout/queue.ts"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0008",
+          "text": "stale output for {'file_path': 'src/checkout/queue.ts'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 9.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0009",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0009",
+          "text": "infra: the staging certificate renews automatically on the 14th of each month"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 10.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0010",
+          "tool": "Bash",
+          "input": {
+            "command": "cat reports/constraint.txt"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0010",
+          "text": "policy note from the platform review\nbilling/legacy stays frozen: no schema, no retry semantics, no owner change\nquestions go to the payments group"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 11.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0011",
+          "tool": "Grep",
+          "input": {
+            "pattern": "TODO",
+            "path": "src/checkout"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0011",
+          "text": "stale output for {'pattern': 'TODO', 'path': 'src/checkout'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 12.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0012",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0012",
+          "text": "meeting notes: design review moved to Thursday, room changed to 4B"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 13.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0013",
+          "tool": "Bash",
+          "input": {
+            "command": "cat reports/window.txt"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0013",
+          "text": "release calendar\nweekday change window closes at 17:00 local\nweekend freezes apply to the payments group"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 14.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0014",
+          "tool": "Bash",
+          "input": {
+            "command": "git log --oneline -12"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0014",
+          "text": "stale output for {'command': 'git log --oneline -12'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 15.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0015",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0015",
+          "text": "marketing: the landing hero copy was shortened to 11 words last week"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 16.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0016",
+          "tool": "Read",
+          "input": {
+            "file_path": "package.json"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0016",
+          "text": "stale output for {'file_path': 'package.json'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 17.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0017",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0017",
+          "text": "ci: nightly build finished, 41 artifacts uploaded, cache hit ratio 0.62"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 18.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0018",
+          "tool": "Read",
+          "input": {
+            "file_path": "src/checkout/attempts.ts"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0018",
+          "text": "stale output for {'file_path': 'src/checkout/attempts.ts'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 19.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0019",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0019",
+          "text": "docs: the style guide still lists the old font stack and colour tokens"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 20.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0020",
+          "tool": "Bash",
+          "input": {
+            "command": "ls -la src/checkout"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0020",
+          "text": "stale output for {'command': 'ls -la src/checkout'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 21.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0021",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0021",
+          "text": "infra: the staging certificate renews automatically on the 14th of each month"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 22.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0022",
+          "tool": "Read",
+          "input": {
+            "file_path": "src/checkout/queue.ts"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0022",
+          "text": "stale output for {'file_path': 'src/checkout/queue.ts'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 23.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0023",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0023",
+          "text": "meeting notes: design review moved to Thursday, room changed to 4B"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 24.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0024",
+          "tool": "Grep",
+          "input": {
+            "pattern": "TODO",
+            "path": "src/checkout"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0024",
+          "text": "stale output for {'pattern': 'TODO', 'path': 'src/checkout'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 25.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0025",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0025",
+          "text": "marketing: the landing hero copy was shortened to 11 words last week"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 26.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0026",
+          "tool": "Bash",
+          "input": {
+            "command": "git log --oneline -12"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0026",
+          "text": "stale output for {'command': 'git log --oneline -12'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 27.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0027",
+          "tool": "Read",
+          "input": {
+            "file_path": "package.json"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0027",
+          "text": "stale output for {'file_path': 'package.json'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 28.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0028",
+          "tool": "Read",
+          "input": {
+            "file_path": "src/checkout/attempts.ts"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0028",
+          "text": "stale output for {'file_path': 'src/checkout/attempts.ts'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 29.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0029",
+          "tool": "Bash",
+          "input": {
+            "command": "ls -la src/checkout"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0029",
+          "text": "stale output for {'command': 'ls -la src/checkout'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 30.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0030",
+          "tool": "Bash",
+          "input": {
+            "command": "pytest tests/checkout/test_attempts.py -k case_30"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0030",
+          "text": "latest run: 1 failed, 24 passed"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 31.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0031",
+          "tool": "Bash",
+          "input": {
+            "command": "pytest tests/checkout/test_attempts.py -k case_31"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0031",
+          "text": "latest run: 1 failed, 24 passed"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 32.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0032",
+          "tool": "Bash",
+          "input": {
+            "command": "pytest tests/checkout/test_attempts.py -k case_32"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0032",
+          "text": "latest run: 1 failed, 24 passed"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "id": "toolu_0001",
+      "tool": "Bash",
+      "kind": "evidence"
+    },
+    {
+      "id": "toolu_0002",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0003",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0004",
+      "tool": "Bash",
+      "kind": "evidence"
+    },
+    {
+      "id": "toolu_0005",
+      "tool": "Bash",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0006",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0007",
+      "tool": "Bash",
+      "kind": "evidence"
+    },
+    {
+      "id": "toolu_0008",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0009",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0010",
+      "tool": "Bash",
+      "kind": "evidence"
+    },
+    {
+      "id": "toolu_0011",
+      "tool": "Grep",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0012",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0013",
+      "tool": "Bash",
+      "kind": "evidence"
+    },
+    {
+      "id": "toolu_0014",
+      "tool": "Bash",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0015",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0016",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0017",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0018",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0019",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0020",
+      "tool": "Bash",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0021",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0022",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0023",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0024",
+      "tool": "Grep",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0025",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0026",
+      "tool": "Bash",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0027",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0028",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0029",
+      "tool": "Bash",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0030",
+      "tool": "Bash",
+      "kind": "pinned"
+    },
+    {
+      "id": "toolu_0031",
+      "tool": "Bash",
+      "kind": "pinned"
+    },
+    {
+      "id": "toolu_0032",
+      "tool": "Bash",
+      "kind": "pinned"
+    }
+  ],
+  "counts": {
+    "spent": 14,
+    "noise": 10,
+    "evidence": 5,
+    "pinned": 3
+  },
+  "required_facts": [
+    "quantile 0.99 value 4310 window 02:10..02:40",
+    "the server treats every attempt as a new charge",
+    "rollout 0 state off",
+    "billing/legacy stays frozen",
+    "weekday change window closes at 17:00 local"
+  ]
+}

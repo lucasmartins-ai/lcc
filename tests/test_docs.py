@@ -232,6 +232,13 @@ def test_claude_code_plugin_is_documented() -> None:
     hooks_readme = _read("plugins/claude-code/hooks/README.md")
     assert "../../../docs/TOOL_CALLS.md" in hooks_readme
 
+    study = "benchmarks/research/TRANSCRIPT_AB.md"
+    assert (ROOT / study).is_file()
+    assert "TRANSCRIPT_AB.md" in _read("README.md")
+    assert "TRANSCRIPT_AB.md" in _read("docs/TOOL_CALLS.md")
+    assert "TRANSCRIPT_AB.md" in _read("docs/QUICKSTART.md")
+    assert "TRANSCRIPT_AB.md" in _read("benchmarks/research/RESEARCH_STATUS.md")
+
 
 def test_local_doc_links_resolve_to_existing_files() -> None:
     import re
