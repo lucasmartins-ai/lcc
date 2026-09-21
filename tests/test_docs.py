@@ -207,6 +207,32 @@ def test_tool_call_mode_is_documented() -> None:
     assert path in _read("docs/QUICKSTART.md")
 
 
+def test_claude_code_plugin_is_documented() -> None:
+    path = "docs/CLAUDE_CODE.md"
+    assert (ROOT / path).is_file()
+
+    doc = _words(path).lower()
+    for phrase in (
+        "claude plugin marketplace add lucasmartins-ai/lcc",
+        "claude plugin install lcc@lcc",
+        "claude_code_enable_function_hooks=1",
+        "2.1.274",
+        "session.compact",
+        "compact_transcript",
+        "minreductionratio",
+        "built-in summary",
+        "not verified",
+    ):
+        assert phrase in doc, phrase
+
+    assert path in _read("README.md")
+    assert path in _read("CHANGELOG.md")
+    assert path in _read("docs/QUICKSTART.md")
+
+    hooks_readme = _read("plugins/claude-code/hooks/README.md")
+    assert "../../../docs/TOOL_CALLS.md" in hooks_readme
+
+
 def test_local_doc_links_resolve_to_existing_files() -> None:
     import re
 

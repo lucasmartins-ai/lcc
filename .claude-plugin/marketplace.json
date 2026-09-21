@@ -1,0 +1,19 @@
+{
+  "name": "lcc",
+  "description": "Local Context Compiler plugins: verbatim, Jev-guided context compaction for Claude Code sessions.",
+  "owner": {
+    "name": "LookADev",
+    "url": "https://github.com/lucasmartins-ai"
+  },
+  "plugins": [
+    {
+      "name": "lcc",
+      "source": "./plugins/claude-code",
+      "description": "Verbatim tool-call compaction for Claude Code sessions: Jev decides which tool calls and results are spent, everything kept stays byte for byte.",
+      "version": "0.5.0",
+      "license": "MIT",
+      "category": "context",
+      "keywords": ["context-compaction", "jev", "typesafe", "local-first"]
+    }
+  ]
+}

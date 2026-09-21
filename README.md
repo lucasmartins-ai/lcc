@@ -134,6 +134,13 @@ It exposes `compact`, `inspect`, `prepare`, `explain`, and `intake`. The server
 defaults `compact` to the offline `mechanical` provider. See [`docs/MCP.md`](docs/MCP.md)
 for the JSON-RPC contract and client configuration.
 
+**Using Claude Code?** The plugin replaces Claude Code's compaction summary with the same
+verbatim pass: `claude plugin marketplace add lucasmartins-ai/lcc`, then
+`claude plugin install lcc@lcc` (Claude Code 2.1.274+ and `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`
+while function hooks are early access). It needs a `TYPESAFE_API_KEY` and stands down to the
+built-in summary whenever it cannot judge. Install, options and limits:
+[`docs/CLAUDE_CODE.md`](docs/CLAUDE_CODE.md).
+
 ---
 
 ## 🎬 See it work
