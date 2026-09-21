@@ -1,0 +1,63 @@
+{
+  "name": "lcc",
+  "version": "0.5.0",
+  "description": "Verbatim tool-call compaction for Claude Code sessions: Jev decides which tool calls and results are spent, everything kept stays byte for byte.",
+  "license": "MIT",
+  "author": {
+    "name": "LookADev",
+    "url": "https://github.com/lucasmartins-ai"
+  },
+  "homepage": "https://github.com/lucasmartins-ai/lcc",
+  "repository": "https://github.com/lucasmartins-ai/lcc",
+  "keywords": ["context-compaction", "jev", "typesafe", "local-first", "verbatim"],
+  "userConfig": {
+    "server": {
+      "type": "string",
+      "title": "MCP server name",
+      "description": "Name of the lcc MCP server as /mcp lists it. The plugin ships its own via .mcp.json.",
+      "default": "lcc"
+    },
+    "question": {
+      "type": "string",
+      "title": "Objective",
+      "description": "What the context must serve. Empty means: use the text after /compact, or the newest user prompts.",
+      "default": ""
+    },
+    "threshold": {
+      "type": "number",
+      "title": "Keep threshold",
+      "description": "A tool call or result below this keep-probability is a candidate for removal.",
+      "default": 0.5
+    },
+    "preserveRecentMessages": {
+      "type": "number",
+      "title": "Recent messages to pin",
+      "description": "Newest messages never scored and never mutated (the first message is always pinned).",
+      "default": 6
+    },
+    "trimHeadChars": {
+      "type": "number",
+      "title": "Trimmed result head",
+      "description": "Characters kept from a result whose contents are spent but whose call still matters.",
+      "default": 300
+    },
+    "maxStateTokens": {
+      "type": "number",
+      "title": "State budget (tokens)",
+      "description": "Token ceiling for the conversation sent to the judge. A history that cannot fit falls back to the built-in summary.",
+      "default": 25000
+    },
+    "maxRequestTokens": {
+      "type": "number",
+      "title": "Request budget (tokens)",
+      "description": "Ceiling for the state plus one batch of questions per request (Jev allows 32K).",
+      "default": 30000
+    },
+    "minReductionRatio": {
+      "type": "number",
+      "title": "Minimum reduction",
+      "description": "Below this share of characters removed the plugin keeps Claude Code's built-in summary instead.",
+      "default": 0.25
+    }
+  }
+}

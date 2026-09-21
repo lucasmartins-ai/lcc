@@ -93,6 +93,7 @@ touches the network.
 | :--- | :--- |
 | Jev key, fallbacks and measured numbers? | `docs/JEV.md` |
 | Compact a session transcript's tool calls instead of a document? | `docs/TOOL_CALLS.md` |
+| Replace Claude Code's compaction summary with verbatim compaction? | `docs/CLAUDE_CODE.md` |
 | Laya limits, latency, fallback? | `docs/LAYA.md` |
 | Cache math and epoch discipline? | `docs/CACHE_ALIGNMENT.md` |
 | What is guaranteed deterministic? | `README.md` § Architectural Boundaries & ADRs 0001–0016 |
