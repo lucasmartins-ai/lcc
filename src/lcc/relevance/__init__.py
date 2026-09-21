@@ -83,7 +83,14 @@ from lcc.relevance.provider import (
 from lcc.relevance.safety import BlockAssessment, decide_assessment
 from lcc.relevance.sufficiency import SufficiencyResult, verify_sufficiency
 from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
-from lcc.relevance.verifier import SemanticVerificationResult, verify_semantic
+from lcc.relevance.verifier import (
+    VERIFIER_POLICY_VERSION,
+    SemanticVerificationResult,
+    VerificationContract,
+    VerifierDecision,
+    verify_semantic,
+    verify_semantic_contract,
+)
 
 __all__ = [
     "BLOCK_ID_RE",
@@ -125,6 +132,9 @@ __all__ = [
     "RelevanceCompactionResult",
     "SemanticProvider",
     "SemanticVerificationResult",
+    "VERIFIER_POLICY_VERSION",
+    "VerificationContract",
+    "VerifierDecision",
     "SufficiencyResult",
     "TextBlock",
     "UnsupportedOperationError",
@@ -149,5 +159,6 @@ __all__ = [
     "split_blocks",
     "trim_block_safe",
     "verify_semantic",
+    "verify_semantic_contract",
     "verify_sufficiency",
 ]

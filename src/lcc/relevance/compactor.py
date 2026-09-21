@@ -55,6 +55,7 @@ from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
 from lcc.relevance.laya import DEFAULT_LAYA_MODEL
 from lcc.relevance.sufficiency import verify_sufficiency
 from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
+from lcc.relevance.verifier import VERIFIER_POLICY_VERSION
 from lcc.token_budget import count_tokens
 from lcc.token_budget.counters import tokenizer_identity_for_count
 
@@ -140,7 +141,14 @@ class RelevanceCompactionRequest:
     #: {objective, candidate_context} only — never scores/decisions. Off by default
     #: so existing cold runs pay zero extra calls; E1/E2 harness opts in. When the
     #: verifier flags insufficiency the pass emits REVIEW (KEEP + flag), never trust.
+    #: Experimental until live-key benchmark coverage lands (see RESEARCH_STATUS.md).
     enable_semantic_verify: bool = False
+    #: Bounded verifier-triggered restoration (P0.3): on verifier FAIL, restore at
+    #: most this many additional graph-linked dropped blocks, then emit REVIEW.
+    #: Independent of ``max_restorations`` (total restored across the pass is at
+    #: most the sum of the two explicit budgets). One pass only: the verifier
+    #: never re-runs, so no restoration loop is possible.
+    verifier_max_restorations: int = 4
 
 
 @dataclass(frozen=True)
@@ -265,9 +273,14 @@ class RelevanceCompactionReport:
     needs_review: bool = False
     review_reason: str | None = None
     #: Independent semantic verifier outcome (None when disabled/unavailable).
+    #: ``semantic_verifier_decision`` is the explicit tri-state contract
+    #: (PASS | REVIEW | FAIL); the boolean/flag fields stay for back-compat.
     semantic_verifier_sufficient: bool | None = None
+    semantic_verifier_decision: str | None = None
     semantic_verifier_confidence: float | None = None
     semantic_verifier_model: str | None = None
+    semantic_verifier_missing: list[str] = field(default_factory=list)
+    semantic_verifier_risks: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     decisions: list[BlockDecision] = field(default_factory=list)
 
@@ -629,6 +642,108 @@ def _marker_tokens(compacted: str, model: str) -> int:
         return count_tokens("\n".join(markers), model).value
     except Exception:
         return 0
+
+
+def _assemble_compacted(
+    *,
+    blocks: list[TextBlock],
+    ordered: list[BlockDecision],
+    gaps: list[str],
+    request: RelevanceCompactionRequest,
+    trim_threshold: float | None,
+) -> tuple[str, set[str], set[str], set[str], int | None]:
+    """Render the compacted text from per-block decisions.
+
+    Kept bytes are re-emitted exactly; runs of dropped blocks collapse to one
+    marker line. Returns ``(compacted, dropped_ids, trimmed_ids, mutated_ids,
+    first_mutation_offset)``. Pure function of its inputs so the verifier-FAIL
+    path can rebuild once after a bounded restoration without duplicating the
+    rendering logic.
+    """
+    dropped_ids = {decision.id for decision in ordered if decision.decision == "drop"}
+    trimmed_ids = {decision.id for decision in ordered if decision.decision == "trim"}
+    mutated_ids = dropped_ids | trimmed_ids
+    if not mutated_ids:
+        compacted = request.text  # byte-identical identity for keep-only runs
+    else:
+        pieces: list[str] = []
+        index = 0
+        total = len(ordered)
+        by_id = {block.id: block for block in blocks}
+        while index < total:
+            ordered_decision = ordered[index]
+            if ordered_decision.id in dropped_ids:
+                run = []
+                while index < total and ordered[index].id in dropped_ids:
+                    run.append(ordered[index])
+                    index += 1
+                pieces.append(gaps[run[0].index - 1])
+                if request.marker:
+                    pieces.append(
+                        _marker_for_run(
+                            run, request.threshold, include_scores=request.marker_scores
+                        )
+                    )
+            else:
+                pieces.append(gaps[ordered_decision.index - 1])
+                if ordered_decision.decision == "trim":
+                    pieces.append(
+                        _render_trimmed(
+                            by_id[ordered_decision.id].text,
+                            ordered_decision.score,
+                            trim_threshold,
+                            request.threshold,
+                            request.trim_head_chars,
+                        )
+                    )
+                else:
+                    pieces.append(by_id[ordered_decision.id].text)
+                index += 1
+        pieces.append(gaps[-1])
+        compacted = "".join(pieces)
+
+    first_mutation_offset: int | None = None
+    for block in blocks:
+        if block.id in mutated_ids:
+            first_mutation_offset = block.character_start
+            break
+    return compacted, dropped_ids, trimmed_ids, mutated_ids, first_mutation_offset
+
+
+def _restoration_rank(
+    graph: Any,
+    candidate_ids: list[str],
+    kept_ids: set[str],
+) -> list[str]:
+    """Order restoration candidates by semantic risk, deterministic on ties.
+
+    Score = edge_count + Σconfidence + risk bonus (QUALIFIES/CONTRADICTS/
+    SUPERSEDES/DEPENDS_ON weigh more) + kept dependents. Deterministic
+    tie-break by block id so identical runs emit identical bytes.
+    """
+    if graph is None:
+        return sorted(candidate_ids)
+
+    def _score(bid: str) -> float:
+        edges = graph.edges_touching(bid)
+        if not edges:
+            return -1.0
+        score = float(len(edges))
+        for e in edges:
+            score += float(e.confidence or 0.0)
+            if e.type.value in (
+                "QUALIFIES",
+                "CONTRADICTS",
+                "SUPERSEDES",
+                "DEPENDS_ON",
+            ):
+                score += 1.0
+            other = e.target if e.source == bid else e.source
+            if other in kept_ids:
+                score += 0.5
+        return score
+
+    return sorted(candidate_ids, key=lambda b: (-_score(b), b))
 
 
 def _batch_blocks(
@@ -1113,6 +1228,13 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 laya_temperature=request.laya_temperature
                 if request.provider == "laya"
                 else None,
+                semantic_verify=request.enable_semantic_verify,
+                verifier_model=cache_model
+                if request.enable_semantic_verify
+                else None,
+                verifier_policy_version=VERIFIER_POLICY_VERSION
+                if request.enable_semantic_verify
+                else None,
             )
         )
 
@@ -1493,6 +1615,17 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                         laya_temperature=request.laya_temperature
                         if request.provider == "laya"
                         else None,
+                        semantic_verify=request.enable_semantic_verify,
+                        verifier_model=(
+                            request.laya_model
+                            if request.provider == "laya"
+                            else request.jev_model
+                        )
+                        if request.enable_semantic_verify
+                        else None,
+                        verifier_policy_version=VERIFIER_POLICY_VERSION
+                        if request.enable_semantic_verify
+                        else None,
                     ),
                 )
 
@@ -1579,29 +1712,8 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 bid for bid, d in decisions.items() if d.decision == "keep"
             } | set(protected_reasons.keys())
 
-            def _restoration_score(bid: str) -> float:
-                if _graph is None:
-                    return 0.0 if bid in graph_relationships else -1.0
-                edges = _graph.edges_touching(bid)
-                if not edges:
-                    return -1.0
-                score = float(len(edges))
-                for e in edges:
-                    score += float(e.confidence or 0.0)
-                    if e.type.value in (
-                        "QUALIFIES",
-                        "CONTRADICTS",
-                        "SUPERSEDES",
-                        "DEPENDS_ON",
-                    ):
-                        score += 1.0
-                    other = e.target if e.source == bid else e.source
-                    if other in kept_ids_for_rank:
-                        score += 0.5
-                return score
-
             # Prefer restoring blocks linked to kept content over pure protection hits.
-            restorable.sort(key=lambda b: (-_restoration_score(b), b))
+            restorable = _restoration_rank(_graph, restorable, kept_ids_for_rank)
             # Bounded closure: a restored high-risk block can introduce a new
             # dependency (A kept → B restored → C depends on B) that the first
             # max_hops=1 closure never examined. Inspect immediate neighbours of
@@ -1709,52 +1821,173 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         else:
             ordered.append(decisions[block.id])
 
-    dropped_ids = {decision.id for decision in ordered if decision.decision == "drop"}
-    trimmed_ids = {decision.id for decision in ordered if decision.decision == "trim"}
-    mutated_ids = dropped_ids | trimmed_ids
-    if not mutated_ids:
-        compacted = text  # byte-identical identity for keep-only runs
-    else:
-        pieces: list[str] = []
-        index = 0
-        total = len(ordered)
-        while index < total:
-            ordered_decision = ordered[index]
-            if ordered_decision.id in dropped_ids:
-                run = []
-                while index < total and ordered[index].id in dropped_ids:
-                    run.append(ordered[index])
-                    index += 1
-                pieces.append(gaps[run[0].index - 1])
-                if request.marker:
-                    pieces.append(
-                        _marker_for_run(
-                            run, request.threshold, include_scores=request.marker_scores
+    compacted, dropped_ids, trimmed_ids, mutated_ids, first_mutation_offset = (
+        _assemble_compacted(
+            blocks=blocks,
+            ordered=ordered,
+            gaps=gaps,
+            request=request,
+            trim_threshold=trim_threshold,
+        )
+    )
+
+    # Candidate mutation state: the verifier judges this candidate and may
+    # restore into it (bounded, once). Cost accounting below always runs on the
+    # FINAL bytes, never on the pre-verifier candidate.
+    candidate_mutated = bool(mutated_ids)
+
+    # --- independent semantic verification (opt-in, 1 extra Jev call max).
+    # Receives ONLY {objective, candidate_context} — never scores/decisions.
+    # PASS clears the flag; REVIEW/FAIL set needs_review (signal-only: bytes are
+    # never dropped by the verifier, and FAIL additionally restores dropped
+    # blocks within an explicit bounded budget, one pass, no re-verify loop).
+    needs_review = False
+    review_reason: str | None = None
+    verifier_sufficient: bool | None = None
+    verifier_decision: str | None = None
+    verifier_confidence: float | None = None
+    verifier_model: str | None = None
+    verifier_missing: list[str] = []
+    verifier_risks: list[str] = []
+    if request.enable_semantic_verify and candidate_mutated and client is not None:
+        try:
+            from lcc.relevance.verifier import (
+                VerifierDecision as _VerifierDecision,
+            )
+            from lcc.relevance.verifier import (
+                verify_semantic_contract as _verify_contract,
+            )
+
+            verdict_sem = _verify_contract(
+                objective=request.question,
+                candidate_context=compacted,
+                client=client,
+            )
+            calls += 1
+            verifier_sufficient = verdict_sem.sufficient
+            verifier_decision = verdict_sem.decision
+            verifier_confidence = verdict_sem.confidence
+            verifier_model = verdict_sem.resolved_model
+            verifier_missing = list(verdict_sem.missing_information)
+            verifier_risks = list(verdict_sem.critical_risks)
+            if verdict_sem.decision == _VerifierDecision.FAIL.value:
+                # Bounded FAIL restoration (P0.3): the verifier cannot name which
+                # dropped block is missing (it never saw them, by design), so the
+                # only fail-closed move is to restore graph-linked drops — highest
+                # semantic risk first — within its own explicit budget
+                # (``verifier_max_restorations``, independent of the structural
+                # ``max_restorations`` spend). One pass, no re-verify: the outcome
+                # stays REVIEW, never PASS. If the budget is exhausted or nothing
+                # linked remains, REVIEW + preserve (bytes unchanged).
+                allowance = max(0, int(request.verifier_max_restorations))
+                kept_now = {
+                    d.id for d in ordered if d.decision == "keep"
+                } | set(protected_reasons.keys())
+                fail_candidates = [
+                    bid
+                    for bid in dropped_ids
+                    if bid not in sanitized_reasons and decisions.get(bid) is not None
+                ]
+                if _graph is not None:
+                    # Only graph-linked drops are restorable: the verifier never saw
+                    # the dropped blocks, so blind-restoring unlinked noise would
+                    # bloat the context with content both the selector and the
+                    # structural layer agreed was safe to drop. Unlinked case stays
+                    # REVIEW with bytes unchanged (maximal preservation of what
+                    # matters, no noise resurrected).
+                    fail_candidates = [
+                        bid for bid in fail_candidates if _graph.edges_touching(bid)
+                    ]
+                else:
+                    fail_candidates = []
+                fail_candidates = _restoration_rank(_graph, fail_candidates, kept_now)
+                restored_fail = 0
+                for bid in fail_candidates[:allowance]:
+                    for pos, dec in enumerate(ordered):
+                        if dec.id != bid or dec.decision == "keep":
+                            continue
+                        ordered[pos] = BlockDecision(
+                            id=dec.id, index=dec.index,
+                            line_start=dec.line_start, line_end=dec.line_end,
+                            chars=dec.chars, decision="keep",
+                            source=dec.source, score=dec.score,
+                            reason="semantic_verifier_fail_restoration",
+                            chars_after=None, confidence=dec.confidence,
+                            relationships=dec.relationships,
+                            policy_version=dec.policy_version,
+                            content_type=dec.content_type,
                         )
+                        restored_fail += 1
+                if restored_fail:
+                    blocks_restored += restored_fail
+                    (
+                        compacted,
+                        dropped_ids,
+                        trimmed_ids,
+                        mutated_ids,
+                        first_mutation_offset,
+                    ) = _assemble_compacted(
+                        blocks=blocks,
+                        ordered=ordered,
+                        gaps=gaps,
+                        request=request,
+                        trim_threshold=trim_threshold,
                     )
-            else:
-                pieces.append(gaps[ordered_decision.index - 1])
-                if ordered_decision.decision == "trim":
-                    pieces.append(
-                        _render_trimmed(
-                            blocks[index].text,
-                            ordered_decision.score,
-                            trim_threshold,
-                            request.threshold,
-                            request.trim_head_chars,
-                        )
+                    # One structural re-check for observability; no further
+                    # restores — the restoration chain ends here by construction.
+                    sufficiency_checks += 1
+                    remaining_after = [
+                        bid for bid, d in decisions.items()
+                        if d.decision == "drop" and bid in dropped_ids
+                    ]
+                    verdict_after = verify_sufficiency(
+                        dropped_ids=remaining_after,
+                        kept_ids={
+                            d.id for d in ordered if d.decision == "keep"
+                        } | set(protected_reasons.keys()),
+                        reasons={d.id: d.reason for d in ordered},
+                        relationships={
+                            bid: rel
+                            for bid, rel in graph_relationships.items()
+                            if bid in set(remaining_after)
+                        },
+                    )
+                    sufficiency_confidence = verdict_after.confidence
+                    if not verdict_after.sufficient:
+                        sufficiency_failures += 1
+                    warnings.append(
+                        f"needs_review:{verdict_sem.reason} "
+                        f"(confidence {verdict_sem.confidence:.2f}); "
+                        f"semantic_verifier_fail_restoration restored "
+                        f"{restored_fail} linked block(s) within budget; output "
+                        "marked REVIEW — KEEP more context instead of trusting it"
                     )
                 else:
-                    pieces.append(blocks[index].text)
-                index += 1
-        pieces.append(gaps[-1])
-        compacted = "".join(pieces)
-
-    first_mutation_offset: int | None = None
-    for block in blocks:
-        if block.id in mutated_ids:
-            first_mutation_offset = block.character_start
-            break
+                    warnings.append(
+                        f"needs_review:{verdict_sem.reason} "
+                        f"(confidence {verdict_sem.confidence:.2f}); restoration "
+                        "budget exhausted or nothing restorable — KEEP more context "
+                        "instead of trusting this output"
+                    )
+                needs_review = True
+                review_reason = verdict_sem.reason
+            elif verdict_sem.decision != _VerifierDecision.PASS.value:
+                needs_review = True
+                review_reason = verdict_sem.reason
+                warnings.append(
+                    f"needs_review:{verdict_sem.reason} "
+                    f"(confidence {verdict_sem.confidence:.2f}); "
+                    "KEEP more context instead of trusting this output"
+                )
+        except Exception as exc:  # verifier must never break compaction
+            warnings.append(f"semantic_verifier_failed: {exc}")
+    elif request.enable_semantic_verify and candidate_mutated and client is None:
+        needs_review = True
+        review_reason = "verifier_unavailable_no_client"
+        warnings.append(
+            "needs_review:verifier_unavailable_no_client; "
+            "semantic verification was requested but no Jev client exists"
+        )
 
     before_count = count_tokens(text, request.model)
     after_count = count_tokens(compacted, request.model)
@@ -1825,52 +2058,6 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             "the pass is not worth a cache epoch"
         )
 
-    # --- independent semantic verification (opt-in, 1 extra Jev call max).
-    # Receives ONLY {objective, candidate_context} — never scores/decisions.
-    # REVIEW is signal-only: bytes stay KEEP, only the flag + warning change.
-    needs_review = False
-    review_reason: str | None = None
-    verifier_sufficient: bool | None = None
-    verifier_confidence: float | None = None
-    verifier_model: str | None = None
-    if request.enable_semantic_verify and mutated and client is not None:
-        try:
-            from lcc.relevance.verifier import verify_semantic as _verify_semantic
-
-            verdict_sem = _verify_semantic(
-                objective=request.question,
-                candidate_context=compacted,
-                client=client,
-            )
-            calls += 1
-            verifier_sufficient = verdict_sem.sufficient
-            verifier_confidence = verdict_sem.confidence
-            verifier_model = verdict_sem.model_resolved
-            if not verdict_sem.sufficient:
-                needs_review = True
-                review_reason = verdict_sem.reason
-                warnings.append(
-                    f"needs_review:{verdict_sem.reason} "
-                    f"(confidence {verdict_sem.confidence:.2f}); "
-                    "KEEP more context instead of trusting this output"
-                )
-            elif verdict_sem.contradiction_risk >= 0.7:
-                needs_review = True
-                review_reason = "high_contradiction_risk"
-                warnings.append(
-                    f"needs_review:high_contradiction_risk "
-                    f"({verdict_sem.contradiction_risk:.2f}); "
-                    "both sides of the contradiction were kept — verify downstream"
-                )
-        except Exception as exc:  # verifier must never break compaction
-            warnings.append(f"semantic_verifier_failed: {exc}")
-    elif request.enable_semantic_verify and mutated and client is None:
-        needs_review = True
-        review_reason = "verifier_unavailable_no_client"
-        warnings.append(
-            "needs_review:verifier_unavailable_no_client; "
-            "semantic verification was requested but no Jev client exists"
-        )
     # E2 safety calibration without a verifier: structural failure that survived
     # restoration, or a budget overflow, is also a REVIEW signal (bytes unchanged).
     if not needs_review and sufficiency_failures > 0 and mutated:
@@ -1963,8 +2150,11 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         needs_review=needs_review,
         review_reason=review_reason,
         semantic_verifier_sufficient=verifier_sufficient,
+        semantic_verifier_decision=verifier_decision,
         semantic_verifier_confidence=verifier_confidence,
         semantic_verifier_model=verifier_model,
+        semantic_verifier_missing=verifier_missing,
+        semantic_verifier_risks=verifier_risks,
         warnings=warnings,
         decisions=ordered,
     )
@@ -2038,8 +2228,11 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "needs_review": report.needs_review,
         "review_reason": report.review_reason,
         "semantic_verifier_sufficient": report.semantic_verifier_sufficient,
+        "semantic_verifier_decision": report.semantic_verifier_decision,
         "semantic_verifier_confidence": report.semantic_verifier_confidence,
         "semantic_verifier_model": report.semantic_verifier_model,
+        "semantic_verifier_missing": list(report.semantic_verifier_missing),
+        "semantic_verifier_risks": list(report.semantic_verifier_risks),
         "warnings": list(report.warnings),
         "decisions": [
             {

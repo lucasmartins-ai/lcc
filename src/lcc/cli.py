@@ -1063,8 +1063,11 @@ def compact_command(
         False,
         "--semantic-verify/--no-semantic-verify",
         help=(
-            "Run the independent semantic verifier (one extra Jev call over "
-            "objective + candidate context only). Flags REVIEW when insufficient."
+            "EXPERIMENTAL: run the independent semantic verifier (one extra Jev "
+            "call over objective + candidate context only, never scores or "
+            "decisions). Emits PASS/REVIEW/FAIL; REVIEW/FAIL set the needs_review "
+            "flag and FAIL restores linked drops within budget (one pass, no "
+            "loop). Fail-closed: verifier errors yield REVIEW, never silent DROP."
         ),
     ),
 ) -> None:
