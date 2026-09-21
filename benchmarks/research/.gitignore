@@ -5,6 +5,7 @@ work_cache/
 work_adversarial/
 work_stress/
 work_patterns/
+work_comparative_stress/
 payloads/
 __pycache__/
 results/*.log

@@ -1,0 +1,1743 @@
+{
+  "provider": "laya",
+  "live": true,
+  "providers_seen": [
+    "laya"
+  ],
+  "verifier_decisions": {
+    "PASS": 1
+  },
+  "verifier_reviews": 0,
+  "verifier_restored": 0,
+  "summary": {
+    "RAW": {
+      "correctness": 1.0,
+      "critical_fact_recall": 1.0,
+      "constraint_ok": 1.0,
+      "contradiction": 0.0,
+      "temporal_ok": 1.0,
+      "instruction_data_ok": 1.0,
+      "avg_context_tokens": 122
+    },
+    "LCC": {
+      "correctness": 0.98,
+      "critical_fact_recall": 0.98,
+      "constraint_ok": 1.0,
+      "contradiction": 0.0,
+      "temporal_ok": 0.98,
+      "instruction_data_ok": 1.0,
+      "avg_context_tokens": 122
+    },
+    "LCC_VERIFIER": {
+      "correctness": 0.98,
+      "critical_fact_recall": 0.98,
+      "constraint_ok": 1.0,
+      "contradiction": 0.0,
+      "temporal_ok": 0.98,
+      "instruction_data_ok": 1.0,
+      "avg_context_tokens": 122
+    }
+  },
+  "tasks": [
+    {
+      "id": "software_engineering-0",
+      "domain": "software_engineering",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 32134
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 32134
+      }
+    },
+    {
+      "id": "software_engineering-1",
+      "domain": "software_engineering",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 140
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 140
+      }
+    },
+    {
+      "id": "software_engineering-2",
+      "domain": "software_engineering",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 143
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 143
+      }
+    },
+    {
+      "id": "software_engineering-3",
+      "domain": "software_engineering",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 142
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 142
+      }
+    },
+    {
+      "id": "software_engineering-4",
+      "domain": "software_engineering",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 141
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 141
+      }
+    },
+    {
+      "id": "legal_style-0",
+      "domain": "legal_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 123,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 123,
+        "latency_ms": 167
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 123,
+        "latency_ms": 167
+      }
+    },
+    {
+      "id": "legal_style-1",
+      "domain": "legal_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 117,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 117,
+        "latency_ms": 172
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 117,
+        "latency_ms": 172
+      }
+    },
+    {
+      "id": "legal_style-2",
+      "domain": "legal_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 117,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 117,
+        "latency_ms": 162
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 117,
+        "latency_ms": 162
+      }
+    },
+    {
+      "id": "legal_style-3",
+      "domain": "legal_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 119,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 119,
+        "latency_ms": 153
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 119,
+        "latency_ms": 153
+      }
+    },
+    {
+      "id": "legal_style-4",
+      "domain": "legal_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 123,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 123,
+        "latency_ms": 178
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 123,
+        "latency_ms": 178
+      }
+    },
+    {
+      "id": "medical_style-0",
+      "domain": "medical_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 131,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 131,
+        "latency_ms": 192
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 131,
+        "latency_ms": 192
+      }
+    },
+    {
+      "id": "medical_style-1",
+      "domain": "medical_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 125,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 125,
+        "latency_ms": 176
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 125,
+        "latency_ms": 176
+      }
+    },
+    {
+      "id": "medical_style-2",
+      "domain": "medical_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 125,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 125,
+        "latency_ms": 178
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 125,
+        "latency_ms": 178
+      }
+    },
+    {
+      "id": "medical_style-3",
+      "domain": "medical_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 127,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 127,
+        "latency_ms": 170
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 127,
+        "latency_ms": 170
+      }
+    },
+    {
+      "id": "medical_style-4",
+      "domain": "medical_style",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 131,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 131,
+        "latency_ms": 168
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 131,
+        "latency_ms": 168
+      }
+    },
+    {
+      "id": "finance-0",
+      "domain": "finance",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 168
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 168
+      }
+    },
+    {
+      "id": "finance-1",
+      "domain": "finance",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 173
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 173
+      }
+    },
+    {
+      "id": "finance-2",
+      "domain": "finance",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 175
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 175
+      }
+    },
+    {
+      "id": "finance-3",
+      "domain": "finance",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 163
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 163
+      }
+    },
+    {
+      "id": "finance-4",
+      "domain": "finance",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 169
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 128,
+        "latency_ms": 169
+      }
+    },
+    {
+      "id": "business-0",
+      "domain": "business",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 141
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 141
+      }
+    },
+    {
+      "id": "business-1",
+      "domain": "business",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 157
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 157
+      }
+    },
+    {
+      "id": "business-2",
+      "domain": "business",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 159
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 159
+      }
+    },
+    {
+      "id": "business-3",
+      "domain": "business",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 154
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 154
+      }
+    },
+    {
+      "id": "business-4",
+      "domain": "business",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 161
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 122,
+        "latency_ms": 161
+      }
+    },
+    {
+      "id": "technical_docs-0",
+      "domain": "technical_docs",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 164
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 164
+      }
+    },
+    {
+      "id": "technical_docs-1",
+      "domain": "technical_docs",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 153
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 153
+      }
+    },
+    {
+      "id": "technical_docs-2",
+      "domain": "technical_docs",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 138
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 138
+      }
+    },
+    {
+      "id": "technical_docs-3",
+      "domain": "technical_docs",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 135
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 135
+      }
+    },
+    {
+      "id": "technical_docs-4",
+      "domain": "technical_docs",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 144
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 144
+      }
+    },
+    {
+      "id": "policies-0",
+      "domain": "policies",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 166
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 166
+      }
+    },
+    {
+      "id": "policies-1",
+      "domain": "policies",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 114,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 114,
+        "latency_ms": 158
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 114,
+        "latency_ms": 158
+      }
+    },
+    {
+      "id": "policies-2",
+      "domain": "policies",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 114,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 0.0,
+        "critical_fact_recall": 0.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 0.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 94,
+        "latency_ms": 226
+      },
+      "LCC_VERIFIER": {
+        "correctness": 0.0,
+        "critical_fact_recall": 0.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 0.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 94,
+        "latency_ms": 226
+      }
+    },
+    {
+      "id": "policies-3",
+      "domain": "policies",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 138
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 116,
+        "latency_ms": 138
+      }
+    },
+    {
+      "id": "policies-4",
+      "domain": "policies",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 150
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 150
+      }
+    },
+    {
+      "id": "customer_support-0",
+      "domain": "customer_support",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 176
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 176
+      }
+    },
+    {
+      "id": "customer_support-1",
+      "domain": "customer_support",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 163
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 163
+      }
+    },
+    {
+      "id": "customer_support-2",
+      "domain": "customer_support",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 171
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 171
+      }
+    },
+    {
+      "id": "customer_support-3",
+      "domain": "customer_support",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 176
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 176
+      }
+    },
+    {
+      "id": "customer_support-4",
+      "domain": "customer_support",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 167
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 167
+      }
+    },
+    {
+      "id": "data_analysis-0",
+      "domain": "data_analysis",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 130,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 130,
+        "latency_ms": 159
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 130,
+        "latency_ms": 159
+      }
+    },
+    {
+      "id": "data_analysis-1",
+      "domain": "data_analysis",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 144
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 144
+      }
+    },
+    {
+      "id": "data_analysis-2",
+      "domain": "data_analysis",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 163
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 163
+      }
+    },
+    {
+      "id": "data_analysis-3",
+      "domain": "data_analysis",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 126,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 126,
+        "latency_ms": 177
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 126,
+        "latency_ms": 177
+      }
+    },
+    {
+      "id": "data_analysis-4",
+      "domain": "data_analysis",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 130,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 130,
+        "latency_ms": 175
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 130,
+        "latency_ms": 175
+      }
+    },
+    {
+      "id": "long_form_research-0",
+      "domain": "long_form_research",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 161
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 161
+      }
+    },
+    {
+      "id": "long_form_research-1",
+      "domain": "long_form_research",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 166
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 166
+      }
+    },
+    {
+      "id": "long_form_research-2",
+      "domain": "long_form_research",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 163
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 118,
+        "latency_ms": 163
+      }
+    },
+    {
+      "id": "long_form_research-3",
+      "domain": "long_form_research",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 151
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 120,
+        "latency_ms": 151
+      }
+    },
+    {
+      "id": "long_form_research-4",
+      "domain": "long_form_research",
+      "RAW": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 0
+      },
+      "LCC": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 165
+      },
+      "LCC_VERIFIER": {
+        "correctness": 1.0,
+        "critical_fact_recall": 1.0,
+        "constraint_ok": 1.0,
+        "contradiction": 0.0,
+        "temporal_ok": 1.0,
+        "instruction_data_ok": 1.0,
+        "context_tokens": 124,
+        "latency_ms": 165
+      }
+    }
+  ]
+}

@@ -35,16 +35,49 @@ package stays dependency-free:
   Temperature calibration (`calibrate_noul`, default 1.0 = no-op) is pure
   stdlib and part of the decision-cache identity.
 - **Conservative by design.** Laya keeps semantically related content with no
-  lexical overlap, so it reduces less than mechanical and preserves more
-  (measured XL: −22.6% vs −70%, all at 100% category recall). All safety nets
+  lexical overlap, so it reduces less than mechanical and preserves more.
+  Validated 2026-09-21 with real weights: the default checkpoint
+  (`laya-multilingual`) keeps essentially every block — 0.0% reduction at
+  small/medium/large, −0.5% at XL — so it currently reduces *much* less than
+  mechanical (−70% XL), both at 100% category recall (Addendum below +
+  `benchmarks/research/RESEARCH_STATUS.md`). All safety nets
   (type-aware trim, deterministic protection, graph + sufficiency, confidence
   policy) apply unchanged. Full operator guide: `docs/LAYA.md`.
 
 **Why.** Local-first means the semantic path must also work without a key or
-network. A ~1K-context local judge over LCC-compiled context reaches the same
-recall as the 32K remote judge on the measured corpora, at $0.00.
+network. Validated 2026-09-21: the local judge runs offline at $0.00, inside the
+budget, with `judged` and no fallback. Pre-validation text claimed it reached the
+same recall *and reduction* as the 32K remote judge; the measured corpus result is
+that the **default checkpoint makes no drops at all** (0.0% reduction), so the 1K
+window is not the limiting factor on the evaluated corpora — judge capability is.
+See the Addendum and `benchmarks/research/RESEARCH_STATUS.md` for the real rows.
 
 **Forecloses.** No future work may make Laya a default or a silent fallback
 (`auto` still prefers Jev → mechanical), bundle its weights/deps into the base
 package, let it bypass budgeting/trim/sufficiency, or present fallback output
 as semantically judged.
+
+---
+
+**Addendum — live validation (2026-09-21).** Decision unchanged; this replaces
+the pre-validation figures above, which came from a mock harness.
+
+- **Real execution.** `convaiinnovations/laya-multilingual` (resolved
+  `laya-rl-agent`), macOS CPU, fully offline (`LCC_DISABLE_NETWORK=1`, HF hub
+  offline, no API key): `provider_used: laya`, `degraded: false`,
+  `semantic_guarantee: judged`. Every state stayed inside the 1024-token budget
+  (max `context_budget_used` observed: 520); oversized blocks were kept whole
+  with `laya_context_limit_exceeded` and never sliced (tail byte-identical).
+- **Measured decisions.** The default checkpoint keeps essentially every block
+  (0.0% reduction at small/medium/large; −0.5% at XL; 6/6 noise blocks kept on
+  the ablation corpus). Consequence: the ~1K window is **not** the limiting
+  factor on the evaluated corpora — judge capability is; a checkpoint that
+  drops confidently is required before local reduction becomes real. The
+  `laya-typed-decisions` checkpoint discriminates modestly where the default
+  does not.
+- **Repro.** `benchmarks/research/`: `run_laya_comparison.py`,
+  `run_judge_ablation.py --judge laya`, `run_laya_context_cases.py`,
+  `run_comparative_stress_test.py`; gated integration test
+  `LCC_LAYA_INTEGRATION=1 pytest tests/test_laya_integration.py`. Full rows,
+  sample sizes and limitations: `benchmarks/research/RESEARCH_STATUS.md`.
+  Pre-validation mock archives are preserved there, clearly labelled.
