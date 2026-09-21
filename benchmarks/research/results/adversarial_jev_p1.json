@@ -29,7 +29,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 46.3,
       "passed": true,
-      "wall_ms": 1111,
+      "wall_ms": 1085,
       "pressure": 1
     },
     {
@@ -56,7 +56,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 39.1,
       "passed": true,
-      "wall_ms": 1089,
+      "wall_ms": 1098,
       "pressure": 1
     },
     {
@@ -88,7 +88,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 44.8,
       "passed": true,
-      "wall_ms": 1171,
+      "wall_ms": 1184,
       "pressure": 1
     },
     {
@@ -115,7 +115,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 51.5,
       "passed": true,
-      "wall_ms": 1230,
+      "wall_ms": 1100,
       "pressure": 1
     },
     {
@@ -142,7 +142,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 45.3,
       "passed": true,
-      "wall_ms": 1148,
+      "wall_ms": 1256,
       "pressure": 1
     },
     {
@@ -174,7 +174,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 16.8,
       "passed": true,
-      "wall_ms": 1112,
+      "wall_ms": 1155,
       "pressure": 1
     },
     {
@@ -206,7 +206,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 45.7,
       "passed": true,
-      "wall_ms": 1216,
+      "wall_ms": 1047,
       "pressure": 1
     },
     {
@@ -235,7 +235,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.6,
       "passed": true,
-      "wall_ms": 1102,
+      "wall_ms": 1055,
       "pressure": 1
     },
     {
@@ -262,7 +262,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.1,
       "passed": true,
-      "wall_ms": 1086,
+      "wall_ms": 1134,
       "pressure": 1
     },
     {
@@ -296,7 +296,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 37.1,
       "passed": true,
-      "wall_ms": 1085,
+      "wall_ms": 1146,
       "pressure": 1
     },
     {
@@ -323,7 +323,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.2,
       "passed": true,
-      "wall_ms": 1164,
+      "wall_ms": 1134,
       "pressure": 1
     },
     {
@@ -350,7 +350,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.0,
       "passed": true,
-      "wall_ms": 1060,
+      "wall_ms": 1194,
       "pressure": 1
     },
     {
@@ -377,7 +377,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.8,
       "passed": true,
-      "wall_ms": 1072,
+      "wall_ms": 1130,
       "pressure": 1
     },
     {
@@ -404,7 +404,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.5,
       "passed": true,
-      "wall_ms": 1061,
+      "wall_ms": 1117,
       "pressure": 1
     },
     {
@@ -431,7 +431,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.2,
       "passed": true,
-      "wall_ms": 1075,
+      "wall_ms": 1147,
       "pressure": 1
     },
     {
@@ -458,7 +458,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.6,
       "passed": true,
-      "wall_ms": 1046,
+      "wall_ms": 1055,
       "pressure": 1
     },
     {
@@ -485,7 +485,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.6,
       "passed": true,
-      "wall_ms": 1080,
+      "wall_ms": 1066,
       "pressure": 1
     },
     {
@@ -512,7 +512,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.7,
       "passed": true,
-      "wall_ms": 1216,
+      "wall_ms": 1084,
       "pressure": 1
     },
     {
@@ -539,7 +539,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 33.1,
       "passed": true,
-      "wall_ms": 1184,
+      "wall_ms": 1082,
       "pressure": 1
     },
     {
@@ -571,7 +571,7 @@
       "token_count_method": "exact",
       "break_even_reuses": null,
       "passed": true,
-      "wall_ms": 1061,
+      "wall_ms": 1204,
       "pressure": 1
     },
     {
@@ -603,7 +603,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 44.0,
       "passed": true,
-      "wall_ms": 1088,
+      "wall_ms": 1154,
       "pressure": 1
     },
     {
@@ -635,7 +635,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 16.8,
       "passed": true,
-      "wall_ms": 1085,
+      "wall_ms": 1360,
       "pressure": 1
     },
     {
@@ -654,15 +654,15 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 25.1,
-      "blocks_dropped": 5,
+      "reduction_pct": 60.7,
+      "blocks_dropped": 10,
       "blocks_trimmed": 0,
       "semantic_guarantee": "judged",
       "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 44.0,
+      "break_even_reuses": 16.6,
       "passed": true,
-      "wall_ms": 1109,
+      "wall_ms": 1198,
       "pressure": 1
     },
     {
@@ -704,7 +704,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 22.0,
       "passed": true,
-      "wall_ms": 1114,
+      "wall_ms": 1105,
       "pressure": 1
     },
     {
@@ -736,7 +736,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.7,
       "passed": true,
-      "wall_ms": 1211,
+      "wall_ms": 1105,
       "pressure": 1
     },
     {
@@ -760,15 +760,15 @@
       ],
       "failed_checks": [],
       "survival_ratio": 1.0,
-      "reduction_pct": 27.7,
-      "blocks_dropped": 5,
+      "reduction_pct": 68.9,
+      "blocks_dropped": 10,
       "blocks_trimmed": 0,
       "semantic_guarantee": "judged",
       "provider_used": "jev",
       "token_count_method": "exact",
-      "break_even_reuses": 39.8,
+      "break_even_reuses": 14.6,
       "passed": true,
-      "wall_ms": 1170,
+      "wall_ms": 1144,
       "pressure": 1
     },
     {
@@ -795,7 +795,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 16.7,
       "passed": true,
-      "wall_ms": 1025,
+      "wall_ms": 1055,
       "pressure": 1
     },
     {
@@ -822,7 +822,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.9,
       "passed": true,
-      "wall_ms": 1034,
+      "wall_ms": 1088,
       "pressure": 1
     },
     {
@@ -854,7 +854,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.4,
       "passed": true,
-      "wall_ms": 1089,
+      "wall_ms": 1164,
       "pressure": 1
     },
     {
@@ -881,7 +881,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 20.1,
       "passed": true,
-      "wall_ms": 1050,
+      "wall_ms": 1181,
       "pressure": 1
     }
   ]

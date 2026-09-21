@@ -21,6 +21,7 @@ useful semantic decisions without requiring a 32K-context remote decision model?
 from __future__ import annotations
 
 import json
+import math
 import os
 import time
 from pathlib import Path
@@ -31,6 +32,7 @@ from lcc.token_budget import count_tokens
 
 __all__ = [
     "DEFAULT_LAYA_MODEL",
+    "DEFAULT_LAYA_TEMPERATURE",
     "HEAD_RESERVATION_TOKENS",
     "LayaClient",
     "LayaContextLimitExceededError",
@@ -38,11 +40,13 @@ __all__ = [
     "LayaExecutionError",
     "LayaModelNotFoundError",
     "LayaUnavailableError",
+    "calibrate_noul",
     "get_laya_context_limit",
     "serialize_state",
 ]
 
 DEFAULT_LAYA_MODEL = "convaiinnovations/laya-multilingual"
+DEFAULT_LAYA_TEMPERATURE = 1.0
 HEAD_RESERVATION_TOKENS = 192  # Default head token budget reserved for questions, rubrics, markers
 
 KNOWN_CONTEXT_LIMITS: dict[str, int] = {
@@ -99,6 +103,23 @@ def serialize_state(state: str | dict | list) -> str:
     return json.dumps(state, ensure_ascii=False)
 
 
+def calibrate_noul(p: float, temperature: float = DEFAULT_LAYA_TEMPERATURE) -> float:
+    """Temperature-scale a Bernoulli probability via its logit.
+
+    T=1.0 is a no-op. T>1.0 pulls over-confident scores toward 0.5 (the
+    documented Laya fix: raw ECE ~0.47 -> ~0.08 after fitting). Pure stdlib,
+    no new dependencies. Inputs are clamped to [0, 1]; T must be > 0.
+    """
+    if temperature == 1.0:
+        return min(1.0, max(0.0, p))
+    if temperature <= 0:
+        raise ValueError("temperature must be > 0")
+    p = min(1.0 - 1e-9, max(1e-9, p))
+    logit = math.log(p / (1.0 - p))
+    scaled = logit / temperature
+    return 1.0 / (1.0 + math.exp(-scaled))
+
+
 def get_laya_context_limit(model_id_or_path: str) -> int:
     """Determine the maximum context token limit for a Laya checkpoint."""
     # 1. Direct match in known catalog
@@ -140,6 +161,7 @@ class LayaClient:
         device: str | None = None,
         context_limit: int | None = None,
         head_reservation: int = HEAD_RESERVATION_TOKENS,
+        temperature: float | None = None,
         offline: bool = False,
         agent: Any | None = None,  # test seam / dependency injection
     ) -> None:
@@ -147,6 +169,12 @@ class LayaClient:
         self.device = device or os.environ.get("LCC_LAYA_DEVICE")
         self.context_limit = context_limit or get_laya_context_limit(self.model)
         self.head_reservation = head_reservation
+        if temperature is None:
+            raw = os.environ.get("LCC_LAYA_TEMPERATURE")
+            temperature = float(raw) if raw else DEFAULT_LAYA_TEMPERATURE
+        if temperature <= 0:
+            raise ValueError("Laya temperature must be > 0")
+        self.temperature = temperature
         self.offline = offline or (os.environ.get("LCC_DISABLE_NETWORK") == "1")
         if self.offline:
             os.environ["HF_HUB_OFFLINE"] = "1"
@@ -294,9 +322,10 @@ class LayaClient:
             if qtype == "noul":
                 noul_val = ans.get("noul")
                 conf_val = ans.get("confidence")
+                raw_p = float(noul_val) if noul_val is not None else 0.5
                 answers[qid] = {
                     "type": "noul",
-                    "noul": float(noul_val) if noul_val is not None else 0.5,
+                    "noul": calibrate_noul(raw_p, self.temperature),
                     "confidence": float(conf_val) if conf_val is not None else 0.5,
                     "action": ans.get("action"),
                 }

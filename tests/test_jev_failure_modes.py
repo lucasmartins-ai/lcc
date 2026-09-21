@@ -52,7 +52,10 @@ def test_jev_timeout_falls_back_mechanically():
 
     result = compact_context(_req(Timeout()))
     assert result.report.provider_used == "jev+mechanical_fallback"
-    assert result.report.degraded and result.report.semantic_guarantee == "partial"
+    # Total failure judged nothing: every decision is lexical, so the honest
+    # guarantee is `none`. `partial` is reserved for mixed runs where some
+    # blocks were actually judged before the failure.
+    assert result.report.degraded and result.report.semantic_guarantee == "none"
 
 
 def test_jev_429_retried_then_falls_back():
