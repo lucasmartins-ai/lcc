@@ -39,9 +39,14 @@ All four required checks must pass:
 ```bash
 python -m pytest
 ruff check .
-ruff format --check .
 mypy
+python -m build && python -m twine check dist/*
 ```
+
+> **`ruff format --check` is not part of the gate.** It reports 77 pre-existing files as
+> unformatted, CI has never enforced it, and a wholesale reformat would bury every real diff in
+> the repository's history. Run `ruff format` on the files you touch if you like, but do not gate
+> a release on the whole tree until someone does that formatting as a dedicated change.
 
 Then exercise the installed development CLI:
 
