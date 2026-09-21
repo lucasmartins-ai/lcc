@@ -67,6 +67,11 @@ It also skips `precompute` invocations, which install nothing.
 
 ## Limitations, stated plainly
 
+- **Never fired by an editor yet.** The manifest validates, the plugin installs from the
+  marketplace, and the mapping logic is unit-tested — but no `/compact` in a real Claude Code
+  session has been intercepted, because the author does not have a Claude Code subscription. If
+  you have Claude Code 2.1.274+ and a TypeSafe key, you are the first person who can close that
+  gap; the whole test is `/compact` in a long session plus reading the toast.
 - **Early access surface.** Function hooks (`hooks/hooks.json` modules, `session.compact`)
   require `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` and Claude Code 2.1.274+; the API may change
   between releases. The hook is written in plain ESM (`.mjs`), no build step, no dependencies.

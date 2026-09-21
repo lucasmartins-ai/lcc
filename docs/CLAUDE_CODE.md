@@ -74,12 +74,21 @@ lcc: built-in summary (judge unavailable (jev_unavailable_fail_safe))
 ## What is verified, and what is not
 
 Verified: `claude plugin validate plugins/claude-code` passes and reports the registered
-surface (`session.compact`; calls `$.mcp.call`, `$.ui.log`, `$.ui.toast`); the hook's mapping
-logic — option coercion, transcript mapping, tool-result parsing, the replacement decision and
-the fallback on unsupported content — is covered by `node test/hook-map.test.mjs` (10 cases,
-run by `npm test` and by CI); the Python side is covered by
-`tests/test_transcript_compaction.py`, `tests/test_cli_tool_calls.py` and
+surface (`session.compact`; calls `$.mcp.call`, `$.ui.log`, `$.ui.toast`); the plugin installs
+from this repository's marketplace with the documented commands (`claude plugin marketplace add
+<repo>` → "Successfully added marketplace: lcc", `claude plugin install lcc@lcc` → installed at
+user scope with its eight `userConfig` options reported), and `claude plugin details lcc` lists
+the plugin's MCP server. The hook's mapping logic — option coercion, transcript mapping,
+tool-result parsing, the replacement decision and the fallback on unsupported content — is
+covered by `node test/hook-map.test.mjs` (10 cases, run by `npm test` and by CI); the Python side
+is covered by `tests/test_transcript_compaction.py`, `tests/test_cli_tool_calls.py` and
 `tests/test_mcp_server.py`.
+
+> **`claude plugin details` reports "Hooks (0)" for this plugin, and that is the inventory
+> counter, not the truth.** Function-hook modules (`hooks/hooks.json` with `"modules"`) are the
+> early-access surface: `claude plugin validate` parses the module and names the event it
+> registers, while the component inventory counts only classic event hooks. Do not read
+> "Hooks (0)" as a missing hook.
 
 The compaction backend itself is now measured against the reference implementation on the same
 transcripts: our mode removed **13.3 / 39.2 / 55.7%** of the transcript at fact recall
@@ -97,9 +106,22 @@ a third, so large sessions built requests the API refused (`400 max_tokens_excee
 degraded to keep-everything after 38 wasted calls. It also exercised the 25% minimum-reduction
 gate for real: one measured window landed below it and the hook would keep the built-in summary.
 
-Not verified: Claude Code's own `/compact` has never been intercepted end to end — the hook's
-plumbing (`session.compact` → `$.mcp.call` → messages back) is validated and unit-tested, but
-not yet fired by the editor, so the end-to-end wiring stays unmeasured.
+Not verified: Claude Code's own `/compact` has never been intercepted end to end. The hook's
+plumbing (`session.compact` → `$.mcp.call` → messages back) is validated and unit-tested, but not
+yet fired by the editor: **the author does not have a Claude Code subscription**, so this
+repository cannot run that last step. The two-minute check for anyone who does — Claude Code
+2.1.274 or newer, and a TypeSafe key:
+
+```bash
+cd <this repo> && CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude --plugin-dir plugins/claude-code
+# in a long session:  /compact
+# expect the toast: "lcc: verbatim compaction, no summary (kept N messages, dropped D tool call(s), trimmed T)"
+# or, when the pass lands below the minimum: "lcc: built-in summary (below the 25% minimum (x%))"
+```
+
+Note that Claude Code is a *consumer*, not a requirement: the same pass runs from the CLI
+(`lcc compact transcript.json --mode tool-calls`) and from any MCP client through `lcc mcp`
+(`compact_transcript`), with no editor involved.
 
 ## Early-access caveat
 
