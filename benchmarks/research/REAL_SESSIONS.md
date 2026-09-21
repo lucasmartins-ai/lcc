@@ -9,7 +9,7 @@ plugin's hook calls over MCP):
 
 | Source | What it is | Shape |
 | :--- | :--- | :--- |
-| Hermes session `20260921_225926_e0d6bd` | the session that built this release, pulled from `~/.hermes/state.db` | 497 messages, 310 tool calls, 309,708 tokens |
+| Hermes session `20260921_225926_e0d6bd` | the session that built this release, pulled from `~/.hermes/state.db` | 337 messages, 187 tool calls, 199 717 tokens (the snapshot the run measured — the live store keeps changing while the session runs) |
 | Claude Code session `fd825893-…` in `~/.claude/projects/-Users-Master-lcc/` | a real Claude Code session in this repository — the exact `SessionMessage` shape the plugin receives | 192 messages, 75 tool calls, 55,411 tokens |
 
 Repro:
