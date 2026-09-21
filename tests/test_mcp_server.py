@@ -131,6 +131,7 @@ def test_stdio_end_to_end_offline():
     """Real subprocess, real framing, no key, no network, no Laya weights."""
     env = dict(os.environ)
     env.pop("TYPESAFE_API_KEY", None)
+    env["PYTHONPATH"] = str(ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
     proc = subprocess.run(
         [sys.executable, "-m", "lcc.mcp_server"],
         input=_frame({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
