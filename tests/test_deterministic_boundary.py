@@ -146,6 +146,10 @@ def test_core_runs_identical_with_network_disabled(monkeypatch):
 
 
 def test_importing_core_pulls_no_ml_or_llm_frameworks():
+    import os
+
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
     proc = subprocess.run(
         [sys.executable, "-c",
          "import lcc.pipeline, lcc.cleaning, lcc.inspection, "
@@ -154,7 +158,7 @@ def test_importing_core_pulls_no_ml_or_llm_frameworks():
          "bad = [m for m in sys.modules if m.split('.')[0] in "
          "('torch','transformers','laya','openai','anthropic','requests')]; "
          "print(','.join(bad))"],
-        capture_output=True, text=True, timeout=120, cwd=str(ROOT),
+        capture_output=True, text=True, timeout=120, cwd=str(ROOT), env=env,
     )
     assert proc.returncode == 0, proc.stderr
     assert proc.stdout.strip() == "", f"core pulled heavy frameworks: {proc.stdout.strip()}"
