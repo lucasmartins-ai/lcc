@@ -908,13 +908,17 @@ def compact_command(
         "auto",
         "--provider",
         help=(
-            "Scoring provider. 'mechanical' is fully local and needs no API key or network, "
-            "so LCC works on its own; measured, it keeps every item of every information "
-            "category on every corpus size tested. 'jev' uses TypeSafe System One as a semantic "
-            "judge and needs a TYPESAFE_API_KEY; it is optional. 'laya' uses the local "
-            "non-autoregressive Laya decision engine (Apache 2.0) and runs 100% offline. "
-            "'auto' prefers Jev and falls back to mechanical, reporting 'degraded: true' "
-            "when it does."
+            "Scoring provider. 'mechanical': fully local lexical baseline, no key/no "
+            "network, unbounded context, most aggressive reduction but heuristic only "
+            "(semantic_guarantee=none) — use for offline/CI or huge dossiers. 'laya': "
+            "local non-autoregressive semantic judge (Apache 2.0, 100% offline, 512/1024 "
+            "token budget), more conservative than mechanical with a real semantic pass "
+            "(semantic_guarantee=judged) — use when you want semantics without a key. "
+            "'jev': remote TypeSafe System 1 (32K context, needs TYPESAFE_API_KEY), "
+            "strongest semantic judgment — use when recall on subtle evidence matters "
+            "most. 'auto' prefers Jev, falls back to mechanical with degraded:true. "
+            "Missing Laya extra falls back to mechanical as laya+mechanical_fallback "
+            "(degraded:true). See docs/LAYA.md for the decision table."
         ),
     ),
     model: str = typer.Option(
@@ -926,24 +930,44 @@ def compact_command(
     laya_model: str = typer.Option(
         "convaiinnovations/laya-multilingual",
         "--laya-model",
-        help="Laya model checkpoint or local directory path for relevance scoring.",
+        help=(
+            "Laya checkpoint (512: convaiinnovations/laya; 1024: laya-multilingual / "
+            "laya-typed-decisions) or local directory path. Requires extra: "
+            'pip install "local-context-compiler[laya]". Without it, --provider laya '
+            "falls back to mechanical (degraded:true). Details: docs/LAYA.md."
+        ),
     ),
     laya_device: str | None = typer.Option(
         None,
         "--laya-device",
-        help="Device for local Laya inference: auto, cpu, mps, cuda (default: auto).",
+        help=(
+            "Device for local Laya inference: auto/cpu/mps/cuda (default: auto). "
+            "CPU is fine for small dossiers; CUDA/MPS cuts per-batch latency. "
+            "Report field latency_ms measures the actual cost."
+        ),
     ),
     laya_context_limit: int | None = typer.Option(
         None,
         "--laya-context-limit",
-        help="Override Laya context window (default: 512/1024 from checkpoint).",
+        help=(
+            "Override Laya context window (default: 512/1024 from checkpoint; "
+            "192 tokens reserved for heads, leaving 319/831 for state). "
+            "Oversized blocks are kept whole with laya_context_limit_exceeded, "
+            "never sliced. Report fields laya_context_limit/context_budget_used "
+            "show budget vs use."
+        ),
     ),
     laya_temperature: float | None = typer.Option(
         None,
         "--laya-temperature",
-        help="Temperature for Laya noul scores: T>1 softens over-confidence (default: 1.0).",
+        help=(
+            "Temperature for Laya noul scores (default 1.0 = no-op; T>1 softens "
+            "over-confidence, e.g. 2.0). Recorded as laya_temperature in the report."
+        ),
     ),
-    batch_size: int = typer.Option(8, "--batch-size", help="Blocks scored per Jev call."),
+    batch_size: int = typer.Option(
+        8, "--batch-size", help="Blocks scored per call (Jev and Laya batching)."
+    ),
     min_block_chars: int = typer.Option(
         80, "--min-block-chars", help="Blocks shorter than this are always kept (never scored)."
     ),
@@ -1559,6 +1583,20 @@ def route_cmd(
         return
 
     _fail(f"unknown route action: {action}. Use 'run' or 'eval'")
+
+
+@app.command("mcp")
+def mcp_cmd() -> None:
+    """Run the MCP (Model Context Protocol) stdio server (see docs/MCP.md).
+
+    Exposes compact, inspect, prepare, explain, and intake as MCP tools over
+    JSON-RPC on stdio. Stdlib only, offline-safe defaults (compact defaults
+    to the mechanical provider). Configure your agent with:
+    {"command": "lcc", "args": ["mcp"]}.
+    """
+    from lcc.mcp_server import serve_forever
+
+    serve_forever()
 
 
 def cli_main() -> None:

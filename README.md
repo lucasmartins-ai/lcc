@@ -198,6 +198,10 @@ pip install "local-context-compiler[laya]"
 pipx install "local-context-compiler[tiktoken,laya]"
 ```
 
+> New here? Start with [`docs/QUICKSTART.md`](docs/QUICKSTART.md) — five minutes,
+> fully offline: clean, inspect, compact with each provider, and the
+> cache-safe session pattern (runnable demos in `examples/`).
+
 #### Install from Source / Local Repository
 
 ```bash
@@ -364,11 +368,13 @@ LCC supports **[Laya](https://github.com/NandhaKishorM/laya)** as an optional, f
 
 **The Research Hypothesis**: Can LCC's context compilation reduce a large raw context to a sufficiently small decision-relevant representation that a local ~1K-context Laya model can make useful semantic decisions without requiring a 32K-context remote decision model?
 
-- **Provider Choices**:
-  - `--provider mechanical`: Fully local lexical overlap baseline; zero external ML dependencies.
-  - `--provider jev`: Remote TypeSafe System One (32K context); requires `TYPESAFE_API_KEY`.
-  - `--provider laya`: Local non-autoregressive decision engine (512 or 1024 context); 100% offline with 0 remote tokens.
+- **Provider Choices — when to use which** (full table: `docs/LAYA.md`):
+  - `--provider mechanical`: Fully local lexical overlap baseline; zero external ML dependencies. No key, no network, unbounded context, most aggressive reduction — heuristic only (`semantic_guarantee: none`). Use for offline/CI or huge dossiers.
+  - `--provider laya`: Local non-autoregressive decision engine (512 or 1024 context); 100% offline with 0 remote tokens. More conservative than mechanical (lower reduction, higher preservation) with a real semantic pass (`judged`). Use when you want semantics without a key.
+  - `--provider jev`: Remote TypeSafe System One (32K context); requires `TYPESAFE_API_KEY`. Strongest judgment on subtle evidence. Use when recall on nuance matters most.
   - `--provider auto`: Prefers Jev, falls back cleanly to mechanical with `degraded: true`.
+- **Trade-off:** Laya is deliberately more conservative than mechanical (measured XL: mechanical −70% vs Laya/Jev −22.6%, all at 100% category recall). It buys safety with tokens.
+- **Latency:** no fixed CPU/GPU table is committed — every run reports `calls`, `latency_ms` (model only) and `compilation_ms` (whole pass). CPU is fine for small dossiers; CUDA/MPS cuts per-batch time. See `docs/LAYA.md §2` for how to measure.
 
 - **Strict Context Budgeting & No Naive Truncation**:
   - Supported Laya checkpoints: `convaiinnovations/laya` (512 tokens), `convaiinnovations/laya-multilingual` (1024 tokens), `convaiinnovations/laya-typed-decisions` (1024 tokens).
@@ -402,11 +408,17 @@ LCC supports **[Laya](https://github.com/NandhaKishorM/laya)** as an optional, f
   print(result.report.provider_used)  # 'laya'
   ```
 
+  Missing Laya extra falls back honestly to mechanical as
+  `laya+mechanical_fallback` (`degraded: true`,
+  `laya_unavailable_mechanical_fallback`) — never a fake `judged`.
+  Full limits, budgeting, latency guide and report fields: `docs/LAYA.md`.
+
 `--trim-head-chars 0` disables the middle gear and drops borderline blocks outright. The trim band is the safety net for near-miss evidence, so that setting is measurably *less* safe, not stricter. Pass `--provider jev` explicitly rather than relying on `auto`: `auto` may fall back to mechanical scoring, and while it now reports `degraded: true` with `semantic_guarantee: none` when it does, an explicit provider makes the guarantee a decision rather than a fallback.
 
 Trimming is type-aware: JSON/YAML/XML trim only to still-parseable boundaries, tables keep whole rows, code cuts at line ends, logs keep head+tail, and high-stakes content refuses trimming (TRIM→KEEP). After candidate selection, sufficiency verification asks whether the objective can still be solved from what remains and restores linked evidence (up to `--max-restorations`, disable with `--no-sufficiency`); low judge confidence degrades DROP→TRIM→KEEP (`--confidence-threshold`).
 
-The `relevance-compaction-1.1` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks, plus `confidence`, `relationships`, `policy_version` and `content_type` per decision) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`, `invalidated_tokens`, `break_even_reuses`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`), plus `degraded` / `degradation_reason` / `semantic_guarantee` for honest fallback reporting, sufficiency fields (`blocks_restored`, `sufficiency_checks`, `sufficiency_failures`), relationship counts, `marker_tokens`, tokenizer identity (`tokenizer`, `tokenizer_id`, `tokenizer_version`, `is_estimate`), `jev_model_requested` / `jev_model_resolved`, and `compilation_ms`. Sticky decision keys bind the full policy identity (provider, model, thresholds, parser/protection/relationship/trim versions, tokenizer), so a policy change is a new cache epoch rather than a stale hit. See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013), `docs/adr/0014-minimum-sufficient-context.md` for the safety model, and `benchmarks/research/` for the measured study behind these defaults.
+
+The `relevance-compaction-1.2` report exposes per-block scores and decisions (including `chars_after` for trimmed blocks, plus `confidence`, `relationships`, `policy_version` and `content_type` per decision) plus cache-accounting fields (`first_mutation_offset`, `prefix_sha256`, `output_sha256`, `reused_decisions`, `invalidated_tokens`, `break_even_reuses`) and reduction accounting (`reduction_ratio`, `worth_it`, `min_reduction`), plus `degraded` / `degradation_reason` / `semantic_guarantee` for honest fallback reporting, sufficiency fields (`blocks_restored`, `sufficiency_checks`, `sufficiency_failures`), relationship counts, `marker_tokens`, tokenizer identity (`tokenizer`, `tokenizer_id`, `tokenizer_version`, `is_estimate`), `jev_model_requested` / `jev_model_resolved`, Laya observability (`laya_model_requested` / `laya_model_resolved`, `laya_context_limit`, `context_budget_used`, `laya_temperature`, `latency_ms`), and `compilation_ms`. Sticky decision keys bind the full policy identity (provider, model, thresholds, parser/protection/relationship/trim versions, tokenizer), so a policy change is a new cache epoch rather than a stale hit. See `docs/CACHE_ALIGNMENT.md` for the cost math and the epoch discipline (ADR 0013), `docs/adr/0014-minimum-sufficient-context.md` for the safety model, and `benchmarks/research/` for the measured study behind these defaults.
 
 ### 7. `lcc explain` — audit a compaction pass after the fact
 
@@ -523,6 +535,9 @@ console.log(`Saved: ${compressed.savingsPercentage}%`);
 - **Offline Network Guard**: `lcc` blocks runtime network requests by default via a tightly scoped guard ([ADR 0008](docs/adr/0008-tokenizer-network-boundary.md)).
 - **Inspection Boundary**: `lcc inspect` is strictly diagnostic and transformative-free ([ADR 0009](docs/adr/0009-inspection-command-boundary.md)).
 - **Semantic Retrieval Boundary**: Phase 2 boundary status scaffold ([ADR 0011](docs/adr/0011-phase-2-opt-in-semantic-retrieval-boundary.md)).
+- **Relevance Compaction Boundary**: `lcc compact` is opt-in narrow model judgment — fail-safe, byte-faithful, cache-aligned ([ADR 0013](docs/adr/0013-instant-relevance-compaction-boundary.md)), evolved into a minimum-sufficient-context compiler with safety model, type-aware trim, context graph and sufficiency verification ([ADR 0014](docs/adr/0014-minimum-sufficient-context.md), [ADR 0015](docs/adr/0015-minimum-sufficient-context-cost.md)).
+- **Laya Local Semantic Boundary**: the optional Laya backend (`local-context-compiler[laya]`) judges locally inside a strict 512/1024 budget, falls back honestly to mechanical, and stays outside the deterministic core ([ADR 0016](docs/adr/0016-laya-local-semantic-backend.md), operator guide: `docs/LAYA.md`).
+- **Offline vs optional, no ambiguity**: `optimize`, `prepare`, `inspect`, `bench`, `intake` (default), and `compact --provider mechanical` / `--provider laya` are 100% offline — no key, no network, enforced by `tests/test_deterministic_boundary.py`. Only `compact --provider jev` (and `intake --enable-relevance` with a Jev provider) needs `TYPESAFE_API_KEY` and network.
 
 ---
 

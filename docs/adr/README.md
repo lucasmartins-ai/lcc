@@ -21,5 +21,6 @@ public / cross-module contracts that are expensive to change after release.
 | [0013](0013-instant-relevance-compaction-boundary.md) | Opt-in instant relevance compaction (`lcc compact`) via narrow model judgment (Jev): fail-safe, byte-faithful, cache-aligned sticky decisions |
 | [0014](0014-minimum-sufficient-context.md) | Minimum sufficient context: safety model, v1.1 cache identity, tokenizer contract, type-aware trim, context graph, sufficiency verification, confidence policy |
 | [0015](0015-minimum-sufficient-context-cost.md) | Cache-aware minimum-sufficient-context compiler: cost objective, independent verifier, REVIEW |
+| [0016](0016-laya-local-semantic-backend.md) | Laya opt-in local semantic backend: budgeted 512/1024 judgment, honest mechanical fallback, outside the deterministic core |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.

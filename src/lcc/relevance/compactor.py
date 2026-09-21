@@ -58,7 +58,7 @@ from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_bl
 from lcc.token_budget import count_tokens
 from lcc.token_budget.counters import tokenizer_identity_for_count
 
-RELEVANCE_SCHEMA_VERSION = "relevance-compaction-1.1"
+RELEVANCE_SCHEMA_VERSION = "relevance-compaction-1.2"
 POLICY_VERSION_ALIAS = POLICY_VERSION
 
 #: Prompt-cache cost factors from ``docs/CACHE_ALIGNMENT.md``: a cache read costs ~0.10x the
@@ -232,6 +232,12 @@ class RelevanceCompactionReport:
     laya_model_requested: str | None = None
     laya_model_resolved: str | None = None
     laya_context_limit: int | None = None
+    #: Tokens of the largest Laya state actually sent (objective + one batch),
+    #: vs ``laya_context_limit``. ``None`` when the Laya path did not run.
+    #: Use it to size ``--laya-context-limit`` and to prove a pass stayed in budget.
+    context_budget_used: int | None = None
+    #: Temperature applied to Laya noul scores (None = model default 1.0).
+    laya_temperature: float | None = None
     #: Sufficiency + relationship observability (machine-readable, never in the prompt).
     blocks_restored: int = 0
     sufficiency_checks: int = 0
@@ -795,10 +801,14 @@ def _score_with_laya(
     list[str],
     str | None,
     list[str],
+    int | None,
 ]:
     """Score blocks with Laya, enforcing verified context limits without naive truncation.
 
-    Returns (results, calls, latency_ms, warnings, resolved_model, oversized_block_ids).
+    Returns (results, calls, latency_ms, warnings, resolved_model,
+    oversized_block_ids, context_budget_used).
+    ``context_budget_used`` is the largest state sent (objective + one batch,
+    in tokens) so the report can prove the pass stayed inside ``context_limit``.
     """
     from lcc.relevance.laya import LayaError
 
@@ -809,6 +819,19 @@ def _score_with_laya(
     batches, oversized = _batch_blocks_for_laya(
         blocks, client, request.question, request.batch_size
     )
+
+    # Observability: largest state actually sent, so callers can see headroom.
+    context_budget_used: int | None = None
+    try:
+        _obj_tokens = count_tokens(request.question, "gpt-4.1").value
+        _batch_tokens = [
+            _obj_tokens + sum(count_tokens(b.text, "gpt-4.1").value for b in batch)
+            for batch in batches
+        ]
+        if _batch_tokens:
+            context_budget_used = max(_batch_tokens)
+    except Exception:
+        context_budget_used = None
 
     # Handle oversized blocks that exceed Laya's verified context limit
     for block, block_tokens in oversized:
@@ -890,7 +913,7 @@ def _score_with_laya(
                 confidence = None
             results[block.id] = (score, "laya", confidence)
 
-    return results, calls, latency_ms, warnings, resolved_model, oversized_ids
+    return results, calls, latency_ms, warnings, resolved_model, oversized_ids, context_budget_used
 
 
 def _score_mechanically(
@@ -1159,7 +1182,9 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     latency_ms = 0
     jev_resolved: str | None = None
     laya_resolved: str | None = None
+    context_budget_used: int | None = None
     client: Any | None = None
+    laya_fallback_to_mechanical = False
     if provider_requested in ("auto", "jev"):
         client = request.client if request.client is not None else _resolve_client()
         if client is None:
@@ -1184,17 +1209,25 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     elif provider_requested == "laya":
         client = request.client if request.client is not None else _resolve_laya_client(request)
         if client is None:
+            # Honest mechanical fallback (Etapa 1): no silent keep-all that hides
+            # the missing extra. Mechanical scoring runs with deterministic
+            # protection, degraded=True, and a typed reason — never a fake `judged`.
             degraded = True
-            provider_used = "degraded"
-            degradation_reason = "laya_unavailable"
+            laya_fallback_to_mechanical = True
+            degradation_reason = "laya_unavailable_mechanical_fallback"
             semantic_guarantee = "none"
             warnings.append(
-                "laya_unavailable: dependencies not installed or model missing; "
-                "kept every block (fail-safe)"
+                "laya_unavailable: Laya extra not installed or model missing; "
+                "fell back to mechanical scoring (degraded). Install with "
+                'pip install "local-context-compiler[laya]" for local semantic judgment.'
             )
         elif request.laya_model and hasattr(client, "model"):
             client.model = request.laya_model
-        if request.laya_temperature is not None and hasattr(client, "temperature"):
+        if (
+            request.laya_temperature is not None
+            and client is not None
+            and hasattr(client, "temperature")
+        ):
             temp = request.laya_temperature
             if isinstance(temp, (int, float)) and temp > 0:
                 client.temperature = float(temp)
@@ -1208,11 +1241,6 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
 
     if pending and provider_used == "degraded":
         for block in pending:
-            reason = (
-                "laya_unavailable_fail_safe"
-                if provider_requested == "laya"
-                else "jev_unavailable_fail_safe"
-            )
             decisions[block.id] = BlockDecision(
                 id=block.id,
                 index=block.index,
@@ -1222,7 +1250,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 decision="keep",
                 source="degraded",
                 score=None,
-                reason=reason,
+                reason="jev_unavailable_fail_safe",
                 confidence=None,
                 relationships=(),
                 policy_version=POLICY_VERSION,
@@ -1243,6 +1271,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 laya_warnings,
                 laya_resolved,
                 oversized_ids,
+                context_budget_used,
             ) = _score_with_laya(client, pending, request)
             warnings.extend(laya_warnings)
             for block_id, (score, source, conf) in laya_results.items():
@@ -1264,7 +1293,13 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     provider_used = "laya+mechanical_fallback"
                     degraded = True
                     degradation_reason = "laya_batch_failed"
-                    semantic_guarantee = "partial"
+                    # Total failure (no batch judged anything) is `none`, not
+                    # `partial`: claiming partial semantic judgment when every
+                    # decision is lexical would be dishonest.
+                    if any(source == "laya" for _, source, _, _ in results.values()):
+                        semantic_guarantee = "partial"
+                    else:
+                        semantic_guarantee = "none"
         elif client is not None and provider_requested in ("auto", "jev"):
             provider_used = "jev"
             jev_results, calls, latency_ms, jev_warnings, jev_resolved = _score_with_jev(
@@ -1290,10 +1325,19 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     provider_used = "jev+mechanical_fallback"
                     degraded = True
                     degradation_reason = "jev_batch_failed"
-                    semantic_guarantee = "partial"
+                    if any(source == "jev" for _, source, _, _ in results.values()):
+                        semantic_guarantee = "partial"
+                    else:
+                        semantic_guarantee = "none"
         else:
-            provider_used = "mechanical"
-            semantic_guarantee = "none"
+            # Pure mechanical, or honest Laya→mechanical fallback when the extra
+            # is missing. Scoring is identical; only the label + degraded flag
+            # differ so callers can tell "asked laya, got lexical" from "asked lexical".
+            if laya_fallback_to_mechanical:
+                provider_used = "laya+mechanical_fallback"
+            else:
+                provider_used = "mechanical"
+                semantic_guarantee = "none"
             for block_id, (s, src, prot) in _score_mechanically(
                 pending,
                 request.question,
@@ -1888,13 +1932,20 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         is_estimate=after_count.method.value != "exact",
         jev_model_requested=request.jev_model,
         jev_model_resolved=jev_resolved,
-        laya_model_requested=request.laya_model if provider_requested == "laya" else None,
+        laya_model_requested=request.laya_model
+        if provider_requested == "laya" or provider_used.startswith("laya")
+        else None,
         laya_model_resolved=laya_resolved,
         laya_context_limit=(
             getattr(client, "context_limit", None)
-            if provider_requested == "laya"
+            if (provider_requested == "laya" or provider_used.startswith("laya"))
+            and client is not None
             else None
         ),
+        context_budget_used=context_budget_used,
+        laya_temperature=request.laya_temperature
+        if provider_requested == "laya" or provider_used.startswith("laya")
+        else None,
         blocks_restored=blocks_restored,
         sufficiency_checks=sufficiency_checks,
         sufficiency_failures=sufficiency_failures,
@@ -1953,6 +2004,8 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "laya_model_requested": report.laya_model_requested,
         "laya_model_resolved": report.laya_model_resolved,
         "laya_context_limit": report.laya_context_limit,
+        "context_budget_used": report.context_budget_used,
+        "laya_temperature": report.laya_temperature,
         "reduction_ratio": report.reduction_ratio,
         "worth_it": report.worth_it,
         "min_reduction": report.min_reduction,
