@@ -239,6 +239,14 @@ def test_claude_code_plugin_is_documented() -> None:
     assert "TRANSCRIPT_AB.md" in _read("docs/QUICKSTART.md")
     assert "TRANSCRIPT_AB.md" in _read("benchmarks/research/RESEARCH_STATUS.md")
 
+    real = "benchmarks/research/REAL_SESSIONS.md"
+    assert (ROOT / real).is_file()
+    assert "REAL_SESSIONS.md" in _read("docs/CLAUDE_CODE.md")
+    assert "REAL_SESSIONS.md" in _read("docs/TOOL_CALLS.md")
+    assert "REAL_SESSIONS.md" in _read("docs/QUICKSTART.md")
+    assert "REAL_SESSIONS.md" in _read("benchmarks/research/RESEARCH_STATUS.md")
+    assert (ROOT / "benchmarks/research/measure_session.py").is_file()
+
 
 def test_local_doc_links_resolve_to_existing_files() -> None:
     import re

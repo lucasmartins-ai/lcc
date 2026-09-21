@@ -447,6 +447,11 @@ of the transcript at fact recall 1.00 / 1.00 / 1.00, where that library removed 
 83.4% at recall 0.00. Reduction alone ranks them backwards — full method and limits:
 [`benchmarks/research/TRANSCRIPT_AB.md`](benchmarks/research/TRANSCRIPT_AB.md).
 
+On real sessions ([`benchmarks/research/REAL_SESSIONS.md`](benchmarks/research/REAL_SESSIONS.md)):
+a real Claude Code session in this repository (192 messages) went from 55 411 to 18 761 tokens
+(−66.1%) with all 42 user/assistant texts preserved byte for byte, and this repository's own
+337-message build session from 199 717 to 36 645 tokens (−81.7%) with all 58 texts preserved.
+
 #### Local Semantic Decision Backend: Laya (Apache 2.0)
 
 LCC supports **[Laya](https://github.com/NandhaKishorM/laya)** as an optional, fully local semantic decision backend (developed by NandhaKishorM / Convai Innovations under Apache 2.0). 

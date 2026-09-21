@@ -1,0 +1,97 @@
+{
+  "run_id": "2026-09-21T22:47:33+00:00",
+  "options": {
+    "threshold": 0.5,
+    "preserve_recent": 6,
+    "trim_head_chars": 300,
+    "max_state_tokens": 25000,
+    "max_request_tokens": 30000,
+    "min_reduction_ratio": 0.25,
+    "question": "finish the task in this session"
+  },
+  "source_stats": {
+    "records": 231,
+    "text_blocks": 42,
+    "thinking_blocks": 38,
+    "tool_uses": 75,
+    "tool_results": 75
+  },
+  "rows": [
+    {
+      "label": "claude-code:-Users-Master-lcc/fd825893-fff7-44a3-abc5-831a9e091bb0.jsonl (full)",
+      "messages": 192,
+      "tool_calls": 75,
+      "tokens_before": 55411,
+      "tokens_after": 18761,
+      "reduction": 0.6614,
+      "token_count_method": "exact",
+      "messages_after": 136,
+      "outcomes": {
+        "kept": 23,
+        "trimmed": 24,
+        "dropped": 28
+      },
+      "outcome_source": {
+        "keep": 23,
+        "trim": 24,
+        "drop": 28
+      },
+      "texts_checked": 42,
+      "texts_lost": [],
+      "compacted": true,
+      "state_tokens": 24076,
+      "state_fit_stage": "full",
+      "requests": 10,
+      "calls": 10,
+      "semantic_guarantee": "judged",
+      "degraded": false,
+      "jev_model_resolved": "jev-1.13.0",
+      "hook_would_replace": true,
+      "hook_reason": "judged pass, 66.1% removed",
+      "latency_ms": 2553,
+      "ledger": {
+        "input_tokens": 292937,
+        "output_tokens": 5696,
+        "calls": 10
+      }
+    },
+    {
+      "label": "claude-code:-Users-Master-lcc/fd825893-fff7-44a3-abc5-831a9e091bb0.jsonl (newest 80 messages)",
+      "messages": 80,
+      "tool_calls": 29,
+      "tokens_before": 12513,
+      "tokens_after": 9956,
+      "reduction": 0.2043,
+      "token_count_method": "exact",
+      "messages_after": 64,
+      "outcomes": {
+        "kept": 18,
+        "trimmed": 3,
+        "dropped": 8
+      },
+      "outcome_source": {
+        "keep": 18,
+        "trim": 3,
+        "drop": 8
+      },
+      "texts_checked": 22,
+      "texts_lost": [],
+      "compacted": true,
+      "state_tokens": 12215,
+      "state_fit_stage": "full",
+      "requests": 4,
+      "calls": 4,
+      "semantic_guarantee": "judged",
+      "degraded": false,
+      "jev_model_resolved": "jev-1.13.0",
+      "hook_would_replace": false,
+      "hook_reason": "below the 25% minimum, degraded, or empty",
+      "latency_ms": 1178,
+      "ledger": {
+        "input_tokens": 61982,
+        "output_tokens": 2048,
+        "calls": 4
+      }
+    }
+  ]
+}
