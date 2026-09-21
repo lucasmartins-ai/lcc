@@ -60,6 +60,7 @@ from lcc.relevance.jev import (
 )
 from lcc.relevance.laya import (
     DEFAULT_LAYA_MODEL,
+    DEFAULT_LAYA_TEMPERATURE,
     HEAD_RESERVATION_TOKENS,
     LayaClient,
     LayaContextLimitExceededError,
@@ -67,6 +68,7 @@ from lcc.relevance.laya import (
     LayaExecutionError,
     LayaModelNotFoundError,
     LayaUnavailableError,
+    calibrate_noul,
     get_laya_context_limit,
 )
 from lcc.relevance.provider import (
@@ -81,13 +83,21 @@ from lcc.relevance.provider import (
 from lcc.relevance.safety import BlockAssessment, decide_assessment
 from lcc.relevance.sufficiency import SufficiencyResult, verify_sufficiency
 from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
-from lcc.relevance.verifier import SemanticVerificationResult, verify_semantic
+from lcc.relevance.verifier import (
+    VERIFIER_POLICY_VERSION,
+    SemanticVerificationResult,
+    VerificationContract,
+    VerifierDecision,
+    verify_semantic,
+    verify_semantic_contract,
+)
 
 __all__ = [
     "BLOCK_ID_RE",
     "BLOCK_PARSER_VERSION",
     "DECISIONS_CACHE_SCHEMA_VERSION",
     "DEFAULT_LAYA_MODEL",
+    "DEFAULT_LAYA_TEMPERATURE",
     "DEFAULT_MAX_BLOCK_CHARS",
     "DEFAULT_MIN_BLOCK_CHARS",
     "HEAD_RESERVATION_TOKENS",
@@ -122,6 +132,9 @@ __all__ = [
     "RelevanceCompactionResult",
     "SemanticProvider",
     "SemanticVerificationResult",
+    "VERIFIER_POLICY_VERSION",
+    "VerificationContract",
+    "VerifierDecision",
     "SufficiencyResult",
     "TextBlock",
     "UnsupportedOperationError",
@@ -133,6 +146,7 @@ __all__ = [
     "decide_assessment",
     "decision_key",
     "decision_key_v2",
+    "calibrate_noul",
     "default_ledger_path",
     "detect_content_type",
     "gaps_between",
@@ -145,5 +159,6 @@ __all__ = [
     "split_blocks",
     "trim_block_safe",
     "verify_semantic",
+    "verify_semantic_contract",
     "verify_sufficiency",
 ]

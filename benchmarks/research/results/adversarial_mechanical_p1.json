@@ -1,8 +1,8 @@
 {
   "provider": "mechanical",
   "pressure": 1,
-  "cases": 26,
-  "passed": 26,
+  "cases": 30,
+  "passed": 30,
   "failed": 0,
   "rows": [
     {
@@ -29,7 +29,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 46.3,
       "passed": true,
-      "wall_ms": 475,
+      "wall_ms": 410,
       "pressure": 1
     },
     {
@@ -56,7 +56,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 35.8,
       "passed": true,
-      "wall_ms": 380,
+      "wall_ms": 382,
       "pressure": 1
     },
     {
@@ -88,7 +88,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 40.5,
       "passed": true,
-      "wall_ms": 387,
+      "wall_ms": 411,
       "pressure": 1
     },
     {
@@ -115,7 +115,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 46.0,
       "passed": true,
-      "wall_ms": 382,
+      "wall_ms": 410,
       "pressure": 1
     },
     {
@@ -142,7 +142,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 40.9,
       "passed": true,
-      "wall_ms": 379,
+      "wall_ms": 412,
       "pressure": 1
     },
     {
@@ -174,7 +174,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.0,
       "passed": true,
-      "wall_ms": 374,
+      "wall_ms": 402,
       "pressure": 1
     },
     {
@@ -206,7 +206,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.4,
       "passed": true,
-      "wall_ms": 379,
+      "wall_ms": 390,
       "pressure": 1
     },
     {
@@ -235,7 +235,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.9,
       "passed": true,
-      "wall_ms": 379,
+      "wall_ms": 385,
       "pressure": 1
     },
     {
@@ -262,7 +262,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.5,
       "passed": true,
-      "wall_ms": 379,
+      "wall_ms": 406,
       "pressure": 1
     },
     {
@@ -296,7 +296,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.9,
       "passed": true,
-      "wall_ms": 379,
+      "wall_ms": 389,
       "pressure": 1
     },
     {
@@ -323,7 +323,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.6,
       "passed": true,
-      "wall_ms": 374,
+      "wall_ms": 399,
       "pressure": 1
     },
     {
@@ -350,7 +350,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 36.4,
       "passed": true,
-      "wall_ms": 378,
+      "wall_ms": 381,
       "pressure": 1
     },
     {
@@ -377,7 +377,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.1,
       "passed": true,
-      "wall_ms": 378,
+      "wall_ms": 392,
       "pressure": 1
     },
     {
@@ -404,7 +404,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 35.3,
       "passed": true,
-      "wall_ms": 378,
+      "wall_ms": 406,
       "pressure": 1
     },
     {
@@ -431,7 +431,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 37.0,
       "passed": true,
-      "wall_ms": 377,
+      "wall_ms": 385,
       "pressure": 1
     },
     {
@@ -458,7 +458,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.9,
       "passed": true,
-      "wall_ms": 382,
+      "wall_ms": 403,
       "pressure": 1
     },
     {
@@ -485,7 +485,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.9,
       "passed": true,
-      "wall_ms": 385,
+      "wall_ms": 390,
       "pressure": 1
     },
     {
@@ -512,7 +512,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.0,
       "passed": true,
-      "wall_ms": 380,
+      "wall_ms": 383,
       "pressure": 1
     },
     {
@@ -539,7 +539,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 95.7,
       "passed": true,
-      "wall_ms": 382,
+      "wall_ms": 401,
       "pressure": 1
     },
     {
@@ -571,7 +571,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 38.7,
       "passed": true,
-      "wall_ms": 377,
+      "wall_ms": 383,
       "pressure": 1
     },
     {
@@ -603,7 +603,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 44.0,
       "passed": true,
-      "wall_ms": 375,
+      "wall_ms": 395,
       "pressure": 1
     },
     {
@@ -635,7 +635,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 17.0,
       "passed": true,
-      "wall_ms": 378,
+      "wall_ms": 383,
       "pressure": 1
     },
     {
@@ -662,7 +662,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 16.8,
       "passed": true,
-      "wall_ms": 378,
+      "wall_ms": 383,
       "pressure": 1
     },
     {
@@ -704,7 +704,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 22.0,
       "passed": true,
-      "wall_ms": 376,
+      "wall_ms": 399,
       "pressure": 1
     },
     {
@@ -736,7 +736,7 @@
       "token_count_method": "exact",
       "break_even_reuses": 15.1,
       "passed": true,
-      "wall_ms": 377,
+      "wall_ms": 383,
       "pressure": 1
     },
     {
@@ -768,7 +768,120 @@
       "token_count_method": "exact",
       "break_even_reuses": 14.9,
       "passed": true,
-      "wall_ms": 380,
+      "wall_ms": 390,
+      "pressure": 1
+    },
+    {
+      "id": "qualifier_truncation",
+      "hazard": "trim",
+      "description": "A long safety block whose head states safety and whose tail carries the exception. Trimming before 'except' produces a false claim; the safe trim is KEEP.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "qualifier_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 29.2,
+      "blocks_dropped": 6,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 40.1,
+      "passed": true,
+      "wall_ms": 405,
+      "pressure": 1
+    },
+    {
+      "id": "qualifier_unless",
+      "hazard": "trim",
+      "description": "Revenue/eligibility rule with a trailing 'unless' condition that changes the answer. Dropping the tail inverts eligibility.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "unless_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 68.6,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 16.2,
+      "passed": true,
+      "wall_ms": 382,
+      "pressure": 1
+    },
+    {
+      "id": "structured_semantic_json",
+      "hazard": "structured",
+      "description": "A JSON block where trimming to a still-valid subset (price only) drops currency and tax flags and changes the meaning. The trim must be refused.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "currency_present",
+          "expectation": "present",
+          "ok": true
+        },
+        {
+          "name": "tax_flag_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 76.6,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 15.7,
+      "passed": true,
+      "wall_ms": 417,
+      "pressure": 1
+    },
+    {
+      "id": "structured_semantic_units",
+      "hazard": "structured",
+      "description": "A config block where the value without its unit (seconds vs ms) is a different claim. The unit must survive any trim.",
+      "critical_blocks": 1,
+      "lost_blocks": [],
+      "lost_required": [],
+      "checks": [
+        {
+          "name": "unit_present",
+          "expectation": "present",
+          "ok": true
+        }
+      ],
+      "failed_checks": [],
+      "survival_ratio": 1.0,
+      "reduction_pct": 60.2,
+      "blocks_dropped": 11,
+      "blocks_trimmed": 0,
+      "semantic_guarantee": "none",
+      "provider_used": "mechanical",
+      "token_count_method": "exact",
+      "break_even_reuses": 20.1,
+      "passed": true,
+      "wall_ms": 395,
       "pressure": 1
     }
   ]

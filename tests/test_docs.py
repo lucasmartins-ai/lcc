@@ -79,7 +79,7 @@ def test_phase_1_7_boundary_is_referenced_by_core_docs() -> None:
 
     release = _words("docs/release.md")
     assert "deterministic Phase 1.7 prepare boundary" in release
-    assert "ADRs 0001-0011" in release
+    assert "ADRs 0001-0016" in release
 
     benchmarks = _words("benchmarks/README.md")
     assert "lexical/mechanical signals" in benchmarks

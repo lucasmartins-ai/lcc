@@ -22,7 +22,7 @@ def test_metadata_records_full_identity():
     assert payload["requested_model"] == "jev-latest"
     assert payload["resolved_model"] == "jev-2026-09-01"  # alias never stands alone
     assert payload["policy_version"] == "relevance-compaction-1.2"
-    assert payload["schema_version"] == "relevance-compaction-1.1"
+    assert payload["schema_version"] == "relevance-compaction-1.2"
     assert payload["tokenizer_id"] == "o200k_base"
     assert payload["seed"] == 7
     assert payload["timestamp"]

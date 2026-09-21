@@ -104,14 +104,23 @@ def build_decision_identity(
     tokenizer_id: str | None = None,
     deterministic_protection: bool = True,
     relationship_context: str | None = None,
+    laya_temperature: float | None = None,
+    semantic_verify: bool = False,
+    verifier_model: str | None = None,
+    verifier_policy_version: str | None = None,
 ) -> dict[str, Any]:
     """Build the canonical identity dict hashed by :func:`decision_key_v2`.
 
     All floats are rounded to 6dp so ``0.4`` and ``0.4000000001`` do not fork the cache.
     ``None`` is preserved as null (distinct from ``""``) so an absent trim band and an
     explicit ``0.0`` band never collide.
+
+    Verifier keys are appended only when ``semantic_verify`` is true, so every
+    existing ``semantic_verify=False`` identity — and every sticky record written
+    before the verifier existed — hashes exactly as before. Enabling the verifier
+    is a cache epoch (a different decision context), which is the safe direction.
     """
-    return {
+    identity: dict[str, Any] = {
         "objective_sha256": _sha256(objective),
         "block_sha256": _sha256(block_text),
         "provider": provider,
@@ -128,7 +137,15 @@ def build_decision_identity(
         "tokenizer_id": tokenizer_id,
         "deterministic_protection": bool(deterministic_protection),
         "relationship_context": relationship_context,
+        "laya_temperature": None
+        if laya_temperature is None
+        else round(float(laya_temperature), 6),
     }
+    if semantic_verify:
+        identity["semantic_verify"] = True
+        identity["verifier_model"] = verifier_model
+        identity["verifier_policy_version"] = verifier_policy_version
+    return identity
 
 
 def decision_key_v2(identity: dict[str, Any]) -> str:

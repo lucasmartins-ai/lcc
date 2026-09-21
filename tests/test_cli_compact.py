@@ -41,7 +41,7 @@ def test_compact_mechanical_writes_output_and_report(tmp_path: Path):
     assert result.exit_code == 0
     assert out.exists()
     data = json.loads(report.read_text(encoding="utf-8"))
-    assert data["schema_version"] == "relevance-compaction-1.1"
+    assert data["schema_version"] == "relevance-compaction-1.2"
     assert data["provider_used"] == "mechanical"
     assert "first_mutation_offset" in data
     assert "prefix_sha256" in data
