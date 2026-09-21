@@ -88,11 +88,18 @@ transcripts: our mode removed **13.3 / 39.2 / 55.7%** of the transcript at fact 
 `RESEARCH_STATUS.md`). Read that study with its own limits: three synthetic sessions, one seed,
 backends only, and one of four runs dropped an evidence pair on the largest session.
 
-Not verified: no live Claude Code session has been measured end to end — the hook has never
-been run against a real `/compact` in this repository, so what the plugin changes inside an
-editor session is unquantified. Until that measurement exists, treat the plugin's benefit as
-unquantified: the fallbacks are honest, the mechanism is validated, the compaction quality is
-measured outside the editor, the end-to-end win is not.
+And it is measured on **real transcripts** (`benchmarks/research/REAL_SESSIONS.md`): a real
+Claude Code session in this repository, in the exact shape the hook receives, went from 55 411
+to 18 761 tokens (**−66.1%**) with all 42 user/assistant texts preserved byte for byte, and this
+release's own 337-message Hermes session by 81.7% with all 58 texts preserved. That measurement
+found and fixed a real defect: the state budget used a heuristic that undercounts JSON by about
+a third, so large sessions built requests the API refused (`400 max_tokens_exceeded`) and
+degraded to keep-everything after 38 wasted calls. It also exercised the 25% minimum-reduction
+gate for real: one measured window landed below it and the hook would keep the built-in summary.
+
+Not verified: Claude Code's own `/compact` has never been intercepted end to end — the hook's
+plumbing (`session.compact` → `$.mcp.call` → messages back) is validated and unit-tested, but
+not yet fired by the editor, so the end-to-end wiring stays unmeasured.
 
 ## Early-access caveat
 

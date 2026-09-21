@@ -236,6 +236,43 @@ def test_a_result_too_short_to_trim_is_kept_whole():
     assert result.report["reduction_ratio"] == 0.0
 
 
+def test_the_budget_is_never_optimistic():
+    # A JSON-heavy state is exactly where the stdlib heuristic undercounts: it scored a real
+    # state at 22.9k tokens that the API received as ~31k and refused with max_tokens_exceeded.
+    import json as _json
+
+    from lcc.relevance import transcript as module
+    from lcc.token_budget.counters import approximate_token_count
+
+    state = _json.dumps({"goal": "cut the retry storm", "conversation": [{"role": "user", "text": "x" * 4000, "tool_calls": [{"id": f"toolu_{i}", "input": {"file": "a.py"}} for i in range(60)]}]})
+    heuristic = approximate_token_count(state)
+    assert module._budget_tokens(state) > heuristic
+    assert module._budget_tokens(state) >= heuristic * 1.4
+
+
+def test_fitting_uses_the_budget_function(monkeypatch):
+    import json as _json
+
+    from lcc.relevance import transcript as module
+    from lcc.token_budget.counters import approximate_token_count
+
+    big_input = {"file": "x" * 4000, "offset": 1}
+    payload = build(*[("Read", big_input) for _ in range(3)])
+    messages = module.parse_transcript(payload)
+    calls = [call for message in messages for call in message.tool_calls]
+
+    def inflated(text):
+        return int(approximate_token_count(text) * 3)
+
+    monkeypatch.setattr(module, "_budget_tokens", inflated)
+    state, stage, tokens = module._fit_state(
+        messages, calls, objective=OBJECTIVE, max_state_tokens=2000
+    )
+    heuristic = approximate_token_count(_json.dumps(state, ensure_ascii=False, default=str))
+    assert tokens == int(heuristic * 3), "the fit must be decided by the budget function"
+    assert stage in {"inputs-200", "calls-one-line"}
+
+
 def test_user_and_assistant_text_is_never_touched():
     payload = build(("Read", {"file": "a.py"}), text="Please fix the parser and never edit src/generated.")
     result = run(payload, ScoreMap(default=(0.0, 0.0)))
