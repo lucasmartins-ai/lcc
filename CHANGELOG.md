@@ -4,9 +4,35 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2026-09-21
 
-_No changes yet._
+**Release focus: Jev first, and enough of it shipped to prove it.** The Jev provider is now the
+headline path in the documentation (`docs/JEV.md`), the compiler learned a message-level mode
+(`lcc compact --mode tool-calls`) that drops spent tool calls and results from an agent
+transcript without ever summarizing, and a Claude Code plugin replaces that editor's built-in
+compaction summary with the same pass. A head-to-head study against `fast-jev-compaction` 0.4.0
+on the same transcripts with live Jev is published in `benchmarks/research/TRANSCRIPT_AB.md`:
+this mode removed 13.3 / 39.2 / 55.7% of the transcript at fact recall 1.00 / 1.00 / 1.00, where
+that library removed 70.5 / 78.9 / 83.4% at recall 0.00. Two defects the study found in the new
+mode are fixed below.
+
+### Added
+
+- Tool-call compaction study: `benchmarks/research/TRANSCRIPT_AB.md` measures `lcc compact --mode tool-calls` against `fast-jev-compaction` 0.4.0 on the same three deterministic transcripts with matching options and live Jev. Our mode removed 13.3 / 39.2 / 55.7% of the transcript at fact recall 1.00 / 1.00 / 1.00; the npm arm removed 70.5 / 78.9 / 83.4% at recall 0.00 (every evidence pair dropped, reproducibly). New harness: `make_transcripts.py` (ground-truth corpus with a self-check), `run_transcript_ab.py` (both arms measured by the same ruler, per-pair outcomes derived from the emitted messages, arm selection in the artifact filename), `fast_jev_arm.mjs`; artifacts under `benchmarks/research/results/`. Canonical row in `benchmarks/research/RESEARCH_STATUS.md`.
+
+### Fixed
+
+- Tool-call compaction, state budget honesty: the mode scored the conversation with the stdlib heuristic, which undercounts JSON-heavy transcripts by roughly a third. On a real 497-message session it judged a 22 936-token state inside its 25 000 budget, sent 38 batches, and had every one refused by the API (`400 max_tokens_exceeded`, 123 741 characters ≈ 31 000 real tokens) before degrading to keep-everything. `_budget_tokens` now counts with the real tokenizer when the environment has one and otherwise inflates the heuristic by the measured factor, so the same session fails closed in 50 ms with a typed error and zero requests spent. Regression tests: `test_the_budget_is_never_optimistic`, `test_fitting_uses_the_budget_function`.
+- Tool-call compaction: a `drop` decision reported `chars_after` equal to `chars_before`, so the report's `tool_reduction_ratio` read 0.0 while the transcript had shrunk by more than half. A result shorter than `--trim-head-chars` was also "trimmed" into a *longer* transcript, because the audit note outweighed the characters it removed; such a pair is now kept whole with reason `short_result_kept_whole`. Both were found by the new A/B study and both have regression tests.
+- Tool-call compaction, real sessions: `benchmarks/research/REAL_SESSIONS.md` adds the measurement the release was missing. A real Claude Code session in this repository (192 messages, 75 tool calls), in the exact shape the hook receives, goes from 55 411 to 18 761 tokens (**−66.1%**) with all 42 user/assistant texts preserved byte for byte; this release's own 337-message Hermes session (187 tool calls) goes from 199 717 to 36 645 tokens (**−81.7%**) with all 58 texts preserved. New harness: `measure_session.py` (Claude Code JSONL or the Hermes store → the session shape → the shipping code path).
+
+- Claude Code plugin (`plugins/claude-code`, `.claude-plugin/marketplace.json`): replaces the built-in compaction summary with verbatim tool-call compaction. The `session.compact` hook is a thin ESM adapter (no build step, no dependencies) that hands the transcript to the plugin's own `lcc mcp` server and maps the result back; it stands down to Claude Code's own summary on any failure, on a below-`minReductionRatio` pass, or when a message carries content it cannot rebuild. Install and limits: `docs/CLAUDE_CODE.md`; operator guide: `plugins/claude-code/hooks/README.md`. Verified by `claude plugin validate` plus `test/hook-map.test.mjs` (10 cases, run by `npm test`); a live head-to-head against the built-in summary is still pending.
+- Tool-call compaction: `lcc compact --mode tool-calls` (and the MCP tool `compact_transcript`) compacts a session transcript instead of a document. Each `tool_use` is paired with its `tool_result` by id; the first and newest `--preserve-recent` messages are pinned; every other pair gets two typed Jev questions (does the call still matter, does its result still need to be there verbatim) and is kept, trimmed to `--trim-head-chars` plus a note, or dropped whole. User and assistant text is never scored, trimmed or rewritten, results stay in the message they arrived in, and a history that cannot be shown inside `--max-state-tokens` fails closed instead of being judged blind. `mechanical`/`laya` are refused with exit 2 rather than pretending to judge semantics. The report is `transcript-compaction-1.0` and reads through `lcc explain` unchanged. New: `src/lcc/relevance/transcript.py`, `docs/TOOL_CALLS.md`.
+- Jev path documentation: new `docs/JEV.md` (typed-decision contract, key resolution order, honest fallback table, measured behaviour and its limits), a Jev-first section at the top of `README.md` with a five-line `--provider jev` example and a TypeSafe badge, a Jev path in `docs/QUICKSTART.md`, and `tests/test_docs.py` assertions that keep the document linked from both entry points and pinned to the tested phrases.
+
+### Changed
+
+- README positioning: the compaction claim now leads with "Jev-powered relevance compaction that never summarizes", and the provider table's note points to `docs/JEV.md`. No behaviour change; the offline default path (`mechanical`/`laya`, no key, no network) is unchanged.
 
 ## [0.4.0] - 2026-09-21
 
@@ -219,7 +245,8 @@ response verification — those remain roadmap items (see `docs/roadmap.md`).
   `CODE_OF_CONDUCT.md`, the `docs/` set (architecture, evaluation, roadmap, release, ADRs),
   examples, and agent guidance (`CLAUDE.md`, `AGENTS.md`).
 
-[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.2.0...v0.4.0
 [0.2.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/lucasmartins-ai/lcc/releases/tag/v0.1.0

@@ -45,6 +45,22 @@ semantic, best on nuance. Missing Laya extra falls back honestly to mechanical
 (`degraded: true`). Full table: `docs/LAYA.md`. Runnable comparison:
 `examples/compact_providers.py`.
 
+### The Jev path (when a key is available)
+
+```bash
+export TYPESAFE_API_KEY=...            # or ~/.config/lcc/typesafe.key, or the macOS keychain
+
+lcc compact dossier.md -q "reduce mobile booking friction" \
+  --provider jev -o compacted.md -r report.json
+lcc explain report.json --source dossier.md
+```
+
+Jev judges blocks with typed questions instead of writing prose: kept blocks come
+back byte for byte, dropped ones are named in the report, and a missing key or a
+failed call degrades to a labelled fallback rather than dropping what it could not
+judge. No key? Use `mechanical` or `laya` above. Contract, key resolution and the
+fallback table: `docs/JEV.md`.
+
 ## 4. Long session without killing the prompt cache
 
 ```bash
@@ -75,6 +91,11 @@ touches the network.
 
 | Question | Answer |
 | :--- | :--- |
+| Jev key, fallbacks and measured numbers? | `docs/JEV.md` |
+| Compact a session transcript's tool calls instead of a document? | `docs/TOOL_CALLS.md` |
+| How does tool-call compaction compare with `fast-jev-compaction`? | `benchmarks/research/TRANSCRIPT_AB.md` |
+| What does it do on a real session? | `benchmarks/research/REAL_SESSIONS.md` |
+| Replace Claude Code's compaction summary with verbatim compaction? | `docs/CLAUDE_CODE.md` |
 | Laya limits, latency, fallback? | `docs/LAYA.md` |
 | Cache math and epoch discipline? | `docs/CACHE_ALIGNMENT.md` |
 | What is guaranteed deterministic? | `README.md` § Architectural Boundaries & ADRs 0001–0016 |

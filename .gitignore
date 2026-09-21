@@ -19,6 +19,9 @@ env/
 .coverage
 htmlcov/
 
+# npm: this package ships index.js with no dependencies, so the generated lock file is noise
+package-lock.json
+
 # Node
 node_modules/
 

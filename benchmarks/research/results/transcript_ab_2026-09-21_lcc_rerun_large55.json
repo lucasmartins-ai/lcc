@@ -1,0 +1,205 @@
+{
+  "run_id": "2026-09-21T22:35:02Z",
+  "options": {
+    "threshold": 0.5,
+    "preserve_recent": 6,
+    "trim_head_chars": 300,
+    "max_state_tokens": 25000,
+    "max_request_tokens": 30000,
+    "jev_model": "jev-latest"
+  },
+  "rows": [
+    {
+      "run_id": "2026-09-21T22:35:02Z",
+      "session": "large",
+      "arm": "lcc",
+      "harness": "real",
+      "counts": {
+        "spent": 14,
+        "noise": 10,
+        "evidence": 5,
+        "pinned": 3
+      },
+      "chars_before": 6393,
+      "tokens_before": 1617,
+      "token_count_method": "exact",
+      "latency_ms": 970,
+      "ok": true,
+      "requests": 4,
+      "lcc_report": {
+        "provider_used": "jev",
+        "degraded": false,
+        "degradation_reason": null,
+        "semantic_guarantee": "judged",
+        "jev_model_resolved": "jev-1.13.0",
+        "state_tokens": 1487,
+        "state_fit_stage": "full",
+        "calls": 4,
+        "tool_reduction_ratio": 0.6733966745843231
+      },
+      "chars_after": 2592,
+      "tokens_after": 716,
+      "reduction_ratio": 0.594557,
+      "token_reduction_ratio": 0.557205,
+      "messages_after": 44,
+      "outcomes": {
+        "evidence": {
+          "kept": 5,
+          "trimmed": 0,
+          "dropped": 0
+        },
+        "spent": {
+          "kept": 3,
+          "trimmed": 0,
+          "dropped": 11
+        },
+        "noise": {
+          "kept": 0,
+          "trimmed": 0,
+          "dropped": 10
+        },
+        "pinned": {
+          "kept": 3,
+          "trimmed": 0,
+          "dropped": 0
+        }
+      },
+      "facts_total": 5,
+      "facts_missing": [],
+      "fact_recall": 1.0,
+      "ledger_usage": {
+        "input_tokens": 23419,
+        "output_tokens": 1466,
+        "calls": 4
+      }
+    },
+    {
+      "run_id": "2026-09-21T22:35:02Z",
+      "session": "medium",
+      "arm": "lcc",
+      "harness": "real",
+      "counts": {
+        "spent": 8,
+        "noise": 6,
+        "evidence": 3,
+        "pinned": 3
+      },
+      "chars_before": 4021,
+      "tokens_before": 1044,
+      "token_count_method": "exact",
+      "latency_ms": 837,
+      "ok": true,
+      "requests": 3,
+      "lcc_report": {
+        "provider_used": "jev",
+        "degraded": false,
+        "degradation_reason": null,
+        "semantic_guarantee": "judged",
+        "jev_model_resolved": "jev-1.13.0",
+        "state_tokens": 954,
+        "state_fit_stage": "full",
+        "calls": 3,
+        "tool_reduction_ratio": 0.48905835543766574
+      },
+      "chars_after": 2356,
+      "tokens_after": 635,
+      "reduction_ratio": 0.414076,
+      "token_reduction_ratio": 0.391762,
+      "messages_after": 31,
+      "outcomes": {
+        "evidence": {
+          "kept": 3,
+          "trimmed": 0,
+          "dropped": 0
+        },
+        "spent": {
+          "kept": 4,
+          "trimmed": 0,
+          "dropped": 4
+        },
+        "noise": {
+          "kept": 0,
+          "trimmed": 0,
+          "dropped": 6
+        },
+        "pinned": {
+          "kept": 3,
+          "trimmed": 0,
+          "dropped": 0
+        }
+      },
+      "facts_total": 3,
+      "facts_missing": [],
+      "fact_recall": 1.0,
+      "ledger_usage": {
+        "input_tokens": 12125,
+        "output_tokens": 862,
+        "calls": 3
+      }
+    },
+    {
+      "run_id": "2026-09-21T22:35:02Z",
+      "session": "small",
+      "arm": "lcc",
+      "harness": "real",
+      "counts": {
+        "spent": 4,
+        "noise": 2,
+        "evidence": 2,
+        "pinned": 3
+      },
+      "chars_before": 2345,
+      "tokens_before": 624,
+      "token_count_method": "exact",
+      "latency_ms": 751,
+      "ok": true,
+      "requests": 1,
+      "lcc_report": {
+        "provider_used": "jev",
+        "degraded": false,
+        "degradation_reason": null,
+        "semantic_guarantee": "judged",
+        "jev_model_resolved": "jev-1.13.0",
+        "state_tokens": 554,
+        "state_fit_stage": "full",
+        "calls": 1,
+        "tool_reduction_ratio": 0.19774011299435024
+      },
+      "chars_after": 1992,
+      "tokens_after": 541,
+      "reduction_ratio": 0.150533,
+      "token_reduction_ratio": 0.133013,
+      "messages_after": 21,
+      "outcomes": {
+        "evidence": {
+          "kept": 2,
+          "trimmed": 0,
+          "dropped": 0
+        },
+        "spent": {
+          "kept": 3,
+          "trimmed": 0,
+          "dropped": 1
+        },
+        "noise": {
+          "kept": 1,
+          "trimmed": 0,
+          "dropped": 1
+        },
+        "pinned": {
+          "kept": 3,
+          "trimmed": 0,
+          "dropped": 0
+        }
+      },
+      "facts_total": 2,
+      "facts_missing": [],
+      "fact_recall": 1.0,
+      "ledger_usage": {
+        "input_tokens": 3460,
+        "output_tokens": 404,
+        "calls": 1
+      }
+    }
+  ]
+}

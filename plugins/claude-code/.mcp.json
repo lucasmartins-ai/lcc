@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "lcc": {
+      "command": "lcc",
+      "args": ["mcp"]
+    }
+  }
+}

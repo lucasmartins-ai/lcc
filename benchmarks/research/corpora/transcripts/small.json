@@ -1,0 +1,332 @@
+{
+  "id": "small",
+  "objective": "cut the retry storm on checkout",
+  "task": "Cut the retry storm on checkout. Constraints from the platform review: billing/legacy must not be touched, and the change ships behind RETRY_V2. Report what you changed.",
+  "messages": [
+    {
+      "role": "user",
+      "text": "Cut the retry storm on checkout. Constraints from the platform review: billing/legacy must not be touched, and the change ships behind RETRY_V2. Report what you changed."
+    },
+    {
+      "role": "assistant",
+      "text": "Step 1.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0001",
+          "tool": "Bash",
+          "input": {
+            "command": "cat reports/latency-tail.txt"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0001",
+          "text": "metrics export (02:00-03:00 UTC)\nseries: http_server_duration_ms{route=\"POST /pay\"}\nquantile 0.99 value 4310 window 02:10..02:40\nsample: the spike starts right after the first client in the pool reconnects"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 2.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0002",
+          "tool": "Read",
+          "input": {
+            "file_path": "src/checkout/attempts.ts"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0002",
+          "text": "stale output for {'file_path': 'src/checkout/attempts.ts'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 3.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0003",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0003",
+          "text": "ci: nightly build finished, 41 artifacts uploaded, cache hit ratio 0.62"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 4.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0004",
+          "tool": "Bash",
+          "input": {
+            "command": "cat reports/idempotency.txt"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0004",
+          "text": "request capture, three consecutive attempts\nattempt 1 header Idempotency-Key: 9f2c-...\nattempt 2 header Idempotency-Key: 9f2c-...\nattempt 3 header Idempotency-Key: 9f2c-...\nthe server treats every attempt as a new charge"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 5.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0005",
+          "tool": "Bash",
+          "input": {
+            "command": "ls -la src/checkout"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0005",
+          "text": "stale output for {'command': 'ls -la src/checkout'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 6.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0006",
+          "tool": "Bash",
+          "input": {
+            "command": "tail -n 40 logs/side.log"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0006",
+          "text": "docs: the style guide still lists the old font stack and colour tokens"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 7.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0007",
+          "tool": "Read",
+          "input": {
+            "file_path": "src/checkout/queue.ts"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0007",
+          "text": "stale output for {'file_path': 'src/checkout/queue.ts'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 8.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0008",
+          "tool": "Grep",
+          "input": {
+            "pattern": "TODO",
+            "path": "src/checkout"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0008",
+          "text": "stale output for {'pattern': 'TODO', 'path': 'src/checkout'}\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 9.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0009",
+          "tool": "Bash",
+          "input": {
+            "command": "pytest tests/checkout/test_attempts.py -k case_9"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0009",
+          "text": "latest run: 1 failed, 24 passed"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 10.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0010",
+          "tool": "Bash",
+          "input": {
+            "command": "pytest tests/checkout/test_attempts.py -k case_10"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0010",
+          "text": "latest run: 1 failed, 24 passed"
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "text": "Step 11.",
+      "toolUses": [
+        {
+          "tool_use_id": "toolu_0011",
+          "tool": "Bash",
+          "input": {
+            "command": "pytest tests/checkout/test_attempts.py -k case_11"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "text": "",
+      "toolResults": [
+        {
+          "tool_use_id": "toolu_0011",
+          "text": "latest run: 1 failed, 24 passed"
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "id": "toolu_0001",
+      "tool": "Bash",
+      "kind": "evidence"
+    },
+    {
+      "id": "toolu_0002",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0003",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0004",
+      "tool": "Bash",
+      "kind": "evidence"
+    },
+    {
+      "id": "toolu_0005",
+      "tool": "Bash",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0006",
+      "tool": "Bash",
+      "kind": "noise"
+    },
+    {
+      "id": "toolu_0007",
+      "tool": "Read",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0008",
+      "tool": "Grep",
+      "kind": "spent"
+    },
+    {
+      "id": "toolu_0009",
+      "tool": "Bash",
+      "kind": "pinned"
+    },
+    {
+      "id": "toolu_0010",
+      "tool": "Bash",
+      "kind": "pinned"
+    },
+    {
+      "id": "toolu_0011",
+      "tool": "Bash",
+      "kind": "pinned"
+    }
+  ],
+  "counts": {
+    "spent": 4,
+    "noise": 2,
+    "evidence": 2,
+    "pinned": 3
+  },
+  "required_facts": [
+    "quantile 0.99 value 4310 window 02:10..02:40",
+    "the server treats every attempt as a new charge"
+  ]
+}
