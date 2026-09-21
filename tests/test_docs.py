@@ -148,6 +148,40 @@ def test_adr_0014_exists_and_is_referenced() -> None:
     assert "ADR 0014" in _read("CHANGELOG.md")
 
 
+def test_jev_path_is_documented_consistently() -> None:
+    path = "docs/JEV.md"
+    assert (ROOT / path).is_file()
+
+    doc = _words(path).lower()
+    required_phrases = [
+        # The claim that separates compaction from summarization.
+        "never summarizes",
+        # The typed-decision contract (and the strict parse that feeds the fallback).
+        "typed questions",
+        "rejected, not clamped",
+        # Key resolution and the kill switch operators rely on.
+        "typesafe_api_key",
+        "lcc_disable_network=1",
+        # The opt-in boundary stays cited.
+        "0013-instant-relevance-compaction-boundary.md",
+        # Fallbacks must stay named, not silent.
+        "jev_unavailable_mechanical_fallback",
+        "jev+mechanical_fallback",
+        "degraded",
+        # Measured numbers must point at the canonical file.
+        "benchmarks/research/research_status.md",
+    ]
+    for phrase in required_phrases:
+        assert phrase in doc, phrase
+
+    readme = _read("README.md")
+    assert "Jev-powered relevance compaction that never summarizes" in readme
+    assert path in readme
+    assert "--provider jev" in readme
+    assert path in _read("docs/QUICKSTART.md")
+    assert "docs/JEV.md" in _read("CHANGELOG.md")
+
+
 def test_local_doc_links_resolve_to_existing_files() -> None:
     import re
 

@@ -2,7 +2,7 @@
 
 # ⚡ Local Context Compiler (`lcc`)
 
-**Unified, high-performance, local-first engine for prompt context optimization, intelligent intake triage, token estimation, and local LLM agents (Gemma 4 e4b & Qwen3.5-4B).**
+**Jev-powered relevance compaction that never summarizes, and the local-first engine around it: deterministic context optimization, intake triage, exact token accounting, and local LLM agents (Gemma 4 e4b & Qwen3.5-4B).**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
@@ -10,6 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/lucasmartins-ai/lcc?style=social)](https://github.com/lucasmartins-ai/lcc)
 [![CI Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/lucasmartins-ai/lcc/actions)
 [![Local-First](https://img.shields.io/badge/privacy-100%25_local_--_zero_telemetry-success.svg)](SECURITY.md)
+[![TypeSafe Jev](https://img.shields.io/badge/TypeSafe-Jev_powered_compaction-blueviolet.svg)](docs/JEV.md)
 
 </div>
 
@@ -17,6 +18,7 @@
 
 ## 📌 Table of Contents
 
+- [The Jev path](#-the-jev-path-fastest-way-to-the-strongest-pass)
 - [Overview & The 3 Pillars](#-overview--the-3-pillars)
 - [Start here: QUICKSTART and MCP Server](#-start-here-quickstart-and-mcp-server)
 - [See it work](#-see-it-work)
@@ -42,6 +44,29 @@
 - [Running Tests & Validation](#-running-tests--validation)
 - [Built by LookADev](#built-by-lookadev)
 - [License](#-license)
+
+---
+
+## ⚡ The Jev path (fastest way to the strongest pass)
+
+`lcc compact --provider jev` sends your objective and your context blocks to TypeSafe's
+System One as typed questions, gets keep-probabilities back, and drops only what the judge
+concludes is no longer needed. Nothing is summarized: kept blocks are re-emitted byte for
+byte, every drop is named in the report, and no key, no network or a failed call degrades
+honestly (`degraded: true`) instead of dropping content it could not judge.
+
+```bash
+export TYPESAFE_API_KEY=...                     # or keychain, or ~/.config/lcc/typesafe.key
+lcc compact dossier.md \
+  -q "reduce mobile booking friction" \
+  --provider jev \
+  -o compacted.md -r report.json
+lcc explain report.json --source dossier.md     # why each block stayed, shrank or went
+```
+
+Everything else stays offline: `mechanical` needs no key, `laya` runs the semantic pass
+on-device, and `optimize`, `prepare`, `inspect` and `intake` never touch the network.
+Contract, fallback table and measured behaviour: [`docs/JEV.md`](docs/JEV.md).
 
 ---
 
@@ -154,7 +179,7 @@ For relevance compaction (`lcc compact`), LCC provides **three distinct scoring 
 | **Measured Reduction (real backends 2026-09-21, small → XL)** | **26.2% → 70.0%** | **0.0% → 0.5%** | **21.2% → 52.1%** |
 | **Semantic Guarantee** | `none` (Heuristic fallback) | `judged` (Local semantic pass) | `judged` (Remote semantic pass) |
 
-> Reduction figures are benchmark-scoped, not universal: measured on the deterministic stress corpora in `benchmarks/research/` with real backends and default thresholds (`--threshold 0.4`, trim band on). Your corpus, objective and thresholds decide your number — run `lcc compact` and read `reduction_ratio`, `invalidated_tokens` and `break_even_reuses` before trusting any saving. Token reduction alone is not cost reduction (see Cache alignment below). Full rows, provenance and the labelled mock archives: `benchmarks/research/RESEARCH_STATUS.md`.
+> Reduction figures are benchmark-scoped, not universal: measured on the deterministic stress corpora in `benchmarks/research/` with real backends and default thresholds (`--threshold 0.4`, trim band on). Your corpus, objective and thresholds decide your number — run `lcc compact` and read `reduction_ratio`, `invalidated_tokens` and `break_even_reuses` before trusting any saving. Token reduction alone is not cost reduction (see Cache alignment below). Full rows, provenance and the labelled mock archives: `benchmarks/research/RESEARCH_STATUS.md`. The Jev provider's contract, key resolution and fallback table: [`docs/JEV.md`](docs/JEV.md).
 
 ```bash
 # 1. Zero dependencies, zero network, mechanical pass:
