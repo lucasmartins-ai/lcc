@@ -588,16 +588,30 @@ def _decide(
     if effective_result is not None and effective_result >= threshold:
         decision, reason = "keep", "result_still_needed"
     elif keep_call is not None and keep_call >= threshold:
-        decision, reason = "trim", "call_kept_result_trimmed"
+        # The call is worth remembering, its payload is not — but only trim when trimming
+        # actually removes characters. A result shorter than the head would grow the
+        # transcript once the audit note is appended, and a trim that adds bytes is not a
+        # trim (block mode calls this case `kept_whole`).
+        original = call.result.text if call.result is not None else ""
+        trimmed = (
+            _trimmed_result_text(original, head_chars=trim_head_chars, tool=call.tool)
+            if call.result is not None
+            else None
+        )
+        if trimmed is not None and len(trimmed) < len(original):
+            decision, reason = "trim", "call_kept_result_trimmed"
+        else:
+            decision, reason = "keep", "short_result_kept_whole"
     else:
         decision, reason = "drop", "call_and_result_not_needed"
 
     kept = chars
-    if decision == "trim" and call.result is not None:
-        trimmed = _trimmed_result_text(
-            call.result.text, head_chars=trim_head_chars, tool=call.tool
+    if decision == "drop":
+        kept = 0
+    elif decision == "trim" and call.result is not None:
+        kept = len(json.dumps(call.input, ensure_ascii=False, default=str)) + len(
+            _trimmed_result_text(call.result.text, head_chars=trim_head_chars, tool=call.tool)
         )
-        kept = len(json.dumps(call.input, ensure_ascii=False, default=str)) + len(trimmed)
     return {
         "id": call.id,
         "decision": decision,

@@ -81,10 +81,18 @@ run by `npm test` and by CI); the Python side is covered by
 `tests/test_transcript_compaction.py`, `tests/test_cli_tool_calls.py` and
 `tests/test_mcp_server.py`.
 
-Not verified: no live Claude Code session has been measured against the built-in summary yet
-(a head-to-head on the same transcripts is the next study, see
-`benchmarks/research/RESEARCH_STATUS.md`). Until that measurement exists, treat the plugin's
-benefit as unquantified: the fallbacks are honest, the mechanism is validated, the win is not.
+The compaction backend itself is now measured against the reference implementation on the same
+transcripts: our mode removed **13.3 / 39.2 / 55.7%** of the transcript at fact recall
+**1.00 / 1.00 / 1.00**, where `fast-jev-compaction` removed 70.5 / 78.9 / 83.4% at recall 0.00
+— it dropped every evidence pair (`benchmarks/research/TRANSCRIPT_AB.md`, canonical row in
+`RESEARCH_STATUS.md`). Read that study with its own limits: three synthetic sessions, one seed,
+backends only, and one of four runs dropped an evidence pair on the largest session.
+
+Not verified: no live Claude Code session has been measured end to end — the hook has never
+been run against a real `/compact` in this repository, so what the plugin changes inside an
+editor session is unquantified. Until that measurement exists, treat the plugin's benefit as
+unquantified: the fallbacks are honest, the mechanism is validated, the compaction quality is
+measured outside the editor, the end-to-end win is not.
 
 ## Early-access caveat
 

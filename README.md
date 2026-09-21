@@ -441,6 +441,12 @@ lcc compact transcript.json -q "finish the parser fix" \
   -o compacted.json -r report.json
 ```
 
+Measured against the reference implementation of the same idea
+(`fast-jev-compaction` 0.4.0, same transcripts, live Jev): this mode removed 13.3 / 39.2 / 55.7%
+of the transcript at fact recall 1.00 / 1.00 / 1.00, where that library removed 70.5 / 78.9 /
+83.4% at recall 0.00. Reduction alone ranks them backwards — full method and limits:
+[`benchmarks/research/TRANSCRIPT_AB.md`](benchmarks/research/TRANSCRIPT_AB.md).
+
 #### Local Semantic Decision Backend: Laya (Apache 2.0)
 
 LCC supports **[Laya](https://github.com/NandhaKishorM/laya)** as an optional, fully local semantic decision backend (developed by NandhaKishorM / Convai Innovations under Apache 2.0). 

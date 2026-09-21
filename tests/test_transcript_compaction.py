@@ -211,6 +211,31 @@ def test_both_probabilities_low_drops_call_and_result_together():
     assert result.report["tool_calls_dropped"] == 1
 
 
+def test_a_dropped_pair_reports_no_chars_after():
+    result = run(build(("Read", {"file": "a.py"}), result_chars=400), ScoreMap(default=(0.0, 0.0)))
+    entry = next(d for d in result.decisions if d["source"] == "jev")
+    assert entry["decision"] == "drop"
+    assert entry["chars_after"] == 0
+    assert result.report["tool_chars_after"] < result.report["tool_chars_before"]
+    assert result.report["tool_reduction_ratio"] > 0
+
+
+def test_a_result_too_short_to_trim_is_kept_whole():
+    # keep_call high, keep_result low: normally a trim, but the result is shorter than the
+    # head, so trimming would append a note and grow the transcript. Keep it whole instead.
+    result = run(
+        build(("Bash", {"cmd": "pytest"}), result_chars=40),
+        ScoreMap(default=(0.9, 0.0)),
+        trim_head_chars=300,
+        threshold=0.5,
+    )
+    entry = next(d for d in result.decisions if d["source"] == "jev")
+    assert entry["decision"] == "keep"
+    assert entry["reason"] == "short_result_kept_whole"
+    assert entry["chars_after"] == entry["chars"]
+    assert result.report["reduction_ratio"] == 0.0
+
+
 def test_user_and_assistant_text_is_never_touched():
     payload = build(("Read", {"file": "a.py"}), text="Please fix the parser and never edit src/generated.")
     result = run(payload, ScoreMap(default=(0.0, 0.0)))

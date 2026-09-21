@@ -16,7 +16,6 @@
     "url": "https://github.com/lucasmartins-ai/lcc/issues"
   },
   "homepage": "https://github.com/lucasmartins-ai/lcc#readme",
-
   "keywords": [
     "openai",
     "tiktoken",
@@ -25,5 +24,8 @@
     "prompt-engineering",
     "local-first",
     "typescript"
-  ]
+  ],
+  "dependencies": {
+    "fast-jev-compaction": "^0.4.0"
+  }
 }

@@ -138,6 +138,15 @@ MCP clients get the same pass as the tool `compact_transcript` (see `docs/MCP.md
 
 ## 9. Limits, stated plainly
 
+Measured against the reference implementation (`fast-jev-compaction` 0.4.0) on the same three
+synthetic transcripts, with matching options and live Jev: this mode removed **13.3 / 39.2 /
+55.7%** of the transcript at fact recall **1.00 / 1.00 / 1.00**, while that library removed
+70.5 / 78.9 / 83.4% at recall 0.00 — it dropped every evidence pair. Reduction alone would rank
+them backwards. Method, stability runs and limits: `benchmarks/research/TRANSCRIPT_AB.md`; the
+canonical row is in `benchmarks/research/RESEARCH_STATUS.md`. The largest session ranged
+55.7–61.5% across four runs, and one of those runs dropped one evidence pair, which is why a
+pair only falls when *both* questions score low.
+
 - **Needs a judge.** No key means no pass: this mode keeps everything and says so. It has no
   offline path by design.
 - **No sticky decisions yet.** Block mode can pin `(objective, block)` outcomes to keep
