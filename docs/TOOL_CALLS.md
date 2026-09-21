@@ -153,7 +153,8 @@ pair only falls when *both* questions score low.
   see; an optimistic count builds requests the API refuses, so when no tokenizer is installed
   the heuristic is inflated by the measured factor instead of trusted. Real-session numbers and
   the defect that motivated this: `benchmarks/research/REAL_SESSIONS.md` (a real Claude Code
-  session: −65.6%, all text preserved; a 497-message session fails closed in 50 ms).
+  session: −66.1%, all 42 texts preserved; this release's own 337-message session: −81.7%, all
+  58 texts preserved).
 - **No sticky decisions yet.** Block mode can pin `(objective, block)` outcomes to keep
   output byte-stable; this mode re-scores each pass. Add a cache when a consumer needs
   byte-stability across runs (`--decisions-cache` would be the flag).
