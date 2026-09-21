@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [0.4.0] - 2026-09-21
+
 ### Added
 
 - Laya live validation (2026-09-21): the real backend runs end-to-end (verified offline, in-budget, `judged`, no fallback) and the pre-validation "Laya = Jev, −22.6% on XL" claims are corrected — measured with real weights the default checkpoint keeps essentially every block (0.0% reduction at small/medium/large, −0.5% at XL; Jev −52% / mechanical −70% at XL, all at 100% category recall). `run_comparative_stress_test.py` and `run_laya_comparison.py` run real backends by default (`--mock` opts into the labelled harness) and every result row now carries `harness: real|mock`. New `run_laya_context_cases.py` (budget cases A/B/C, offline) and gated live test `tests/test_laya_integration.py` (`LCC_LAYA_INTEGRATION=1`). Pre-validation mock archives preserved and labelled. Full rows: `benchmarks/research/RESEARCH_STATUS.md`.
@@ -62,8 +66,7 @@ All notable changes to this project are documented here. The format is based on
 - **Behavior change:** `--provider laya` without the `[laya]` extra (or with an unloadable model) now falls back honestly to mechanical scoring (`provider_used: laya+mechanical_fallback`, `degraded: true`, `degradation_reason: laya_unavailable_mechanical_fallback`) instead of keeping every block silently. Rationale: a keep-all pass disguised the missing dependency and hid that no semantic judgment ran; the fallback is labeled, warned, and `semantic_guarantee: none`.
 - `semantic_guarantee` is now exact about mixed runs: `partial` only when at least one block was actually judged before the failure; a total provider failure (every decision lexical) reports `none`. Same rule for Jev and Laya fallbacks.
 - Report schema `relevance-compaction-1.1` → `relevance-compaction-1.2` (additive only: `context_budget_used`, `laya_temperature`; all 1.1 consumers keep working, e.g. `lcc explain` reads both).
-- Reworked the README into a clearer first-visit guide with a tighter project summary,
-  command guide, architecture map, and explicit scope boundaries.
+- Reworked the README into a clearer first-visit guide with a tighter project summary, the offline-first path, direct links to the five-minute QUICKSTART and MCP Server guide, a command guide, an architecture map, and explicit scope boundaries.
 - Tightened CLI-facing and visitor-facing docs around the deterministic Phase 1.7 prepare
   boundary, diagnostic-only inspection, and mechanical-only benchmark claims.
 - The inline drop marker no longer carries scorer values, so repeated `lcc compact` runs emit
@@ -216,6 +219,7 @@ response verification — those remain roadmap items (see `docs/roadmap.md`).
   `CODE_OF_CONDUCT.md`, the `docs/` set (architecture, evaluation, roadmap, release, ADRs),
   examples, and agent guidance (`CLAUDE.md`, `AGENTS.md`).
 
-[Unreleased]: https://github.com/vetlucasmartins/lcc/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/vetlucasmartins/lcc/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/vetlucasmartins/lcc/releases/tag/v0.1.0
+[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.2.0...v0.4.0
+[0.2.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/lucasmartins-ai/lcc/releases/tag/v0.1.0
