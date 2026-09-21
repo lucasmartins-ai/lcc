@@ -18,6 +18,7 @@
 ## 📌 Table of Contents
 
 - [Overview & The 3 Pillars](#-overview--the-3-pillars)
+- [Start here: QUICKSTART and MCP Server](#-start-here-quickstart-and-mcp-server)
 - [See it work](#-see-it-work)
 - [Does it work without a model API key?](#-does-it-work-without-a-model-api-key-yes-and-that-is-the-default-path)
 - [Proven Token Savings & Cache Alignment](#-proven-token-savings--cache-alignment)
@@ -88,6 +89,24 @@ flowchart LR
 > the smallest context that preserves what the task needs. Intake and local
 > execution are the surrounding suite, not the thesis. Canonical numbers live in
 > `benchmarks/research/RESEARCH_STATUS.md`; theory in ADR 0014/0015.
+
+---
+
+## 🧭 Start here: QUICKSTART and MCP Server
+
+New to `lcc`? Start with [`docs/QUICKSTART.md`](docs/QUICKSTART.md) for the five-minute,
+offline-first path: install, clean, inspect, compact, and audit a pass.
+
+Connecting an agent? `lcc mcp` starts the minimal stdio MCP server with no new
+dependencies:
+
+```bash
+lcc mcp
+```
+
+It exposes `compact`, `inspect`, `prepare`, `explain`, and `intake`. The server
+defaults `compact` to the offline `mechanical` provider. See [`docs/MCP.md`](docs/MCP.md)
+for the JSON-RPC contract and client configuration.
 
 ---
 
