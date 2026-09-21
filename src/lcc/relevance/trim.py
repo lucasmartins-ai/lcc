@@ -17,14 +17,20 @@ import json
 import re
 import xml.etree.ElementTree as ET
 
-TRIM_POLICY_VERSION = "trim-1.1"
+TRIM_POLICY_VERSION = "trim-1.2"
 
 #: Semantic-scope qualifiers: cutting before one of these can invert the surviving
 #: claim ("safe for adults" vs "safe for adults, except when..."). Any trim that
 #: would drop or straddle such a cue is refused (TRIM→KEEP).
+#: Covers exception/unless/only/contrast/proviso cues plus temporal boundaries
+#: (before/after/until) and bare conditionals (if/without/despite): truncating a
+#: sentence like "Valid until June" or "Approve if the audit passes" to its head
+#: inverts the surviving claim. Blast radius stays small because only a cue in
+#: the dropped tail (or straddling the cut) refuses the trim, not mere presence.
 _QUALIFIER_SEMANTIC_RE = re.compile(
     r"\b(except|exception|excluding|excluded|unless|only|not|no\b|never|"
     r"but\b|however|although|though|nevertheless|otherwise|"
+    r"without|despite|until|before|after|if|"
     r"as\s+long\s+as|subject\s+to|provided\s+that|if\s+not)\b",
     re.IGNORECASE,
 )
