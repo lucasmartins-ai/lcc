@@ -1,0 +1,71 @@
+{
+  "judge": "jev",
+  "live": true,
+  "rows": [
+    {
+      "judge": "jev",
+      "arm": "A_raw_judge",
+      "selector_precision": 1.0,
+      "selector_recall": 0.667,
+      "false_drops": 2,
+      "false_keeps": 0,
+      "critical_evidence_recall": 0.667,
+      "reduction": 0.65,
+      "calls": 2,
+      "latency_ms": 838,
+      "needs_review": false
+    },
+    {
+      "judge": "jev",
+      "arm": "B_judge_safety",
+      "selector_precision": 1.0,
+      "selector_recall": 0.667,
+      "false_drops": 2,
+      "false_keeps": 0,
+      "critical_evidence_recall": 0.667,
+      "reduction": 0.65,
+      "calls": 2,
+      "latency_ms": 668,
+      "needs_review": false
+    },
+    {
+      "judge": "jev",
+      "arm": "C_judge_safety_verifier",
+      "selector_precision": 1.0,
+      "selector_recall": 0.667,
+      "false_drops": 2,
+      "false_keeps": 0,
+      "critical_evidence_recall": 0.667,
+      "reduction": 0.65,
+      "calls": 3,
+      "latency_ms": 1313,
+      "needs_review": true
+    }
+  ],
+  "live_extra": {
+    "A_raw_judge": {
+      "provider_used": "jev",
+      "semantic_guarantee": "judged",
+      "verifier_decision": null,
+      "verifier_confidence": null,
+      "blocks_restored": 0,
+      "resolved_model": "jev-1.13.0"
+    },
+    "B_judge_safety": {
+      "provider_used": "jev",
+      "semantic_guarantee": "judged",
+      "verifier_decision": null,
+      "verifier_confidence": null,
+      "blocks_restored": 0,
+      "resolved_model": "jev-1.13.0"
+    },
+    "C_judge_safety_verifier": {
+      "provider_used": "jev",
+      "semantic_guarantee": "judged",
+      "verifier_decision": "REVIEW",
+      "verifier_confidence": 0.5,
+      "blocks_restored": 0,
+      "resolved_model": "jev-1.13.0"
+    }
+  }
+}

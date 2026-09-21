@@ -28,6 +28,7 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
@@ -175,6 +176,13 @@ def main() -> int:
         "mechanical: local lexical baseline; jev: live TypeSafe judge (needs "
         "TYPESAFE_API_KEY); laya: local Laya backend (needs the laya extra).",
     )
+    parser.add_argument(
+        "--laya-model",
+        default=None,
+        help="Laya checkpoint for --judge laya (e.g. convaiinnovations/laya-typed-decisions). "
+        "Must be passed here: the request field otherwise carries the LCC default and the "
+        "compactor stamps it over an injected client, so LCC_LAYA_MODEL alone is not enough.",
+    )
     parser.add_argument("--out", default=None, help="Write JSON rows here.")
     args = parser.parse_args()
 
@@ -212,7 +220,7 @@ def main() -> int:
                 print("NOT VALIDATED: laya extra not installed.")
                 raise SystemExit(2) from err
             try:
-                return LayaClient()
+                return LayaClient(model=args.laya_model) if args.laya_model else LayaClient()
             except Exception as exc:
                 print(f"NOT VALIDATED: Laya backend unavailable ({exc}).")
                 raise SystemExit(2) from exc
@@ -267,6 +275,11 @@ def main() -> int:
         started = time.perf_counter()
         client = factory()
         req_provider = "laya" if args.judge == "laya" else "jev"
+        extra_kw: dict[str, Any] = (
+            {"laya_model": args.laya_model}
+            if (args.laya_model and req_provider == "laya")
+            else {}
+        )
         result = _compact(
             _Req(
                 text=corpus,
@@ -277,6 +290,7 @@ def main() -> int:
                 deterministic_protection=safety,
                 enable_sufficiency=safety,
                 enable_semantic_verify=verify,
+                **extra_kw,
             )
         )
         latency_ms = int((time.perf_counter() - started) * 1000)

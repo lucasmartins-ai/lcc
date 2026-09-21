@@ -82,8 +82,15 @@ def main() -> None:
     print("| :--- | ---: | ---: | :--- | ---: | :--- |")
     run("mechanical")
     run("laya", LayaClient(agent=MockLayaAgent()))
-    # Honest fallback: requested laya, no extra installed.
-    run("laya")
+    # Honest fallback row: only meaningful when the extra is absent. With the
+    # extra installed a bare `run("laya")` would load real weights, which this
+    # offline example deliberately avoids — so it says so instead.
+    try:
+        import laya  # noqa: F401
+    except ImportError:
+        run("laya")  # requested laya, no extra installed -> laya+mechanical_fallback
+    else:
+        print("| laya (fallback demo skipped: extra installed; see docs/LAYA.md) |")
     if os.getenv("TYPESAFE_API_KEY"):
         run("jev")
     else:

@@ -59,7 +59,9 @@ python3 -c "import json; d=json.load(open('report.json')); print(d['calls'], d['
 ```
 
 Compare with `run_laya_comparison.py` in `benchmarks/research/` for the
-recall/reduction side (mock agent offline; real weights needed for wall-clock).
+recall/reduction side. Since 2026-09-21 that script runs the REAL backend by
+default (`--mock` opts into the labelled offline harness); live rows and
+provenance: `benchmarks/research/RESEARCH_STATUS.md`.
 
 ## 3. When to use which provider
 
@@ -77,15 +79,20 @@ Decision shortcut:
 - Key available and evidence is subtle → `jev` (or compare `laya` vs `jev`
   on your dossier and keep the one with 100% category recall).
 
-## 4. Trade-off, stated plainly
+## 4. Trade-off, stated plainly (measured 2026-09-21, real weights)
 
 Laya is **more conservative than mechanical**: it keeps semantically related
 content that shares no words with the objective, so reduction is lower and
-preservation is higher. Measured on the research corpora (see `README.md`
-§ Proven Token Savings): mechanical −70% on XL vs Laya/Jev −22.6%, all at
-100% category recall. That is the intended trade: Laya buys safety with
-tokens. If you need maximum bytes removed and accept heuristic judgment,
-use mechanical. If you need a semantic pass without a key, use Laya.
+preservation is higher. Measured on the research corpora with the real default
+checkpoint (`laya-multilingual`): it currently keeps **essentially every block**
+— 0.0% reduction at small/medium/large and −0.5% at XL — against mechanical
+−70% and remote Jev −52% on XL, all at 100% category recall. That is the
+intended trade pushed to its limit: a semantic pass that never drops cannot lose
+content, and it cannot save tokens either. If you need maximum bytes removed and
+accept heuristic judgment, use mechanical. If you need a semantic pass without a
+key and can accept the ~0% local reduction, use Laya. A checkpoint that drops
+confidently remains the open requirement for real local reduction — see §7 and
+`benchmarks/research/RESEARCH_STATUS.md`.
 
 Additional safety nets apply equally to all providers: type-aware trim,
 deterministic protection (quoted speech, cross-language evidence,
@@ -133,3 +140,30 @@ Oversized block → kept whole (`laya_context_limit_exceeded`).
   `relationships`/`content_type`, sufficiency, cache accounting, warnings.
 
 `lcc explain report.json --source dossier.md` audits any Laya pass offline.
+
+## 7. Validation status (2026-09-21)
+
+Live validation ran against the real checkpoints on macOS/CPU, offline
+(`LCC_DISABLE_NETWORK=1`, HF hub offline, no API key), through
+`lcc compact --provider laya` and the scripts in `benchmarks/research/`:
+
+| Check | Result |
+| :--- | :--- |
+| Real inference | `provider_used: laya`, `degraded: false`, `semantic_guarantee: judged`, resolved `laya-rl-agent` |
+| Context budget | every state ≤ 1024 tokens (max `context_budget_used` observed: 520); oversized blocks kept whole with `laya_context_limit_exceeded`, tail byte-identical — no slicing |
+| Offline, no fallback | no network and no key present; the pass never fell back to mechanical |
+| Default checkpoint (`laya-multilingual`) | keeps essentially every block: 0.0% reduction at small/medium/large, −0.5% at XL; 6/6 noise blocks kept on the ablation corpus |
+| Cache path | cold 43.2 s → warm 0.5 s (83.6×), 391 decisions reused, byte-identical output |
+
+Repro (all real by default; `--mock` opts into the labelled harness):
+`run_laya_comparison.py`, `run_judge_ablation.py --judge laya`,
+`run_laya_context_cases.py`, `run_comparative_stress_test.py`; gated integration
+test `LCC_LAYA_INTEGRATION=1 pytest tests/test_laya_integration.py`.
+Checkpoint comparison (`--laya-model convaiinnovations/laya-typed-decisions`),
+sample sizes, limitations and labelled mock archives:
+`benchmarks/research/RESEARCH_STATUS.md`.
+
+Note: selecting a checkpoint requires the request field (`--laya-model` /
+`RelevanceCompactionRequest(laya_model=...)`). `LCC_LAYA_MODEL` alone sets a
+standalone `LayaClient()` but is stamped over by the request default inside
+`compact_context` — flagged as a follow-up in RESEARCH_STATUS.

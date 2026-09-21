@@ -242,6 +242,14 @@ def main() -> int:
                 print("NOT VALIDATED: no live Jev backend (TYPESAFE_API_KEY missing).")
                 raise SystemExit(2)
             return client
+        if args.provider == "laya":
+            # ONE shared client for the whole run: resolving a fresh LayaClient per
+            # compact call reloads the checkpoint (30-40 s on CPU) and turns the
+            # 50-task sweep into an hour of model loading. The client is lazy —
+            # nothing loads until the first judged batch.
+            from lcc.relevance import LayaClient
+
+            return LayaClient()
         return None
 
     live_client = _live_client()

@@ -27,9 +27,13 @@ def test_compact_providers_example_runs_offline():
     proc = _run("examples/compact_providers.py")
     assert proc.returncode == 0, proc.stderr
     out = proc.stdout
-    for cue in ("mechanical", "laya+mechanical_fallback", "judged",
-                "budget:", "skipped: no TYPESAFE_API_KEY", "docs/LAYA.md"):
+    for cue in ("mechanical", "judged", "budget:",
+                "skipped: no TYPESAFE_API_KEY", "docs/LAYA.md"):
         assert cue in out, cue
+    # The bare-laya row demonstrates the honest fallback when the extra is missing;
+    # with the extra installed the example prints an explicit skip line instead
+    # (it never loads real weights). Both environments are valid.
+    assert ("laya+mechanical_fallback" in out) or ("fallback demo skipped" in out), out
 
 
 def test_long_session_cache_example_runs_offline():

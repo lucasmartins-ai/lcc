@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "case": "A_small_context_fits",
+      "raw_context_tokens": 164,
+      "compacted_tokens": 164,
+      "laya_context_limit": 1024,
+      "reserved_tokens": 192,
+      "available_state_tokens": 831,
+      "context_budget_used": 182,
+      "provider_requested": "laya",
+      "provider_used": "laya",
+      "degraded": false,
+      "degradation_reason": null,
+      "semantic_guarantee": "judged",
+      "laya_model_requested": "convaiinnovations/laya-typed-decisions",
+      "laya_model_resolved": "laya-rl-agent",
+      "blocks_total": 6,
+      "blocks_scored": 6,
+      "blocks_protected": 0,
+      "blocks_dropped": 0,
+      "blocks_trimmed": 0,
+      "reduction_ratio": 0.0,
+      "calls": 1,
+      "latency_ms": 32608,
+      "compilation_ms": 32774,
+      "warnings_count": 0,
+      "insufficient_context_blocks": 0,
+      "sample_decisions": [
+        {
+          "id": "blk_0001_e0d1ae837075",
+          "decision": "keep",
+          "score": 0.5149,
+          "confidence": 0.5149,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0002_617898ad53c6",
+          "decision": "keep",
+          "score": 0.5211,
+          "confidence": 0.5211,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0003_0a0a8cff7cc0",
+          "decision": "keep",
+          "score": 0.5072,
+          "confidence": 0.5072,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0004_b913f25b04d8",
+          "decision": "keep",
+          "score": 0.5039,
+          "confidence": 0.5039,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0005_a73c0dd9ce43",
+          "decision": "keep",
+          "score": 0.5066,
+          "confidence": 0.5066,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0006_4c241fe84fda",
+          "decision": "keep",
+          "score": 0.4899,
+          "confidence": 0.5101,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        }
+      ],
+      "giant_tail_present": null
+    },
+    {
+      "case": "B_larger_than_budget",
+      "raw_context_tokens": 4533,
+      "compacted_tokens": 4533,
+      "laya_context_limit": 1024,
+      "reserved_tokens": 192,
+      "available_state_tokens": 831,
+      "context_budget_used": 355,
+      "provider_requested": "laya",
+      "provider_used": "laya",
+      "degraded": false,
+      "degradation_reason": null,
+      "semantic_guarantee": "judged",
+      "laya_model_requested": "convaiinnovations/laya-typed-decisions",
+      "laya_model_resolved": "laya-rl-agent",
+      "blocks_total": 152,
+      "blocks_scored": 151,
+      "blocks_protected": 1,
+      "blocks_dropped": 0,
+      "blocks_trimmed": 0,
+      "reduction_ratio": 0.0,
+      "calls": 19,
+      "latency_ms": 40297,
+      "compilation_ms": 40361,
+      "warnings_count": 0,
+      "insufficient_context_blocks": 0,
+      "sample_decisions": [
+        {
+          "id": "blk_0001_c32831f24109",
+          "decision": "keep",
+          "score": 0.54,
+          "confidence": 0.54,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0002_92398003e17f",
+          "decision": "keep",
+          "score": null,
+          "confidence": null,
+          "source": "protected",
+          "reason": "short_block"
+        },
+        {
+          "id": "blk_0003_0bf224efeff1",
+          "decision": "keep",
+          "score": 0.556,
+          "confidence": 0.556,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0004_8714fe6287aa",
+          "decision": "keep",
+          "score": 0.5398,
+          "confidence": 0.5398,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0005_4c7f0e34226f",
+          "decision": "keep",
+          "score": 0.5287,
+          "confidence": 0.5287,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0006_3b62053059b0",
+          "decision": "keep",
+          "score": 0.5403,
+          "confidence": 0.5403,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        }
+      ],
+      "giant_tail_present": null
+    },
+    {
+      "case": "C_oversized_block",
+      "raw_context_tokens": 20063,
+      "compacted_tokens": 20063,
+      "laya_context_limit": 1024,
+      "reserved_tokens": 192,
+      "available_state_tokens": 831,
+      "context_budget_used": 520,
+      "provider_requested": "laya",
+      "provider_used": "laya",
+      "degraded": false,
+      "degradation_reason": null,
+      "semantic_guarantee": "judged",
+      "laya_model_requested": "convaiinnovations/laya-typed-decisions",
+      "laya_model_resolved": "laya-rl-agent",
+      "blocks_total": 25,
+      "blocks_scored": 25,
+      "blocks_protected": 0,
+      "blocks_dropped": 0,
+      "blocks_trimmed": 0,
+      "reduction_ratio": 0.0,
+      "calls": 1,
+      "latency_ms": 30477,
+      "compilation_ms": 30514,
+      "warnings_count": 22,
+      "insufficient_context_blocks": 22,
+      "sample_decisions": [
+        {
+          "id": "blk_0001_15cca2ce709e",
+          "decision": "keep",
+          "score": 0.4458,
+          "confidence": 0.5542,
+          "source": "laya",
+          "reason": "score_above_threshold"
+        },
+        {
+          "id": "blk_0002_0f661db08c01",
+          "decision": "keep",
+          "score": 1.0,
+          "confidence": 0.0,
+          "source": "fallback",
+          "reason": "laya_context_limit_exceeded"
+        },
+        {
+          "id": "blk_0003_b0edf721f8f5",
+          "decision": "keep",
+          "score": 1.0,
+          "confidence": 0.0,
+          "source": "fallback",
+          "reason": "laya_context_limit_exceeded"
+        },
+        {
+          "id": "blk_0004_117b35026b7e",
+          "decision": "keep",
+          "score": 1.0,
+          "confidence": 0.0,
+          "source": "fallback",
+          "reason": "laya_context_limit_exceeded"
+        },
+        {
+          "id": "blk_0005_a77ec6ab3e39",
+          "decision": "keep",
+          "score": 1.0,
+          "confidence": 0.0,
+          "source": "fallback",
+          "reason": "laya_context_limit_exceeded"
+        },
+        {
+          "id": "blk_0006_2676a24a18c8",
+          "decision": "keep",
+          "score": 1.0,
+          "confidence": 0.0,
+          "source": "fallback",
+          "reason": "laya_context_limit_exceeded"
+        }
+      ],
+      "giant_tail_present": true
+    }
+  ]
+}
