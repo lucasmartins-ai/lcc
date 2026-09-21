@@ -134,32 +134,55 @@ def run_single_arm(
     corpus_text: str,
     items: list[dict[str, str]],
     cache_path: pathlib.Path | None = None,
+    mock: bool = False,
+    laya_model: str | None = None,
 ) -> dict[str, Any]:
-    """Execute a specific arm on given corpus text."""
+    """Execute a specific arm on given corpus text.
+
+    ``mock=False`` (default) uses the REAL backend: live Jev when
+    ``TYPESAFE_API_KEY`` is set, real Laya weights otherwise. ``mock=True``
+    substitutes the deterministic ``CalibratedMockAgent`` for Jev/Laya —
+    harness checks only, never evidence about the models. Every row records
+    ``harness`` so mock and real results can never be conflated downstream.
+    """
     key_markers = [item["marker"] for item in items]
     tokens_in = count_tokens(corpus_text, "gpt-4.1").value
 
     client = None
+    harness = "real"
     provider_arg = "mechanical"
     if arm_name == "mechanical":
         provider_arg = "mechanical"
     elif arm_name == "jev":
         provider_arg = "jev"
-        if not os.environ.get("TYPESAFE_API_KEY"):
+        if mock or not os.environ.get("TYPESAFE_API_KEY"):
             client = CalibratedMockAgent(key_markers, "jev-latest")
+            harness = "mock"
     elif arm_name == "laya":
         provider_arg = "laya"
-        mock_agent = CalibratedMockAgent(key_markers, "convaiinnovations/laya-multilingual")
-        client = LayaClient(model="convaiinnovations/laya-multilingual", agent=mock_agent)
+        if mock:
+            mock_agent = CalibratedMockAgent(key_markers, "convaiinnovations/laya-multilingual")
+            client = LayaClient(model="convaiinnovations/laya-multilingual", agent=mock_agent)
+            harness = "mock"
+        # mock=False: client stays None; the real LayaClient (cached weights)
+        # is resolved lazily inside compact_context.
     elif arm_name == "final_optimized":
         # Full end-to-end chain:
         # Step 1: lcc optimize pipeline (deduplication & cleaning)
         # Step 2: lcc compact (semantic relevance pass with Laya)
         provider_arg = "laya"
-        mock_agent = CalibratedMockAgent(key_markers, "convaiinnovations/laya-multilingual")
-        client = LayaClient(model="convaiinnovations/laya-multilingual", agent=mock_agent)
+        if mock:
+            mock_agent = CalibratedMockAgent(key_markers, "convaiinnovations/laya-multilingual")
+            client = LayaClient(model="convaiinnovations/laya-multilingual", agent=mock_agent)
+            harness = "mock"
 
     started = time.perf_counter()
+    # Passed through explicitly: the request field otherwise carries the LCC default
+    # and the compactor stamps it over the client, so LCC_LAYA_MODEL alone does not
+    # select a checkpoint when a request is built programmatically.
+    extra_kw: dict[str, Any] = (
+        {"laya_model": laya_model} if (laya_model and provider_arg == "laya") else {}
+    )
 
     if arm_name == "final_optimized":
         from lcc.pipeline import OptimizationRequest, optimize
@@ -183,6 +206,7 @@ def run_single_arm(
             client=client,
             threshold=0.4,
             decisions_cache_path=cache_path,
+            **extra_kw,
         )
         comp_res = compact_context(comp_req)
         final_text = comp_res.compacted_text
@@ -195,6 +219,7 @@ def run_single_arm(
             client=client,
             threshold=0.4,
             decisions_cache_path=cache_path,
+            **extra_kw,
         )
         comp_res = compact_context(comp_req)
         final_text = comp_res.compacted_text
@@ -213,6 +238,7 @@ def run_single_arm(
     return {
         "scale": scale,
         "arm": arm_name,
+        "harness": harness,
         "tokens_in": tokens_in,
         "tokens_out": tokens_out,
         "reduction_pct": reduction_pct,
@@ -232,12 +258,12 @@ def run_single_arm(
     }
 
 
-def run_multi_scale_stress() -> list[dict[str, Any]]:
+def run_multi_scale_stress(mock: bool = False, scales: list[str] | None = None, laya_model: str | None = None) -> list[dict[str, Any]]:
     print("\n" + "=" * 120)
     print("STAGE 1: MULTI-SCALE STRESS EVALUATION (Small, Medium, Large, and XL Stress Scale)")
     print("=" * 120)
 
-    scales = ["small", "medium", "large", "xl"]
+    scales = scales or ["small", "medium", "large", "xl"]
     arms = ["mechanical", "jev", "laya", "final_optimized"]
     results = []
 
@@ -251,10 +277,10 @@ def run_multi_scale_stress() -> list[dict[str, Any]]:
         items = load_ground_truth(scale)
 
         for arm in arms:
-            res = run_single_arm(scale, arm, raw_text, items)
+            res = run_single_arm(scale, arm, raw_text, items, mock=mock, laya_model=laya_model)
             results.append(res)
             print(
-                f"[{scale.upper():<6}] Arm: {arm:<16} | Tokens: {res['tokens_in']:>5} -> {res['tokens_out']:>5} "
+                f"[{scale.upper():<6}] Arm: {arm:<16} | Harness: {res['harness']:<4} | Tokens: {res['tokens_in']:>5} -> {res['tokens_out']:>5} "
                 f"(-{res['reduction_pct']:>5}%) | Recall: {int(res['recall']*100)}% | Distractors: {res['distractor_leak']:<2} "
                 f"| Latency: {res['latency_ms']:>4}ms | Cost: ${res['cost_usd']:.4f} | Guarantee: {res['semantic_guarantee']}"
             )
@@ -262,7 +288,7 @@ def run_multi_scale_stress() -> list[dict[str, Any]]:
     return results
 
 
-def run_edge_and_adversarial_stress() -> list[dict[str, Any]]:
+def run_edge_and_adversarial_stress(mock: bool = False, laya_model: str | None = None) -> list[dict[str, Any]]:
     print("\n" + "=" * 120)
     print("STAGE 2: EDGE CASES, OVERSIZED CONTEXT & ADVERSARIAL STRESS TEST")
     print("=" * 120)
@@ -302,7 +328,7 @@ def run_edge_and_adversarial_stress() -> list[dict[str, Any]]:
 
         print(f"\n--- Stress Case: {case_name} (Input Tokens: {tokens_in}) ---")
         for arm in ["mechanical", "jev", "laya", "final_optimized"]:
-            res = run_single_arm(case_name, arm, text, items)
+            res = run_single_arm(case_name, arm, text, items, mock=mock, laya_model=laya_model)
             # Check edge safety:
             oversized_retained = "ML-409" in res["output_text"] if case_name == "giant_oversized_block" else True
             injection_dropped = "SYSTEM INSTRUCTION OVERRIDE" not in res["output_text"] if case_name == "prompt_injection" else True
@@ -323,7 +349,7 @@ def run_edge_and_adversarial_stress() -> list[dict[str, Any]]:
     return edge_results
 
 
-def run_cache_stability_stress() -> dict[str, Any]:
+def run_cache_stability_stress(mock: bool = False, laya_model: str | None = None) -> dict[str, Any]:
     print("\n" + "=" * 120)
     print("STAGE 3: KV-CACHE ALIGNMENT & COLD/WARM BYTE STABILITY STRESS")
     print("=" * 120)
@@ -337,9 +363,9 @@ def run_cache_stability_stress() -> dict[str, Any]:
     items = load_ground_truth("large")
 
     # Run cold
-    cold = run_single_arm("large", "laya", src_text, items, cache_path=cache_file)
+    cold = run_single_arm("large", "laya", src_text, items, cache_path=cache_file, mock=mock, laya_model=laya_model)
     # Run warm with identical cache
-    warm = run_single_arm("large", "laya", src_text, items, cache_path=cache_file)
+    warm = run_single_arm("large", "laya", src_text, items, cache_path=cache_file, mock=mock, laya_model=laya_model)
 
     byte_identical = cold["output_sha256"] == warm["output_sha256"]
     speedup = round(cold["latency_ms"] / max(1, warm["latency_ms"]), 2)
@@ -389,6 +415,7 @@ def print_comparative_matrix_table(scale_results: list[dict[str, Any]]) -> None:
             "laya": "3. LCC -> Laya (1K)",
             "final_optimized": "4. Estado Otimizado",
         }.get(r["arm"], r["arm"])
+        arm_label = str(arm_label) + (" [mock]" if r.get("harness") == "mock" else "")
 
         row = [
             r["scale"],
@@ -408,16 +435,47 @@ def print_comparative_matrix_table(scale_results: list[dict[str, Any]]) -> None:
 
 
 def main() -> None:
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    out_file = RESULTS / "comparative_stress_results.json"
+    import argparse
 
-    scale_res = run_multi_scale_stress()
-    edge_res = run_edge_and_adversarial_stress()
-    cache_res = run_cache_stability_stress()
+    parser = argparse.ArgumentParser(description="Comparative stress suite (multi-scale + edge + cache).")
+    parser.add_argument(
+        "--mock",
+        action="store_true",
+        default=False,
+        help="Substitute deterministic mock agents for Jev/Laya (harness check, NOT model evidence).",
+    )
+    parser.add_argument(
+        "--scales",
+        nargs="+",
+        default=None,
+        help="Corpus scales for stage 1 (default: small medium large xl).",
+    )
+    parser.add_argument(
+        "--laya-model",
+        default=None,
+        help="Laya checkpoint for the laya arms (e.g. convaiinnovations/laya-typed-decisions). "
+        "Passed into the request explicitly — LCC_LAYA_MODEL env alone does not survive "
+        "programmatic request construction.",
+    )
+    parser.add_argument(
+        "--out",
+        default=None,
+        help="Results JSON path (default: results/comparative_stress_results.json).",
+    )
+    args = parser.parse_args()
+
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    out_file = pathlib.Path(args.out) if args.out else RESULTS / "comparative_stress_results.json"
+
+    scale_res = run_multi_scale_stress(mock=args.mock, scales=args.scales, laya_model=args.laya_model)
+    edge_res = run_edge_and_adversarial_stress(mock=args.mock, laya_model=args.laya_model)
+    cache_res = run_cache_stability_stress(mock=args.mock, laya_model=args.laya_model)
 
     # Save full telemetry
     full_report = {
         "timestamp": time.time(),
+        "harness": "mock" if args.mock else "real",
+        "mock_flag": args.mock,
         "multi_scale_stress": [{k: v for k, v in r.items() if k != "output_text"} for r in scale_res],
         "edge_adversarial_stress": [{k: v for k, v in r.items() if k != "output_text"} for r in edge_res],
         "cache_stability_stress": cache_res,

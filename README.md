@@ -130,11 +130,11 @@ For relevance compaction (`lcc compact`), LCC provides **three distinct scoring 
 | **Inference Cost** | **$0.00** | **$0.00** | ~$0.001 / call |
 | **Engine Architecture** | Lexical overlap + Safety Net | Non-Autoregressive System 1 (Apache 2.0) | Autoregressive System 1 |
 | **Context Limit** | Unbounded | 512 / 1024 tokens (budgeted) | 32,768 tokens |
-| **Category Recall (Small to XL)** | **100%** (All categories kept) | **100%** (All categories kept) | **100%** (All categories kept) |
-| **Measured Reduction (XL / 44k)** | **70.0%** | **22.6%** | **22.6%** |
-
-> Reduction figures are benchmark-scoped, not universal: median reduction on the deterministic stress corpora in `benchmarks/research/` at default thresholds (`--threshold 0.4`, trim band on). Your corpus, objective and thresholds decide your number — run `lcc compact` and read `reduction_ratio`, `invalidated_tokens` and `break_even_reuses` before trusting any saving. Token reduction alone is not cost reduction (see Cache alignment below). Canonical figures: `benchmarks/research/RESEARCH_STATUS.md`.
+| **Category Recall (Small to XL)** | **100%** | **100%** | **100%** |
+| **Measured Reduction (real backends 2026-09-21, small → XL)** | **26.2% → 70.0%** | **0.0% → 0.5%** | **21.2% → 52.1%** |
 | **Semantic Guarantee** | `none` (Heuristic fallback) | `judged` (Local semantic pass) | `judged` (Remote semantic pass) |
+
+> Reduction figures are benchmark-scoped, not universal: measured on the deterministic stress corpora in `benchmarks/research/` with real backends and default thresholds (`--threshold 0.4`, trim band on). Your corpus, objective and thresholds decide your number — run `lcc compact` and read `reduction_ratio`, `invalidated_tokens` and `break_even_reuses` before trusting any saving. Token reduction alone is not cost reduction (see Cache alignment below). Full rows, provenance and the labelled mock archives: `benchmarks/research/RESEARCH_STATUS.md`.
 
 ```bash
 # 1. Zero dependencies, zero network, mechanical pass:
@@ -158,21 +158,33 @@ Nothing below is a universal claim — each figure names its dataset, configurat
 (not yet sufficiently validated), HISTORICAL (superseded versions) and BENCHMARK (dataset-specific) evidence.
 Small samples (N=18, N=20, N=30) are pilots, not generalisation evidence.
 
-### Multi-Scale Stress Matrix (Small to XL)
+### Multi-Scale Stress Matrix (Small to XL) — real backends (2026-09-21)
 
-| Corpus Scale | Raw Tokens | Mechanical (`--provider mechanical`) | Laya (`--provider laya`) | Jev (`--provider jev`) | Final Optimized (`optimize + compact`) | Category Recall |
+Reproduce: `python3 benchmarks/research/run_comparative_stress_test.py` (real by default;
+`--mock` runs the labelled offline harness). Token counts are exact o200k; every row below is
+a real measurement — provenance, labelled mock archives and limitations live in
+`benchmarks/research/RESEARCH_STATUS.md`.
+
+| Corpus Scale | Raw Tokens | Mechanical (`--provider mechanical`) | Laya (`--provider laya`, multilingual) | Jev (`--provider jev`) | Final Optimized (`optimize + compact`) | Category Recall |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Small** | 1,226 | 905 (−26.2%) | 1,182 (−3.6%) | 1,182 (−3.6%) | 1,216 (Cleaned XML) | **100% (6/6)** |
-| **Medium** | 4,533 | 1,923 (−57.6%) | 3,858 (−14.9%) | 3,858 (−14.9%) | 4,491 (Cleaned XML) | **100% (6/6)** |
-| **Large** | 11,617 | 4,014 (−65.5%) | 9,227 (−20.6%) | 9,227 (−20.6%) | 11,505 (Cleaned XML) | **100% (6/6)** |
-| **XL (Stress Scale)** | 44,128 | 13,228 (**−70.0%**) | 34,143 (−22.6%) | 34,143 (−22.6%) | 43,706 (Cleaned XML) | **100% (6/6)** |
+| **Small** | 1,226 | 905 (−26.2%) | 1,226 (**0.0%**) | 966 (−21.2%) | 1,216 (−0.8%) | **100% (6/6)** |
+| **Medium** | 4,533 | 1,923 (−57.6%) | 4,533 (**0.0%**) | 2,720 (−40.0%) | 4,491 (−0.9%) | **100% (6/6)** |
+| **Large** | 11,617 | 4,014 (−65.5%) | 11,617 (**0.0%**) | 5,836 (−49.8%) | 11,505 (−1.0%) | **100% (6/6)** |
+| **XL (Stress Scale)** | 44,128 | 13,228 (**−70.0%**) | 43,894 (−0.5%) | 21,129 (−52.1%) | 43,706 (−1.0%) | **100% (6/6)** |
 
-> **Key Finding**: Laya (~1K local context) achieves **the exact same recall (100%) and semantic reduction ratio (22.6% on XL)** as remote Jev (32K context), at **$0.00 cost** and zero network latency.
+> **Key finding (measured, real weights)**: with the default checkpoint
+> (`convaiinnovations/laya-multilingual`) the real Laya backend **keeps essentially every block**
+> — 0.0% reduction up to 11.6K tokens and −0.5% at 44K — while remote Jev removes 21–52% and the
+> mechanical pass 26–70%, all at 100% category recall. Earlier tables here claimed
+> "Laya = Jev, −22.6% on XL"; those figures came from the mock harness (both columns produced by
+> one `CalibratedMockAgent`) and are archived, clearly labelled, under
+> `benchmarks/research/RESEARCH_STATUS.md`.
 
 Recall is reported per information category (critical facts, constraints, negative constraints,
 exceptions, dated revisions, contradictions) rather than as one flat count, because a single
-number hides which kind of information a transform drops. Both `compact` paths keep every item of
-every category, at every scale tested up to 44,000 tokens.
+number hides which kind of information a transform drops. Every transform above keeps every item
+of every category, at every scale tested up to 44,000 tokens; reduction is where the backends
+differ.
 
 In a prior live agent A/B pilot (N=18 agents: 9 subagents per run, twice, identical task, context as the only variable),
 the semantic arm loaded **61.2% less context** and consumed **9.1% fewer total prompt tokens** per
@@ -374,15 +386,15 @@ lcc compact dossier.md -q "reduce mobile booking friction" \
 
 LCC supports **[Laya](https://github.com/NandhaKishorM/laya)** as an optional, fully local semantic decision backend (developed by NandhaKishorM / Convai Innovations under Apache 2.0). 
 
-**The Research Hypothesis**: Can LCC's context compilation reduce a large raw context to a sufficiently small decision-relevant representation that a local ~1K-context Laya model can make useful semantic decisions without requiring a 32K-context remote decision model?
+**The Research Hypothesis & measured answer (2026-09-21)**: Can LCC's context compilation reduce a large raw context enough that a local ~1K-context Laya model makes useful semantic decisions without a 32K-context remote judge? **Measured with the real model: the 1K budget is not the bottleneck — the default judge is.** Real `convaiinnovations/laya-multilingual` keeps essentially every block on every corpus tested (0.0% reduction up to 11.6K tokens, −0.5% at 44K), so no compression pressure ever reaches the budget; LCC batches every state inside the budget and never slices (`laya_context_limit_exceeded`). The `convaiinnovations/laya-typed-decisions` checkpoint does discriminate modestly on the same question shape. Full rows, repro commands and limitations: `benchmarks/research/RESEARCH_STATUS.md`.
 
 - **Provider Choices — when to use which** (full table: `docs/LAYA.md`):
   - `--provider mechanical`: Fully local lexical overlap baseline; zero external ML dependencies. No key, no network, unbounded context, most aggressive reduction — heuristic only (`semantic_guarantee: none`). Use for offline/CI or huge dossiers.
-  - `--provider laya`: Local non-autoregressive decision engine (512 or 1024 context); 100% offline with 0 remote tokens. More conservative than mechanical (lower reduction, higher preservation) with a real semantic pass (`judged`). Use when you want semantics without a key.
+  - `--provider laya`: Local non-autoregressive decision engine (512 or 1024 context); 100% offline with 0 remote tokens. Validated 2026-09-21 with real weights: `judged`, in-budget, no fallback — and currently **keep-all** on the research corpora (reduction ≈ 0; it preserves more than mechanical by keeping essentially everything). Use when you want a semantic pass without a key.
   - `--provider jev`: Remote TypeSafe System One (32K context); requires `TYPESAFE_API_KEY`. Strongest judgment on subtle evidence. Use when recall on nuance matters most.
   - `--provider auto`: Prefers Jev, falls back cleanly to mechanical with `degraded: true`.
-- **Trade-off:** Laya is deliberately more conservative than mechanical (measured XL: mechanical −70% vs Laya/Jev −22.6%, all at 100% category recall). It buys safety with tokens.
-- **Latency:** no fixed CPU/GPU table is committed — every run reports `calls`, `latency_ms` (model only) and `compilation_ms` (whole pass). CPU is fine for small dossiers; CUDA/MPS cuts per-batch time. See `docs/LAYA.md §2` for how to measure.
+- **Trade-off (measured):** Laya buys preservation with tokens — in the validated runs it keeps essentially all content (0.0% reduction at small/medium/large; XL: 43,894 of 44,128 tokens) at 100% category recall, where mechanical removes 26–70% and remote Jev 21–52%. Treat the local semantic pass as an extra safety layer, not a compression win, until a checkpoint that drops confidently is validated (see `docs/LAYA.md §7`).
+- **Latency:** no fixed CPU/GPU table is committed — every run reports `calls`, `latency_ms` (model only) and `compilation_ms` (whole pass). Measured in live validation (macOS CPU): full passes took ~32 s (1.2K-token corpus) to ~107 s (44K) including model load; CUDA/MPS cuts per-batch time. See `docs/LAYA.md §2` for how to measure.
 
 - **Strict Context Budgeting & No Naive Truncation**:
   - Supported Laya checkpoints: `convaiinnovations/laya` (512 tokens), `convaiinnovations/laya-multilingual` (1024 tokens), `convaiinnovations/laya-typed-decisions` (1024 tokens).

@@ -158,6 +158,7 @@ def run_benchmark(scales: list[str], mock_laya: bool = False) -> list[dict[str, 
             record = {
                 "scale": scale,
                 "provider_requested": provider,
+                "harness": "mock" if (provider == "laya" and mock_laya) else "real",
                 "provider_used": report.provider_used,
                 "degraded": report.degraded,
                 "tokens_in": tokens_in,
@@ -206,6 +207,8 @@ def print_table(records: list[dict[str, Any]]) -> None:
 
     for r in records:
         prov = r["provider_used"]
+        if r.get("harness") == "mock":
+            prov += " (mock)"
         if r["degraded"]:
             prov += "*"
         row = [
@@ -236,8 +239,9 @@ def main() -> None:
     parser.add_argument(
         "--mock",
         action="store_true",
-        default=True,
-        help="Use mock Laya decision agent for fast local validation",
+        default=False,
+        help="Use the offline mock agent (harness check, NOT model evidence). "
+        "Default runs the real Laya backend; the Jev arm runs live when TYPESAFE_API_KEY is set.",
     )
     args = parser.parse_args()
 

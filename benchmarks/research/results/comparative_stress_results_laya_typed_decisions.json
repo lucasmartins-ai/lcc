@@ -1,5 +1,5 @@
 {
-  "timestamp": 1789952318.3415098,
+  "timestamp": 1789953230.898659,
   "harness": "real",
   "mock_flag": false,
   "multi_scale_stress": [
@@ -67,7 +67,7 @@
       "blocks_total": 40,
       "blocks_dropped": 12,
       "reused_decisions": 0,
-      "latency_ms": 1327,
+      "latency_ms": 1312,
       "cost_usd": 0.005,
       "semantic_guarantee": "judged",
       "output_sha256": "3412f9ba07138eee7dd55cd395aea543facd03290578249540befa037a5f45f2",
@@ -118,7 +118,7 @@
       "blocks_total": 40,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 32069,
+      "latency_ms": 35417,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "3c87a3e4282e7da506a9b229a3a2319cb42340a3dd7548a3bced35d5feba571d",
@@ -169,7 +169,7 @@
       "blocks_total": 1,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 6,
+      "latency_ms": 7,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "deafe255f4e52ab14cd596566570892ceff6b0fd3c1f3aec5a631b9584eabe91",
@@ -220,7 +220,7 @@
       "blocks_total": 152,
       "blocks_dropped": 92,
       "reused_decisions": 0,
-      "latency_ms": 55,
+      "latency_ms": 79,
       "cost_usd": 0.0,
       "semantic_guarantee": "none",
       "output_sha256": "1abadb80d490e1820ee39b7287060cf0de5feb25fe914cf7f1eab939f7a91255",
@@ -263,18 +263,18 @@
       "arm": "jev",
       "harness": "real",
       "tokens_in": 4533,
-      "tokens_out": 2720,
-      "reduction_pct": 40.0,
+      "tokens_out": 2762,
+      "reduction_pct": 39.07,
       "recall": 1.0,
       "perfect_recall": true,
       "distractor_leak": 8,
       "blocks_total": 152,
       "blocks_dropped": 70,
       "reused_decisions": 0,
-      "latency_ms": 3295,
+      "latency_ms": 3216,
       "cost_usd": 0.019,
       "semantic_guarantee": "judged",
-      "output_sha256": "16526c20f4ab95c25c1c5a666e47d948a5df0b6889efa50c4672e5cc0afda1d6",
+      "output_sha256": "93ebf8fc7a3b87261098e061af5547590641ac8a046996a317e50bddf27746cc",
       "warnings_count": 154,
       "categories": {
         "critical_fact": {
@@ -322,7 +322,7 @@
       "blocks_total": 152,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 36098,
+      "latency_ms": 41624,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "4b5c75b7f952d0a51e18df2f2334b2cd0750759a8f7b93c2c5c508057a536cf2",
@@ -373,7 +373,7 @@
       "blocks_total": 4,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 22,
+      "latency_ms": 27,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "1e6402f85f086345c7ed8659787300fbe3034b9e6063c20cf30e939f67d481ef",
@@ -424,7 +424,7 @@
       "blocks_total": 392,
       "blocks_dropped": 262,
       "reused_decisions": 0,
-      "latency_ms": 609,
+      "latency_ms": 598,
       "cost_usd": 0.0,
       "semantic_guarantee": "none",
       "output_sha256": "5b1f604545903c3978f085e34b49c7ce2f5b68a4858be08fb657f720a874d27c",
@@ -467,18 +467,18 @@
       "arm": "jev",
       "harness": "real",
       "tokens_in": 11617,
-      "tokens_out": 5836,
-      "reduction_pct": 49.76,
+      "tokens_out": 5841,
+      "reduction_pct": 49.72,
       "recall": 1.0,
       "perfect_recall": true,
       "distractor_leak": 8,
       "blocks_total": 392,
-      "blocks_dropped": 213,
+      "blocks_dropped": 212,
       "reused_decisions": 0,
-      "latency_ms": 8874,
+      "latency_ms": 8491,
       "cost_usd": 0.049,
       "semantic_guarantee": "judged",
-      "output_sha256": "8512baa0a10b4213ae75102ea5cdc7d6b6cbffd71b109f972b529d615c3e9b1f",
+      "output_sha256": "7994eec9e4c70021f305ea764f32f03948bac73c4ccc70c8e2b7860ce85bd23c",
       "warnings_count": 394,
       "categories": {
         "critical_fact": {
@@ -526,11 +526,11 @@
       "blocks_total": 392,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 42871,
+      "latency_ms": 58036,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "61d2ba48de8a07adfd9cc4600d7bc14b4516462f1a73b17ae8b1ae0b2a8075eb",
-      "warnings_count": 1,
+      "warnings_count": 0,
       "categories": {
         "critical_fact": {
           "kept": 5,
@@ -577,215 +577,11 @@
       "blocks_total": 9,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 29460,
+      "latency_ms": 30714,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "5b8a186ce5b9c13725a1603319ef7cdfd319aa04c8c2e2560a86ee4098ea72a4",
       "warnings_count": 8,
-      "categories": {
-        "critical_fact": {
-          "kept": 5,
-          "total": 5,
-          "recall": 1.0
-        },
-        "constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "negative_constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "exception": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "temporal": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "contradiction": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        }
-      }
-    },
-    {
-      "scale": "xl",
-      "arm": "mechanical",
-      "harness": "real",
-      "tokens_in": 44128,
-      "tokens_out": 13228,
-      "reduction_pct": 70.02,
-      "recall": 1.0,
-      "perfect_recall": true,
-      "distractor_leak": 8,
-      "blocks_total": 1492,
-      "blocks_dropped": 1052,
-      "reused_decisions": 0,
-      "latency_ms": 28997,
-      "cost_usd": 0.0,
-      "semantic_guarantee": "none",
-      "output_sha256": "5c1387e464c9b6815d8c356b2488a6607d6f728af49a709d60db542ec9a194f0",
-      "warnings_count": 3,
-      "categories": {
-        "critical_fact": {
-          "kept": 5,
-          "total": 5,
-          "recall": 1.0
-        },
-        "constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "negative_constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "exception": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "temporal": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "contradiction": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        }
-      }
-    },
-    {
-      "scale": "xl",
-      "arm": "jev",
-      "harness": "real",
-      "tokens_in": 44128,
-      "tokens_out": 21129,
-      "reduction_pct": 52.12,
-      "recall": 1.0,
-      "perfect_recall": true,
-      "distractor_leak": 8,
-      "blocks_total": 1492,
-      "blocks_dropped": 839,
-      "reused_decisions": 0,
-      "latency_ms": 59604,
-      "cost_usd": 0.187,
-      "semantic_guarantee": "judged",
-      "output_sha256": "16b07ffa477e0a8f250d08d883d18e40b0b74b085e5026acb941cb9a867b505b",
-      "warnings_count": 1494,
-      "categories": {
-        "critical_fact": {
-          "kept": 5,
-          "total": 5,
-          "recall": 1.0
-        },
-        "constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "negative_constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "exception": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "temporal": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "contradiction": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        }
-      }
-    },
-    {
-      "scale": "xl",
-      "arm": "laya",
-      "harness": "real",
-      "tokens_in": 44128,
-      "tokens_out": 43894,
-      "reduction_pct": 0.53,
-      "recall": 1.0,
-      "perfect_recall": true,
-      "distractor_leak": 420,
-      "blocks_total": 1492,
-      "blocks_dropped": 10,
-      "reused_decisions": 0,
-      "latency_ms": 107080,
-      "cost_usd": 0.0,
-      "semantic_guarantee": "judged",
-      "output_sha256": "c7fa38ffcb979b3babafed47eeb25ad4b4575deb3fec39619897e989b5ba59bc",
-      "warnings_count": 4,
-      "categories": {
-        "critical_fact": {
-          "kept": 5,
-          "total": 5,
-          "recall": 1.0
-        },
-        "constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "negative_constraint": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "exception": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "temporal": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        },
-        "contradiction": {
-          "kept": 1,
-          "total": 1,
-          "recall": 1.0
-        }
-      }
-    },
-    {
-      "scale": "xl",
-      "arm": "final_optimized",
-      "harness": "real",
-      "tokens_in": 44128,
-      "tokens_out": 43706,
-      "reduction_pct": 0.96,
-      "recall": 1.0,
-      "perfect_recall": true,
-      "distractor_leak": 420,
-      "blocks_total": 33,
-      "blocks_dropped": 0,
-      "reused_decisions": 0,
-      "latency_ms": 26896,
-      "cost_usd": 0.0,
-      "semantic_guarantee": "judged",
-      "output_sha256": "e1cf81efb8f9a8e939df81999878707a99bfeccb3433e88dc7eaca5672102ebe",
-      "warnings_count": 32,
       "categories": {
         "critical_fact": {
           "kept": 5,
@@ -834,7 +630,7 @@
       "blocks_total": 24,
       "blocks_dropped": 24,
       "reused_decisions": 0,
-      "latency_ms": 89,
+      "latency_ms": 48,
       "cost_usd": 0.0,
       "semantic_guarantee": "none",
       "output_sha256": "2358609f9a5f941ffc23a44a5e20194ebffc8d0da017427553097a1772c76561",
@@ -862,7 +658,7 @@
       "blocks_total": 24,
       "blocks_dropped": 23,
       "reused_decisions": 0,
-      "latency_ms": 2084,
+      "latency_ms": 2046,
       "cost_usd": 0.012,
       "semantic_guarantee": "judged",
       "output_sha256": "dd6f86138956d4fe36fbfae5e656bf9f32ccb30e6fa704320e99933bb625bfc9",
@@ -890,7 +686,7 @@
       "blocks_total": 24,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 29313,
+      "latency_ms": 30333,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "fbdf321d8e9f73a64f17f203f60906b50260980f646a16a53b674fbe88c5652c",
@@ -918,7 +714,7 @@
       "blocks_total": 24,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 29529,
+      "latency_ms": 30397,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "450de9d20e06d029f73a6ea71f18ac07e370049599d20ae6ccf9bba46fe84776",
@@ -974,7 +770,7 @@
       "blocks_total": 4,
       "blocks_dropped": 1,
       "reused_decisions": 0,
-      "latency_ms": 611,
+      "latency_ms": 598,
       "cost_usd": 0.001,
       "semantic_guarantee": "judged",
       "output_sha256": "ec6998b879d73840f7f3cbce4908fb3edcc14c3bcfdc4fa26abc248b1ee91ead",
@@ -1002,7 +798,7 @@
       "blocks_total": 4,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 28833,
+      "latency_ms": 30218,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "b3a2cd99f1da48c75e70ee23ff8cd0ed21eb07247aa210e973664f5c21b23c5d",
@@ -1030,7 +826,7 @@
       "blocks_total": 1,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 29072,
+      "latency_ms": 29725,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "77689c8d52aae366dde386b03af5ad71dc0b2910a0dd12a844753c7d5b750598",
@@ -1058,7 +854,7 @@
       "blocks_total": 151,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 10,
+      "latency_ms": 11,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "ca6cec3040450f5023fe6cbf13993018ce9ae05e14add1cf744386616d05f5c1",
@@ -1142,7 +938,7 @@
       "blocks_total": 13,
       "blocks_dropped": 0,
       "reused_decisions": 0,
-      "latency_ms": 64,
+      "latency_ms": 62,
       "cost_usd": 0.0,
       "semantic_guarantee": "judged",
       "output_sha256": "37770b5bf71774f444e00263fa4d86034673f16eb1a82d6d21b2c0ff5bfb35c2",
@@ -1159,9 +955,9 @@
     }
   ],
   "cache_stability_stress": {
-    "cold_latency_ms": 43151,
-    "warm_latency_ms": 516,
-    "speedup_factor": 83.63,
+    "cold_latency_ms": 58546,
+    "warm_latency_ms": 507,
+    "speedup_factor": 115.48,
     "reused_decisions": 391,
     "byte_identical": true,
     "sha256": "61d2ba48de8a07adfd9cc4600d7bc14b4516462f1a73b17ae8b1ae0b2a8075eb"
