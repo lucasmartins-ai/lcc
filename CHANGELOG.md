@@ -6,7 +6,13 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
-_No changes yet._
+### Added
+
+- Jev path documentation: new `docs/JEV.md` (typed-decision contract, key resolution order, honest fallback table, measured behaviour and its limits), a Jev-first section at the top of `README.md` with a five-line `--provider jev` example and a TypeSafe badge, a Jev path in `docs/QUICKSTART.md`, and `tests/test_docs.py` assertions that keep the document linked from both entry points and pinned to the tested phrases.
+
+### Changed
+
+- README positioning: the compaction claim now leads with "Jev-powered relevance compaction that never summarizes", and the provider table's note points to `docs/JEV.md`. No behaviour change; the offline default path (`mechanical`/`laya`, no key, no network) is unchanged.
 
 ## [0.4.0] - 2026-09-21
 
