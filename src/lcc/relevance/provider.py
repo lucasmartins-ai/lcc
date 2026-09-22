@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 
+from lcc.relevance.jev import JEV_CONTEXT_LIMIT_TOKENS
+
 __all__ = [
     "SEMANTIC_PROVIDERS",
     "SemanticProvider",
@@ -95,8 +97,8 @@ class JevProvider:
 
     @property
     def context_limit(self) -> int:
-        # Jev remote System One context window is 32,768 tokens
-        return 32768
+        # Jev remote System One context window: same number the client refuses at.
+        return JEV_CONTEXT_LIMIT_TOKENS
 
     @property
     def is_local(self) -> bool:
