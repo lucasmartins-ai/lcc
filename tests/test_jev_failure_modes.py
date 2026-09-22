@@ -4,9 +4,11 @@ import pytest
 
 from lcc.relevance import RelevanceCompactionRequest, compact_context
 from lcc.relevance.jev import (
+    JEV_CONTEXT_LIMIT_TOKENS,
     JevClient,
     JevMalformedResponseError,
     JevRequestError,
+    JevStateTooLargeError,
     JevUnavailableError,
     parse_noul_answer,
 )
@@ -163,3 +165,42 @@ def test_empty_api_key_is_unavailable():
 
 def test_malformed_response_error_type():
     assert issubclass(JevMalformedResponseError, JevRequestError)
+
+
+def test_oversized_state_refused_locally_and_small_state_still_sent(tmp_path):
+    """Pre-flight guard: over the window no request leaves the machine, normal ones do.
+
+    Regression for 21/09: a 123.741-char state was sent anyway (heuristic undercount)
+    and came back ``400 max_tokens_exceeded`` 38 times before the batch gave up.
+    """
+    import json as _json
+
+    ledger = tmp_path / "ledger.jsonl"
+
+    def _boom(*_args, **_kwargs):
+        raise AssertionError("network reached with an oversized state")
+
+    big = JevClient(api_key="test-key", opener=_boom, ledger_path=ledger)
+    questions = {"keep": {"type": "noul", "instructions": "x", "criteria": {"true": "y", "false": "z"}}}
+    with pytest.raises(JevStateTooLargeError) as exc:
+        big.evaluate({"blob": "x" * 400_000}, questions)
+    assert f"> {JEV_CONTEXT_LIMIT_TOKENS}" in str(exc.value)
+    logged = [ _json.loads(line) for line in ledger.read_text(encoding="utf-8").splitlines() ]
+    assert len(logged) == 1 and "pre_flight" in logged[0]["error"]
+    assert logged[0]["state_chars"] > 0
+
+    class _Resp:
+        def read(self):
+            return _json.dumps(
+                {"model": "jev-test", "answers": {"keep": {"type": "noul", "noul": 0.5}}}
+            ).encode()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_exc):
+            return False
+
+    small = JevClient(api_key="test-key", opener=lambda *_a, **_k: _Resp(), ledger_path=ledger)
+    answer = small.evaluate({"block": "a short relevant block"}, questions)
+    assert answer["answers"]["keep"]["noul"] == 0.5

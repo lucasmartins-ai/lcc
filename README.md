@@ -68,6 +68,50 @@ Everything else stays offline: `mechanical` needs no key, `laya` runs the semant
 on-device, and `optimize`, `prepare`, `inspect` and `intake` never touch the network.
 Contract, fallback table and measured behaviour: [`docs/JEV.md`](docs/JEV.md).
 
+### Guard: a state over the context window never reaches the API
+
+System One accepts up to **32,768 tokens** per request — `JEV_CONTEXT_LIMIT_TOKENS` in
+[`src/lcc/relevance/jev.py`](src/lcc/relevance/jev.py), the same number
+`JevProvider.context_limit` reports. `JevClient.evaluate` now counts the whole payload
+locally **before** the HTTP call (tiktoken when installed, otherwise the blended heuristic
+inflated by its measured undercount factor) and raises `JevStateTooLargeError` when it is
+over the window: no round trip is spent, the ledger records a `pre_flight:` error row, and
+every caller treats it like any other failed batch — mechanical scoring for the remaining
+blocks, `degraded: true`, content kept.
+
+**Why it exists.** On 2026-09-21 a 123,741-character state was sent anyway (the chars/4
+heuristic undercounts JSON-heavy payloads by about a third) and came back
+`400 max_tokens_exceeded` 38 times before the batch gave up. The tokenizer fix in `1c9bff9`
+stopped *building* such states in the transcript path, but nothing at the transport layer
+checked the window — a raised `--max-state-tokens`, the MCP server or a library caller
+could still pay for the same refusal.
+
+**The threshold is measured, not assumed.** 6 API measurements in 2 runs plus 1 live
+refusal (2026-09-22, resolved `jev-1.13.0`) compared the local tiktoken count with the
+`input_tokens` the API reports:
+
+| payload shape | fit | points |
+| :--- | :--- | :--- |
+| prose-JSON (worst slope) | `api = 249 + 0.98 * local` | 2 |
+| code-JSON | `api = 0.94 * local` | 1 |
+| second run, combined | `api = 437 + 0.90 * local` | 3 |
+
+The API never counted more than the local count plus a small fixed overhead, so refusing
+at 32,768 **local** tokens lets no over-window request through (the worst fit still
+projects 32,361 at the refusal point). The cost is the band we refuse that the API would
+have taken: **1–10% of the window**, depending on payload shape. Re-run the probe after
+any TypeSafe tokenizer or window change — a slope above 1.0 would invert the safety
+direction:
+
+```bash
+python3 benchmarks/research/calibrate_preflight_tokens.py   # needs a key + network; not run in CI
+```
+
+Offline coverage (no key, no network):
+`tests/test_jev_failure_modes.py::test_oversized_state_refused_locally_and_small_state_still_sent`
+proves the refusal happens with zero network calls *and* that a normal state still goes
+out. The fallback row lives in [`docs/JEV.md`](docs/JEV.md) §3.
+
 ---
 
 ## 🏛️ Overview & The 3 Pillars

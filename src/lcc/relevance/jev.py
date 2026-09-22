@@ -34,6 +34,22 @@ DEFAULT_ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 DEFAULT_MODEL = "jev-latest"
 DEFAULT_FEATURE = "lcc_compact"
 _RETRYABLE_STATUS = frozenset({408, 425, 429, 500, 502, 503, 504, 529})
+#: TypeSafe System One context window — mirrors ``provider.JevProvider.context_limit``.
+#: Above it the API answers ``400 max_tokens_exceeded``. Accepted up to 31.136 input_tokens
+#: (measured, ledger 17-21/09); a 123.741-char JSON state was refused there 38 times on 21/09
+#: and the API returns no count for what it refuses. Calibrated by 6 API measurements in
+#: 2 runs plus 1 live refusal (2026-09-22, resolved ``jev-1.13.0``): ``api = 249 +
+#: 0.98 * local`` (prose-JSON, worst slope) and ``api = 437 + 0.90 * local`` (second run
+#: combined) — the API never counted more than tiktoken on the payload, so refusing at
+#: 32.768 LOCAL tokens lets no over-window request leave (worst fit still projects 32.361
+#: at the refusal point). The cost is the band we refuse that the API would take: 1-10% of
+#: the window across the three fits. Re-probe
+#: ``benchmarks/research/calibrate_preflight_tokens.py`` if TypeSafe changes tokenizer or
+#: cap: a slope above 1.0 would invert the safety direction.
+JEV_CONTEXT_LIMIT_TOKENS = 32768
+#: Undercount of the chars/4 heuristic on JSON-heavy states, as measured in
+#: ``transcript._budget_tokens``: without a tokenizer, inflate rather than trust it.
+_APPROXIMATE_SAFETY_FACTOR = 1.45
 
 
 class JevError(RuntimeError):
@@ -50,6 +66,16 @@ class JevRequestError(JevError):
 
 class JevMalformedResponseError(JevRequestError):
     """The API answered 200 but the payload was not a usable System One response."""
+
+
+class JevStateTooLargeError(JevRequestError):
+    """The request is over the System One context window.
+
+    Raised *before* the HTTP call: a state the local counter already sees as too big
+    would only burn a round trip to be refused with ``400 max_tokens_exceeded``, and
+    every caller already fails safe on ``JevError``. Not retryable — retrying the same
+    payload cannot make it smaller.
+    """
 
 
 def parse_noul_answer(answer: Any) -> tuple[float | None, float | None, str | None]:
@@ -152,6 +178,33 @@ def _iso_timestamp() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
 
 
+def _request_tokens(payload: dict[str, Any]) -> tuple[int, str]:
+    """Token count of the whole request as the API will see it, as ``(tokens, method)``.
+
+    Prefers the real tokenizer (tiktoken, when installed): on JSON-heavy states the
+    chars/4 heuristic undercounts by roughly a third, which is exactly how a 123.741-char
+    state reached the API on 21/09 and came back ``400 max_tokens_exceeded`` 38 times.
+    Without a tokenizer, inflate the blended estimate by the measured factor instead of
+    trusting it — a false refusal costs one mechanical fallback, a false allowance costs
+    a wasted round trip plus a 400. ``lcc.token_budget`` has no dependency on
+    ``lcc.relevance``, so this import cannot cycle.
+    """
+    text = json.dumps(payload, ensure_ascii=False, default=str)
+    try:
+        from lcc.schemas import TokenCountMethod
+        from lcc.token_budget import count_tokens
+        from lcc.token_budget.counters import approximate_token_count
+    except Exception:  # tokenizer stack unavailable: last-resort chars/4 estimate
+        return int(len(text) / 4 * _APPROXIMATE_SAFETY_FACTOR), "chars/4"
+    try:
+        counted = count_tokens(text, "gpt-4.1")
+        if counted.method is TokenCountMethod.EXACT:
+            return int(counted.value), "exact"
+    except Exception:
+        pass
+    return int(approximate_token_count(text) * _APPROXIMATE_SAFETY_FACTOR), "approx"
+
+
 class JevClient:
     """Minimal System One client with retry/backoff and shared-ledger logging."""
 
@@ -229,6 +282,27 @@ class JevClient:
         """Call System One; retries transient failures; logs every attempt to the ledger."""
         payload = {"model": self.model, "state": state, "questions": questions}
         state_chars = len(json.dumps(state, ensure_ascii=False))
+        # Pre-flight: refuse locally what the API would refuse anyway (see JevStateTooLargeError).
+        tokens, method = _request_tokens(payload)
+        if tokens > JEV_CONTEXT_LIMIT_TOKENS:
+            message = (
+                f"pre_flight: request is {tokens} tokens ({method}) > "
+                f"{JEV_CONTEXT_LIMIT_TOKENS} System One context; state has {state_chars} chars, "
+                f"refusing before the call instead of paying for 400 max_tokens_exceeded"
+            )
+            self._ledger_append(
+                {
+                    "ts": _iso_timestamp(),
+                    "feature": self.feature,
+                    "model": self.model,
+                    "status": "error",
+                    "error": message,
+                    "attempt": 1,
+                    "latency_ms": 0,
+                    "state_chars": state_chars,
+                }
+            )
+            raise JevStateTooLargeError(message)
         last_error: Exception | None = None
         for attempt in range(1, self.attempts + 1):
             started = time.time()
