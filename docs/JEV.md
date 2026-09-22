@@ -57,6 +57,7 @@ verify.
 | `--provider jev`, no key or network disabled | `degraded` | true | `none` | keeps every block (fail-safe) |
 | `--provider auto`, no key | `mechanical` scoring | true | `none` | mechanical pass, `degradation_reason: jev_unavailable_mechanical_fallback` |
 | a batch fails mid-run | `jev+mechanical_fallback` | true | `partial` (`none` when nothing was judged) | remaining blocks scored mechanically; already-judged blocks keep their Jev verdict |
+| state over the 32,768-token window | same as a failed batch | true | `partial` (`none` when nothing was judged) | refused **before** the call (`JevStateTooLargeError`, ledger `pre_flight:`) — no round trip is spent on `400 max_tokens_exceeded` |
 
 Warnings in the report name the reason (`jev_unavailable`, `jev_batch_failed`). A
 failed pass never drops content it could not judge.
@@ -80,6 +81,7 @@ failed pass never drops content it could not judge.
 | Multi-scale reduction | −21.2% (1.2K) / −40.0% (4.5K) / −49.8% (11.6K) / −52.1% (44K), 100% category recall | 4 scales |
 | Answer preservation (Jev selector, mock downstream) | −58 tokens/task, correctness delta 0.0; verifier PASS 29–31, REVIEW 19–21, FAIL 0 | 50 tasks |
 | Cost | $0.005 (1.2K) → $0.187 (44K) per pass | 4 scales |
+| Token count, API vs local (pre-flight calibration, 2026-09-22) | worst fit `api = 249 + 0.98 * local` (prose-JSON); second run combined `api = 437 + 0.90 * local` — the API never counted above the local tiktoken count + a small fixed overhead, so at the refusal point it still projects under the cap (32,361 worst case). Cost: the band refused that the API would take, 1–10% of the window across the three fits | 6 API measurements + 1 live refusal, 2 runs |
 
 Limits, stated plainly: the provider is remote, so it needs the network and a key
 (everything else in LCC stays offline); the resolved backend returned no `confidence`,
