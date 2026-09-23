@@ -108,13 +108,16 @@ pip install "local-context-compiler[laya]"   # torch + transformers + laya
 pip install laya torch transformers
 
 lcc compact dossier.md -q "reduce mobile booking friction" --provider laya \
-  -o compacted.md -r report.json
+  --batch-size 1 -o compacted.md -r report.json
 
 # Explicit checkpoint + device + calibration:
-lcc compact dossier.md -q "…" --provider laya \
+lcc compact dossier.md -q "…" --provider laya --batch-size 1 \
   --laya-model convaiinnovations/laya-multilingual --laya-device cpu \
   --laya-temperature 2.0 -r report.json
 ```
+
+`--batch-size 1` is not cosmetic: with several blocks in one state Laya answers "keep" to
+all of them, whatever their relevance (§8).
 
 Env vars: `LCC_LAYA_MODEL`, `LCC_LAYA_DEVICE`, `LCC_LAYA_TEMPERATURE`.
 `LCC_DISABLE_NETWORK=1` forces Hugging Face offline mode (`HF_HUB_OFFLINE=1`).
@@ -167,3 +170,46 @@ Note: selecting a checkpoint requires the request field (`--laya-model` /
 `RelevanceCompactionRequest(laya_model=...)`). `LCC_LAYA_MODEL` alone sets a
 standalone `LayaClient()` but is stamped over by the request default inside
 `compact_context` — flagged as a follow-up in RESEARCH_STATUS.
+
+## 8. Specialising the checkpoint (measured 2026-09-23)
+
+The default checkpoint keeps essentially every block (§4), and the vendor's own position is
+that Laya is a fast base to specialise, not a zero-shot decision engine. This section records
+what happened when it was specialised for LCC's keep/drop question, including the parts that
+do not work. Harnesses: `benchmarks/research/laya_finetune_items.py` (supervised items out of
+the corpus factory, de-labelled, six objectives per corpus), `laya_finetune_train.py` (the
+vendor's RLCD recipe on one device: encoder frozen, decision head trained, 4 epochs on MPS in
+~35 minutes, temperature fitted on a held-out slice), `laya_real_context_test.py` (real
+transcripts), plus `run_laya_comparison.py` / `run_judge_ablation.py` with `--laya-model`.
+The checkpoint itself is not in the repository (`~/Models/laya-lcc-relevance-v1`, ~650 MB);
+the harnesses above rebuild it.
+
+Three measured findings, one of which is a requirement:
+
+1. **Batching decides whether Laya judges at all — use `--batch-size 1`.** With several
+   blocks in one state both the shipped and the specialised checkpoint answer "keep" to
+   every block (0.88–0.94 for evidence and noise alike). With one block per state the same
+   blocks separate: specialised — evidence 0.85/0.91, tool and log noise 0.003–0.016;
+   shipped — evidence 0.21/0.03 against noise 0.92, i.e. it drops the facts. Every number
+   below is batch 1.
+2. **On the corpora the specialised head beats the lexical baseline; off them it does not
+   generalise.** Canonical corpora: small −40.95%, medium −59.92%, large −70.48% at 100%
+   category recall (mechanical: −26.18 / −57.58 / −65.45%). On the judge ablation corpus —
+   six evidence and six noise blocks worded independently of the corpus factory — the same
+   checkpoint scores the evidence 0.01–0.13 and drops all six (`false_drops 6/6`,
+   `critical_recall 0.0`), and padding a block with filler text makes it worse. **The corpus
+   figures are memorisation of the factory's ten fixed evidence sentences, not a general
+   relevance judgement, and must never be quoted as one.**
+3. **On real sessions nothing is removed, for a structural reason.** A real Hermes session
+   (66 841 tokens, 77 blocks): 40 blocks exceed the 1024-token state window and are kept
+   whole (`laya_context_limit_exceeded`), 34 score above threshold, and all five blocks the
+   head scored below 0.4 were kept by the safety layers (`high_risk_conservative_retention`,
+   `quoted_speech_present`, `semantic_sufficiency_restoration`). Reduction 0.0%. The vendor
+   documents mmBERT as "1024 (up to 8k)"; raising `laya_context_limit` (and the checkpoint's
+   `max_len`) is a more promising lever than another training run.
+
+What would make this path real: training items whose evidence is not a fixed sentence list
+(programmatic facts with noisy tails), and an out-of-distribution gate — the ablation corpus
+and `run_adversarial.py` — that a checkpoint has to pass before any corpus number is quoted.
+Until then the honest summary is the one in §4: a local semantic pass that removes little,
+now with a measured reason.

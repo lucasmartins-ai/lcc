@@ -33,6 +33,7 @@ from lcc.relevance import (
     RelevanceCompactionRequest,
     compact_context,
 )
+from lcc.relevance.laya import DEFAULT_LAYA_MODEL
 from lcc.token_budget import count_tokens
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -102,7 +103,12 @@ def compute_recall(text: str, items: list[dict[str, str]]) -> tuple[float, int]:
     return recall_rate, distractor_leak
 
 
-def run_benchmark(scales: list[str], mock_laya: bool = False) -> list[dict[str, Any]]:
+def run_benchmark(
+    scales: list[str],
+    mock_laya: bool = False,
+    laya_model: str | None = None,
+    batch_size: int = 8,
+) -> list[dict[str, Any]]:
     RESULTS.mkdir(parents=True, exist_ok=True)
     out_file = RESULTS / "laya_comparison.jsonl"
     records = []
@@ -141,6 +147,12 @@ def run_benchmark(scales: list[str], mock_laya: bool = False) -> list[dict[str, 
                 provider=provider,
                 client=client,
                 threshold=0.4,
+                # The request field is the only place a checkpoint is honoured: the compactor
+                # stamps it over an injected client (see RESEARCH_STATUS, checkpoint selection).
+                laya_model=laya_model if (provider == "laya" and laya_model) else DEFAULT_LAYA_MODEL,
+                # Explicit in the row: a batched state collapses Laya's per-block judgement
+                # (measured in docs/LAYA.md §5), so a run must say which batching it used.
+                batch_size=batch_size,
             )
             result = compact_context(req)
             elapsed_ms = int((time.perf_counter() - started) * 1000)
@@ -243,9 +255,33 @@ def main() -> None:
         help="Use the offline mock agent (harness check, NOT model evidence). "
         "Default runs the real Laya backend; the Jev arm runs live when TYPESAFE_API_KEY is set.",
     )
+    parser.add_argument(
+        "--laya-model",
+        default=None,
+        help="Laya checkpoint for the Laya arm (id or local directory), e.g. a fine-tuned "
+        "checkpoint from benchmarks/research/laya_finetune_train.py.",
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=8,
+        help="Blocks per Laya state. 8 is the request default; 1 is the measured working "
+        "configuration — a batched state collapses Laya's per-block judgement (docs/LAYA.md §5).",
+    )
+    parser.add_argument("--out", default=None, help="Write JSON records here (default: results/).")
     args = parser.parse_args()
 
-    records = run_benchmark(args.scales, mock_laya=args.mock)
+    records = run_benchmark(
+        args.scales,
+        mock_laya=args.mock,
+        laya_model=args.laya_model,
+        batch_size=args.batch_size,
+    )
+    if args.out:
+        pathlib.Path(args.out).write_text(
+            "\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8"
+        )
+        print(f"records written to {args.out}")
     print_table(records)
 
 

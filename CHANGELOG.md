@@ -4,6 +4,32 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Laya specialisation harness, and the measurement it produced. `benchmarks/research/laya_finetune_items.py`
+  turns the corpus factory into supervised items — de-labelled first, because the corpora's literal
+  `GROUND TRUTH`/`(not evidence, ignore)` markers would be learned as label vocabulary, and with six
+  objectives per corpus so the same evidence block is a keep for the objective it answers and a drop
+  for the four it does not. `laya_finetune_train.py` runs the vendor's RLCD recipe on one device with
+  the encoder frozen and fits the calibration temperature on a held-out slice (4 epochs, MPS, ~35 min,
+  held-out separation 0.895 at 4 epochs). `laya_real_context_test.py` measures a real Hermes or Claude
+  Code transcript against a real objective, scoring survival of the user turns byte-for-byte.
+  `run_laya_comparison.py` and `run_judge_ablation.py` gained `--laya-model`, `--batch-size` and `--out`.
+  Results, including the two failures that matter, are in `docs/LAYA.md` §8 and the canonical rows in
+  `benchmarks/research/RESEARCH_STATUS.md`.
+- `lcc.relevance.compactor.keep_question`: the typed keep question now lives in one place, shared by the
+  Jev and Laya paths and by the fine-tuning harness, so training text cannot drift from inference text.
+
+### Changed
+
+- `lcc compact --provider laya` documents `--batch-size 1` as the configuration that works. Measured
+  2026-09-23 on the same blocks: with several blocks in one state both the shipped and a specialised
+  checkpoint answer "keep" to everything (0.88–0.94 regardless of relevance); with one block per state
+  they separate (specialised noise 0.003–0.016, shipped checkpoint drops the evidence instead). The flag
+  already existed; the measurement that turns it into a requirement did not.
+
 ## [0.5.0] - 2026-09-21
 
 **Release focus: Jev first, and enough of it shipped to prove it.** The Jev provider is now the
