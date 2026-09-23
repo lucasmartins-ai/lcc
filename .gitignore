@@ -44,3 +44,6 @@ node_modules/
 
 # Demo renders
 __pycache__/
+
+# laya fine-tuning items (regenerable, ~7 MB)
+benchmarks/research/results/laya_finetune/*.pt

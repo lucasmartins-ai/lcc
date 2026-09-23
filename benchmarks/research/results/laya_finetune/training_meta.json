@@ -1,0 +1,107 @@
+{
+  "checkpoint": "convaiinnovations/laya-multilingual",
+  "items": "benchmarks/research/results/laya_finetune/items_train.pt",
+  "device": "mps",
+  "epochs": 4,
+  "micro_batch": 8,
+  "grad_accum": 4,
+  "lr_head": 0.0001,
+  "train_items": 7760,
+  "calib_items": 400,
+  "frozen_encoder": true,
+  "history": [
+    {
+      "items": 400,
+      "evidence_items": 25,
+      "noise_items": 375,
+      "mean_p_true_evidence": 0.9425612449645996,
+      "mean_p_true_noise": 0.07806389614970734,
+      "separation": 0.8644973488148923,
+      "thresholds": {
+        "0.4": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.9386666666666666,
+          "accuracy": 0.9425
+        },
+        "0.5": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.9386666666666666,
+          "accuracy": 0.9425
+        }
+      },
+      "epoch": 1,
+      "avg_loss": 0.33058239950774876,
+      "seconds": 397.3
+    },
+    {
+      "items": 400,
+      "evidence_items": 25,
+      "noise_items": 375,
+      "mean_p_true_evidence": 0.9535050988197327,
+      "mean_p_true_noise": 0.06771911775444944,
+      "separation": 0.8857859810652833,
+      "thresholds": {
+        "0.4": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.944,
+          "accuracy": 0.9475
+        },
+        "0.5": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.9466666666666667,
+          "accuracy": 0.95
+        }
+      },
+      "epoch": 2,
+      "avg_loss": 0.07292945518842132,
+      "seconds": 790.2
+    },
+    {
+      "items": 400,
+      "evidence_items": 25,
+      "noise_items": 375,
+      "mean_p_true_evidence": 0.9642927765846252,
+      "mean_p_true_noise": 0.06911999835943182,
+      "separation": 0.8951727782251934,
+      "thresholds": {
+        "0.4": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.9466666666666667,
+          "accuracy": 0.95
+        },
+        "0.5": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.9466666666666667,
+          "accuracy": 0.95
+        }
+      },
+      "epoch": 3,
+      "avg_loss": 0.07075556277745415,
+      "seconds": 1182.9
+    },
+    {
+      "items": 400,
+      "evidence_items": 25,
+      "noise_items": 375,
+      "mean_p_true_evidence": 0.9632681393623352,
+      "mean_p_true_noise": 0.06779424545293053,
+      "separation": 0.8954738939094047,
+      "thresholds": {
+        "0.4": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.944,
+          "accuracy": 0.9475
+        },
+        "0.5": {
+          "evidence_kept_ratio": 1.0,
+          "noise_dropped_ratio": 0.9466666666666667,
+          "accuracy": 0.95
+        }
+      },
+      "epoch": 4,
+      "avg_loss": 0.1236156898969195,
+      "seconds": 1571.7
+    }
+  ],
+  "fitted_noul_temperature": 1.4453132152557373
+}

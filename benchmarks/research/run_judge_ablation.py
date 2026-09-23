@@ -127,7 +127,7 @@ def _labels(block_ids: list[str], corpus: str) -> dict[str, bool]:
 
 
 def _run_arm(
-    arm: str, corpus: str, judge_factory, verify: bool, safety: bool
+    arm: str, corpus: str, judge_factory, verify: bool, safety: bool, batch_size: int = 8
 ) -> ArmResult:
     started = time.perf_counter()
     request = RelevanceCompactionRequest(
@@ -139,6 +139,7 @@ def _run_arm(
         deterministic_protection=safety,
         enable_sufficiency=safety,
         enable_semantic_verify=verify,
+        batch_size=batch_size,
     )
     result = compact_context(request)
     latency_ms = int((time.perf_counter() - started) * 1000)
@@ -182,6 +183,13 @@ def main() -> int:
         help="Laya checkpoint for --judge laya (e.g. convaiinnovations/laya-typed-decisions). "
         "Must be passed here: the request field otherwise carries the LCC default and the "
         "compactor stamps it over an injected client, so LCC_LAYA_MODEL alone is not enough.",
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=8,
+        help="Blocks per judge state. 1 is the measured working configuration for Laya: a "
+        "batched state collapses its per-block judgement (docs/LAYA.md §8).",
     )
     parser.add_argument("--out", default=None, help="Write JSON rows here.")
     args = parser.parse_args()
@@ -259,7 +267,9 @@ def main() -> int:
                 latency_ms=latency_ms,
                 needs_review=result.report.needs_review,
             )
-        return _run_arm(arm, corpus, factory, verify=verify, safety=safety)
+        return _run_arm(
+            arm, corpus, factory, verify=verify, safety=safety, batch_size=args.batch_size
+        )
 
     if args.judge in ("mechanical",):
         provider = "mechanical"
@@ -290,6 +300,7 @@ def main() -> int:
                 deterministic_protection=safety,
                 enable_sufficiency=safety,
                 enable_semantic_verify=verify,
+                batch_size=args.batch_size,
                 **extra_kw,
             )
         )

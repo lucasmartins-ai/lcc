@@ -77,6 +77,31 @@ _DEFAULT_MIN_REDUCTION = 0.25
 _SCORE_CLIP_HEAD = 4000
 _SCORE_CLIP_TAIL = 1100
 
+#: The question every semantic judge is asked, in one place. Jev and Laya must receive the
+#: identical phrasing — a judge that answers a different question is not comparable — and the
+#: fine-tuning harness in ``benchmarks/research/laya_finetune_items.py`` trains on exactly this
+#: text, so a change here invalidates a checkpoint trained before it.
+KEEP_INSTRUCTIONS = (
+    "Judge the probability that block {block_id} (in the state) is relevant and "
+    "worth keeping in the context that will be shown to a larger model. The "
+    "objective is also in the state. Irrelevant noise, redundant logs, and "
+    "unrelated chatter should score low; when unsure, prefer keeping."
+)
+KEEP_CRITERIA = {
+    "true": "The block is relevant or plausibly useful for the objective.",
+    "false": "The block is unrelated noise for the objective.",
+}
+
+
+def keep_question(block_id: str) -> dict[str, Any]:
+    """The typed ``noul`` question LCC asks about one block, shared by every judge path."""
+    return {
+        "type": "noul",
+        "instructions": KEEP_INSTRUCTIONS.format(block_id=block_id),
+        "criteria": dict(KEEP_CRITERIA),
+    }
+
+
 _WORD_RE = re.compile(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)?")
 _STOPWORDS = {
     "about", "after", "also", "and", "are", "can", "for", "from", "has", "have", "how",
@@ -790,22 +815,7 @@ def _score_with_jev(
             "objective": request.question,
             "blocks": [{"id": block.id, "text": _clip_for_scoring(block.text)} for block in batch],
         }
-        questions = {
-            f"keep_{block.id}": {
-                "type": "noul",
-                "instructions": (
-                    f"Judge the probability that block {block.id} (in the state) is relevant and "
-                    "worth keeping in the context that will be shown to a larger model. The "
-                    "objective is also in the state. Irrelevant noise, redundant logs, and "
-                    "unrelated chatter should score low; when unsure, prefer keeping."
-                ),
-                "criteria": {
-                    "true": "The block is relevant or plausibly useful for the objective.",
-                    "false": "The block is unrelated noise for the objective.",
-                },
-            }
-            for block in batch
-        }
+        questions = {f"keep_{block.id}": keep_question(block.id) for block in batch}
         started = time.perf_counter()
         try:
             response = client.evaluate(state, questions)
@@ -968,22 +978,7 @@ def _score_with_laya(
             "objective": request.question,
             "blocks": [{"id": block.id, "text": block.text} for block in batch],
         }
-        questions = {
-            f"keep_{block.id}": {
-                "type": "noul",
-                "instructions": (
-                    f"Judge the probability that block {block.id} (in the state) is relevant and "
-                    "worth keeping in the context that will be shown to a larger model. The "
-                    "objective is also in the state. Irrelevant noise, redundant logs, and "
-                    "unrelated chatter should score low; when unsure, prefer keeping."
-                ),
-                "criteria": {
-                    "true": "The block is relevant or plausibly useful for the objective.",
-                    "false": "The block is unrelated noise for the objective.",
-                },
-            }
-            for block in batch
-        }
+        questions = {f"keep_{block.id}": keep_question(block.id) for block in batch}
 
         started = time.perf_counter()
         try:
