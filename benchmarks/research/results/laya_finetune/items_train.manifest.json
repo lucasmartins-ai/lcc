@@ -1,0 +1,34 @@
+{
+  "checkpoint": "convaiinnovations/laya-multilingual",
+  "max_len": 1024,
+  "head_max_len": 256,
+  "keep_instructions": "Judge the probability that block {block_id} (in the state) is relevant and worth keeping in the context that will be shown to a larger model. The objective is also in the state. Irrelevant noise, redundant logs, and unrelated chatter should score low; when unsure, prefer keeping.",
+  "seeds": [
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006
+  ],
+  "scales": [
+    "small",
+    "medium",
+    "large"
+  ],
+  "xl_seed": 1099,
+  "de_labelled": true,
+  "objective_kinds": [
+    "full",
+    "q1",
+    "q2",
+    "q3",
+    "q4",
+    "q5"
+  ],
+  "items": 8160,
+  "evidence_items": 809,
+  "noise_items": 7351,
+  "single_block_items": 7485,
+  "multi_block_items": 675
+}
