@@ -27,6 +27,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -564,17 +565,45 @@ def _resolve_client() -> JevClient | None:
     return JevClient.from_env(ledger_path=default_ledger_path())
 
 
+_LAYA_CLIENT_CACHE_LOCK = threading.Lock()
+_LAYA_CLIENT_CACHE: dict[tuple[str | None, str | None, int | None, float | None], Any] = {}
+
+
+def clear_laya_client_cache() -> None:
+    """Clear cached process-level Laya clients. Primarily used for deterministic tests."""
+    with _LAYA_CLIENT_CACHE_LOCK:
+        _LAYA_CLIENT_CACHE.clear()
+
+
 def _resolve_laya_client(request: RelevanceCompactionRequest) -> Any | None:
-    """Default Laya provider resolution; tests monkeypatch this seam to stay offline."""
+    """Default Laya provider resolution with process-level caching (Issue #19).
+
+    Laya client loads PyTorch model weights on demand; caching across compaction calls
+    within the same process prevents repeated 2-10s model loading cycles while preserving
+    offline/monkeypatch seams for testing.
+    """
     from lcc.relevance.laya import LayaClient, LayaError
 
+    key = (
+        request.laya_model,
+        request.laya_device,
+        request.laya_context_limit,
+        float(request.laya_temperature) if request.laya_temperature is not None else None,
+    )
+    with _LAYA_CLIENT_CACHE_LOCK:
+        if key in _LAYA_CLIENT_CACHE:
+            return _LAYA_CLIENT_CACHE[key]
+
     try:
-        return LayaClient(
+        client = LayaClient(
             model=request.laya_model,
             device=request.laya_device,
             context_limit=request.laya_context_limit,
             temperature=request.laya_temperature or None,
         )
+        with _LAYA_CLIENT_CACHE_LOCK:
+            _LAYA_CLIENT_CACHE[key] = client
+        return client
     except (LayaError, ValueError):
         return None
 
