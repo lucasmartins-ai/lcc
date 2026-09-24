@@ -314,6 +314,9 @@ pip install "local-context-compiler[laya]"
 pipx install "local-context-compiler[tiktoken,laya]"
 ```
 
+> [!NOTE]
+> **Package Name Notice:** The CLI command installed is `lcc`, but the package on PyPI is [`local-context-compiler`](https://pypi.org/project/local-context-compiler/). Always install with `pip install local-context-compiler` or `pip install "local-context-compiler[laya]"` (do **not** run `pip install lcc`, which is an unrelated third-party library on PyPI).
+
 > New here? Start with [`docs/QUICKSTART.md`](docs/QUICKSTART.md) — five minutes,
 > fully offline: clean, inspect, compact with each provider, and the
 > cache-safe session pattern (runnable demos in `examples/`).

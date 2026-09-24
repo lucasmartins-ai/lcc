@@ -10,6 +10,7 @@ operation, including indirectly through tiktoken (ADR 0005, ADR 0006, ADR 0008).
 from __future__ import annotations
 
 import contextlib
+import threading
 from collections.abc import Iterator
 from typing import Any
 
@@ -45,6 +46,11 @@ class TokenizerNetworkBlocked(RuntimeError):
     """
 
 
+_GUARD_LOCK = threading.RLock()
+_GUARDED_THREADS: dict[int, int] = {}
+_GUARD_SAVED_ATTRS: list[tuple[Any, str, bool, Any]] = []
+
+
 @contextlib.contextmanager
 def _no_network_guard() -> Iterator[None]:
     """Temporarily make outbound network calls fail closed for the duration of the block.
@@ -52,14 +58,12 @@ def _no_network_guard() -> Iterator[None]:
     Replaces the HTTP entry points tiktoken can use to fetch encoding assets -- ``requests``
     (its primary path; see ``tiktoken.load.read_file``) and, as a backstop for any other
     client, the socket ``connect`` / ``create_connection`` -- with functions that raise
-    :class:`TokenizerNetworkBlocked`. Every patch is restored on exit, so nothing leaks
-    outside this block; the guard is never installed globally (ADR 0006/0008).
+    :class:`TokenizerNetworkBlocked` on the calling thread. Every patch is restored when all
+    guarded threads exit, so nothing leaks outside this block; concurrent threads not performing
+    token counting are not blocked (Issue #18, ADR 0006/0008).
     """
+    import socket
 
-    def _blocked(*_args: Any, **_kwargs: Any) -> Any:
-        raise TokenizerNetworkBlocked("network access is blocked during token counting")
-
-    # (owner, attribute) pairs to neutralise. Owners that cannot be imported are skipped.
     targets: list[tuple[Any, str]] = []
     try:
         import requests
@@ -70,26 +74,55 @@ def _no_network_guard() -> Iterator[None]:
     except Exception:  # pragma: no cover - requests not importable; nothing to patch there
         pass
 
-    import socket
-
     targets.append((socket.socket, "connect"))
     targets.append((socket, "create_connection"))
 
-    # Record whether each attribute was the owner's own (vs inherited) so it restores exactly.
-    saved: list[tuple[Any, str, bool, Any]] = []
-    for owner, attr in targets:
-        has_own = attr in vars(owner)
-        saved.append((owner, attr, has_own, getattr(owner, attr, None)))
-        setattr(owner, attr, _blocked)
+    current_tid = threading.get_ident()
+
+    with _GUARD_LOCK:
+        if not _GUARDED_THREADS:
+            # First guarded thread: install process-wide hooks that inspect the caller thread.
+            for owner, attr in targets:
+                has_own = attr in vars(owner)
+                original = getattr(owner, attr, None)
+                _GUARD_SAVED_ATTRS.append((owner, attr, has_own, original))
+
+                def _make_guarded(orig_func: Any) -> Any:
+                    def _guarded(*args: Any, **kwargs: Any) -> Any:
+                        with _GUARD_LOCK:
+                            is_blocked = threading.get_ident() in _GUARDED_THREADS
+                        if is_blocked:
+                            raise TokenizerNetworkBlocked(
+                                "network access is blocked during token counting"
+                            )
+                        if orig_func is not None:
+                            return orig_func(*args, **kwargs)
+                        raise RuntimeError(f"guarded attribute {attr} has no original implementation")
+
+                    return _guarded
+
+                setattr(owner, attr, _make_guarded(original))
+
+        _GUARDED_THREADS[current_tid] = _GUARDED_THREADS.get(current_tid, 0) + 1
+
     try:
         yield
     finally:
-        for owner, attr, has_own, original in reversed(saved):
-            if has_own:
-                setattr(owner, attr, original)
-            else:  # we added the attribute; remove it to restore inherited behaviour
-                with contextlib.suppress(AttributeError):  # pragma: no cover - defensive
-                    delattr(owner, attr)
+        with _GUARD_LOCK:
+            if current_tid in _GUARDED_THREADS:
+                _GUARDED_THREADS[current_tid] -= 1
+                if _GUARDED_THREADS[current_tid] <= 0:
+                    del _GUARDED_THREADS[current_tid]
+
+            if not _GUARDED_THREADS:
+                # All guarded threads have exited; restore original methods.
+                for owner, attr, has_own, original in reversed(_GUARD_SAVED_ATTRS):
+                    if has_own:
+                        setattr(owner, attr, original)
+                    else:
+                        with contextlib.suppress(AttributeError):  # pragma: no cover - defensive
+                            delattr(owner, attr)
+                _GUARD_SAVED_ATTRS.clear()
 
 
 def approximate_token_count(text: str) -> int:
@@ -220,7 +253,7 @@ def count_tokens(text: str, model: str | None = None, *, allow_exact: bool = Tru
     try:
         with _no_network_guard():
             encoding, is_exact = _resolve_encoding(model)
-            value = len(encoding.encode(text))
+        value = len(encoding.encode(text))
     except TokenizerNetworkBlocked:
         return TokenCount(
             approximate_token_count(text),

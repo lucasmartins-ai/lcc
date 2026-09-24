@@ -32,6 +32,7 @@ from lcc.relevance.compactor import (
     RelevanceCompactionReport,
     RelevanceCompactionRequest,
     RelevanceCompactionResult,
+    clear_laya_client_cache,
     compact_context,
     report_to_dict,
 )
@@ -167,6 +168,7 @@ __all__ = [
     "build_decision_identity",
     "build_graph",
     "canonical_dumps",
+    "clear_laya_client_cache",
     "compact_context",
     "compact_transcript",
     "decide_assessment",
