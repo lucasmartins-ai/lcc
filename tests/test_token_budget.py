@@ -202,3 +202,70 @@ def test_unknown_model_uses_fallback_encoding_note_when_cached():
     assert tc.method == TokenCountMethod.APPROXIMATE
     assert tc.counter == "tiktoken"
     assert tc.note is not None and "no known tiktoken encoding" in tc.note
+
+
+def test_no_network_guard_thread_safety_allows_concurrent_thread_network():
+    """Verify that a guard on Thread 1 does not block network calls on Thread 2 (Issue #18)."""
+    import threading
+    import socket
+
+    thread1_ready = threading.Event()
+    thread2_done = threading.Event()
+    thread1_result: list[Any] = []
+    thread2_result: list[Any] = []
+
+    def worker_thread1():
+        try:
+            with _no_network_guard():
+                thread1_ready.set()
+                # Wait until thread 2 finishes its call
+                thread2_done.wait(timeout=2.0)
+                # Thread 1's own attempt MUST raise TokenizerNetworkBlocked
+                sock = socket.socket()
+                try:
+                    sock.connect(("127.0.0.1", 9))
+                finally:
+                    sock.close()
+        except TokenizerNetworkBlocked as exc:
+            thread1_result.append(exc)
+        except Exception as exc:
+            thread1_result.append(exc)
+
+    def worker_thread2():
+        thread1_ready.wait(timeout=2.0)
+        # Thread 2 should NOT be blocked by Thread 1's guard!
+        # When calling socket.create_connection or socket.connect to an unreachable port,
+        # it should raise OSError/ConnectionRefusedError, NEVER TokenizerNetworkBlocked.
+        try:
+            sock = socket.socket()
+            try:
+                sock.connect(("127.0.0.1", 9))
+            finally:
+                sock.close()
+        except TokenizerNetworkBlocked as exc:
+            thread2_result.append(("blocked", exc))
+        except OSError:
+            # Expected failure from attempting real connection to closed port 9
+            thread2_result.append(("os_error", None))
+        except Exception as exc:
+            thread2_result.append(("other", exc))
+        finally:
+            thread2_done.set()
+
+    t1 = threading.Thread(target=worker_thread1)
+    t2 = threading.Thread(target=worker_thread2)
+
+    t1.start()
+    t2.start()
+
+    t2.join(timeout=3.0)
+    t1.join(timeout=3.0)
+
+    # Thread 1 was blocked with TokenizerNetworkBlocked
+    assert len(thread1_result) == 1
+    assert isinstance(thread1_result[0], TokenizerNetworkBlocked)
+
+    # Thread 2 was NOT blocked by TokenizerNetworkBlocked
+    assert len(thread2_result) == 1
+    status, _ = thread2_result[0]
+    assert status == "os_error", f"Thread 2 was unexpectedly blocked: {thread2_result}"

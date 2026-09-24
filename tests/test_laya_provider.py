@@ -16,6 +16,7 @@ from lcc.relevance import (
     RelevanceCompactionRequest,
     UnsupportedOperationError,
     calibrate_noul,
+    clear_laya_client_cache,
     compact_context,
     get_semantic_provider,
 )
@@ -248,3 +249,48 @@ def test_laya_report_carries_observability_fields():
         "latency_ms",
     ):
         assert field in d, field
+
+
+def test_laya_client_caching_across_compaction_calls():
+    """Verify that _resolve_laya_client caches client instances (Issue #19)."""
+    from lcc.relevance.compactor import _resolve_laya_client
+
+    clear_laya_client_cache()
+
+    req1 = RelevanceCompactionRequest(
+        text=SAMPLE_TEXT,
+        question="test",
+        provider="laya",
+        laya_model="convaiinnovations/laya-multilingual",
+        laya_temperature=1.0,
+    )
+    client1 = _resolve_laya_client(req1)
+    assert client1 is not None
+
+    # Second call with identical config returns the exact same cached instance
+    req2 = RelevanceCompactionRequest(
+        text=SAMPLE_TEXT,
+        question="test 2",
+        provider="laya",
+        laya_model="convaiinnovations/laya-multilingual",
+        laya_temperature=1.0,
+    )
+    client2 = _resolve_laya_client(req2)
+    assert client2 is client1
+
+    # Different model or temperature produces a different client instance
+    req3 = RelevanceCompactionRequest(
+        text=SAMPLE_TEXT,
+        question="test 3",
+        provider="laya",
+        laya_model="convaiinnovations/laya-typed-decisions",
+        laya_temperature=1.0,
+    )
+    client3 = _resolve_laya_client(req3)
+    assert client3 is not client1
+
+    # Clearing the cache resets it
+    clear_laya_client_cache()
+    client4 = _resolve_laya_client(req1)
+    assert client4 is not client1
+
