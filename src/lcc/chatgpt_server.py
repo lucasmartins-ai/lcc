@@ -273,6 +273,16 @@ class _Handler(BaseHTTPRequestHandler):
             # read the 405 below as "unhealthy" and restart the container.
             self._send(200, b'{"status":"ok"}', "application/json")
             return
+        if path == "/robots.txt":
+            # The plugin directory's scanner fetches this before probing /mcp. A 404
+            # here reads as a broken host, so allow everything explicitly instead.
+            self._send(200, b"User-agent: *\nAllow: /\n", "text/plain; charset=utf-8")
+            return
+        if path == "/favicon.ico":
+            # Same reason as robots.txt: scanners probe it and 404 reads as broken.
+            # 204 says "nothing here" without claiming an asset exists.
+            self._send(204, b"", "image/x-icon")
+            return
         if path == CHALLENGE_PATH:
             # OpenAI plugin domain verification. The portal requires the exact token as
             # plain text — not JSON, not a list. Absent an env var there is nothing
