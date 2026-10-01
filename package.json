@@ -27,5 +27,8 @@
   ],
   "dependencies": {
     "fast-jev-compaction": "^0.4.0"
+  },
+  "devDependencies": {
+    "railway": "^3.12.0"
   }
 }
