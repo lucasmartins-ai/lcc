@@ -7,6 +7,7 @@ Thin presentation/IO layer over the pipeline. The optimized prompt goes to ``--o
 from __future__ import annotations
 
 import json
+import os
 import sys
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
@@ -1817,14 +1818,48 @@ def route_cmd(
 
 
 @app.command("mcp")
-def mcp_cmd() -> None:
-    """Run the MCP (Model Context Protocol) stdio server (see docs/MCP.md).
+def mcp_cmd(
+    http: bool = typer.Option(
+        False,
+        "--http",
+        help="Serve streamable-HTTP MCP (for the ChatGPT plugin) instead of stdio.",
+    ),
+    host: str = typer.Option(
+        os.environ.get("HOST", "127.0.0.1"), "--host", help="Bind host with --http."
+    ),
+    port: str = typer.Option(
+        "",
+        "--port",
+        help=(
+            "Bind port with --http. Accepts a number, or the literal '$PORT'/'${PORT}' "
+            "that PaaS start commands pass unexpanded, in which case $PORT is used."
+        ),
+    ),
+) -> None:
+    """Run the MCP (Model Context Protocol) server (see docs/MCP.md).
 
     Exposes compact, inspect, prepare, explain, and intake as MCP tools over
     JSON-RPC on stdio. Stdlib only, offline-safe defaults (compact defaults
     to the mechanical provider). Configure your agent with:
     {"command": "lcc", "args": ["mcp"]}.
+
+    With --http the same tools are served over streamable HTTP for the ChatGPT /
+    Codex plugin surface: {"command": "lcc", "args": ["mcp", "--http"]}. Bind host
+    and port come from $HOST and $PORT, which is what hosting platforms inject
+    (see docs/CHATGPT_PLUGIN.md).
     """
+    if http:
+        from lcc.chatgpt_server import main as http_main
+        from lcc.chatgpt_server import resolve_port
+
+        resolved = resolve_port(port)
+        argv = ["lcc mcp --http", "--host", host]
+        if resolved is not None:
+            argv += ["--port", str(resolved)]
+        sys.argv = argv
+        http_main()
+        return
+
     from lcc.mcp_server import serve_forever
 
     serve_forever()
