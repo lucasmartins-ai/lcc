@@ -244,6 +244,17 @@ def test_challenge_endpoint_is_404_without_a_token(mcp_url, monkeypatch):
     assert excinfo.value.code == 404
 
 
+def test_robots_and_favicon_do_not_404(mcp_url):
+    """Scanners fetch these before probing /mcp; a 404 reads as a broken host."""
+    for path, expected in (("/robots.txt", 200), ("/favicon.ico", 204)):
+        request = urllib.request.Request(mcp_url.replace("/mcp", path), method="GET")
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                assert response.status == expected, path
+        except urllib.error.HTTPError as exc:
+            assert exc.code == expected, f"{path}: got {exc.code}"
+
+
 def test_get_is_answered_not_hung(mcp_url):
     request = urllib.request.Request(mcp_url, method="GET")
     with pytest.raises(urllib.error.HTTPError) as excinfo:
