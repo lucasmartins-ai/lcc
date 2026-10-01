@@ -28,6 +28,7 @@
           "Read"
         ],
         "websiteURL": "https://github.com/lucasmartins-ai/lcc",
+        "privacyPolicyURL": "https://lucasmartins-ai.github.io/lcc/PRIVACY_POLICY.md",
         "defaultPrompt": [
           "Here's a long support transcript. Cut it down to just the part about refund delays.",
           "This meeting transcript is 20 pages. Keep only what decides the launch date.",
