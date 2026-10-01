@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
@@ -60,6 +61,11 @@ __all__ = [
 # a pasted document or transcript, not multi-megabyte uploads. Raising it means a
 # larger Content-Length body is read into memory before any handler runs.
 MAX_BODY_BYTES = 32 * 1024 * 1024
+
+# Where the OpenAI submission portal looks for domain-ownership proof. It must be on
+# the MCP hostname or an eligible parent domain, and must return the exact token as
+# plain text.
+CHALLENGE_PATH = "/.well-known/openai-apps-challenge"
 
 
 def resolve_port(flag_value: str) -> int | None:
@@ -266,6 +272,19 @@ class _Handler(BaseHTTPRequestHandler):
             # probe a fixed path for a 2xx (Railway, Fly, Cloud Run) would otherwise
             # read the 405 below as "unhealthy" and restart the container.
             self._send(200, b'{"status":"ok"}', "application/json")
+            return
+        if path == CHALLENGE_PATH:
+            # OpenAI plugin domain verification. The portal requires the exact token as
+            # plain text — not JSON, not a list. Absent an env var there is nothing
+            # legitimate to return, so 404 rather than a placeholder that would fail
+            # review in a confusing way.
+            token = os.environ.get("OPENAI_CHALLENGE_TOKEN", "").strip()
+            if not token:
+                self._send_json(
+                    404, _error_response(None, -32601, "challenge token not configured")
+                )
+                return
+            self._send(200, token.encode("utf-8"), "text/plain; charset=utf-8")
             return
         if path not in ("/", "/mcp"):
             self._send_json(404, _error_response(None, -32601, f"no endpoint {path}"))
