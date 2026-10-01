@@ -1,0 +1,39 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "lcc",
+  "version": "0.5.0",
+  "description": "Compacts a document or transcript down to only the blocks that matter for a stated goal, keeping kept text byte for byte instead of summarizing it.",
+  "author": {
+    "name": "Local Context Compiler contributors"
+  },
+  "homepage": "https://github.com/lucasmartins-ai/lcc",
+  "repository": "https://github.com/lucasmartins-ai/lcc",
+  "license": "MIT",
+  "keywords": [
+    "context",
+    "tokens",
+    "prompt",
+    "summarization",
+    "productivity"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Context Compiler",
+        "shortDescription": "Cut a document or transcript down to the blocks that matter for your goal.",
+        "longDescription": "Paste a long document, transcript, or tool log and state a goal. This plugin scores each block against that goal and returns only the relevant ones, verbatim, plus a report naming every block it dropped. Nothing is summarized or paraphrased, so kept content stays quotable and auditable.",
+        "developerName": "Local Context Compiler",
+        "category": "Productivity",
+        "capabilities": [
+          "Read"
+        ],
+        "websiteURL": "https://github.com/lucasmartins-ai/lcc",
+        "defaultPrompt": [
+          "Here's a long support transcript. Cut it down to just the part about refund delays.",
+          "This meeting transcript is 20 pages. Keep only what decides the launch date.",
+          "Trim this server log to the lines that explain the 500s."
+        ]
+      }
+    }
+  }
+}
