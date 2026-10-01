@@ -1,0 +1,25 @@
+# Deploys the ChatGPT plugin MCP server (`lcc mcp --http`).
+# Separate from the repo-root Dockerfile, which is the route-eval harness.
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY pyproject.toml README.md LICENSE ./
+COPY src ./src
+
+RUN python -m pip install --no-cache-dir -e .
+
+# No TYPESAFE_API_KEY: the hosted server runs the offline `mechanical` provider, so
+# user text never leaves this process. Adding a key would switch `compact` onto the
+# `jev` path, which posts context blocks to api.typesafe.ai.
+ENV HOST=0.0.0.0 \
+    PORT=8080 \
+    PYTHONUNBUFFERED=1
+
+EXPOSE 8080
+
+# Liveness only; the app answers GET /health itself.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=4)"
+
+CMD ["lcc", "mcp", "--http", "--host", "0.0.0.0", "--port", "8080"]
