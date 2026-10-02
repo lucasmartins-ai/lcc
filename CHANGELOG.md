@@ -4,6 +4,43 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-10-02
+
+First stable release. The library API, the CLI surface, and the MCP tool set are now
+covered by the compatibility promise.
+
+### Added
+
+- **ChatGPT plugin.** `lcc` is served over streamable HTTP at
+  `https://lcc.lookadev.com/mcp` and submitted to the ChatGPT plugin directory as
+  *Context Compiler*. Six read-only tools, each declaring `readOnlyHint`,
+  `destructiveHint`, and `openWorldHint`, plus the `trim-long-context` skill.
+  See [docs/CHATGPT_PLUGIN.md](docs/CHATGPT_PLUGIN.md).
+- **Domain-verification endpoint.** `GET /.well-known/openai-apps-challenge` returns the
+  configured token as plain text, byte for byte. Unset means 404 rather than a
+  placeholder.
+- **Published privacy policy** at
+  <https://lucasmartins-ai.github.io/lcc/PRIVACY_POLICY>.
+
+### Changed
+
+- README restructured: rationale, install, and a first-command example now precede the
+  reference material.
+- `lcc mcp --http` serves the same tools over streamable HTTP, bound to `$HOST`/`$PORT`.
+  An unexpanded `$PORT` is resolved from the environment instead of failing validation.
+
+### Fixed
+
+- `robots.txt` and `favicon.ico` answer 200/204. Plugin scanners probe both before
+  `/mcp`, and a 404 read as a broken host stalled tool discovery.
+- HTTP transport negotiates protocol revision `2025-06-18`; the stdio server keeps
+  `2024-11-05`.
+
+### Security
+
+- The hosted deployment sets no `TYPESAFE_API_KEY`, so `compact` runs the offline
+  `mechanical` provider and submitted text never leaves the process.
+
 ## [Unreleased]
 
 ### Added
