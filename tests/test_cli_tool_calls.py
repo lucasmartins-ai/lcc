@@ -91,7 +91,7 @@ def test_tool_calls_mode_runs_offline_and_keeps_everything_without_a_key(tmp_pat
 
 
 def test_a_judged_pass_drops_the_spent_pair(tmp_path: Path, monkeypatch):
-    monkeypatch.setattr(transcript_module, "_resolve_client", lambda: Stub(0.1, 0.1))
+    monkeypatch.setattr(transcript_module, "_resolve_client", lambda *_: Stub(0.1, 0.1))
     src = write(tmp_path)
     out = tmp_path / "out.json"
     report = tmp_path / "report.json"
@@ -125,7 +125,7 @@ def test_a_judged_pass_drops_the_spent_pair(tmp_path: Path, monkeypatch):
 
 
 def test_report_reads_through_lcc_explain(tmp_path: Path, monkeypatch):
-    monkeypatch.setattr(transcript_module, "_resolve_client", lambda: Stub(0.9, 0.0))
+    monkeypatch.setattr(transcript_module, "_resolve_client", lambda *_: Stub(0.9, 0.0))
     src = write(tmp_path)
     report = tmp_path / "report.json"
     result = runner.invoke(

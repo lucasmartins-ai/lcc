@@ -23,6 +23,12 @@
       "description": "What the context must serve. Empty means: use the text after /compact, or the newest user prompts.",
       "default": ""
     },
+    "provider": {
+      "type": "string",
+      "title": "Judge",
+      "description": "Which semantic judge decides which tool calls are spent. 'jev' is remote and needs TYPESAFE_API_KEY. 'laya' is local, offline and needs no key; tool-call payloads fit its window 97% of the time. See docs/LAYA.md section 2.",
+      "default": "jev"
+    },
     "threshold": {
       "type": "number",
       "title": "Keep threshold",

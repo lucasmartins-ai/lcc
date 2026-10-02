@@ -261,6 +261,8 @@ For relevance compaction (`lcc compact`), LCC provides **three distinct scoring 
 | **Context Limit** | Unbounded | 512 / 1024 tokens (budgeted) | 32,768 tokens |
 | **Category Recall (Small to XL)** | **100%** | **100%** | **100%** |
 | **Measured Reduction (real backends 2026-09-21, small → XL)** | **26.2% → 70.0%** | **0.0% → 0.5%** | **21.2% → 52.1%** |
+| **Tool-call mode (`--mode tool-calls`)** | n/a | **56.2%** (9 real calls) | supported |
+| **Payloads inside the context window** | 100% | 97.2% of tool calls / 31.2% of prose | 100% |
 | **Semantic Guarantee** | `none` (Heuristic fallback) | `judged` (Local semantic pass) | `judged` (Remote semantic pass) |
 
 > Reduction figures are benchmark-scoped, not universal: measured on the deterministic stress corpora in `benchmarks/research/` with real backends and default thresholds (`--threshold 0.4`, trim band on). Your corpus, objective and thresholds decide your number — run `lcc compact` and read `reduction_ratio`, `invalidated_tokens` and `break_even_reuses` before trusting any saving. Token reduction alone is not cost reduction (see Cache alignment below). Full rows, provenance and the labelled mock archives: `benchmarks/research/RESEARCH_STATUS.md`. The Jev provider's contract, key resolution and fallback table: [`docs/JEV.md`](docs/JEV.md).

@@ -4,6 +4,31 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Laya judges tool-call compaction.** `--mode tool-calls --provider laya` retires spent
+  tool calls locally and offline, so this mode no longer requires `TYPESAFE_API_KEY`.
+  Measured on 9 real tool calls with `laya-typed-decisions`: 56.2% reduction,
+  `semantic_guarantee: judged`, no warnings, 2.7s over 9 calls. It dropped the
+  reconnaissance and kept `edit_file` (0.75) and `pytest` (0.56). See
+  [docs/LAYA.md](docs/LAYA.md) § 2.
+
+### Changed
+
+- The transcript mode accepts `laya` alongside `jev`, in the CLI, the MCP tool, and the
+  library API. The default stays `jev`; `--provider laya` is opt-in.
+
+### Fixed
+
+- An unavailable Laya now degrades with one typed `laya_unavailable` warning naming the
+  cause, instead of one `laya_batch_N_failed` warning per batch that read like a flaky
+  judge.
+- The transcript summary no longer labels local Laya calls as "Jev calls".
+- `laya_confidence_missing` warnings are gone. Confidence never gates a decision and Laya
+  returns none, so the warning added noise without changing a keep or a drop.
+
 ## [1.0.0] - 2026-10-02
 
 First stable release. The library API, the CLI surface, and the MCP tool set are now
@@ -42,6 +67,29 @@ covered by the compatibility promise.
   `mechanical` provider and submitted text never leaves the process.
 
 ## [Unreleased]
+
+### Added
+
+- **Laya judges tool-call compaction.** `--mode tool-calls --provider laya` retires spent
+  tool calls locally and offline, so this mode no longer requires `TYPESAFE_API_KEY`.
+  Measured on 9 real tool calls with `laya-typed-decisions`: 56.2% reduction,
+  `semantic_guarantee: judged`, no warnings, 2.7s over 9 calls. It dropped the
+  reconnaissance and kept `edit_file` (0.75) and `pytest` (0.56). See
+  [docs/LAYA.md](docs/LAYA.md) § 2.
+
+### Changed
+
+- The transcript mode accepts `laya` alongside `jev`, in the CLI, the MCP tool, and the
+  library API. The default stays `jev`; `--provider laya` is opt-in.
+
+### Fixed
+
+- An unavailable Laya now degrades with one typed `laya_unavailable` warning naming the
+  cause, instead of one `laya_batch_N_failed` warning per batch that read like a flaky
+  judge.
+- The transcript summary no longer labels local Laya calls as "Jev calls".
+- `laya_confidence_missing` warnings are gone. Confidence never gates a decision, and Laya
+  returns none, so the warning added noise without changing a keep or a drop.
 
 ### Added
 

@@ -7,6 +7,7 @@
 export const DEFAULT_OPTIONS = {
   server: "lcc",
   question: "",
+  provider: "jev",
   threshold: 0.5,
   preserveRecentMessages: 6,
   trimHeadChars: 300,
@@ -28,6 +29,11 @@ export function resolveOptions(options = {}) {
   const merged = { ...DEFAULT_OPTIONS };
   if (options.server) merged.server = String(options.server);
   if (options.question) merged.question = String(options.question);
+  // The MCP tool accepts jev | laya | auto; anything else falls back to the default
+  // rather than sending a value the tool would reject.
+  if (["jev", "laya", "auto"].includes(String(options.provider))) {
+    merged.provider = String(options.provider);
+  }
   merged.threshold = number(options.threshold, DEFAULT_OPTIONS.threshold);
   merged.preserveRecentMessages = Math.max(
     0,
@@ -92,7 +98,7 @@ export function buildCompactArgs({ messages, instructions, options }) {
   return {
     messages: toMcpMessages(messages),
     question,
-    provider: "jev",
+    provider: config.provider,
     threshold: config.threshold,
     preserve_recent: config.preserveRecentMessages,
     trim_head_chars: config.trimHeadChars,

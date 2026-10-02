@@ -285,7 +285,7 @@ def test_user_and_assistant_text_is_never_touched():
 
 
 def test_without_a_client_every_call_is_kept_and_reported(monkeypatch):
-    monkeypatch.setattr(transcript_module, "_resolve_client", lambda: None)
+    monkeypatch.setattr(transcript_module, "_resolve_client", lambda *_: None)
     result = run(build(("Read", {"file": "a.py"})), None)
     assert result.report["degraded"] is True
     assert result.report["degradation_reason"] == "jev_unavailable_fail_safe"
