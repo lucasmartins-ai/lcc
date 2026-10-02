@@ -11,7 +11,8 @@ decision logic, the report schema and the fallback rules are the ones documented
 
 ```bash
 export CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1   # required while function hooks are early access
-export TYPESAFE_API_KEY=...                  # or ~/.config/lcc/typesafe.key, or the macOS keychain
+export TYPESAFE_API_KEY=...                  # only for the default Jev judge
+                                            # or ~/.config/lcc/typesafe.key, or the keychain
 
 pip install "local-context-compiler[tiktoken]"   # the `lcc` CLI and its MCP server
 
@@ -19,7 +20,9 @@ claude plugin marketplace add lucasmartins-ai/lcc
 claude plugin install lcc@lcc
 ```
 
-Requirements: Claude Code **2.1.274 or newer**, `lcc` on `PATH`, and a TypeSafe API key.
+Requirements: Claude Code **2.1.274 or newer** and `lcc` on `PATH`. A TypeSafe API key is
+needed only for the default Jev judge; set `provider: laya` in the plugin config to run
+locally with no key and no network.
 Against a checkout, without installing:
 
 ```bash

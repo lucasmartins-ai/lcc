@@ -86,6 +86,21 @@ test("toMcpMessages carries the fields the MCP tool reads", () => {
   assert.deepEqual(messages[2].toolResults, [{ tool_use_id: "toolu_1", text: "1 failed, 24 passed" }]);
 });
 
+test("the judge is configurable and defaults to jev", () => {
+  // The local judge is opt-in; an unknown value must not reach the MCP tool.
+  assert.equal(resolveOptions({}).provider, "jev");
+  assert.equal(resolveOptions({ provider: "laya" }).provider, "laya");
+  assert.equal(resolveOptions({ provider: "auto" }).provider, "auto");
+  assert.equal(resolveOptions({ provider: "nonsense" }).provider, "jev");
+
+  const args = buildCompactArgs({
+    messages: TRANSCRIPT,
+    instructions: "keep the plan",
+    options: { provider: "laya" },
+  });
+  assert.equal(args.provider, "laya");
+});
+
 test("buildCompactArgs prefers an explicit question, then the /compact instructions", () => {
   const explicit = buildCompactArgs({
     messages: TRANSCRIPT,
