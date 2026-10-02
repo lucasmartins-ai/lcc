@@ -8,14 +8,14 @@ Sem dependência de código novo. Se `05-msi-spec-v0.md` não existir, PARE.
 Transformar a tese em contratos explícitos e validáveis. Hipótese: os 5 schemas
 conseguem representar 5 workflows realistas sem assumir nenhum provider.
 
-## IN scope
+## IN scope (paths below relative to the spec repo, not to LCC `docs/`)
 - Criar repo público `lucasmartins-ai/minimum-sufficient-inference` via `gh`
-  (README, `docs/theory.md`, `docs/architecture.md`, `docs/terminology.md`,
+  (README, `theory.md`, `architecture.md`, `terminology.md`,
   `spec/{task-contract,context-ir,inference-plan,verification-result,inference-receipt}.schema.json`,
   `research/research-agenda.md`, `research/methodology.md`, `benchmarks/README.md`, `examples/`).
 - 5 fixtures em `examples/` (coding fix, repo investigation, multi-tool task,
   research brief, structured decision) — todos válidos contra os schemas.
-- Política de versionamento independente (`docs/versioning.md`).
+- Política de versionamento independente (`versioning.md`, no spec repo).
 
 ## OUT scope (não fazer)
 Nenhuma implementação LCC; nenhum código de roteamento/verificação; nenhuma

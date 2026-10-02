@@ -16,7 +16,7 @@ baixo risco; motores auxiliares só entram se provarem ganho pareado.
   `(decision, confidence, escalate_risk)` como adapter Jev (limiares herdados como
   default, não como verdade).
 - Decisão auditável: cada plano carrega motivos + política versionada.
-- `docs/msi/inference-planning.md` (no spec repo ou LCC — escolher 1, sem duplicar) + ADR.
+- `inference-planning.md` (no spec repo ou em LCC `docs/msi/` — escolher 1, sem duplicar) + ADR.
 
 ## OUT scope
 Nenhuma chamada real a provider dentro do planner (planeja, não executa); nenhum
