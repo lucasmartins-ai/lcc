@@ -1,0 +1,15 @@
+Customer refund investigation
+
+The support agent wrote: "the customer was charged twice for the same annual subscription renewal invoice".
+
+Billing records confirm a duplicate charge on the corporate card used for the subscription renewal this quarter.
+
+The refund policy states that duplicate subscription charges are eligible for a full automatic refund process.
+
+Weather in Lisbon is mild this time of year with clear skies over the Atlantic coast region.
+
+O cliente relatou que a cobrança duplicada da assinatura anual apareceu duas vezes na fatura do cartão corporativo este mês.
+
+Log line 4821: worker heartbeat ok, queue depth nominal, no action required at this time.
+
+The finance team approved the refund for the duplicate subscription charge after reviewing the billing records file.

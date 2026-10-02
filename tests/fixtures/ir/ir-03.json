@@ -1,0 +1,156 @@
+{
+  "ir_version": "0.1",
+  "relationships": [
+    {
+      "from": "blk_0003_086d2c6b3c8d",
+      "to": "blk_0002_40b72852a3e0",
+      "type": "SUPERSEDES"
+    },
+    {
+      "from": "blk_0007_8dd254bfd421",
+      "to": "blk_0004_280cdea98fb9",
+      "type": "SUPPORTS"
+    }
+  ],
+  "restoration": {
+    "budget": 8,
+    "reason": "",
+    "restored": []
+  },
+  "schema_version": "context-ir/0.1",
+  "selection": {
+    "dropped": [
+      "blk_0005_2e9cec8e7d3c",
+      "blk_0006_f69b7c26efa8"
+    ],
+    "kept": [
+      "blk_0001_7fe3041d9fa8",
+      "blk_0002_40b72852a3e0",
+      "blk_0003_086d2c6b3c8d",
+      "blk_0004_280cdea98fb9",
+      "blk_0007_8dd254bfd421"
+    ],
+    "policy": "relevance-compaction-1.2",
+    "rationale": {
+      "blk_0001_7fe3041d9fa8": "short_block",
+      "blk_0002_40b72852a3e0": "lexical_overlap",
+      "blk_0003_086d2c6b3c8d": "lexical_overlap",
+      "blk_0004_280cdea98fb9": "lexical_overlap",
+      "blk_0005_2e9cec8e7d3c": "no_lexical_overlap",
+      "blk_0006_f69b7c26efa8": "no_lexical_overlap",
+      "blk_0007_8dd254bfd421": "lexical_overlap"
+    },
+    "trimmed": []
+  },
+  "sufficiency": {
+    "confidence": 1.0,
+    "missing_evidence": [],
+    "sufficient": true
+  },
+  "task_id": "lcc-9b169b2fc3f4",
+  "units": [
+    {
+      "content": "API latency postmortem\n",
+      "id": "blk_0001_7fe3041d9fa8",
+      "necessity": "UNKNOWN",
+      "protected": true,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-03.txt",
+        "transform": "none"
+      },
+      "relevance": 1.0,
+      "source": "corpus-03.txt:1-1"
+    },
+    {
+      "content": "The p99 latency of the search endpoint reached 840 milliseconds during the incident window on tuesday morning.\n",
+      "id": "blk_0002_40b72852a3e0",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-03.txt",
+        "transform": "none"
+      },
+      "relevance": 0.6,
+      "source": "corpus-03.txt:3-3"
+    },
+    {
+      "content": "Revised measurement: the p99 latency of the search endpoint was corrected to 620 milliseconds after clock skew was removed.\n",
+      "id": "blk_0003_086d2c6b3c8d",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-03.txt",
+        "transform": "none"
+      },
+      "relationships": [
+        {
+          "to": "blk_0002_40b72852a3e0",
+          "type": "SUPERSEDES"
+        }
+      ],
+      "relevance": 0.6,
+      "source": "corpus-03.txt:5-5"
+    },
+    {
+      "content": "The incident review concluded that the search endpoint latency regression was caused by a missing composite database index.\n",
+      "id": "blk_0004_280cdea98fb9",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-03.txt",
+        "transform": "none"
+      },
+      "relevance": 1.0,
+      "source": "corpus-03.txt:7-7"
+    },
+    {
+      "content": "Do not delete the user account table during the migration scheduled for this weekend under any circumstance.\n",
+      "id": "blk_0005_2e9cec8e7d3c",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-03.txt",
+        "transform": "none"
+      },
+      "relevance": 0.0,
+      "source": "corpus-03.txt:9-9"
+    },
+    {
+      "content": "Random lunch poll: votes are split between tacos and sushi for the team outing next friday afternoon.\n",
+      "id": "blk_0006_f69b7c26efa8",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-03.txt",
+        "transform": "none"
+      },
+      "relevance": 0.0,
+      "source": "corpus-03.txt:11-11"
+    },
+    {
+      "content": "The missing composite database index on the search endpoint was rebuilt, restoring p99 latency to the normal range.\n",
+      "id": "blk_0007_8dd254bfd421",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-03.txt",
+        "transform": "none"
+      },
+      "relationships": [
+        {
+          "to": "blk_0004_280cdea98fb9",
+          "type": "SUPPORTS"
+        }
+      ],
+      "relevance": 0.6,
+      "source": "corpus-03.txt:13-13"
+    }
+  ]
+}

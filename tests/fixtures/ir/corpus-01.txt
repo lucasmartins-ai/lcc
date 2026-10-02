@@ -1,0 +1,15 @@
+Mobile booking friction report
+
+Users report that the mobile checkout flow has too many steps before payment reaches the confirmation screen on slow connections.
+
+The payment form asks for the billing address even when it matches the address already stored in the user profile for mobile checkout.
+
+Recommendation: remove the redundant address fields from the mobile payment step to reduce friction in the checkout flow.
+
+Server migration notes: postgres indexes will rebuild on sunday during the scheduled downtime window tonight.
+
+Unrelated chatter: the office party is on friday, bring snacks and drinks for everyone attending the celebration.
+
+Analytics show that forty percent of mobile users abandon the checkout at the payment confirmation screen every week.
+
+Streamlining the payment form should reduce mobile booking friction and improve the conversion rate of the checkout.
