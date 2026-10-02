@@ -14,6 +14,19 @@ All notable changes to this project are documented here. The format is based on
   `semantic_guarantee: judged`, no warnings, 2.7s over 9 calls. It dropped the
   reconnaissance and kept `edit_file` (0.75) and `pytest` (0.56). See
   [docs/LAYA.md](docs/LAYA.md) § 2.
+- Versioned Context IR emission (`context-ir/0.1`, ADR 0017): `lcc compact --emit-ir ir.json`
+  writes a provider-independent envelope (verbatim units + provenance, typed relationships,
+  selection + rationale, sufficiency, restoration); `lcc explain` reads IR files and
+  `lcc inspect --ir` summarizes them. Opt-in: default outputs are byte-identical.
+  Mapping, guarantees and limits: `docs/lcc/context-ir.md`.
+- Sufficiency/restoration hardening, MSI sprint 3 (ADR 0018): per-layer restoration budgets,
+  both CLI-explicit (`--max-restorations` 8 structural, `--verifier-max-restorations` 4
+  verifier-side, independent); every restore carries motive + origin layer in the report
+  (`decisions[].reason`/`relationships`) and the IR (`selection.rationale`,
+  `restoration.restored`); any layer crashing fails closed (typed warning + REVIEW,
+  never a silent drop). Measured: structural cuts false-drop rate 0.660 → 0.151 under
+  judge error (30 curated adversarial cases). Docs: `docs/lcc/sufficiency.md` (ablation +
+  adversarial matrix), `docs/lcc/restoration.md` (audit trail).
 
 ### Changed
 

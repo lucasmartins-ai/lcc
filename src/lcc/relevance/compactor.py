@@ -175,6 +175,26 @@ class RelevanceCompactionRequest:
     #: most the sum of the two explicit budgets). One pass only: the verifier
     #: never re-runs, so no restoration loop is possible.
     verifier_max_restorations: int = 4
+    #: Nimble request surface (CLI flags). No Nimble scorer is wired in-tree, so
+    #: ``provider="nimble"`` honestly falls back to mechanical scoring
+    #: (``nimble+mechanical_fallback``, degraded). Fields exist so the CLI
+    #: contract constructs; scoring semantics stay lexical until a scorer lands.
+    nimble_model: str = "bespokelabs/Bespoke-Nimble-9B"
+    nimble_backend: str | None = None
+    nimble_context_limit: int | None = None
+    nimble_temperature: float | None = None
+    #: Context IR emission (MSI Sprint 2, ADR 0017): when True the result carries
+    #: a provider-independent ``context-ir/0.1`` dict built from the finished
+    #: pass. Default off so existing outputs stay byte-identical.
+    emit_ir: bool = False
+    #: Task id recorded in the IR envelope; derived deterministically from the
+    #: objective when omitted so identical inputs emit identical bytes.
+    task_id: str | None = None
+    #: Origin label for IR unit source pointers (e.g. the input path).
+    source_origin: str | None = None
+    #: Collection timestamp for IR unit provenance (RFC3339). ``None`` resolves
+    #: to the deterministic default so emission stays byte-stable.
+    ir_collected_at: str | None = None
 
 
 @dataclass(frozen=True)
@@ -317,6 +337,10 @@ class RelevanceCompactionResult:
 
     compacted_text: str
     report: RelevanceCompactionReport
+    #: Versioned Context IR envelope (``context-ir/0.1``) when requested via
+    #: ``RelevanceCompactionRequest(emit_ir=True)``; ``None`` otherwise. Kept
+    #: out of ``report_to_dict`` so existing report bytes never change.
+    context_ir: dict[str, Any] | None = None
 
 
 def _sha256(text: str) -> str:
@@ -1331,6 +1355,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     context_budget_used: int | None = None
     client: Any | None = None
     laya_fallback_to_mechanical = False
+    nimble_fallback_to_mechanical = False
     if provider_requested in ("auto", "jev"):
         client = request.client if request.client is not None else _resolve_client()
         if client is None:
@@ -1377,6 +1402,17 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             temp = request.laya_temperature
             if isinstance(temp, (int, float)) and temp > 0:
                 client.temperature = float(temp)
+    elif provider_requested == "nimble":
+        # No Nimble scorer in-tree (in-flight CLI surface only): honest
+        # mechanical fallback, degraded=True, never a fake `judged`.
+        degraded = True
+        nimble_fallback_to_mechanical = True
+        degradation_reason = "nimble_unavailable_mechanical_fallback"
+        semantic_guarantee = "none"
+        warnings.append(
+            "nimble_unavailable: no local Nimble checkout/weights wired; "
+            "fell back to mechanical scoring (degraded)."
+        )
 
     # Which language the objective is written in, so evidence in another language is not
     # dropped for sharing no tokens with it. The marker lists only non-English languages, so a
@@ -1481,6 +1517,8 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             # differ so callers can tell "asked laya, got lexical" from "asked lexical".
             if laya_fallback_to_mechanical:
                 provider_used = "laya+mechanical_fallback"
+            elif nimble_fallback_to_mechanical:
+                provider_used = "nimble+mechanical_fallback"
             else:
                 provider_used = "mechanical"
                 semantic_guarantee = "none"
@@ -1663,6 +1701,10 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     sufficiency_checks = 0
     sufficiency_failures = 0
     sufficiency_confidence: float | None = None
+    #: Final structural verdict for the IR envelope (MSI Sprint 2): every
+    #: re-verify below overwrites these, so the last verdict wins.
+    ir_sufficient = True
+    ir_missing: list[str] = []
     graph_relationships: dict[str, str] = {}
     _graph = None
     try:
@@ -1708,20 +1750,38 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             bid for bid, d in decisions.items() if d.decision == "drop"
         ]
         reasons_map = {bid: d.reason for bid, d in decisions.items()}
-        verdict = verify_sufficiency(
-            dropped_ids=dropped_candidate,
-            kept_ids={
-                bid for bid, d in decisions.items() if d.decision == "keep"
-            } | set(protected_reasons.keys()),
-            reasons=reasons_map,
-            relationships={
-                bid: rel
-                for bid, rel in graph_relationships.items()
-                if bid in set(dropped_candidate)
-            },
-        )
-        sufficiency_confidence = verdict.confidence
-        if not verdict.sufficient:
+        try:
+            verdict = verify_sufficiency(
+                dropped_ids=dropped_candidate,
+                kept_ids={
+                    bid for bid, d in decisions.items() if d.decision == "keep"
+                } | set(protected_reasons.keys()),
+                reasons=reasons_map,
+                relationships={
+                    bid: rel
+                    for bid, rel in graph_relationships.items()
+                    if bid in set(dropped_candidate)
+                },
+            )
+        except Exception as exc:  # sufficiency must never break compaction
+            # Fail-closed: without the structural verdict the candidate drops
+            # are untrusted. Skip restoration (nothing is known-critical),
+            # count the failure — the E2 calibration below turns any
+            # unresolved failure into REVIEW — and mark the IR insufficient.
+            verdict = None
+            sufficiency_failures += 1
+            sufficiency_confidence = 0.0
+            ir_sufficient = False
+            ir_missing = [f"sufficiency_failed_fail_closed:{exc}"]
+            warnings.append(
+                f"sufficiency_failed_fail_closed: {exc}; output flagged REVIEW — "
+                "KEEP more context instead of trusting it"
+            )
+        if verdict is not None:
+            sufficiency_confidence = verdict.confidence
+            ir_sufficient = verdict.sufficient
+            ir_missing = list(verdict.missing_evidence)
+        if verdict is not None and not verdict.sufficient:
             sufficiency_failures += 1
             # Restore critical blocks, highest semantic risk first, within budget.
             # Score = edge_count + Σconfidence + risk bonus (QUALIFIES/CONTRADICTS/
@@ -1799,21 +1859,35 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             remaining = [
                 bid for bid, d in decisions.items() if d.decision == "drop"
             ]
-            verdict2 = verify_sufficiency(
-                dropped_ids=remaining,
-                kept_ids={
-                    bid for bid, d in decisions.items() if d.decision == "keep"
-                } | set(protected_reasons.keys()),
-                reasons={bid: d.reason for bid, d in decisions.items()},
-                relationships={
-                    bid: rel
-                    for bid, rel in graph_relationships.items()
-                    if bid in set(remaining)
-                },
-            )
-            sufficiency_confidence = verdict2.confidence
-            if not verdict2.sufficient:
+            try:
+                verdict2 = verify_sufficiency(
+                    dropped_ids=remaining,
+                    kept_ids={
+                        bid for bid, d in decisions.items() if d.decision == "keep"
+                    } | set(protected_reasons.keys()),
+                    reasons={bid: d.reason for bid, d in decisions.items()},
+                    relationships={
+                        bid: rel
+                        for bid, rel in graph_relationships.items()
+                        if bid in set(remaining)
+                    },
+                )
+            except Exception as exc:  # re-check must never break compaction
+                verdict2 = None
                 sufficiency_failures += 1
+                sufficiency_confidence = 0.0
+                ir_sufficient = False
+                ir_missing = [f"sufficiency_recheck_failed_fail_closed:{exc}"]
+                warnings.append(
+                    f"sufficiency_recheck_failed_fail_closed: {exc}; output flagged "
+                    "REVIEW — KEEP more context instead of trusting it"
+                )
+            if verdict2 is not None:
+                sufficiency_confidence = verdict2.confidence
+                ir_sufficient = verdict2.sufficient
+                ir_missing = list(verdict2.missing_evidence)
+                if not verdict2.sufficient:
+                    sufficiency_failures += 1
     elif request.enable_sufficiency:
         sufficiency_checks += 1
         sufficiency_confidence = 1.0
@@ -1977,6 +2051,8 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                         },
                     )
                     sufficiency_confidence = verdict_after.confidence
+                    ir_sufficient = verdict_after.sufficient
+                    ir_missing = list(verdict_after.missing_evidence)
                     if not verdict_after.sufficient:
                         sufficiency_failures += 1
                     warnings.append(
@@ -2005,6 +2081,9 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 )
         except Exception as exc:  # verifier must never break compaction
             warnings.append(f"semantic_verifier_failed: {exc}")
+            # Fail-closed: a verifier that crashes is doubt, not approval.
+            needs_review = True
+            review_reason = "verifier_error_fail_closed"
     elif request.enable_semantic_verify and candidate_mutated and client is None:
         needs_review = True
         review_reason = "verifier_unavailable_no_client"
@@ -2182,8 +2261,40 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         warnings=warnings,
         decisions=ordered,
     )
+    context_ir: dict[str, Any] | None = None
+    if request.emit_ir:
+        from lcc.relevance.ir import DEFAULT_COLLECTED_AT, build_context_ir
+        from lcc.relevance.ir import restored_ids as _restored_ids
+
+        _ir_restored = _restored_ids(ordered)
+        _ir_n = len(_ir_restored)
+        context_ir = build_context_ir(
+            task_id=request.task_id or f"lcc-{_sha256(request.question)[:12]}",
+            blocks=blocks,
+            ordered=ordered,
+            graph=_graph,
+            policy_version=POLICY_VERSION,
+            restoration_budget=max(0, int(request.max_restorations)),
+            sufficient=ir_sufficient,
+            missing_evidence=ir_missing,
+            confidence=(
+                sufficiency_confidence if sufficiency_confidence is not None else 0.0
+            ),
+            restored=_ir_restored,
+            restoration_reason=(
+                f"restored {_ir_n} linked block(s) within budget "
+                f"(structural {max(0, int(request.max_restorations))}, "
+                f"verifier {max(0, int(request.verifier_max_restorations))})"
+                if _ir_n
+                else ""
+            ),
+            origin=request.source_origin or "inline",
+            collected_at=request.ir_collected_at or DEFAULT_COLLECTED_AT,
+        )
     cache.flush()
-    return RelevanceCompactionResult(compacted_text=compacted, report=report)
+    return RelevanceCompactionResult(
+        compacted_text=compacted, report=report, context_ir=context_ir
+    )
 
 
 def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
