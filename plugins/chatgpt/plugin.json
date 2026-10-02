@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "lcc",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Compacts a document or transcript down to only the blocks that matter for a stated goal, keeping kept text byte for byte instead of summarizing it.",
   "author": {
     "name": "Local Context Compiler contributors"
