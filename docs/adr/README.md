@@ -22,5 +22,7 @@ public / cross-module contracts that are expensive to change after release.
 | [0014](0014-minimum-sufficient-context.md) | Minimum sufficient context: safety model, v1.1 cache identity, tokenizer contract, type-aware trim, context graph, sufficiency verification, confidence policy |
 | [0015](0015-minimum-sufficient-context-cost.md) | Cache-aware minimum-sufficient-context compiler: cost objective, independent verifier, REVIEW |
 | [0016](0016-laya-local-semantic-backend.md) | Laya opt-in local semantic backend: budgeted 512/1024 judgment, honest mechanical fallback, outside the deterministic core |
+| [0017](0017-context-ir-emission.md) | Context IR emission (`context-ir/0.1`): opt-in pure mapping over finished compaction state; explainable drops, protected-never-dropped, necessity stays UNKNOWN |
+| [0018](0018-sufficiency-restoration-budgets.md) | Sufficiency/restoration per-layer budgets (structural 8, verifier 4), single-shot verifier, fail-closed on layer crash |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.
