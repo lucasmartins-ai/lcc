@@ -45,6 +45,12 @@ from lcc.relevance import (
     compact_context,
 )
 from lcc.relevance import report_to_dict as relevance_report_to_dict
+from lcc.relevance.ir import dumps_canonical as dumps_context_ir
+from lcc.relevance.ir import (
+    is_context_ir,
+    render_ir_explanation,
+    summarize_ir,
+)
 from lcc.reporting.explain import render as render_explanation
 from lcc.reporting.report import report_to_dict, summary_rows, write_report
 from lcc.semantic_retrieval import (
@@ -797,6 +803,11 @@ def inspect_command(
     report_path: Path | None = typer.Option(
         None, "--report", "-r", help="Write the JSON diagnostic report here (otherwise stdout)."
     ),
+    ir_path: Path | None = typer.Option(
+        None,
+        "--ir",
+        help="Also read a Context IR file (from `lcc compact --emit-ir`) and print its summary.",
+    ),
     summary: str = typer.Option(
         "table",
         "--summary",
@@ -836,6 +847,27 @@ def inspect_command(
         sys.stdout.write(inspection_to_json(report) + "\n")
 
     _print_inspect_summary(report, report_path, summary)
+
+    if ir_path is not None:
+        try:
+            ir_payload = json.loads(ir_path.read_text(encoding="utf-8"))
+        except OSError as exc:
+            _fail(f"could not read {ir_path}: {exc}")
+        except json.JSONDecodeError as exc:
+            _fail(f"{ir_path} is not valid JSON: {exc}")
+        if not is_context_ir(ir_payload):
+            _fail(
+                f"{ir_path} is not a Context IR file (no 'context-ir/0.1' envelope); "
+                "generate one with `lcc compact --emit-ir ir.json`"
+            )
+        table = Table(
+            title="lcc -- context IR summary", show_header=False, box=None, pad_edge=False
+        )
+        table.add_column("metric", style="bold cyan", no_wrap=True)
+        table.add_column("value")
+        for label, value in summarize_ir(ir_payload):
+            table.add_row(label, value)
+        err_console.print(table)
 
 
 def _print_inspect_summary(report: Any, report_path: Path | None, summary: str) -> None:
@@ -1088,9 +1120,15 @@ def compact_command(
             "(semantic_guarantee=judged) — use when you want semantics without a key. "
             "'jev': remote TypeSafe System 1 (32K context, needs TYPESAFE_API_KEY), "
             "strongest semantic judgment — use when recall on subtle evidence matters "
-            "most. 'auto' prefers Jev, falls back to mechanical with degraded:true. "
+            "most. 'nimble': local open System 1 (Bespoke Nimble 9B, Apache 2.0, 100% "
+            "offline, 8,192-token budget), stronger zero-shot judgment than Laya but "
+            "needs ~18GB weights plus Apple Silicon or an NVIDIA BF16 GPU "
+            "(semantic_guarantee=judged) — use when you want the best local semantics "
+            "and have the hardware. 'auto' prefers Jev, falls back to mechanical "
+            "with degraded:true. "
             "Missing Laya extra falls back to mechanical as laya+mechanical_fallback "
-            "(degraded:true). See docs/LAYA.md for the decision table."
+            "(degraded:true); missing Nimble checkout as nimble+mechanical_fallback. "
+            "See docs/NIMBLE.md for the decision table."
         ),
     ),
     model: str = typer.Option(
@@ -1135,6 +1173,44 @@ def compact_command(
         help=(
             "Temperature for Laya noul scores (default 1.0 = no-op; T>1 softens "
             "over-confidence, e.g. 2.0). Recorded as laya_temperature in the report."
+        ),
+    ),
+    nimble_model: str = typer.Option(
+        "bespokelabs/Bespoke-Nimble-9B",
+        "--nimble-model",
+        help=(
+            "Nimble checkpoint (model id or local merged directory from docs/NIMBLE.md; "
+            "8,192-token window). Without the checkout + weights, --provider nimble "
+            "falls back to mechanical (degraded:true). Details: docs/NIMBLE.md."
+        ),
+    ),
+    nimble_backend: str | None = typer.Option(
+        None,
+        "--nimble-backend",
+        help=(
+            "Backend for local Nimble inference: auto/mlx/cuda (default: auto — "
+            "MLX ParallelScorer on Apple Silicon, CUDA scorer on NVIDIA BF16). "
+            "Report field latency_ms measures the actual cost."
+        ),
+    ),
+    nimble_context_limit: int | None = typer.Option(
+        None,
+        "--nimble-context-limit",
+        help=(
+            "Override Nimble context window (default 8192; 512 tokens reserved for "
+            "the shared prefix, leaving 7679 for state). "
+            "Oversized blocks are kept whole with nimble_context_limit_exceeded, "
+            "never sliced. Report fields nimble_context_limit/context_budget_used "
+            "show budget vs use."
+        ),
+    ),
+    nimble_temperature: float | None = typer.Option(
+        None,
+        "--nimble-temperature",
+        help=(
+            "Temperature override for Nimble candidate probabilities (default None = "
+            "checkpoint default: T=1.0 on the latest release, T=2.179 fitted on the "
+            "original revision and v2). Recorded as nimble_temperature in the report."
         ),
     ),
     batch_size: int = typer.Option(
@@ -1201,6 +1277,11 @@ def compact_command(
     report_path: Path | None = typer.Option(
         None, "--report", "-r", help="Write the JSON report to this file."
     ),
+    emit_ir_path: Path | None = typer.Option(
+        None,
+        "--emit-ir",
+        help="Also write the versioned Context IR (context-ir/0.1) to this file.",
+    ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Score and report without writing the compacted text."
     ),
@@ -1226,6 +1307,15 @@ def compact_command(
         "--max-restorations",
         help="Maximum dropped blocks restored by sufficiency verification in one pass.",
     ),
+    verifier_max_restorations: int = typer.Option(
+        4,
+        "--verifier-max-restorations",
+        help=(
+            "Maximum graph-linked dropped blocks restored on semantic-verifier "
+            "FAIL in one pass (independent of --max-restorations; total restored "
+            "is at most the sum of the two budgets; the verifier never re-runs)."
+        ),
+    ),
     confidence_threshold: float = typer.Option(
         0.5,
         "--confidence-threshold",
@@ -1244,8 +1334,11 @@ def compact_command(
     ),
 ) -> None:
     """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
-    if provider not in ("auto", "jev", "laya", "mechanical"):
-        _fail(f"unknown provider {provider!r}; expected auto, jev, laya, or mechanical.", code=2)
+    if provider not in ("auto", "jev", "nimble", "laya", "mechanical"):
+        _fail(
+            f"unknown provider {provider!r}; expected auto, jev, nimble, laya, or mechanical.",
+            code=2,
+        )
     if not 0.0 <= threshold <= 1.0:
         _fail("--threshold must be between 0 and 1.", code=2)
     if trim_head_chars < 0:
@@ -1260,10 +1353,16 @@ def compact_command(
         _fail("--min-reduction must be between 0 and 1.", code=2)
     if max_restorations < 0:
         _fail("--max-restorations must be >= 0.", code=2)
+    if verifier_max_restorations < 0:
+        _fail("--verifier-max-restorations must be >= 0.", code=2)
     if not 0.0 <= confidence_threshold <= 1.0:
         _fail("--confidence-threshold must be between 0 and 1.", code=2)
     if laya_temperature is not None and laya_temperature <= 0:
         _fail("--laya-temperature must be > 0.", code=2)
+    if nimble_temperature is not None and nimble_temperature <= 0:
+        _fail("--nimble-temperature must be > 0.", code=2)
+    if nimble_context_limit is not None and nimble_context_limit < 64:
+        _fail("--nimble-context-limit must be >= 64.", code=2)
     if laya_context_limit is not None and laya_context_limit < 64:
         _fail("--laya-context-limit must be >= 64.", code=2)
     if mode not in ("blocks", "tool-calls"):
@@ -1295,11 +1394,16 @@ def compact_command(
                 ("--semantic-verify", enable_semantic_verify, False),
                 ("--no-sufficiency", not enable_sufficiency, False),
                 ("--max-restorations", max_restorations, 8),
+                ("--verifier-max-restorations", verifier_max_restorations, 4),
                 ("--confidence-threshold", confidence_threshold, 0.5),
                 ("--laya-model", laya_model, "convaiinnovations/laya-multilingual"),
                 ("--laya-device", laya_device, None),
                 ("--laya-context-limit", laya_context_limit, None),
                 ("--laya-temperature", laya_temperature, None),
+                ("--nimble-model", nimble_model, "bespokelabs/Bespoke-Nimble-9B"),
+                ("--nimble-backend", nimble_backend, None),
+                ("--nimble-context-limit", nimble_context_limit, None),
+                ("--nimble-temperature", nimble_temperature, None),
             )
             if value != unset_value
         ]
@@ -1341,6 +1445,10 @@ def compact_command(
         laya_device=laya_device,
         laya_context_limit=laya_context_limit,
         laya_temperature=laya_temperature,
+        nimble_model=nimble_model,
+        nimble_backend=nimble_backend,
+        nimble_context_limit=nimble_context_limit,
+        nimble_temperature=nimble_temperature,
         batch_size=batch_size,
         min_block_chars=min_block_chars,
         keep_patterns=tuple(keep_regex or ()),
@@ -1352,8 +1460,11 @@ def compact_command(
         decisions_cache_path=decisions_cache,
         enable_sufficiency=enable_sufficiency,
         max_restorations=max_restorations,
+        verifier_max_restorations=verifier_max_restorations,
         confidence_threshold=confidence_threshold,
         enable_semantic_verify=enable_semantic_verify,
+        emit_ir=emit_ir_path is not None,
+        source_origin=input_path if input_path != "-" else "stdin",
     )
     try:
         result = compact_context(request)
@@ -1379,8 +1490,10 @@ def compact_command(
             # accumulated context saves.
             try:
                 existing = append_to.read_text(encoding="utf-8") if append_to.exists() else ""
-                separator = "" if not existing or existing.endswith("\n\n") else (
-                    "\n" if existing.endswith("\n") else "\n\n"
+                separator = (
+                    ""
+                    if not existing or existing.endswith("\n\n")
+                    else ("\n" if existing.endswith("\n") else "\n\n")
                 )
                 with append_to.open("a", encoding="utf-8") as handle:
                     handle.write(separator + result.compacted_text)
@@ -1405,6 +1518,13 @@ def compact_command(
             )
         except OSError as exc:
             _fail(f"could not write report to {report_path}: {exc}")
+    if emit_ir_path is not None:
+        if result.context_ir is None:
+            _fail("IR emission was requested but no Context IR was built")
+        try:
+            emit_ir_path.write_text(dumps_context_ir(result.context_ir), encoding="utf-8")
+        except OSError as exc:
+            _fail(f"could not write Context IR to {emit_ir_path}: {exc}")
 
     table = Table(
         title="lcc -- instant relevance compaction", show_header=False, box=None, pad_edge=False
@@ -1449,7 +1569,12 @@ def compact_command(
         "Tokens", f"{report.tokens_before} -> {report.tokens_after} ({report.token_count_method})"
     )
     if report.calls:
-        call_label = "Laya calls" if report.provider_used.startswith("laya") else "Jev calls"
+        if report.provider_used.startswith("laya"):
+            call_label = "Laya calls"
+        elif report.provider_used.startswith("nimble"):
+            call_label = "Nimble calls"
+        else:
+            call_label = "Jev calls"
         table.add_row(call_label, f"{report.calls} ({report.latency_ms} ms)")
     if report.reused_decisions:
         table.add_row("Sticky decisions reused", str(report.reused_decisions))
@@ -1475,6 +1600,8 @@ def compact_command(
         err_console.print(f"Compacted context written to: [green]{output_path}[/green]")
     if report_path is not None:
         err_console.print(f"Compaction report written to: [green]{report_path}[/green]")
+    if emit_ir_path is not None:
+        err_console.print(f"Context IR written to: [green]{emit_ir_path}[/green]")
 
 
 @app.command(name="explain")
@@ -1499,6 +1626,8 @@ def explain_cmd(
 
     Reads the report, never re-runs compaction and never touches the network, so a pass can be
     audited after the fact. Pass --source to see the text behind each decision.
+    Also reads a Context IR file (``lcc compact --emit-ir``): the IR carries unit
+    bytes inline, so --source is optional there.
     """
     try:
         payload = json.loads(report_path.read_text(encoding="utf-8"))
@@ -1508,6 +1637,15 @@ def explain_cmd(
         _fail(f"{report_path} is not valid JSON: {exc}")
     if not isinstance(payload, dict):
         _fail(f"{report_path} does not contain a report object")
+    if is_context_ir(payload):
+        if limit is not None and limit < 1:
+            _fail("--limit must be at least 1", code=2)
+        try:
+            rendered = render_ir_explanation(payload, only=only, limit=limit)
+        except ValueError as exc:
+            _fail(str(exc), code=2)
+        sys.stdout.write(rendered + "\n")
+        return
     if "decisions" not in payload:
         _fail(
             f"{report_path} does not look like a compaction report (no 'decisions' key); "

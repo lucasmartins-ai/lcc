@@ -1,0 +1,13 @@
+API latency postmortem
+
+The p99 latency of the search endpoint reached 840 milliseconds during the incident window on tuesday morning.
+
+Revised measurement: the p99 latency of the search endpoint was corrected to 620 milliseconds after clock skew was removed.
+
+The incident review concluded that the search endpoint latency regression was caused by a missing composite database index.
+
+Do not delete the user account table during the migration scheduled for this weekend under any circumstance.
+
+Random lunch poll: votes are split between tacos and sushi for the team outing next friday afternoon.
+
+The missing composite database index on the search endpoint was rebuilt, restoring p99 latency to the normal range.
