@@ -1,0 +1,160 @@
+{
+  "ir_version": "0.1",
+  "relationships": [
+    {
+      "from": "blk_0008_57ca448a4a5e",
+      "to": "blk_0003_6630f44afbf0",
+      "type": "SUPPORTS"
+    }
+  ],
+  "restoration": {
+    "budget": 8,
+    "reason": "",
+    "restored": []
+  },
+  "schema_version": "context-ir/0.1",
+  "selection": {
+    "dropped": [
+      "blk_0005_e76aa7aedd95",
+      "blk_0006_3aea0ee7af72",
+      "blk_0007_8f9b4b739a9a"
+    ],
+    "kept": [
+      "blk_0001_bc025361ffdd",
+      "blk_0002_156cfd33009e",
+      "blk_0003_6630f44afbf0",
+      "blk_0004_77a7fea143e3",
+      "blk_0008_57ca448a4a5e"
+    ],
+    "policy": "relevance-compaction-1.2",
+    "rationale": {
+      "blk_0001_bc025361ffdd": "short_block",
+      "blk_0002_156cfd33009e": "quoted_speech_present",
+      "blk_0003_6630f44afbf0": "lexical_overlap",
+      "blk_0004_77a7fea143e3": "lexical_overlap",
+      "blk_0005_e76aa7aedd95": "no_lexical_overlap",
+      "blk_0006_3aea0ee7af72": "no_lexical_overlap",
+      "blk_0007_8f9b4b739a9a": "no_lexical_overlap",
+      "blk_0008_57ca448a4a5e": "lexical_overlap"
+    },
+    "trimmed": []
+  },
+  "sufficiency": {
+    "confidence": 1.0,
+    "missing_evidence": [],
+    "sufficient": true
+  },
+  "task_id": "lcc-6dd126000cb4",
+  "units": [
+    {
+      "content": "Customer refund investigation\n",
+      "id": "blk_0001_bc025361ffdd",
+      "necessity": "UNKNOWN",
+      "protected": true,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relevance": 1.0,
+      "source": "corpus-02.txt:1-1"
+    },
+    {
+      "content": "The support agent wrote: \"the customer was charged twice for the same annual subscription renewal invoice\".\n",
+      "id": "blk_0002_156cfd33009e",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relevance": 0.17,
+      "source": "corpus-02.txt:3-3"
+    },
+    {
+      "content": "Billing records confirm a duplicate charge on the corporate card used for the subscription renewal this quarter.\n",
+      "id": "blk_0003_6630f44afbf0",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relevance": 0.5,
+      "source": "corpus-02.txt:5-5"
+    },
+    {
+      "content": "The refund policy states that duplicate subscription charges are eligible for a full automatic refund process.\n",
+      "id": "blk_0004_77a7fea143e3",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relevance": 0.5,
+      "source": "corpus-02.txt:7-7"
+    },
+    {
+      "content": "Weather in Lisbon is mild this time of year with clear skies over the Atlantic coast region.\n",
+      "id": "blk_0005_e76aa7aedd95",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relevance": 0.0,
+      "source": "corpus-02.txt:9-9"
+    },
+    {
+      "content": "O cliente relatou que a cobrança duplicada da assinatura anual apareceu duas vezes na fatura do cartão corporativo este mês.\n",
+      "id": "blk_0006_3aea0ee7af72",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relevance": 0.0,
+      "source": "corpus-02.txt:11-11"
+    },
+    {
+      "content": "Log line 4821: worker heartbeat ok, queue depth nominal, no action required at this time.\n",
+      "id": "blk_0007_8f9b4b739a9a",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relevance": 0.0,
+      "source": "corpus-02.txt:13-13"
+    },
+    {
+      "content": "The finance team approved the refund for the duplicate subscription charge after reviewing the billing records file.\n",
+      "id": "blk_0008_57ca448a4a5e",
+      "necessity": "UNKNOWN",
+      "protected": false,
+      "provenance": {
+        "collected_at": "2026-10-02T00:00:00Z",
+        "origin": "corpus-02.txt",
+        "transform": "none"
+      },
+      "relationships": [
+        {
+          "to": "blk_0003_6630f44afbf0",
+          "type": "SUPPORTS"
+        }
+      ],
+      "relevance": 0.67,
+      "source": "corpus-02.txt:15-15"
+    }
+  ]
+}

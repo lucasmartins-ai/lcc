@@ -1,0 +1,9 @@
+Mobile booking friction evidence
+
+The mobile booking flow loses users at the payment confirmation screen during checkout on slow connections.
+
+However, the payment confirmation screen behaves differently for users with saved profiles, and the profile shortcut hides the real bottleneck in the booking flow analysis.
+
+The office plants need watering on fridays and the kitchen runs out of coffee beans every week.
+
+Checkout completion improves when the mobile booking flow keeps the payment step under three screens total.

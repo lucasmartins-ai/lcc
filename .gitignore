@@ -54,3 +54,19 @@ benchmarks/research/results/*_mock.jsonl
 
 # Agent-local scratch dirs from other tools
 .commandcode/
+
+# Secrets & credentials (never commit)
+*.pem
+*.key
+secrets*.json
+*credentials*.json
+.env.*
+!.env.example
+
+# Local run outputs (regenerable via the CLI; keep the tree evidence-free)
+# Root-scoped so tracked fixtures under tests/ and benchmarks/ are unaffected.
+/compacted.md
+/ir.json
+/*-report.json
+.decisions*.json
+lcc-decisions*.json
