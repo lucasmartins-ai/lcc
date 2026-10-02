@@ -1,6 +1,6 @@
 {
   "name": "lcc",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Verbatim tool-call compaction for Claude Code sessions: Jev decides which tool calls and results are spent, everything kept stays byte for byte.",
   "license": "MIT",
   "author": {
