@@ -30,7 +30,83 @@ Rules LCC enforces (see `src/lcc/relevance/laya.py`, `compactor.py`):
   If `context_budget_used > laya_context_limit`, the pass is misconfigured —
   lower `--batch-size` or raise the limit.
 
-## 2. Latency: what to expect and how to measure
+## 2. Tool-call compaction (`--mode tool-calls --provider laya`)
+
+Block mode asks "does this passage serve the objective". Tool-call mode asks a different
+question, per call: **is this call's output still needed, or is the work it served
+finished?** Laya answers it locally, so this mode no longer requires `TYPESAFE_API_KEY`.
+
+```bash
+lcc compact session.json --mode tool-calls \
+  -q "fix the deploy timeout" \
+  --provider laya --laya-model convaiinnovations/laya-typed-decisions \
+  --batch-size 1
+```
+
+### Why Laya fits this mode and not the rest
+
+Measured over real Hermes session dumps (359 tool calls, and prose blocks from the same
+runs):
+
+| Payload | Fits the 831-token state budget |
+| --- | ---: |
+| Tool-call payloads (median 166 chars) | **97.2%** |
+| Prose blocks from the same sessions | 31.2% |
+
+A tool call is small by nature; a paragraph of a transcript often is not. That single
+number is why the local judge is practical here and marginal in block mode. On a
+66,841-token real session, 68.8% of the prose sat above the window and nothing was
+removed — the window bounds the pass, not the judgement.
+
+### Measured: 9 tool calls, local, no key
+
+`convaiinnovations/laya-typed-decisions`, `--batch-size 1`, CPU:
+
+```
+provider_used: laya      semantic_guarantee: judged      degraded: false
+decisions:  2 kept | 0 trimmed | 7 dropped
+chars:      621 -> 272   (67.4% of the judged tool payload)
+reduction:  56.2%        latency: 2707 ms over 9 calls
+warnings:   none
+```
+
+It retired the reconnaissance (`git log`, `read_file`, `search_files`, `railway logs`)
+and kept the calls that carried the session forward:
+
+| Call | Decision | `keep_call` |
+| --- | --- | ---: |
+| `git log --oneline -5` | drop | 0.15 |
+| `read_file config/deploy.yaml` | drop | 0.16 |
+| `search_files timeout` | drop | 0.17 |
+| **`edit_file src/client.py`** | **keep** | **0.75** |
+| **`pytest tests/test_client.py`** | **keep** | **0.56** |
+
+### Where Laya is weaker than Jev
+
+On this checkpoint `keep_call` discriminates well (0.05-0.76) but `keep_result` sits in
+a narrow band (0.13-0.24). Laya answers "does this call matter" better than "is this
+exact output still needed". In practice the transcript mode keys on `keep_call` and uses
+`keep_result` to trim a result whose call survived, so the trim gear does not fire often.
+
+Treat the threshold as a floor, not a tuning knob you should chase: raising it does not
+add discrimination the checkpoint does not have. For borderline calls, `jev` with a
+32K window remains the stronger judge, and `--provider auto` prefers it when a key is
+present.
+
+### Degradation is one typed warning, not nine
+
+Laya is warmed once before scoring (`_resolve_client`). If the checkpoint, the extra, or
+a dependency is missing, the run fails safe with a single line naming the cause:
+
+```
+laya_unavailable: Failed to initialize Laya agent for '...'; kept every tool call (fail-safe)
+```
+
+and `provider_used: laya`, `semantic_guarantee: none`. Without the warm-up the same
+fault surfaces as one `laya_batch_N_failed` warning per batch, which reads like a flaky
+judge rather than an absent one.
+
+## 3. Latency: what to expect and how to measure
 
 There are **no committed CPU-vs-GPU numbers in this repo**: latency depends on
 device, checkpoint, batch size, and block length. Every run reports its own
@@ -63,7 +139,7 @@ recall/reduction side. Since 2026-09-21 that script runs the REAL backend by
 default (`--mock` opts into the labelled offline harness); live rows and
 provenance: `benchmarks/research/RESEARCH_STATUS.md`.
 
-## 3. When to use which provider
+## 4. When to use which provider
 
 | You want… | Use | Why |
 | :--- | :--- | :--- |
@@ -79,7 +155,7 @@ Decision shortcut:
 - Key available and evidence is subtle → `jev` (or compare `laya` vs `jev`
   on your dossier and keep the one with 100% category recall).
 
-## 4. Trade-off, stated plainly (measured 2026-09-21, real weights)
+## 5. Trade-off, stated plainly (measured 2026-09-21, real weights)
 
 Laya is **more conservative than mechanical**: it keeps semantically related
 content that shares no words with the objective, so reduction is lower and
@@ -100,7 +176,7 @@ distinctive-term links), graph + sufficiency restoration (`--max-restorations`),
 and confidence degradation (`--confidence-threshold`). Laya does not bypass
 any of them.
 
-## 5. Install, run, fallback
+## 6. Install, run, fallback
 
 ```bash
 pip install "local-context-compiler[laya]"   # torch + transformers + laya
@@ -131,7 +207,7 @@ Failed batch → remaining blocks scored mechanically,
 `provider_used: laya+mechanical_fallback`, `semantic_guarantee: partial`.
 Oversized block → kept whole (`laya_context_limit_exceeded`).
 
-## 6. Report fields (schema `relevance-compaction-1.2`)
+## 7. Report fields (schema `relevance-compaction-1.2`)
 
 - `provider_requested`, `provider_used` (`laya`, `laya+mechanical_fallback`,
   `mechanical`, `cache`, …), `degraded`, `degradation_reason`,
@@ -144,7 +220,7 @@ Oversized block → kept whole (`laya_context_limit_exceeded`).
 
 `lcc explain report.json --source dossier.md` audits any Laya pass offline.
 
-## 7. Validation status (2026-09-21)
+## 8. Validation status (2026-09-21)
 
 Live validation ran against the real checkpoints on macOS/CPU, offline
 (`LCC_DISABLE_NETWORK=1`, HF hub offline, no API key), through
@@ -171,7 +247,7 @@ Note: selecting a checkpoint requires the request field (`--laya-model` /
 standalone `LayaClient()` but is stamped over by the request default inside
 `compact_context` — flagged as a follow-up in RESEARCH_STATUS.
 
-## 8. Specialising the checkpoint (measured 2026-09-23)
+## 9. Specialising the checkpoint (measured 2026-09-23)
 
 The default checkpoint keeps essentially every block (§4), and the vendor's own position is
 that Laya is a fast base to specialise, not a zero-shot decision engine. This section records

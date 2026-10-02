@@ -18,29 +18,36 @@ Decisions per non-pinned call (``keep_call`` / ``keep_result`` are Jev keep-prob
 Fail-safe direction, unchanged from ADR 0013: **nothing is dropped that was not judged.**
 A missing key, a failed batch, a malformed answer, or a history that cannot fit the state
 budget leaves the call alone and is reported with a typed reason and ``degraded: true``.
-There is no mechanical or Laya path here: "is this tool output still needed" is a semantic
-question, and a lexical scorer cannot answer it honestly.
 
-The module lives in the opt-in layer: it imports the deterministic core (token counters),
-never the reverse, and it is the only transcript-level entry point in LCC.
+``mechanical`` cannot answer "is this tool output still needed": a lexical overlap score is
+not a judgement about whether work is finished. ``laya`` can, locally and offline. Tool-call
+payloads are small — measured over real sessions, 97% fit Laya's window where only 31% of
+prose blocks do — which is why the local judge is the practical choice for this mode.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
-from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
+from lcc.relevance.jev import JevClient, parse_noul_answer
 from lcc.token_budget import count_tokens
 from lcc.token_budget.counters import approximate_token_count
 
 TRANSCRIPT_SCHEMA_VERSION = "transcript-compaction-1.0"
 
+#: Why the local judge could not start, if it could not. Holds the most recent cause and
+#: is surfaced by :func:`compact_transcript`, so a degraded run names the real reason
+#: instead of leaving the operator with per-batch noise.
+LAYA_INIT_ERROR: str | None = None
+LOGGER = logging.getLogger("lcc.transcript")
+
 #: Providers this mode accepts: a semantic judge is required, ``auto`` prefers Jev.
-SUPPORTED_PROVIDERS = ("jev", "auto")
+SUPPORTED_PROVIDERS = ("jev", "laya", "auto")
 DEFAULT_THRESHOLD = 0.5
 DEFAULT_PRESERVE_RECENT = 6
 DEFAULT_TRIM_HEAD_CHARS = 300
@@ -64,7 +71,7 @@ class TranscriptError(RuntimeError):
 
 
 class UnsupportedTranscriptProviderError(TranscriptError):
-    """Asked for a provider that cannot judge tool-call relevance (mechanical, laya)."""
+    """Asked for a provider that cannot judge tool-call relevance (mechanical)."""
 
 
 class TranscriptFitError(TranscriptError):
@@ -136,6 +143,7 @@ class TranscriptCompactionRequest:
     min_reduction: float = DEFAULT_MIN_REDUCTION
     model: str = "gpt-4.1"
     jev_model: str = "jev-latest"
+    laya_model: str | None = None
     client: Any = None
 
 
@@ -496,21 +504,43 @@ def _questions(batch: list[ToolCall]) -> dict[str, Any]:
 # --------------------------------------------------------------------------------------
 
 
-def _resolve_client() -> JevClient | None:
-    """Default Jev resolution; tests monkeypatch this seam to stay offline."""
+def _resolve_client(provider: str = "jev", laya_model: str | None = None) -> Any | None:
+    """Resolve the judge for ``provider``; tests monkeypatch this seam to stay offline.
+
+    Both judges expose the same ``evaluate(state, questions)`` contract, so ``_score``
+    treats them identically. Laya is warmed here on purpose: without it, a missing
+    checkpoint or an unimportable dependency surfaces as one ``laya_batch_N_failed``
+    warning per batch, which reads like a flaky judge rather than an absent one.
+    Warming once turns the real cause into a single typed degradation.
+    """
+    if provider == "laya":
+        from lcc.relevance.laya import LayaClient
+
+        try:
+            client = LayaClient(model=laya_model)
+            client._ensure_agent()
+        except Exception as exc:  # missing extra, checkpoint, or weights
+            global LAYA_INIT_ERROR
+            LAYA_INIT_ERROR = str(exc)
+            LOGGER.warning(
+                "laya judge unavailable, degrading to keep-everything: %s", exc
+            )
+            return None
+
     from lcc.relevance.jev import default_ledger_path
 
     return JevClient.from_env(ledger_path=default_ledger_path())
 
 
 def _score(
-    client: JevClient,
+    client: Any,
     state: list[dict[str, Any]],
     batches: list[list[ToolCall]],
     *,
     timeout_note: str,
+    judge: str = "jev",
 ) -> tuple[dict[str, tuple[float | None, float | None]], int, int, list[str], str | None]:
-    """Ask Jev for both probabilities of every candidate; never raises on API failure.
+    """Ask the judge for both probabilities of every candidate; never raises on failure.
 
     Returns ``(answers, calls, latency_ms, warnings, resolved_model)`` where each entry is
     ``(keep_call, keep_result)``; an answer that is missing, malformed or out of range is
@@ -524,12 +554,15 @@ def _score(
         state_payload = {"goal": state[0].get("goal"), "conversation": state[1:]}
         try:
             response = client.evaluate(state_payload, _questions(batch))
-        except JevError as exc:
+        except Exception as exc:
+            # Both judges are fail-safe here: LayaError and JevError both mean "this
+            # batch was not judged", so the calls stay. Anything unexpected is caught too,
+            # because dropping a call the user can still see is the worse failure.
             return (
                 index,
                 None,
                 int((time.perf_counter() - started) * 1000),
-                f"jev_batch_{index}_failed: {exc}",
+                f"{judge}_batch_{index}_failed: {exc}",
             )
         return index, response, int((time.perf_counter() - started) * 1000), None
 
@@ -550,24 +583,26 @@ def _score(
     for index, response, batch_latency, failure in outcomes:
         latency_ms += batch_latency
         if response is None:
-            warnings.append((failure or f"jev_batch_{index}_failed") + f": {timeout_note}")
+            warnings.append((failure or f"{judge}_batch_{index}_failed") + f": {timeout_note}")
             continue
         calls += 1
         resolved_model = getattr(client, "last_resolved_model", None) or resolved_model
         payload = response.get("answers") if isinstance(response, dict) else None
         if not isinstance(payload, dict):
-            warnings.append(f"jev_malformed_response:batch_{index}")
+            warnings.append(f"{judge}_malformed_response:batch_{index}")
             continue
         for call in batches[index - 1]:
             keep_call: float | None = None
             keep_result: float | None = None
             for key, is_call in ((f"keep_call_{call.id}", True), (f"keep_result_{call.id}", False)):
+                # Only a missing or out-of-range score is worth reporting. Laya
+                # returns no per-question confidence, and confidence never gates a
+                # decision here, so warning about it would add one line per question
+                # to every local run without changing a single keep or drop.
                 score, _confidence, problem = parse_noul_answer(payload.get(key))
-                if problem in ("confidence_missing", "confidence_out_of_range"):
-                    warnings.append(f"jev_{problem}:{key}")
-                elif score is None:
+                if score is None:
                     kind = "out_of_range" if problem == "out_of_range" else "missing"
-                    warnings.append(f"jev_{kind}_answer:{key}")
+                    warnings.append(f"{judge}_{kind}_answer:{key}")
                 if is_call:
                     keep_call = score
                 else:
@@ -587,6 +622,7 @@ def _decide(
     *,
     threshold: float,
     trim_head_chars: int,
+    judge: str = "jev",
 ) -> dict[str, Any]:
     """Map one candidate's probabilities onto keep/trim/drop, failing safe when unjudged."""
     keep_call, keep_result = answers.get(call.id, (None, None))
@@ -642,7 +678,7 @@ def _decide(
         "keep_result": keep_result,
         "chars": chars,
         "chars_after": kept,
-        "source": "jev",
+        "source": judge,
         "reason": reason,
         "message_index": call.message_index,
         "tool": call.tool,
@@ -794,7 +830,7 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
 
     warnings: list[str] = []
     provider_requested = request.provider
-    provider_used = "jev"
+    provider_used = "laya" if request.provider == "laya" else "jev"
     degraded = False
     degradation_reason: str | None = None
     calls = 0
@@ -805,19 +841,31 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
     batch_count = 0
     decisions: list[dict[str, Any]] = []
 
-    client = request.client if request.client is not None else _resolve_client()
-    if client is not None and request.jev_model:
+    client = (
+        request.client
+        if request.client is not None
+        else _resolve_client(request.provider, request.laya_model)
+    )
+    if client is not None and request.jev_model and request.provider != "laya":
         client.model = request.jev_model
 
+    judge = "laya" if request.provider == "laya" else "jev"
     if not candidates:
         warnings.append("no_scorable_tool_calls: every call is pinned or has no result yet")
         degradation_reason = "no_candidates"
     elif client is None:
         degraded = True
-        degradation_reason = "jev_unavailable_fail_safe"
-        warnings.append(
-            "jev_unavailable: no API key or network disabled; kept every tool call (fail-safe)"
-        )
+        degradation_reason = f"{judge}_unavailable_fail_safe"
+        if judge == "laya" and LAYA_INIT_ERROR:
+            # Name the actual cause once instead of nine per-batch warnings.
+            warnings.append(
+                f"laya_unavailable: {LAYA_INIT_ERROR}; kept every tool call (fail-safe)"
+            )
+        else:
+            warnings.append(
+                f"{judge}_unavailable: no API key, missing local weights, or network "
+                "disabled; kept every tool call (fail-safe)"
+            )
         decisions = [
             _decide(call, {}, threshold=request.threshold, trim_head_chars=request.trim_head_chars)
             for call in candidates
@@ -837,7 +885,11 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         )
         batch_count = len(batches)
         answers, calls, latency_ms, score_warnings, resolved_model = _score(
-            client, state, batches, timeout_note="those calls were kept (fail-safe)"
+            client,
+            state,
+            batches,
+            timeout_note="those calls were kept (fail-safe)",
+            judge=judge,
         )
         warnings.extend(score_warnings)
         decisions = [
@@ -846,19 +898,22 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
                 answers,
                 threshold=request.threshold,
                 trim_head_chars=request.trim_head_chars,
+                judge=judge,
             )
             for call in candidates
         ]
-        judged = sum(1 for decision in decisions if decision["source"] == "jev")
+        judged = sum(1 for decision in decisions if decision["source"] == judge)
         if judged == 0:
             degraded = True
             provider_used = "degraded"
-            degradation_reason = "jev_no_answers_fail_safe"
-            warnings.append("jev_no_answers: every call was kept unjudged (fail-safe)")
+            degradation_reason = f"{judge}_no_answers_fail_safe"
+            warnings.append(
+                f"{judge}_no_answers: every call was kept unjudged (fail-safe)"
+            )
         elif judged < len(decisions):
             degraded = True
-            provider_used = "jev+partial_fail_safe"
-            degradation_reason = "jev_batch_failed"
+            provider_used = f"{judge}+partial_fail_safe"
+            degradation_reason = f"{judge}_batch_failed"
 
     pinned_decisions = [
         {
@@ -894,7 +949,7 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
     chars_after = len(after_text)
     reduction = 0.0 if chars_before == 0 else max(0.0, 1.0 - chars_after / chars_before)
 
-    scored = [decision for decision in decisions if decision["source"] == "jev"]
+    scored = [decision for decision in decisions if decision["source"] == judge]
     judged_count = len(scored)
     if not candidates or client is None:
         semantic_guarantee = "none"
