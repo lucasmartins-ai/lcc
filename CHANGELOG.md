@@ -6,7 +6,32 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
-### Audit corrections
+### Sprint 10 — Research release and audit resolution
+
+- **Audit findings R1–R3 resolved:**
+  - **R1 (All-attempt cost accounting):** `benchmarks/msi-bench/bench.py::run_arm`
+    now instruments context tokens and model classes for every executed attempt and
+    retry (decision-01 under verify arm records 3 attempts and 3 frontier calls at
+    $3.2160, updating verify arm total cost to $4.3600);
+  - **R2 (Paired bootstrap):** `bench.py::bootstrap_ci` draws task indices once per
+    resample across all arms, establishing true paired resampling;
+  - **R3 (Full-payload drift check):** `benchmarks/msi-bench/run.py` strengthens `--check`
+    with `check_payload`, verifying full stable payload equality and rejecting any
+    aggregate or receipt drift.
+- **Architecture paper and prior art review:** published `research/paper.md` ("Minimum
+  Sufficient Inference: Closed-Loop Context Compaction with Bounded Verification")
+  and `research/prior-art.md` with taxonomic positioning against LLMLingua, FrugalGPT,
+  RouteLLM, and Reflexion, plus a complete zero-superlative claims audit.
+- **Limitations and research agenda:** published `research/limitations.md` documenting
+  all structural constraints, oracle vs. mechanical compiler distinctions, and five
+  falsifiable research questions.
+- **Frozen version manifest and master results:** published `research/versions.json`
+  pinning all schemas (`context-ir/0.1`, `planner-contract/0.1`, `inference-plan/0.1`,
+  `inference-receipt/0.1`, `verify-1.0`, `planner-1.0`) and `research/results-master.md`
+  cataloging all empirical results with per-row provenance.
+- **ADR 0022:** accepted `docs/adr/0022-research-release-freeze.md`.
+
+### Audit corrections (Sprint 9 / PR #34)
 
 - Fully protected mechanical passes now report `semantic_guarantee: none`;
   regression coverage proves that zero scoring calls cannot imply judgment.
@@ -17,6 +42,7 @@ All notable changes to this project are documented here. The format is based on
   reproducible offline usability measurements and explicit benchmark limits.
 - Sprint-7 historical reports now carry an audit notice for final-attempt
   costs, unpaired bootstrap sampling and incomplete reproducibility checks.
+
 
 ### Added
 

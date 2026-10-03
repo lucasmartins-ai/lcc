@@ -27,5 +27,6 @@ public / cross-module contracts that are expensive to change after release.
 | [0019](0019-deterministic-inference-planner.md) | Deterministic-first inference planner, pluggable engines, fail-closed risk overlay |
 | [0020](0020-verification-escalation.md) | Layered verification (6 layers, tri-state) + bounded escalation machine with inference receipt |
 | [0021](0021-causal-necessity-labels.md) | Causal necessity labels stay research-only until bench-validated |
+| [0022](0022-research-release-freeze.md) | Research release freeze: contracts, versions, verification boundaries, and R1–R3 resolution |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.

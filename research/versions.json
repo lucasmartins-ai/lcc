@@ -1,0 +1,86 @@
+{
+  "release": "1.0.0",
+  "freeze_date": "2026-10-03",
+  "status": "RELEASE-FROZEN",
+  "contracts": {
+    "context_ir": {
+      "version": "context-ir/0.1",
+      "schema": "spec/context-ir.schema.json",
+      "status": "FROZEN",
+      "scope": "Deterministic context graph, unit provenance, graph reachability, necessity annotation"
+    },
+    "planner_contract": {
+      "version": "planner-contract/0.1",
+      "schema": "spec/planner-contract.schema.json",
+      "status": "FROZEN",
+      "scope": "Engine registration, route metadata, fallback declaration, risk boundary"
+    },
+    "inference_plan": {
+      "version": "inference-plan/0.1",
+      "schema": "spec/inference-plan.schema.json",
+      "status": "FROZEN",
+      "scope": "Planned model class, reasoning budget, escalation policy, context profile"
+    },
+    "inference_receipt": {
+      "version": "inference-receipt/0.1",
+      "schema": "spec/inference-receipt.schema.json",
+      "status": "FROZEN",
+      "scope": "Immutable audit log, decision events, restore counts, retry counts, modeled cost"
+    },
+    "transcript_compaction": {
+      "version": "transcript-compaction-1.0",
+      "status": "FROZEN",
+      "scope": "Conversational tool-result pruning, user goal pinning, recent message preservation"
+    }
+  },
+  "engines_and_evaluators": {
+    "planner": "planner-1.0",
+    "evaluator": "verify-1.0",
+    "verification_profile": "standard",
+    "tokenizer_heuristic": "heuristic-v1",
+    "tokenizer_exact": "tiktoken-cl100k_base"
+  },
+  "datasets": {
+    "sprint_6_causal_pilot": {
+      "dataset_id": "msi-pilot-6-frozen-2026-10-03",
+      "data_class": "CURATED",
+      "evidence_class": "BENCHMARK",
+      "n_tasks": 1,
+      "n_runs": 8
+    },
+    "sprint_7_msi_bench": {
+      "dataset_id": "msi-bench-7-frozen-2026-10-03",
+      "data_class": "CURATED",
+      "evidence_class": "BENCHMARK",
+      "n_tasks": 12,
+      "n_arms": 6,
+      "n_runs": 72,
+      "matrix_digest": "13a29b20a099681eb6188d54c0fa12ba44c8332c33f44bfcb88c28b55687bb80"
+    },
+    "sprint_9_curated_probes": {
+      "dataset_id": "msi-replay-9-curated-2026-10-03",
+      "data_class": "CURATED",
+      "evidence_class": "CURRENT",
+      "n_tasks": 10,
+      "n_arms": 6,
+      "n_runs": 60,
+      "matrix_digest": "a636d2f1ff4ac1f46f20e343c6b48e80b0f99cd3475c54405ab47cc5f085f5fb"
+    },
+    "sprint_9_session_replay": {
+      "dataset_id": "msi-replay-9-session-2026-10-03",
+      "data_class": "REPLAYED",
+      "evidence_class": "CURRENT",
+      "n_windows": 10,
+      "n_arms": 2,
+      "n_runs": 20
+    },
+    "sprint_10_usability_packaged": {
+      "dataset_id": "usability-packaged-base-12x3",
+      "data_class": "SCRIPTED",
+      "evidence_class": "CURRENT",
+      "n_workflows": 12,
+      "n_repetitions": 3,
+      "n_checks": 36
+    }
+  }
+}

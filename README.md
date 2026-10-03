@@ -15,14 +15,16 @@ Cleaning and prompt templates are separate transformations. A structural
 ## Status
 
 The checkout declares Python and Node package version **1.0.0** and Python
-**3.11+**. MSI sprints **1–9 have DONE reports; sprint 10 is pending**.
-The software is classified Alpha in package metadata. The research release
-still needs claim review, a frozen version manifest, consolidated limitations,
-prior-art review and release validation.
+**3.11+**. MSI sprints **1–10 have PASS reports; the research release is complete**.
+The software is classified Alpha in package metadata.
 
-The [2026-10-03 audit](research/msi-audit-2026-10-03.md) records fixes and
-remaining blockers, including methodological problems in the sprint-7 bench.
-Those blockers prevent treating all historical PASS labels as release approval.
+The [2026-10-03 audit](research/msi-audit-2026-10-03.md) findings R1–R3 are
+resolved in Sprint 10: all-attempt cost accounting, shared paired bootstrap,
+and full-payload drift checks are active in `MSI-Bench`. Frozen contracts,
+the [architecture paper](research/paper.md), [prior-art review](research/prior-art.md),
+[limitations and research agenda](research/limitations.md), [version manifest](research/versions.json),
+and [master results](research/results-master.md) are published.
+
 
 ## Install the audited source
 
@@ -197,9 +199,9 @@ The oracle arm is not `lcc.msi.compile`. No result above establishes live-agent
 success, inference latency, actual billing savings or production transfer.
 
 The [sprint-7 pilot](benchmarks/msi-bench/REPORT.md) has 12 curated tasks and
-72 arm runs. Audit found final-attempt cost accounting, unpaired bootstrap
-sampling and incomplete `--check` coverage; its cost/Pareto claims require
-review before release. Historical semantic-provider experiments live in
+72 arm runs. In Sprint 10, audit findings R1–R3 were resolved: full-chain attempt
+costs are accounted for, bootstrap sampling is paired across arms, and `--check`
+asserts complete payload stability. Historical semantic-provider experiments live in
 [research status](benchmarks/research/RESEARCH_STATUS.md),
 [transcript A/B](benchmarks/research/TRANSCRIPT_AB.md) and
 [real-session measurements](benchmarks/research/REAL_SESSIONS.md).
