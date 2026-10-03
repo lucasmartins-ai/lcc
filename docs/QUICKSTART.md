@@ -87,6 +87,58 @@ lcc explain report.json --source dossier.md
 Prints why every block was kept, trimmed, or dropped. Never re-runs, never
 touches the network.
 
+## 6. One-call MSI path (Python API, offline)
+
+```python
+from lcc.msi import compile
+
+result = compile("reduce mobile booking friction", open("dossier.md").read())
+print(result.context)             # compacted text, ready for a downstream model
+print(result.sufficiency)         # {"checks": 1, "failures": 0, "restored": 0, ...}
+print(result.receipt.to_spec_dict())  # inference-receipt/0.1 audit chain
+```
+
+Deterministic planner (`planner-1.0`) + mechanical compaction + bounded
+sufficiency restoration. No key, no network, no new deps. Runnable demo:
+`python3 examples/msi_quickstart.py`. Full signature: `docs/lcc/msi-api.md`.
+
+## 7. Compare two outputs (offline)
+
+```bash
+lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical -o compacted.md
+lcc diff dossier.md compacted.md
+```
+
+Sizes, token deltas, and a unified diff. Exit code is 0 whether the files
+match or not; the summary tells you. Never touches the network.
+
+## Offline × command matrix (all rows verified without key or network)
+
+| Command | Offline, no key | Needs key/network | Notes |
+| :--- | :--- | :--- | :--- |
+| `optimize` | yes | no | deterministic cleaning only |
+| `prepare` | yes | no | inspect + lexical selection when safe |
+| `inspect` | yes | no | read-only diagnostic |
+| `compact --provider mechanical` | yes | no | lexical baseline, biggest reduction |
+| `compact --provider laya` | yes (extra or honest fallback) | no | offline semantic; missing extra → `laya+mechanical_fallback`, `degraded: true` |
+| `compact --provider jev` / `auto` | falls back, never silent | yes for judgment | no key → `auto` falls back to mechanical, `jev` keeps everything (`degraded`) |
+| `explain` / `inspect --ir` | yes | no | reads reports/IR only |
+| `diff` | yes | no | compares two files only |
+| `bench` | yes | no | mechanical metrics, not LLM quality |
+| `intake` (no `--enable-relevance`) | yes | no | structuring only |
+| `intake --enable-relevance --relevance-provider jev` | no | yes | needs `TYPESAFE_API_KEY` |
+| `agent health` (default mock) | yes | no | mock backend |
+| `agent run` (ollama/llamacpp/vllm) | depends on backend | backend endpoint | local backends stay offline |
+| `route run/eval` | yes (mock/local default) | only if a remote model is configured | default path is local |
+| `semantic-retrieval` (no flags) | yes | no | boundary status only, performs no retrieval |
+| `mcp` (stdio) | yes by default | only `jev` tool calls need a key | compact tool defaults to mechanical |
+
+Common errors all name the next step: missing file suggests checking the
+path or passing `-` for stdin; bad JSON suggests regenerating with
+`lcc compact -r report.json`; non-IR file suggests `lcc compact --emit-ir`.
+Logging: the library never configures logging (only `logging.getLogger`
+at DEBUG); the CLI prints human summaries to stderr so stdout stays pipeable.
+
 ## Where next
 
 | Question | Answer |
