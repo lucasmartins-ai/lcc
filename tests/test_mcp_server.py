@@ -95,7 +95,7 @@ def test_compact_transcript_offline_keeps_every_call(monkeypatch):
     import lcc.relevance.transcript as transcript_module
 
     monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
-    monkeypatch.setattr(transcript_module, "_resolve_client", lambda: None)
+    monkeypatch.setattr(transcript_module, "_resolve_client", lambda *_: None)
     resp = handle_message(
         {
             "jsonrpc": "2.0",
@@ -129,6 +129,95 @@ def test_compact_transcript_offline_keeps_every_call(monkeypatch):
     assert payload["report"]["semantic_guarantee"] == "none"
     assert [message["role"] for message in payload["messages"]] == ["user", "assistant", "user"]
     assert payload["messages"][2]["toolResults"][0]["text"] == "1 failed"
+
+
+def test_compact_transcript_accepts_the_local_laya_judge(monkeypatch):
+    """Laya is a valid judge here: local, offline, and it answers the same question.
+
+    Driven through the library API with an injected client, so the wiring is proven
+    without downloading a checkpoint or any weights.
+    """
+    from lcc.relevance.transcript import TranscriptCompactionRequest, compact_transcript
+
+    class FakeLaya:
+        """Answers the two questions ``_questions`` asks, in the shape Laya returns."""
+
+        last_resolved_model = "fake/laya-typed-decisions"
+
+        def evaluate(self, state, questions):
+            answers = {}
+            for key, definition in questions.items():
+                assert definition["type"] == "noul", key
+                # toolu_2 is the call this fixture says is spent, so the fake judge
+                # keys off the question id rather than parsing prose.
+                spent = key.endswith("toolu_2")
+                answers[key] = {
+                    "type": "noul",
+                    "noul": 0.05 if spent else 0.95,
+                    "confidence": 0.9,
+                }
+            return {"model": "fake/laya", "answers": answers, "latency_ms": 1}
+
+    messages = [
+        {"role": "user", "text": "Fix the parser."},
+        {
+            "role": "assistant",
+            "toolUses": [
+                {"tool_use_id": "toolu_1", "tool": "Read", "input": {"path": "parser.py"}}
+            ],
+        },
+        {
+            "role": "user",
+            "toolResults": [{"tool_use_id": "toolu_1", "text": "def parse(): ..."}],
+        },
+        {
+            "role": "assistant",
+            "toolUses": [
+                {"tool_use_id": "toolu_2", "tool": "Bash", "input": {"command": "sleep 5"}}
+            ],
+        },
+        {"role": "user", "toolResults": [{"tool_use_id": "toolu_2", "text": "done"}]},
+    ]
+
+    result = compact_transcript(
+        TranscriptCompactionRequest(
+            payload=messages,
+            question="fix the parser",
+            provider="laya",
+            preserve_recent=0,
+            min_reduction=0.0,
+            client=FakeLaya(),
+        )
+    )
+
+    # The report must name Laya, not Jev, everywhere a judge is recorded.
+    assert result.report["provider_requested"] == "laya"
+    assert result.report["provider_used"] == "laya"
+    assert result.report["semantic_guarantee"] == "judged"
+    assert not [w for w in result.report["warnings"] if w.startswith("jev_")]
+
+    decisions = {d["id"]: d for d in result.decisions}
+    assert decisions["toolu_1"]["decision"] == "keep"
+    assert decisions["toolu_2"]["decision"] == "drop"
+    assert all(d["source"] == "laya" for d in result.decisions)
+
+
+def test_compact_transcript_rejects_mechanical_before_any_work():
+    """mechanical cannot answer the question, so it must fail before scoring."""
+    from lcc.relevance.transcript import (
+        TranscriptCompactionRequest,
+        UnsupportedTranscriptProviderError,
+        compact_transcript,
+    )
+
+    with pytest.raises(UnsupportedTranscriptProviderError):
+        compact_transcript(
+            TranscriptCompactionRequest(
+                payload=[{"role": "user", "text": "hi"}],
+                question="q",
+                provider="mechanical",
+            )
+        )
 
 
 def test_compact_transcript_refuses_a_non_semantic_provider():

@@ -22,7 +22,7 @@ CHANGELOG + migração de 3 linhas; nenhum wizard interativo; nenhuma telemetria
 
 ## Tarefas
 1. Auditar cada comando: roda sem key? erro sem key é acionável? documentar a matriz.
-2. Escrever `docs/QUICKSTART_MSI.md` (ou estender o existente — 1 lugar) e TESTÁ-LO
+2. Escrever `QUICKSTART_MSI.md` sob `docs/` (ou estender o existente — 1 lugar) e TESTÁ-LO
    de verdade num venv limpo, cronometrando.
 3. Exemplos em `examples/` que rodam via `pytest --examples` ou 1 script (todos verdes).
 4. Erros: cada falha comum (sem key, arquivo ausente, IR inválida) com mensagem que

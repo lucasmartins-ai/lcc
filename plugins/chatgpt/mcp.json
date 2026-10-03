@@ -3,7 +3,7 @@
   "mcpServers": {
     "lcc": {
       "type": "streamable-http",
-      "url": "https://lcc-production.up.railway.app/mcp"
+      "url": "https://lcc.lookadev.com/mcp"
     }
   }
 }

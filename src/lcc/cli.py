@@ -909,6 +909,7 @@ def _compact_tool_calls(
     min_reduction: float,
     model: str,
     jev_model: str,
+    laya_model: str,
     output_path: Path | None,
     report_path: Path | None,
     dry_run: bool,
@@ -958,6 +959,7 @@ def _compact_tool_calls(
                 min_reduction=min_reduction,
                 model=model,
                 jev_model=jev_model,
+                laya_model=laya_model,
             )
         )
     except (UnsupportedTranscriptProviderError, TranscriptFitError, TranscriptError) as exc:
@@ -1017,7 +1019,12 @@ def _compact_tool_calls(
         f"{report['tokens_before']} -> {report['tokens_after']} ({report['token_count_method']})",
     )
     if report["calls"]:
-        table.add_row("Jev calls", f"{report['calls']} ({report['latency_ms']} ms)")
+        call_label = (
+            "Laya calls"
+            if str(report.get("provider_used", "")).startswith("laya")
+            else "Jev calls"
+        )
+        table.add_row(call_label, f"{report['calls']} ({report['latency_ms']} ms)")
     table.add_row(
         "State",
         f"{report['state_tokens']} tokens, fit '{report['state_fit_stage']}', "
@@ -1396,10 +1403,10 @@ def compact_command(
                 ("--max-restorations", max_restorations, 8),
                 ("--verifier-max-restorations", verifier_max_restorations, 4),
                 ("--confidence-threshold", confidence_threshold, 0.5),
-                ("--laya-model", laya_model, "convaiinnovations/laya-multilingual"),
-                ("--laya-device", laya_device, None),
-                ("--laya-context-limit", laya_context_limit, None),
-                ("--laya-temperature", laya_temperature, None),
+                # NOTE (MSI sprint 3, rebased onto main #27): laya flags are NOT
+                # listed here — tool-calls mode supports laya since #27, so
+                # refusing them would break working flags. Nimble stays listed:
+                # tool-calls still ignores it silently otherwise.
                 ("--nimble-model", nimble_model, "bespokelabs/Bespoke-Nimble-9B"),
                 ("--nimble-backend", nimble_backend, None),
                 ("--nimble-context-limit", nimble_context_limit, None),
@@ -1421,6 +1428,7 @@ def compact_command(
             min_reduction=min_reduction,
             model=model,
             jev_model=jev_model,
+            laya_model=laya_model,
             output_path=output_path,
             report_path=report_path,
             dry_run=dry_run,

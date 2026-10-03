@@ -48,6 +48,12 @@ __pycache__/
 # laya fine-tuning items (regenerable, ~7 MB)
 benchmarks/research/results/laya_finetune/*.pt
 
+# Benchmark session recordings (regenerable, ~25 MB)
+benchmarks/research/results/real_session_*.json
+benchmarks/research/results/*_mock.jsonl
+
+# Agent-local scratch dirs from other tools
+.commandcode/
 # Secrets & credentials (never commit)
 *.pem
 *.key
