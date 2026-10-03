@@ -24,5 +24,7 @@ public / cross-module contracts that are expensive to change after release.
 | [0016](0016-laya-local-semantic-backend.md) | Laya opt-in local semantic backend: budgeted 512/1024 judgment, honest mechanical fallback, outside the deterministic core |
 | [0017](0017-context-ir-emission.md) | Context IR emission (`context-ir/0.1`): opt-in pure mapping over finished compaction state; explainable drops, protected-never-dropped, necessity stays UNKNOWN |
 | [0018](0018-sufficiency-restoration-budgets.md) | Sufficiency/restoration per-layer budgets (structural 8, verifier 4), single-shot verifier, fail-closed on layer crash |
+| [0019](0019-deterministic-inference-planner.md) | Deterministic-first inference planner, pluggable engines, fail-closed risk overlay |
+| [0020](0020-verification-escalation.md) | Layered verification (6 layers, tri-state) + bounded escalation machine with inference receipt |
 
 ADRs are append-only. To change a decision, add a new ADR that supersedes the old one.

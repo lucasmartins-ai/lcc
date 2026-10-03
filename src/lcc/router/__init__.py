@@ -8,7 +8,22 @@ from lcc.router.config import (
     load_policy,
 )
 from lcc.router.context_adapter import inspect_context, optimize_context_if_needed, prepare_context
+from lcc.router.escalate import (
+    DecisionEvent,
+    ExecutionReceipt,
+    ExecutionRun,
+    ReceiptVersions,
+    run_execution,
+)
 from lcc.router.features import extract_features
+from lcc.router.plan import (
+    DeterministicPlanner,
+    JevAdapterPlanner,
+    JevTriage,
+    PlannerInput,
+    RulesPlanner,
+    plan_with_engine,
+)
 from lcc.router.policy import RoutePlan, choose_route
 from lcc.router.router import LCCRouter, final_answer_to_dict
 from lcc.router.schemas import (
@@ -26,6 +41,14 @@ from lcc.router.schemas import (
     VerificationDecision,
     VerificationResult,
 )
+from lcc.router.verify import (
+    EVALUATOR_VERSION,
+    LayerCheck,
+    UnitResult,
+    VerificationOutcome,
+    VerificationSubject,
+    run_verification,
+)
 
 __all__ = [
     "LCCRouter",
@@ -37,10 +60,27 @@ __all__ = [
     "RouterPolicyConfig",
     "extract_features",
     "choose_route",
+    "DeterministicPlanner",
+    "JevAdapterPlanner",
+    "JevTriage",
+    "PlannerInput",
+    "RulesPlanner",
+    "plan_with_engine",
     "RoutePlan",
     "inspect_context",
     "prepare_context",
     "optimize_context_if_needed",
+    "DecisionEvent",
+    "ExecutionReceipt",
+    "ExecutionRun",
+    "ReceiptVersions",
+    "run_execution",
+    "EVALUATOR_VERSION",
+    "LayerCheck",
+    "UnitResult",
+    "VerificationOutcome",
+    "VerificationSubject",
+    "run_verification",
     "RouteDecision",
     "VerificationDecision",
     "ModelFamily",

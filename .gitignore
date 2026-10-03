@@ -54,7 +54,6 @@ benchmarks/research/results/*_mock.jsonl
 
 # Agent-local scratch dirs from other tools
 .commandcode/
-
 # Secrets & credentials (never commit)
 *.pem
 *.key

@@ -254,7 +254,13 @@ def test_local_doc_links_resolve_to_existing_files() -> None:
     candidates = [
         ROOT / "README.md",
         ROOT / "CHANGELOG.md",
-        *sorted((ROOT / "docs").rglob("*.md")),
+        # docs/msi/prompts/ holds sprint specs, which name future deliverables
+        # by design (protocol handoff N -> N+1); forward refs there are not links.
+        *[
+            p
+            for p in sorted((ROOT / "docs").rglob("*.md"))
+            if "msi/prompts" not in p.as_posix()
+        ],
     ]
     pattern = re.compile(r"\bdocs/[A-Za-z0-9_.\-/]+\.md\b")
     missing: list[str] = []
