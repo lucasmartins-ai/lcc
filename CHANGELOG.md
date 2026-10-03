@@ -36,6 +36,19 @@ All notable changes to this project are documented here. The format is based on
   2 NECESSARY from 5 passing units; pair ablation + token-coverage split the rest
   (2 conditional, 2 redundant, 1 noise). 35 experiments, <1 ms wall, 0 model calls.
   Labels are not consumed by any production path. Docs: `research/causal-necessity.md`.
+- MSI-Bench pilot, MSI sprint 7 (PILOT N=12, offline, deterministic, no live models):
+  `benchmarks/msi-bench/` runs 6 arms (full-context, LCC-only, routing-only,
+  LCC+routing, +verification, MSI closed loop) over 12 frozen CURATED tasks in 6
+  categories, all scored under the paired `verify-1.0`/`standard` rubric with an
+  `inference-receipt/0.1` receipt per run (72 runs, digest-pinned results, 1-command
+  repro via `run.py --check`). PILOT outcome: MSI closed loop is the only 12/12 arm
+  at 0.11x modeled cost and 0.52x context of full-context; routing alone matches
+  full-context quality (11/12, identical cells) at 0.14x modeled cost; lexical-only
+  filtering loses 5/12 with named failure modes, and full-context itself FAILs the
+  injection task. Pareto frontier: lcc, lcc+routing+verification, msi. Costs are
+  modeled (illustrative prices), latency is deterministic overhead only, bootstrap
+  95% CIs overlap nearly everywhere -- distributions only, no generalization claim.
+  Docs: `benchmarks/msi-bench/REPORT.md`, `research/benchmark-methodology.md`.
 
 ### Changed
 
