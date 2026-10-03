@@ -49,6 +49,14 @@ All notable changes to this project are documented here. The format is based on
   modeled (illustrative prices), latency is deterministic overhead only, bootstrap
   95% CIs overlap nearly everywhere -- distributions only, no generalization claim.
   Docs: `benchmarks/msi-bench/REPORT.md`, `research/benchmark-methodology.md`.
+- MSI DX, sprint 8: one-call offline Python API `lcc.msi.compile(task, context)`
+  (deterministic planner + mechanical compaction + bounded sufficiency; returns
+  context + spec-valid receipt + sufficiency; demo `examples/msi_quickstart.py`,
+  reference `docs/lcc/msi-api.md`); new offline `lcc diff LEFT RIGHT` (sizes,
+  token deltas, unified diff; workflow: compact then diff before sending to a
+  model); actionable CLI errors (every common failure names the next step);
+  QUICKSTART extended with the MSI path, a `diff` section, and an offline x
+  command matrix (single quickstart location, no second file).
 
 ### Changed
 
