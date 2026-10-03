@@ -27,6 +27,15 @@ All notable changes to this project are documented here. The format is based on
   never a silent drop). Measured: structural cuts false-drop rate 0.660 → 0.151 under
   judge error (30 curated adversarial cases). Docs: `docs/lcc/sufficiency.md` (ablation +
   adversarial matrix), `docs/lcc/restoration.md` (audit trail).
+- Causal necessity harness, MSI sprint 6 (ADR 0021, research-only):
+  `src/lcc/router/ablate.py` (`run_pilot`, harness `ablate-1.0`) removes each unit
+  (and passing pairs) from a frozen offline baseline, replays sprint-5 verification,
+  and labels by observed delta (NECESSARY / CONDITIONALLY_NECESSARY / REDUNDANT /
+  UNNECESSARY / PROTECTED / UNKNOWN, unstable labels fail closed to UNKNOWN). Pilot
+  N=8 (`benchmarks/ablation/pilot.py`, digest-pinned results): single-removal splits
+  2 NECESSARY from 5 passing units; pair ablation + token-coverage split the rest
+  (2 conditional, 2 redundant, 1 noise). 35 experiments, <1 ms wall, 0 model calls.
+  Labels are not consumed by any production path. Docs: `research/causal-necessity.md`.
 
 ### Changed
 

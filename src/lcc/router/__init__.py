@@ -1,5 +1,14 @@
 """LCC Hybrid Routing and Quality Verification Engine."""
 
+from lcc.router.ablate import (
+    HARNESS_VERSION,
+    AblationBaseline,
+    AblationUnit,
+    ExperimentRecord,
+    PilotReport,
+    UnitLabel,
+    run_pilot,
+)
 from lcc.router.config import (
     ModelConfig,
     PolicyConfig,
@@ -53,6 +62,13 @@ from lcc.router.verify import (
 __all__ = [
     "LCCRouter",
     "final_answer_to_dict",
+    "HARNESS_VERSION",
+    "AblationBaseline",
+    "AblationUnit",
+    "ExperimentRecord",
+    "PilotReport",
+    "UnitLabel",
+    "run_pilot",
     "load_policy",
     "load_model_config",
     "PolicyConfig",
