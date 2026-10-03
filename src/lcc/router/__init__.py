@@ -8,6 +8,13 @@ from lcc.router.config import (
     load_policy,
 )
 from lcc.router.context_adapter import inspect_context, optimize_context_if_needed, prepare_context
+from lcc.router.escalate import (
+    DecisionEvent,
+    ExecutionReceipt,
+    ExecutionRun,
+    ReceiptVersions,
+    run_execution,
+)
 from lcc.router.features import extract_features
 from lcc.router.plan import (
     DeterministicPlanner,
@@ -34,6 +41,14 @@ from lcc.router.schemas import (
     VerificationDecision,
     VerificationResult,
 )
+from lcc.router.verify import (
+    EVALUATOR_VERSION,
+    LayerCheck,
+    UnitResult,
+    VerificationOutcome,
+    VerificationSubject,
+    run_verification,
+)
 
 __all__ = [
     "LCCRouter",
@@ -55,6 +70,17 @@ __all__ = [
     "inspect_context",
     "prepare_context",
     "optimize_context_if_needed",
+    "DecisionEvent",
+    "ExecutionReceipt",
+    "ExecutionRun",
+    "ReceiptVersions",
+    "run_execution",
+    "EVALUATOR_VERSION",
+    "LayerCheck",
+    "UnitResult",
+    "VerificationOutcome",
+    "VerificationSubject",
+    "run_verification",
     "RouteDecision",
     "VerificationDecision",
     "ModelFamily",
