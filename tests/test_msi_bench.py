@@ -24,7 +24,7 @@ from tasks import ARMS, BenchTask, BenchUnit  # noqa: E402
 
 jsonschema = pytest.importorskip("jsonschema", reason="receipt validation needs jsonschema")
 
-SPEC_DIR = Path("/Users/Master/msi-repos/minimum-sufficient-inference/spec")
+SPEC_DIR = Path(__file__).parent / "fixtures" / "msi"
 RECEIPT_SCHEMA = json.loads((SPEC_DIR / "inference-receipt.schema.json").read_text())
 FROZEN = json.loads((BENCH_DIR / "results.json").read_text())
 

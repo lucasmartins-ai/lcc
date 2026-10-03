@@ -87,7 +87,7 @@ def _no_network_guard() -> Iterator[None]:
                 original = getattr(owner, attr, None)
                 _GUARD_SAVED_ATTRS.append((owner, attr, has_own, original))
 
-                def _make_guarded(orig_func: Any) -> Any:
+                def _make_guarded(orig_func: Any, attr_name: str) -> Any:
                     def _guarded(*args: Any, **kwargs: Any) -> Any:
                         with _GUARD_LOCK:
                             is_blocked = threading.get_ident() in _GUARDED_THREADS
@@ -97,11 +97,13 @@ def _no_network_guard() -> Iterator[None]:
                             )
                         if orig_func is not None:
                             return orig_func(*args, **kwargs)
-                        raise RuntimeError(f"guarded attribute {attr} has no original implementation")
+                        raise RuntimeError(
+                            f"guarded attribute {attr_name} has no original implementation"
+                        )
 
                     return _guarded
 
-                setattr(owner, attr, _make_guarded(original))
+                setattr(owner, attr, _make_guarded(original, attr))
 
         _GUARDED_THREADS[current_tid] = _GUARDED_THREADS.get(current_tid, 0) + 1
 

@@ -1,0 +1,199 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/msi/inference-receipt/0.1",
+  "title": "Inference Receipt",
+  "description": "Audit record of one inference: selection with omitted-unit rationale, model and reasoning config, tools, verification strategy and result, restorations and escalations, cost, versions, timestamps, decision events and final outcome. The receipt is audit infrastructure; its value is the link to measured outcomes, not novelty. Minimal example: receipt_id plus task_id, two selected units, one omitted unit with rationale, strict verification PASS, zero restorations. Transcribed from docs/msi/05-msi-spec-v0.md section 5.",
+  "type": "object",
+  "required": ["schema_version", "receipt_id", "task_id", "selected_units", "omitted_units", "model", "tools_used", "verification", "restorations", "cost", "versions", "timestamps", "decision_events", "outcome"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "inference-receipt/0.1",
+      "description": "Schema identifier and version. Must equal inference-receipt/0.1."
+    },
+    "receipt_id": {
+      "type": "string",
+      "description": "Stable receipt identifier."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Links this receipt to its Task Contract."
+    },
+    "selected_units": {
+      "type": "array",
+      "description": "Ids of context units used as input.",
+      "items": {"type": "string"}
+    },
+    "omitted_units": {
+      "type": "array",
+      "description": "Omitted units, each with a rationale. Nothing is silently discarded.",
+      "items": {
+        "type": "object",
+        "required": ["id", "rationale"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Omitted unit id."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why this unit was omitted."
+          }
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "description": "Model tier and reasoning configuration actually used.",
+      "required": ["class", "reasoning_budget"],
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "type": "string",
+          "enum": ["local_tiny", "local_small", "fast_hosted", "frontier"],
+          "description": "Model tier used."
+        },
+        "reasoning_budget": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high"],
+          "description": "Reasoning budget used."
+        }
+      }
+    },
+    "tools_used": {
+      "type": "array",
+      "description": "Tools actually invoked during execution.",
+      "items": {"type": "string"}
+    },
+    "verification": {
+      "type": "object",
+      "description": "Verification strategy applied and its result status.",
+      "required": ["profile", "result"],
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "string",
+          "enum": ["strict", "standard", "light"],
+          "description": "Verification strictness applied."
+        },
+        "result": {
+          "type": "string",
+          "enum": ["PASS", "REVIEW", "FAIL"],
+          "description": "Verification outcome recorded on the receipt."
+        }
+      }
+    },
+    "restorations": {
+      "type": "object",
+      "description": "Restoration, retry and escalation counts for this inference.",
+      "required": ["restored", "retries", "escalations"],
+      "additionalProperties": false,
+      "properties": {
+        "restored": {
+          "type": "array",
+          "description": "Ids of units restored during this inference.",
+          "items": {"type": "string"}
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of execution retries."
+        },
+        "escalations": {
+          "type": "array",
+          "description": "Escalation targets actually used (subset of human, frontier, abort, or empty).",
+          "items": {
+            "type": "string",
+            "enum": ["human", "frontier", "abort"]
+          }
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "description": "Measured latency, token use and cost.",
+      "required": ["latency_ms", "tokens_in", "tokens_out", "cost_usd"],
+      "additionalProperties": false,
+      "properties": {
+        "latency_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Measured wall-clock latency in milliseconds."
+        },
+        "tokens_in": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Measured input tokens."
+        },
+        "tokens_out": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Measured output tokens."
+        },
+        "cost_usd": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Measured cost in USD."
+        }
+      }
+    },
+    "versions": {
+      "type": "object",
+      "description": "Component versions pinned for reproduction.",
+      "required": ["compiler", "policy", "model", "schema", "dataset", "evaluator"],
+      "additionalProperties": false,
+      "properties": {
+        "compiler": {"type": "string", "description": "Context compiler version."},
+        "policy": {"type": "string", "description": "Routing and selection policy version."},
+        "model": {"type": "string", "description": "Concrete model label used."},
+        "schema": {"type": "string", "description": "Schema bundle version."},
+        "dataset": {"type": "string", "description": "Evaluation dataset version or n/a."},
+        "evaluator": {"type": "string", "description": "Evaluator version."}
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "description": "Start and finish timestamps in RFC3339.",
+      "required": ["started_at", "finished_at"],
+      "additionalProperties": false,
+      "properties": {
+        "started_at": {"type": "string", "description": "Inference start timestamp."},
+        "finished_at": {"type": "string", "description": "Inference finish timestamp."}
+      }
+    },
+    "decision_events": {
+      "type": "array",
+      "description": "Why each consequential decision happened (dropped, restored, routed, failed, escalated).",
+      "items": {
+        "type": "object",
+        "required": ["event", "reason", "at"],
+        "additionalProperties": false,
+        "properties": {
+          "event": {
+            "type": "string",
+            "enum": ["dropped", "restored", "routed", "failed", "escalated"],
+            "description": "Closed decision-event vocabulary."
+          },
+          "reason": {"type": "string", "description": "Human-readable reason."},
+          "at": {"type": "string", "description": "RFC3339 timestamp of the event."}
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "description": "Final result and its evaluation.",
+      "required": ["result", "evaluation"],
+      "additionalProperties": false,
+      "properties": {
+        "result": {"type": "string", "description": "Final output reference or summary."},
+        "evaluation": {
+          "type": "string",
+          "enum": ["PASS", "REVIEW", "FAIL"],
+          "description": "Evaluation of the final result."
+        }
+      }
+    }
+  }
+}

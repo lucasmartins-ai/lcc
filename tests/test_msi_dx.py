@@ -61,7 +61,7 @@ def test_compile_is_offline_deterministic_and_schema_valid(monkeypatch):
     assert receipt["schema_version"] == "inference-receipt/0.1"
     assert receipt["task_id"].startswith("msi-")
     # jsonschema validity against the frozen spec when available
-    spec = ROOT.parent / "msi-repos" / "minimum-sufficient-inference" / "spec" / "inference-receipt.schema.json"
+    spec = ROOT / "tests" / "fixtures" / "msi" / "inference-receipt.schema.json"
     if spec.is_file():
         import jsonschema
 
@@ -102,17 +102,17 @@ def test_diff_runs_offline(monkeypatch, tmp_path):
     assert res2.exit_code == 0, res2.output
 
 
-def test_common_errors_are_actionable():
+def test_common_errors_are_actionable(tmp_path, monkeypatch):
     from typer.testing import CliRunner
 
     from lcc.cli import app
 
     r = CliRunner()
-    with r.isolated_filesystem():
-        out = r.invoke(app, ["optimize", "nope-missing.md"]).output
-        assert "check the path" in out and "'-'" in out
-        Path("bad.json").write_text('{"foo": 1}', encoding="utf-8")
-        out2 = r.invoke(app, ["explain", "bad.json"]).output
-        assert "lcc compact -r report.json" in out2
-        out3 = r.invoke(app, ["diff", "-", "bad.json"]).output
-        assert "two file paths" in out3
+    monkeypatch.chdir(tmp_path)
+    out = r.invoke(app, ["optimize", "nope-missing.md"]).output
+    assert "check the path" in out and "'-'" in out
+    Path("bad.json").write_text('{"foo": 1}', encoding="utf-8")
+    out2 = r.invoke(app, ["explain", "bad.json"]).output
+    assert "lcc compact -r report.json" in out2
+    out3 = r.invoke(app, ["diff", "-", "bad.json"]).output
+    assert "two file paths" in out3

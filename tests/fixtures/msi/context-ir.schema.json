@@ -1,0 +1,217 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/msi/context-ir/0.1",
+  "title": "Context IR",
+  "description": "Versioned Context Intermediate Representation: verbatim units with provenance, typed relationships, selection record, sufficiency judgement and restoration log. Minimal example: one unit with provenance origin path:lines, selection kept [blk id], sufficiency sufficient true. Transcribed from docs/msi/05-msi-spec-v0.md section 2. Relationship enum matches graph edge types: SUPPORTS QUALIFIES CONTRADICTS SUPERSEDES DEPENDS_ON DUPLICATES DERIVED_FROM.",
+  "type": "object",
+  "required": ["schema_version", "ir_version", "task_id", "units", "selection", "sufficiency", "restoration"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "context-ir/0.1",
+      "description": "Schema identifier and version. Must equal context-ir/0.1."
+    },
+    "ir_version": {
+      "type": "string",
+      "const": "0.1",
+      "description": "IR format version, independent from schema envelope version."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Links this IR to its Task Contract."
+    },
+    "units": {
+      "type": "array",
+      "description": "Verbatim context units. Content is never summarized, only selected or trimmed.",
+      "items": {
+        "type": "object",
+        "required": ["id", "content", "source", "provenance", "relevance", "necessity", "protected"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^blk_[0-9a-z_]+$",
+            "description": "Stable block identifier, e.g. blk_0001_ab12cd."
+          },
+          "content": {
+            "type": "string",
+            "description": "Verbatim bytes of the unit."
+          },
+          "source": {
+            "type": "string",
+            "description": "Source pointer: path:lines, tool:call_id or url."
+          },
+          "provenance": {
+            "type": "object",
+            "description": "Origin lineage of the unit. Survives all selection stages.",
+            "required": ["origin", "collected_at", "transform"],
+            "additionalProperties": false,
+            "properties": {
+              "origin": {
+                "type": "string",
+                "description": "Where the bytes came from (file path, tool name, url)."
+              },
+              "collected_at": {
+                "type": "string",
+                "description": "Collection timestamp in RFC3339 format (e.g. 2026-10-02T10:00:00Z)."
+              },
+              "transform": {
+                "type": "string",
+                "enum": ["none", "clean", "dedupe"],
+                "description": "Deterministic transform applied: none, clean or dedupe. Never summarization."
+              }
+            }
+          },
+          "relevance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Lexical or scored relevance in [0,1]. Relevance is not necessity."
+          },
+          "necessity": {
+            "type": "string",
+            "enum": ["NECESSARY", "UNNECESSARY", "CONDITIONALLY_NECESSARY", "REDUNDANT", "PROTECTED", "UNKNOWN"],
+            "description": "Causal necessity label. Default UNKNOWN until ablation assigns a stronger label."
+          },
+          "semantic_risk": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Estimated risk of dropping this unit (0 low, 1 high)."
+          },
+          "protected": {
+            "type": "boolean",
+            "description": "True means the unit must never be silently dropped; a reason is required."
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "Ids of units this unit depends on.",
+            "items": {"type": "string"}
+          },
+          "relationships": {
+            "type": "array",
+            "description": "Typed edges from this unit to other units.",
+            "items": {
+              "type": "object",
+              "required": ["to", "type"],
+              "additionalProperties": false,
+              "properties": {
+                "to": {
+                  "type": "string",
+                  "description": "Target unit id."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["SUPPORTS", "QUALIFIES", "CONTRADICTS", "SUPERSEDES", "DEPENDS_ON", "DUPLICATES", "DERIVED_FROM"],
+                  "description": "Closed relationship vocabulary."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "description": "Graph-level edges (redundant with per-unit edges; either location is valid).",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Source unit id."
+          },
+          "to": {
+            "type": "string",
+            "description": "Target unit id."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["SUPPORTS", "QUALIFIES", "CONTRADICTS", "SUPERSEDES", "DEPENDS_ON", "DUPLICATES", "DERIVED_FROM"],
+            "description": "Closed relationship vocabulary."
+          }
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "description": "What was kept, trimmed or dropped, under which policy and why.",
+      "required": ["kept", "trimmed", "dropped", "policy"],
+      "additionalProperties": false,
+      "properties": {
+        "kept": {
+          "type": "array",
+          "description": "Ids of units in the working set.",
+          "items": {"type": "string"}
+        },
+        "trimmed": {
+          "type": "array",
+          "description": "Ids of units shortened but retained.",
+          "items": {"type": "string"}
+        },
+        "dropped": {
+          "type": "array",
+          "description": "Ids of units excluded from the working set. Every dropped unit must be explainable.",
+          "items": {"type": "string"}
+        },
+        "policy": {
+          "type": "string",
+          "description": "Name and version of the selection policy (e.g. lexical-1.0)."
+        },
+        "rationale": {
+          "type": "object",
+          "description": "Map from unit id to human-readable reason string.",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    },
+    "sufficiency": {
+      "type": "object",
+      "description": "Whether the kept set suffices for the task.",
+      "required": ["sufficient", "missing_evidence", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "sufficient": {
+          "type": "boolean",
+          "description": "True when the kept set covers the task; false triggers restoration."
+        },
+        "missing_evidence": {
+          "type": "array",
+          "description": "Descriptions of evidence still missing when sufficient is false.",
+          "items": {"type": "string"}
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence in the sufficiency judgement."
+        }
+      }
+    },
+    "restoration": {
+      "type": "object",
+      "description": "Bounded restore log. Restores come from the original units only.",
+      "required": ["restored", "budget", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "restored": {
+          "type": "array",
+          "description": "Ids of units restored after a sufficiency or verification failure.",
+          "items": {"type": "string"}
+        },
+        "budget": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of restorations allowed for this IR."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why restoration happened (or empty string when nothing was restored)."
+        }
+      }
+    }
+  }
+}

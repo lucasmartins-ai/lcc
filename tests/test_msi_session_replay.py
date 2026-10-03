@@ -85,7 +85,7 @@ def test_published_session_excerpts_follow_safe_output_grammar():
 
 
 def test_public_compile_receipts_validate_against_frozen_spec():
-    spec = Path("/Users/Master/msi-repos/minimum-sufficient-inference/spec")
+    spec = ROOT / "tests" / "fixtures" / "msi"
     if not spec.exists():
         pytest.skip("Local spec checkout unavailable")
     jsonschema = pytest.importorskip("jsonschema")
