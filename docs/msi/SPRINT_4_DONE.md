@@ -1,7 +1,9 @@
 # Sprint 4 — DONE (PASS)
 
-- Commit: branch `msi/sprint-4-inference-planner`, parent HEAD `3e8e006`
-  (single commit with code + this file; exact sha in the PR).
+- Commit: branch `msi/sprint-4-inference-planner`, parent HEAD `3e8e006`.
+  Sprint-4 work in `5d0900f`; the two pre-existing red tests were fixed at
+  root cause in the follow-up commit on this same branch (see git log;
+  exact shas in the PR).
 - Gate: `SPRINT_3_DONE.md` = PASS; `src/lcc/router/{policy,features,schemas}.py`
   re-read; triage gate `scripts/integrate_agy_results.py:150-152`
   (`escalate OR risk>=0.60 OR conf<0.65`) re-read in
@@ -36,13 +38,32 @@
   → **27 passed** (12 exact goldens, spec validity ×3 engines, route/action
   coverage, mock-engine swap, Jev gate ×4, fail-closed ×3, invalid-risk,
   unknown-engine, spec-dict provider hygiene).
-- `PYTHONPATH=src python3 -m pytest tests/ -p no:cacheprovider`
-  → **752 passed, 6 skipped, 2 failed** — both failures pre-existing and
-  outside this diff (same proof as sprints 2–3: `test_metadata` asserts
-  installed-dist vs staged `pyproject.toml` bump from another WIP;
-  `test_docs` missing-link list contains zero entries from/to any file
-  created or edited here — full list: only `SPRINT_1_DONE.md`,
-  `SPRINT_3_DONE.md` and `prompts/sprint-0*/01/04/05/08` forward refs).
+- Full suite, hook-identical command `pytest -q` (repo root, no extra flags)
+  → **exit 0, 0 failed (754 passed, 6 skipped)**. Baseline before this
+  sprint: 752 passed + 2 pre-existing failures + 6 skipped; both failures
+  were fixed at root cause in the follow-up commit (user-approved scope,
+  details below) — no failure is new, none remains.
+  - `test_metadata` red because the source-tree fallback in
+    `src/lcc/__init__.py` still said `0.5.0` while the release WIP bumped
+    `pyproject.toml` to `1.0.0` (plus a stale gitignored
+    `src/*.egg-info` at 0.5.0 shadowing the installed 1.0.0 dist under
+    pytest's `pythonpath=["src", "."]`). Fix: deleted the stale egg-info
+    (untracked, ignored, no one's work) and bumped the fallback literal to
+    `1.0.0` — the tree IS 1.0.0 per pyproject + CHANGELOG + installed dist.
+    Verified failing→passing on both interpreters (system `pytest` and
+    `.venv/bin/python -m pytest`).
+  - `test_docs` red on 17 unresolvable `docs/*.md` substrings, all
+    pre-existing (proven identical at parent `3e8e006` in a clean
+    worktree). Fix: (a) `tests/test_docs.py` no longer scans
+    `docs/msi/prompts/**` — sprint specs name future deliverables by
+    design (protocol handoff N→N+1), so forward refs there are not links;
+    (b) `SPRINT_1_DONE.md` (2 lines) and `SPRINT_3_DONE.md` (1 line)
+    reworded spec-repo-relative `docs/x` to bare names with an explicit
+    spec-repo qualifier (also fixes silent wrong-repo resolution, e.g.
+    `docs/architecture.md` resolving to this repo's file); (c)
+    `prompts/sprint-04-inference-planner.md` updated to the decided
+    location `docs/lcc/inference-planning.md`. No future-sprint stub was
+    created, no spec weakened.
 - `.venv/bin/ruff check` on `plan.py`, `test_inference_plan.py`,
   `router/__init__.py` → clean. mypy
   (`--python-version 3.14 --ignore-missing-imports --follow-imports=silent`)
@@ -89,6 +110,13 @@ verification + fallback upgraded) — the gate is the ONLY divergence.
 - Altered: `src/lcc/router/plan.py` (new, ~380 lines, zero new deps, no
   network), `src/lcc/router/__init__.py` (plan exports only),
   `docs/adr/README.md` (+0019 row).
+- Altered (follow-up gate-fix commit): `src/lcc/__init__.py` (fallback
+  `0.5.0` → `1.0.0`, one line), `tests/test_docs.py` (exclude
+  `docs/msi/prompts/**` + rationale comment),
+  `docs/msi/SPRINT_1_DONE.md` (2 lines disambiguated),
+  `docs/msi/SPRINT_3_DONE.md` (1 line disambiguated),
+  `docs/msi/prompts/sprint-04-inference-planner.md` (decided doc location);
+  this file (`SPRINT_4_DONE.md`) updated to record the green gate.
 
 ## Deliberately skipped
 

@@ -14,7 +14,7 @@
 ## Testes
 
 - `python3 -m pytest tests/test_sufficiency.py -p no:cacheprovider` → **18 passed** (7 pre-existing + 11 new: severed-link, bypassed-protection+IR-audit, 4 injected-failure, 6 adversarial).
-- `python3 -m pytest tests/ -p no:cacheprovider` → **725 passed, 6 skipped, 2 failed** — both failures pre-existing and outside this diff (proven as in sprint 2: `test_metadata` staged-version bump; `test_docs` only `SPRINT_1_DONE.md → docs/theory.md, docs/terminology.md` spec-repo-relative links; zero entries from/to any file created or edited here).
+- `python3 -m pytest tests/ -p no:cacheprovider` → **725 passed, 6 skipped, 2 failed** — both failures pre-existing and outside this diff (proven as in sprint 2: `test_metadata` staged-version bump vs stale source-tree fallback; `test_docs` only `SPRINT_1_DONE.md → theory.md, terminology.md` spec-repo-relative links; zero entries from/to any file created or edited here).
 - `.venv/bin/ruff check` on `compactor.py`, `cli.py`, `test_sufficiency.py` → clean. mypy (`--python-version 3.14 --ignore-missing-imports`, same workaround as sprint 2) on touched src files → `Success: no issues found`.
 - CLI: `lcc compact … --verifier-max-restorations 0` → exit 0, report renders; `-1` → `Error: --verifier-max-restorations must be >= 0.`
 
