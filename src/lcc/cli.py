@@ -124,13 +124,15 @@ def _read_input(source: str) -> str:
         return sys.stdin.read()
     path = Path(source)
     if not path.exists():
-        _fail(f"input file not found: {source}")
+        _fail(
+            f"input file not found: {source}; check the path or pass '-' to read from stdin"
+        )
     if path.is_dir():
-        _fail(f"input path is a directory: {source}")
+        _fail(f"input path is a directory, not a file: {source}; pass a file path or '-' for stdin")
     try:
         return path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
-        _fail(f"could not read {source}: {exc}")
+        _fail(f"could not read {source}: {exc}; check permissions and that the file is UTF-8 text")
 
 
 def _load_config(path: str | None) -> dict[str, Any]:
@@ -140,13 +142,13 @@ def _load_config(path: str | None) -> dict[str, Any]:
 
     cfg_path = Path(path)
     if not cfg_path.exists():
-        _fail(f"config file not found: {path}")
+        _fail(f"config file not found: {path}; check the path or drop --config to use defaults")
     try:
         data = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     except yaml.YAMLError as exc:
-        _fail(f"could not parse config {path}: {exc}")
+        _fail(f"could not parse config {path}: {exc}; fix the YAML and retry")
     if not isinstance(data, dict):
-        _fail(f"config file must be a mapping: {path}")
+        _fail(f"config file must be a top-level mapping: {path}; wrap the keys in a dict")
     return data
 
 
@@ -892,6 +894,117 @@ def _print_inspect_summary(report: Any, report_path: Path | None, summary: str) 
     if report.warnings:
         body = "\n".join(f"- {warning}" for warning in report.warnings)
         err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
+
+
+@app.command("diff")
+def diff_command(
+    left: str = typer.Argument(..., metavar="LEFT", help="First text file (e.g. the original)."),
+    right: str = typer.Argument(
+        ..., metavar="RIGHT", help="Second text file (e.g. the compacted output)."
+    ),
+    context_lines: int = typer.Option(
+        3, "--context", "-U", help="Unified-diff context lines shown around each hunk."
+    ),
+    max_lines: int = typer.Option(
+        50, "--max-lines", help="Maximum diff body lines printed to stdout."
+    ),
+    report_path: Path | None = typer.Option(
+        None, "--report", "-r", help="Write the JSON size comparison to this file."
+    ),
+) -> None:
+    """Compare two text files: sizes, token deltas, and a unified diff — offline.
+
+    Real workflow: ``lcc compact dossier.md -o compacted.md`` then
+    ``lcc diff dossier.md compacted.md`` to see what the pass removed before
+    sending anything to a model. Reads files only, never touches the network.
+    Exit code is 0 whether the files match or not; the summary tells you.
+    """
+    if left == "-" or right == "-":
+        _fail("lcc diff needs two file paths; stdin ('-') is not supported here")
+    if context_lines < 0:
+        _fail("--context must be >= 0", code=2)
+    if max_lines < 1:
+        _fail("--max-lines must be at least 1", code=2)
+    left_text = _read_input(left)
+    right_text = _read_input(right)
+    try:
+        from lcc.token_budget import count_tokens
+    except Exception:  # pragma: no cover - import-time fallback, never silent
+        count_tokens = None  # type: ignore[assignment]
+
+    def _count(text: str) -> tuple[int, str]:
+        if count_tokens is None:
+            return len(text) // 4, "heuristic"
+        try:
+            counted = count_tokens(text, "gpt-4.1")
+            method = counted.method
+            label = str(method.value if hasattr(method, "value") else method)
+            return int(counted.value), label
+        except Exception:
+            return len(text) // 4, "heuristic"
+
+    import difflib
+
+    left_lines = left_text.splitlines()
+    right_lines = right_text.splitlines()
+    left_tokens, left_method = _count(left_text)
+    right_tokens, right_method = _count(right_text)
+    body = list(
+        difflib.unified_diff(
+            left_lines,
+            right_lines,
+            fromfile=left,
+            tofile=right,
+            n=context_lines,
+            lineterm="",
+        )
+    )
+    identical = left_text == right_text
+    payload: dict[str, Any] = {
+        "left": {
+            "path": left,
+            "chars": len(left_text),
+            "lines": len(left_lines),
+            "tokens": left_tokens,
+        },
+        "right": {
+            "path": right,
+            "chars": len(right_text),
+            "lines": len(right_lines),
+            "tokens": right_tokens,
+        },
+        "delta": {
+            "chars": len(right_text) - len(left_text),
+            "lines": len(right_lines) - len(left_lines),
+            "tokens": right_tokens - left_tokens,
+        },
+        "token_count_method": left_method,
+        "identical": identical,
+        "diff_lines": len(body),
+    }
+    if report_path is not None:
+        try:
+            report_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        except OSError as exc:
+            _fail(f"could not write report to {report_path}: {exc}; check the directory exists")
+    shown = body[:max_lines]
+    sys.stdout.write("\n".join(shown) + ("\n" if shown else ""))
+    if len(body) > max_lines:
+        hidden = len(body) - max_lines
+        sys.stdout.write(f"... ({hidden} more diff lines, raise --max-lines to see them)\n")
+    table = Table(title="lcc -- diff summary", show_header=False, box=None, pad_edge=False)
+    table.add_column("metric", style="bold cyan", no_wrap=True)
+    table.add_column("value")
+    table.add_row("Identical", "yes" if identical else "no")
+    chars_d = payload["delta"]["chars"]
+    lines_d = payload["delta"]["lines"]
+    tokens_d = payload["delta"]["tokens"]
+    table.add_row("Chars", f"{len(left_text)} -> {len(right_text)} ({chars_d:+d})")
+    table.add_row("Lines", f"{len(left_lines)} -> {len(right_lines)} ({lines_d:+d})")
+    table.add_row("Tokens", f"{left_tokens} -> {right_tokens} ({tokens_d:+d}, {left_method})")
+    err_console.print(table)
+    if report_path is not None:
+        err_console.print(f"Report written to: [green]{report_path}[/green]")
 
 
 def _compact_tool_calls(
@@ -1640,11 +1753,17 @@ def explain_cmd(
     try:
         payload = json.loads(report_path.read_text(encoding="utf-8"))
     except OSError as exc:
-        _fail(f"could not read {report_path}: {exc}")
+        _fail(f"could not read {report_path}: {exc}; check the path and retry")
     except json.JSONDecodeError as exc:
-        _fail(f"{report_path} is not valid JSON: {exc}")
+        _fail(
+            f"{report_path} is not valid JSON: {exc}; "
+            "re-run `lcc compact -r report.json` to regenerate it"
+        )
     if not isinstance(payload, dict):
-        _fail(f"{report_path} does not contain a report object")
+        _fail(
+            f"{report_path} does not contain a report object; "
+            "generate one with `lcc compact -r report.json`"
+        )
     if is_context_ir(payload):
         if limit is not None and limit < 1:
             _fail("--limit must be at least 1", code=2)
@@ -1665,7 +1784,7 @@ def explain_cmd(
         try:
             source_text = source.read_text(encoding="utf-8")
         except OSError as exc:
-            _fail(f"could not read {source}: {exc}")
+            _fail(f"could not read --source {source}: {exc}; check the path or drop --source")
 
     if limit is not None and limit < 1:
         _fail("--limit must be at least 1", code=2)
@@ -1937,7 +2056,7 @@ def route_cmd(
 
     if action == "run":
         if task is None or not task.exists():
-            _fail(f"task file not found or not specified: {task}")
+            _fail(f"task file not found or not specified: {task}; pass --task <path-to-task.json>")
         task_input, _ = load_task(task)
         router = LCCRouter()
         final = router.run(task_input)
@@ -1951,7 +2070,7 @@ def route_cmd(
 
     if action == "eval":
         if cases is None or not cases.exists():
-            _fail(f"cases directory not found or not specified: {cases}")
+            _fail(f"cases directory not found or not specified: {cases}; pass --cases <dir>")
         report = run_evaluation(cases)
         out = write_reports(report, output)
         console.print(json.dumps(report["result"], indent=2, ensure_ascii=False))

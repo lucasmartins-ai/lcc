@@ -45,9 +45,18 @@ def test_long_session_cache_example_runs_offline():
     assert '"ok": true' in out
 
 
+def test_msi_quickstart_example_runs_offline():
+    proc = _run("examples/msi_quickstart.py")
+    assert proc.returncode == 0, proc.stderr
+    out = proc.stdout
+    for cue in ("provider: mechanical", "sufficiency:", "receipt ok: inference-receipt/0.1"):
+        assert cue in out, cue
+
+
 def test_quickstart_exists_and_points_at_real_flags():
     doc = (ROOT / "docs" / "QUICKSTART.md").read_text(encoding="utf-8")
     for cue in ("--provider mechanical", "--provider laya", "--provider jev",
                 "--decisions-cache", "--prefix-marker", "--append-to",
-                "lcc explain", "docs/LAYA.md", "docs/CACHE_ALIGNMENT.md"):
+                "lcc explain", "lcc diff", "from lcc.msi import compile",
+                "docs/LAYA.md", "docs/CACHE_ALIGNMENT.md"):
         assert cue in doc, cue

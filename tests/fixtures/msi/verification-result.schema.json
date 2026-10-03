@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/msi/verification-result/0.1",
+  "title": "Verification Result",
+  "description": "Tri-state verification outcome with per-check evidence and a recommended action. REVIEW and FAIL are never silent; FAIL carries a bounded restore budget via the recommended action. Minimal example: {\"schema_version\": \"verification-result/0.1\", \"status\": \"PASS\", \"checks\": [{\"id\": \"citations_resolve\", \"passed\": true, \"detail\": \"3 of 3 citations resolve\"}], \"confidence\": 0.9, \"recommended_action\": \"PASS\"}. Transcribed from docs/msi/05-msi-spec-v0.md section 4.",
+  "type": "object",
+  "required": ["schema_version", "status", "checks", "confidence", "recommended_action"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "verification-result/0.1",
+      "description": "Schema identifier and version. Must equal verification-result/0.1."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "REVIEW", "FAIL"],
+      "description": "Tri-state outcome: PASS, REVIEW or FAIL."
+    },
+    "checks": {
+      "type": "array",
+      "description": "Per-check evidence. Deterministic checks run before any model-scored check.",
+      "items": {
+        "type": "object",
+        "required": ["id", "passed", "detail"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Check identifier (e.g. citations_resolve, tests_green, schema_valid)."
+          },
+          "passed": {
+            "type": "boolean",
+            "description": "Whether this check passed."
+          },
+          "detail": {
+            "type": "string",
+            "description": "Evidence string for this check."
+          }
+        }
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall confidence in the verdict."
+    },
+    "failures": {
+      "type": "array",
+      "description": "Failure descriptors when status is REVIEW or FAIL.",
+      "items": {"type": "string"}
+    },
+    "recommended_action": {
+      "type": "string",
+      "enum": ["PASS", "RESTORE_CONTEXT", "RETRY", "INCREASE_REASONING", "SWITCH_MODEL", "ADD_TOOL", "ESCALATE", "ABORT"],
+      "description": "Closed action vocabulary. Single re-verify only, no unbounded loop."
+    }
+  }
+}

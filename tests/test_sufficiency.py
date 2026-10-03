@@ -339,9 +339,7 @@ def test_adv_single_evidence_never_dropped_as_redundant():
 def test_adv_provenance_wellformed_by_construction():
     """Proveniência: every emitted unit carries provenance; malformed IR is rejected."""
     jsonschema = pytest.importorskip("jsonschema", reason="spec validation needs jsonschema")
-    spec_path = Path(
-        "/Users/Master/msi-repos/minimum-sufficient-inference/spec/context-ir.schema.json"
-    )
+    spec_path = Path(__file__).parent / "fixtures" / "msi" / "context-ir.schema.json"
     if not spec_path.exists():
         pytest.skip("spec repo not present")
     import json

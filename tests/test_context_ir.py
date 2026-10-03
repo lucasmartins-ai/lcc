@@ -31,7 +31,7 @@ jsonschema = pytest.importorskip("jsonschema", reason="spec validation needs jso
 
 runner = CliRunner()
 FIXTURES = Path(__file__).parent / "fixtures" / "ir"
-SPEC = Path("/Users/Master/msi-repos/minimum-sufficient-inference/spec/context-ir.schema.json")
+SPEC = Path(__file__).parent / "fixtures" / "msi" / "context-ir.schema.json"
 
 CASES = {
     "corpus-01.txt": "reduce mobile booking friction in the checkout flow",

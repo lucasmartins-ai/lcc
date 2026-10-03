@@ -19,7 +19,7 @@ from lcc.router.verify import UnitResult, VerificationSubject, run_verification
 
 jsonschema = pytest.importorskip("jsonschema", reason="spec validation needs jsonschema")
 
-SPEC_DIR = Path("/Users/Master/msi-repos/minimum-sufficient-inference/spec")
+SPEC_DIR = Path(__file__).parent / "fixtures" / "msi"
 VERIFY_SCHEMA = json.loads((SPEC_DIR / "verification-result.schema.json").read_text())
 RECEIPT_SCHEMA = json.loads((SPEC_DIR / "inference-receipt.schema.json").read_text())
 DET = DeterministicPlanner()

@@ -26,7 +26,7 @@ from lcc.router.schemas import RouteDecision, TaskFeatures
 
 jsonschema = pytest.importorskip("jsonschema", reason="spec validation needs jsonschema")
 
-SPEC = Path("/Users/Master/msi-repos/minimum-sufficient-inference/spec/inference-plan.schema.json")
+SPEC = Path(__file__).parent / "fixtures" / "msi" / "inference-plan.schema.json"
 DET = DeterministicPlanner()
 
 

@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/msi/inference-plan/0.1",
+  "title": "Inference Plan",
+  "description": "Budget and risk aware execution plan: model class, reasoning budget, tools, context and verification profiles, ordered fallbacks and escalation policy. Provider name is adapter-owned and optional; routing stays deterministic by default. Minimal example: {\"schema_version\": \"inference-plan/0.1\", \"model_class\": \"local_small\", \"reasoning_budget\": \"low\", \"context_profile\": \"compiled\", \"verification_profile\": \"standard\", \"escalation_policy\": {\"max_retries\": 2, \"max_restorations\": 4, \"escalate_to\": \"human\"}}. Transcribed from docs/msi/05-msi-spec-v0.md section 3.",
+  "type": "object",
+  "required": ["schema_version", "model_class", "reasoning_budget", "context_profile", "verification_profile", "escalation_policy"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "inference-plan/0.1",
+      "description": "Schema identifier and version. Must equal inference-plan/0.1."
+    },
+    "model_class": {
+      "type": "string",
+      "enum": ["local_tiny", "local_small", "fast_hosted", "frontier"],
+      "description": "Model tier: local_tiny, local_small, fast_hosted or frontier. Adapter resolves the concrete model."
+    },
+    "provider": {
+      "type": "string",
+      "description": "Optional adapter-owned provider label. Core routing never depends on it."
+    },
+    "reasoning_budget": {
+      "type": "string",
+      "enum": ["none", "low", "medium", "high"],
+      "description": "Reasoning effort budget: none, low, medium or high."
+    },
+    "tools": {
+      "type": "array",
+      "description": "Tool names available during execution.",
+      "items": {"type": "string"}
+    },
+    "context_profile": {
+      "type": "string",
+      "enum": ["full", "compiled", "minimal"],
+      "description": "Context shape: full, compiled or minimal."
+    },
+    "verification_profile": {
+      "type": "string",
+      "enum": ["strict", "standard", "light"],
+      "description": "Verification strictness: strict, standard or light."
+    },
+    "fallbacks": {
+      "type": "array",
+      "description": "Ordered fallback steps evaluated after a failure.",
+      "items": {
+        "type": "object",
+        "required": ["trigger", "action"],
+        "additionalProperties": false,
+        "properties": {
+          "trigger": {
+            "type": "string",
+            "enum": ["VERIFY_FAIL", "TIMEOUT", "LOW_CONF"],
+            "description": "Condition that fires this fallback: VERIFY_FAIL, TIMEOUT or LOW_CONF."
+          },
+          "action": {
+            "type": "string",
+            "enum": ["RESTORE_CONTEXT", "RETRY", "INCREASE_REASONING", "SWITCH_MODEL", "ADD_TOOL", "ESCALATE", "ABORT"],
+            "description": "Closed action vocabulary."
+          }
+        }
+      }
+    },
+    "escalation_policy": {
+      "type": "object",
+      "description": "Bounded retry and escalation limits.",
+      "required": ["max_retries", "max_restorations", "escalate_to"],
+      "additionalProperties": false,
+      "properties": {
+        "max_retries": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum execution retries before escalation."
+        },
+        "max_restorations": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum context restorations before escalation."
+        },
+        "escalate_to": {
+          "type": "string",
+          "enum": ["human", "frontier", "abort"],
+          "description": "Escalation target: human, frontier tier or abort."
+        }
+      }
+    }
+  }
+}

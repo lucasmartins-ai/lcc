@@ -8,6 +8,7 @@ are unavailable offline. None of these tests require real network access.
 from __future__ import annotations
 
 import types
+from typing import Any
 
 import pytest
 
@@ -206,8 +207,8 @@ def test_unknown_model_uses_fallback_encoding_note_when_cached():
 
 def test_no_network_guard_thread_safety_allows_concurrent_thread_network():
     """Verify that a guard on Thread 1 does not block network calls on Thread 2 (Issue #18)."""
-    import threading
     import socket
+    import threading
 
     thread1_ready = threading.Event()
     thread2_done = threading.Event()
@@ -269,3 +270,20 @@ def test_no_network_guard_thread_safety_allows_concurrent_thread_network():
     assert len(thread2_result) == 1
     status, _ = thread2_result[0]
     assert status == "os_error", f"Thread 2 was unexpectedly blocked: {thread2_result}"
+
+
+def test_no_network_guard_missing_original_names_the_requested_attribute(monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+
+    requests = pytest.importorskip("requests")
+    monkeypatch.setattr(requests, "get", None)
+
+    def unguarded_call():
+        with pytest.raises(RuntimeError) as error:
+            requests.get("https://example.invalid/")
+        return str(error.value)
+
+    with _no_network_guard(), ThreadPoolExecutor(max_workers=1) as pool:
+        assert pool.submit(unguarded_call).result(timeout=2) == (
+            "guarded attribute get has no original implementation"
+        )

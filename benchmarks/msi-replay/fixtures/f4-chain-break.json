@@ -1,0 +1,20 @@
+{
+  "arms_recorded": {
+    "full": "PASS",
+    "lcc": "FAIL",
+    "lcc_routing": "FAIL",
+    "lcc_routing_verify": "FAIL",
+    "msi": "PASS",
+    "routing": "PASS"
+  },
+  "failure_class": "A lexical-zero-overlap-chain-break",
+  "next_experiment": "Multi-hop carrier graph: protect units linked to carriers by entity overlap (24 hours <-> consent chain), not just exact fact carriers; re-replay must flip lcc-class arms without changing the filter.",
+  "root_cause": "u3 (24 hours) shares zero exact tokens with the objective, so lexical selection drops it and the 4-fact chain breaks (task FAIL). Bounded restore cannot help: the task layer fails first and first-failure precedence resolves to RETRY-then-ESCALATE (verify burns 2 retries, escalates to frontier, still FAIL). MSI passes only because carrier protection keeps u3 upfront.",
+  "trace_hash": "451a7c4b39cf32e3",
+  "trace_id": "msi-replay-9-t10",
+  "recorded_outcomes_note": "Lexical arms (lcc, lcc_routing) FAIL the task layer; verify FAILs after bounded retry+escalate; msi/full/routing PASS. Demonstrates protection value and restore limits in one trace.",
+  "repro": "PYTHONPATH=src:benchmarks/msi-bench:benchmarks/msi-replay python3 benchmarks/msi-replay/replay.py --fixture msi-replay-9-t10",
+  "data_class": "CURATED",
+  "evaluator": "verify-1.0",
+  "provenance": "Authored regression probe; trace content is in traces.py, not a real session."
+}

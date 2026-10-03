@@ -1,0 +1,594 @@
+{
+  "harness": "ablate-1.0",
+  "task_id": "msi-pilot-6-001",
+  "seed": 0,
+  "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+  "digest": "5251d16c76d0af962d85e85f5e4963bc19d7bcc05c1515ab3db874a74c676972",
+  "labels": [
+    {
+      "unit_id": "blk_gold_fact",
+      "label": "NECESSARY",
+      "deciding_invariant": "required_facts_present",
+      "condition": "",
+      "reason": "single removal breaks baseline via required_facts_present"
+    },
+    {
+      "unit_id": "blk_gold_cite",
+      "label": "NECESSARY",
+      "deciding_invariant": "citations_resolve",
+      "condition": "",
+      "reason": "single removal breaks baseline via citations_resolve"
+    },
+    {
+      "unit_id": "blk_pair_a",
+      "label": "CONDITIONALLY_NECESSARY",
+      "deciding_invariant": "required_facts_present",
+      "condition": "requires blk_pair_b present (jointly cover required_facts_present)",
+      "reason": "pair removal with blk_pair_b breaks baseline"
+    },
+    {
+      "unit_id": "blk_pair_b",
+      "label": "CONDITIONALLY_NECESSARY",
+      "deciding_invariant": "required_facts_present",
+      "condition": "requires blk_pair_a present (jointly cover required_facts_present)",
+      "reason": "pair removal with blk_pair_a breaks baseline"
+    },
+    {
+      "unit_id": "blk_red_a",
+      "label": "REDUNDANT",
+      "deciding_invariant": "",
+      "condition": "",
+      "reason": "content fully covered by other units, never decisive"
+    },
+    {
+      "unit_id": "blk_red_b",
+      "label": "REDUNDANT",
+      "deciding_invariant": "",
+      "condition": "",
+      "reason": "content fully covered by other units, never decisive"
+    },
+    {
+      "unit_id": "blk_noise",
+      "label": "UNNECESSARY",
+      "deciding_invariant": "",
+      "condition": "",
+      "reason": "unique content that no invariant requires"
+    },
+    {
+      "unit_id": "blk_safety",
+      "label": "PROTECTED",
+      "deciding_invariant": "",
+      "condition": "",
+      "reason": "protected unit: never ablated by declaration"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "baseline",
+      "removed_ids": [],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0555
+    },
+    {
+      "experiment_id": "single-blk_gold_fact-r0",
+      "removed_ids": [
+        "blk_gold_fact"
+      ],
+      "outcome": "FAIL",
+      "deciding_check": "required_facts_present",
+      "failures": [
+        "required_facts_present:required_fact_missing:missing=['null deref at auth.py line 42']"
+      ],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0474
+    },
+    {
+      "experiment_id": "single-blk_gold_cite-r0",
+      "removed_ids": [
+        "blk_gold_cite"
+      ],
+      "outcome": "FAIL",
+      "deciding_check": "citations_resolve",
+      "failures": [
+        "citations_resolve:citation_missing:output carries no citations"
+      ],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0327
+    },
+    {
+      "experiment_id": "single-blk_pair_a-r0",
+      "removed_ids": [
+        "blk_pair_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.03
+    },
+    {
+      "experiment_id": "single-blk_pair_b-r0",
+      "removed_ids": [
+        "blk_pair_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0199
+    },
+    {
+      "experiment_id": "single-blk_red_a-r0",
+      "removed_ids": [
+        "blk_red_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.02
+    },
+    {
+      "experiment_id": "single-blk_red_b-r0",
+      "removed_ids": [
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0178
+    },
+    {
+      "experiment_id": "single-blk_noise-r0",
+      "removed_ids": [
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.018
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_pair_b-r0",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_pair_b"
+      ],
+      "outcome": "FAIL",
+      "deciding_check": "required_facts_present",
+      "failures": [
+        "required_facts_present:required_fact_missing:missing=['api key lives in the vault']"
+      ],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0231
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_red_a-r0",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_red_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0181
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_red_b-r0",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0172
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_noise-r0",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0175
+    },
+    {
+      "experiment_id": "pair-blk_pair_b-blk_red_a-r0",
+      "removed_ids": [
+        "blk_pair_b",
+        "blk_red_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0173
+    },
+    {
+      "experiment_id": "pair-blk_pair_b-blk_red_b-r0",
+      "removed_ids": [
+        "blk_pair_b",
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0172
+    },
+    {
+      "experiment_id": "pair-blk_pair_b-blk_noise-r0",
+      "removed_ids": [
+        "blk_pair_b",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.017
+    },
+    {
+      "experiment_id": "pair-blk_red_a-blk_red_b-r0",
+      "removed_ids": [
+        "blk_red_a",
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.017
+    },
+    {
+      "experiment_id": "pair-blk_red_a-blk_noise-r0",
+      "removed_ids": [
+        "blk_red_a",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0168
+    },
+    {
+      "experiment_id": "pair-blk_red_b-blk_noise-r0",
+      "removed_ids": [
+        "blk_red_b",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0166
+    },
+    {
+      "experiment_id": "single-blk_gold_fact-r1",
+      "removed_ids": [
+        "blk_gold_fact"
+      ],
+      "outcome": "FAIL",
+      "deciding_check": "required_facts_present",
+      "failures": [
+        "required_facts_present:required_fact_missing:missing=['null deref at auth.py line 42']"
+      ],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0241
+    },
+    {
+      "experiment_id": "single-blk_gold_cite-r1",
+      "removed_ids": [
+        "blk_gold_cite"
+      ],
+      "outcome": "FAIL",
+      "deciding_check": "citations_resolve",
+      "failures": [
+        "citations_resolve:citation_missing:output carries no citations"
+      ],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0204
+    },
+    {
+      "experiment_id": "single-blk_pair_a-r1",
+      "removed_ids": [
+        "blk_pair_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0175
+    },
+    {
+      "experiment_id": "single-blk_pair_b-r1",
+      "removed_ids": [
+        "blk_pair_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0171
+    },
+    {
+      "experiment_id": "single-blk_red_a-r1",
+      "removed_ids": [
+        "blk_red_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0172
+    },
+    {
+      "experiment_id": "single-blk_red_b-r1",
+      "removed_ids": [
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.017
+    },
+    {
+      "experiment_id": "single-blk_noise-r1",
+      "removed_ids": [
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0172
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_pair_b-r1",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_pair_b"
+      ],
+      "outcome": "FAIL",
+      "deciding_check": "required_facts_present",
+      "failures": [
+        "required_facts_present:required_fact_missing:missing=['api key lives in the vault']"
+      ],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0201
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_red_a-r1",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_red_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0174
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_red_b-r1",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0176
+    },
+    {
+      "experiment_id": "pair-blk_pair_a-blk_noise-r1",
+      "removed_ids": [
+        "blk_pair_a",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0172
+    },
+    {
+      "experiment_id": "pair-blk_pair_b-blk_red_a-r1",
+      "removed_ids": [
+        "blk_pair_b",
+        "blk_red_a"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0172
+    },
+    {
+      "experiment_id": "pair-blk_pair_b-blk_red_b-r1",
+      "removed_ids": [
+        "blk_pair_b",
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0165
+    },
+    {
+      "experiment_id": "pair-blk_pair_b-blk_noise-r1",
+      "removed_ids": [
+        "blk_pair_b",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0165
+    },
+    {
+      "experiment_id": "pair-blk_red_a-blk_red_b-r1",
+      "removed_ids": [
+        "blk_red_a",
+        "blk_red_b"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0167
+    },
+    {
+      "experiment_id": "pair-blk_red_a-blk_noise-r1",
+      "removed_ids": [
+        "blk_red_a",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0167
+    },
+    {
+      "experiment_id": "pair-blk_red_b-blk_noise-r1",
+      "removed_ids": [
+        "blk_red_b",
+        "blk_noise"
+      ],
+      "outcome": "PASS",
+      "deciding_check": "",
+      "failures": [],
+      "seed": 0,
+      "baseline_hash": "cd5a00987c4fd03c917bf91830d7a4a1942834cedb4c5ab976553aec8c1d3b96",
+      "model": "deterministic-mechanical",
+      "evaluator": "verify-1.0",
+      "wall_ms": 0.0167
+    }
+  ],
+  "cost": {
+    "experiments": 35,
+    "total_wall_ms": 0.722,
+    "tokens_in": 0,
+    "tokens_out": 0,
+    "model_calls": 0
+  }
+}
