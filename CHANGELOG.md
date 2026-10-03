@@ -27,6 +27,44 @@ All notable changes to this project are documented here. The format is based on
   never a silent drop). Measured: structural cuts false-drop rate 0.660 → 0.151 under
   judge error (30 curated adversarial cases). Docs: `docs/lcc/sufficiency.md` (ablation +
   adversarial matrix), `docs/lcc/restoration.md` (audit trail).
+- Causal necessity harness, MSI sprint 6 (ADR 0021, research-only):
+  `src/lcc/router/ablate.py` (`run_pilot`, harness `ablate-1.0`) removes each unit
+  (and passing pairs) from a frozen offline baseline, replays sprint-5 verification,
+  and labels by observed delta (NECESSARY / CONDITIONALLY_NECESSARY / REDUNDANT /
+  UNNECESSARY / PROTECTED / UNKNOWN, unstable labels fail closed to UNKNOWN). Pilot
+  N=8 (`benchmarks/ablation/pilot.py`, digest-pinned results): single-removal splits
+  2 NECESSARY from 5 passing units; pair ablation + token-coverage split the rest
+  (2 conditional, 2 redundant, 1 noise). 35 experiments, <1 ms wall, 0 model calls.
+  Labels are not consumed by any production path. Docs: `research/causal-necessity.md`.
+- MSI-Bench pilot, MSI sprint 7 (PILOT N=12, offline, deterministic, no live models):
+  `benchmarks/msi-bench/` runs 6 arms (full-context, LCC-only, routing-only,
+  LCC+routing, +verification, MSI closed loop) over 12 frozen CURATED tasks in 6
+  categories, all scored under the paired `verify-1.0`/`standard` rubric with an
+  `inference-receipt/0.1` receipt per run (72 runs, digest-pinned results, 1-command
+  repro via `run.py --check`). PILOT outcome: MSI closed loop is the only 12/12 arm
+  at 0.11x modeled cost and 0.52x context of full-context; routing alone matches
+  full-context quality (11/12, identical cells) at 0.14x modeled cost; lexical-only
+  filtering loses 5/12 with named failure modes, and full-context itself FAILs the
+  injection task. Pareto frontier: lcc, lcc+routing+verification, msi. Costs are
+  modeled (illustrative prices), latency is deterministic overhead only, bootstrap
+  95% CIs overlap nearly everywhere -- distributions only, no generalization claim.
+  Docs: `benchmarks/msi-bench/REPORT.md`, `research/benchmark-methodology.md`.
+- MSI DX, sprint 8: one-call offline Python API `lcc.msi.compile(task, context)`
+  (deterministic planner + mechanical compaction + bounded sufficiency; returns
+  context + spec-valid receipt + sufficiency; demo `examples/msi_quickstart.py`,
+  reference `docs/lcc/msi-api.md`); new offline `lcc diff LEFT RIGHT` (sizes,
+  token deltas, unified diff; workflow: compact then diff before sending to a
+  model); actionable CLI errors (every common failure names the next step);
+  QUICKSTART extended with the MSI path, a `diff` section, and an offline x
+  command matrix (single quickstart location, no second file).
+- MSI sprint 9 integration: replay 10 anonymous local pytest-result windows
+  through `msi-api-1.0` (20 paired runs), with summary preservation 10/10 in
+  both arms and 174 -> 122 estimated tokens; no model calls or API spend.
+  Keep 10 authored regression probes separately labeled CURATED (60 runs,
+  25 failures investigated; four permanent fixtures). Replay checks cover
+  receipt audit fields and aggregate drift; modeled probe cost counts every
+  executed attempt. See `research/real-world-integration.md` for sources,
+  commands, quality/cost tables and limits.
 
 ### Changed
 

@@ -1,0 +1,130 @@
+{
+  "dataset": "msi-session-replay-9-2026-10-03",
+  "data_class": "REPLAYED",
+  "capture_date": "2026-10-03",
+  "source_files_scanned": 10,
+  "selection_rule": "All tool_result blocks with a pytest outcome/duration summary in every top-level JSONL in the local LCC project session directory; keep repetitions; publish only summaries and progress markers.",
+  "anonymization": "Positive output grammar; omit paths, ids, commands, prompts, names and nonmatching output. Source filenames replaced by aliases.",
+  "traces": [
+    {
+      "trace_id": "local-pytest-001",
+      "session_alias": "session-001",
+      "source_sha256": "3888d0d6f423d93181ba533dafe5b6ecd64321dff4340dfcd364ef10f9557717",
+      "record_number": 139,
+      "collected_at": "2026-06-19T09:51:35.870Z",
+      "excerpt_sha256": "cf65cd3d0ae155208ef55be9308ef44cc528ccfa46dc5eb210011de55b012993",
+      "context": "....................................................................     [100%]\n\n68 passed in 0.93s",
+      "required_facts": [
+        "68 passed in 0.93s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-002",
+      "session_alias": "session-003",
+      "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+      "record_number": 317,
+      "collected_at": "2026-06-18T23:51:53.626Z",
+      "excerpt_sha256": "9b8f599acbbc84d6101456a9a55b6c8fbe121acab90781d1e2cd98ec8e52b913",
+      "context": ".............................................                            [100%]\n\n45 passed in 0.31s",
+      "required_facts": [
+        "45 passed in 0.31s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-003",
+      "session_alias": "session-003",
+      "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+      "record_number": 377,
+      "collected_at": "2026-06-18T23:55:36.325Z",
+      "excerpt_sha256": "c7dbe459778d0942ab39246ced935f04e3778d3075a13a068602367adc5dc814",
+      "context": ".............................................                            [100%]\n\n45 passed in 0.33s",
+      "required_facts": [
+        "45 passed in 0.33s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-004",
+      "session_alias": "session-003",
+      "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+      "record_number": 738,
+      "collected_at": "2026-06-19T00:11:13.711Z",
+      "excerpt_sha256": "e19da9181cb0c9107a4f7a9fb783df110bced1d2ce66ace4eeed2ed83e9a28ab",
+      "context": "...............................................                          [100%]\n\n47 passed in 0.31s",
+      "required_facts": [
+        "47 passed in 0.31s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-005",
+      "session_alias": "session-003",
+      "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+      "record_number": 752,
+      "collected_at": "2026-06-19T00:11:23.393Z",
+      "excerpt_sha256": "65660a375aec28b5256d27dcd82aee2bd52e07ff1cf2a93a9658048ee1e8a7ee",
+      "context": "...............................................                          [100%]\n\n47 passed in 0.29s",
+      "required_facts": [
+        "47 passed in 0.29s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-006",
+      "session_alias": "session-004",
+      "source_sha256": "69448bf5679ebaaa5e5ceca4e79e4ef5c8ff96cef0f617b0bd14f725d5c6ae60",
+      "record_number": 732,
+      "collected_at": "2026-06-19T09:13:45.033Z",
+      "excerpt_sha256": "529eefaf226a4e6395403066b4189e4f4bb78fdbe5606a2ac4de89a9d8541433",
+      "context": "68 passed in 0.59s",
+      "required_facts": [
+        "68 passed in 0.59s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-007",
+      "session_alias": "session-006",
+      "source_sha256": "a6382092d1c885f165c036d4258665110bd18d57c96c1cf913bc7dede510987b",
+      "record_number": 107,
+      "collected_at": "2026-06-19T22:33:22.552Z",
+      "excerpt_sha256": "328fbb581423fb24e9691d568a5a1413206aafc33a25fa880602a1aefa694125",
+      "context": "77 passed in 0.44s",
+      "required_facts": [
+        "77 passed in 0.44s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-008",
+      "session_alias": "session-007",
+      "source_sha256": "c579b128a22d366d2074f4d5eec42693fb8f5aa0a3139607732d849594a6569c",
+      "record_number": 1352,
+      "collected_at": "2026-06-19T11:29:33.873Z",
+      "excerpt_sha256": "e31f265a177cd082601d27a70d2422cc6afdb24c7054989e0ce26a9242dff632",
+      "context": "........................................................................ [ 93%]\n\n.....                                                                    [100%]\n\n77 passed in 0.43s",
+      "required_facts": [
+        "77 passed in 0.43s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-009",
+      "session_alias": "session-009",
+      "source_sha256": "8ba7b954b0a97de6a97e78e09c6a3f096ea12687f73aa6e31024468401a70ac9",
+      "record_number": 396,
+      "collected_at": "2026-06-19T16:39:52.605Z",
+      "excerpt_sha256": "58e2485d6be8598a6db5d1dd988a608edee2197e833ee89b4796ce2429744d02",
+      "context": "........................................................................ [ 93%]\n\n.....                                                                    [100%]\n\n77 passed in 0.65s",
+      "required_facts": [
+        "77 passed in 0.65s"
+      ]
+    },
+    {
+      "trace_id": "local-pytest-010",
+      "session_alias": "session-010",
+      "source_sha256": "f217859dae473936821f00a8fd0c5a236fb6b19cb8dfd55d0e956722755e7a19",
+      "record_number": 906,
+      "collected_at": "2026-06-19T22:55:16.176Z",
+      "excerpt_sha256": "5b523ad5bf2cfb5148e7ca26b2e9c61f266f287bfa8c655053693d81cdbf87ad",
+      "context": "........................................................................ [ 73%]\n\n..........................                                               [100%]\n\n98 passed in 0.56s",
+      "required_facts": [
+        "98 passed in 0.56s"
+      ]
+    }
+  ]
+}

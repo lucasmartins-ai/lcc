@@ -1,0 +1,1683 @@
+{
+  "dataset": "msi-session-replay-9-2026-10-03",
+  "data_class": "REPLAYED",
+  "evidence_class": "CURRENT",
+  "api_version": "msi-api-1.0",
+  "planner": "planner-1.0",
+  "evaluator": "verify-1.0",
+  "tokenizer": "heuristic-v1",
+  "source": {
+    "dataset": "msi-session-replay-9-2026-10-03",
+    "data_class": "REPLAYED",
+    "capture_date": "2026-10-03",
+    "source_files_scanned": 10,
+    "selection_rule": "All tool_result blocks with a pytest outcome/duration summary in every top-level JSONL in the local LCC project session directory; keep repetitions; publish only summaries and progress markers.",
+    "anonymization": "Positive output grammar; omit paths, ids, commands, prompts, names and nonmatching output. Source filenames replaced by aliases.",
+    "traces": [
+      {
+        "trace_id": "local-pytest-001",
+        "session_alias": "session-001",
+        "source_sha256": "3888d0d6f423d93181ba533dafe5b6ecd64321dff4340dfcd364ef10f9557717",
+        "record_number": 139,
+        "collected_at": "2026-06-19T09:51:35.870Z",
+        "excerpt_sha256": "cf65cd3d0ae155208ef55be9308ef44cc528ccfa46dc5eb210011de55b012993",
+        "context": "....................................................................     [100%]\n\n68 passed in 0.93s",
+        "required_facts": [
+          "68 passed in 0.93s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-002",
+        "session_alias": "session-003",
+        "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+        "record_number": 317,
+        "collected_at": "2026-06-18T23:51:53.626Z",
+        "excerpt_sha256": "9b8f599acbbc84d6101456a9a55b6c8fbe121acab90781d1e2cd98ec8e52b913",
+        "context": ".............................................                            [100%]\n\n45 passed in 0.31s",
+        "required_facts": [
+          "45 passed in 0.31s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-003",
+        "session_alias": "session-003",
+        "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+        "record_number": 377,
+        "collected_at": "2026-06-18T23:55:36.325Z",
+        "excerpt_sha256": "c7dbe459778d0942ab39246ced935f04e3778d3075a13a068602367adc5dc814",
+        "context": ".............................................                            [100%]\n\n45 passed in 0.33s",
+        "required_facts": [
+          "45 passed in 0.33s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-004",
+        "session_alias": "session-003",
+        "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+        "record_number": 738,
+        "collected_at": "2026-06-19T00:11:13.711Z",
+        "excerpt_sha256": "e19da9181cb0c9107a4f7a9fb783df110bced1d2ce66ace4eeed2ed83e9a28ab",
+        "context": "...............................................                          [100%]\n\n47 passed in 0.31s",
+        "required_facts": [
+          "47 passed in 0.31s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-005",
+        "session_alias": "session-003",
+        "source_sha256": "2a4bb962f3170853218047cc7f6777d7ee9ff68fa247d22813f6c05402bed62f",
+        "record_number": 752,
+        "collected_at": "2026-06-19T00:11:23.393Z",
+        "excerpt_sha256": "65660a375aec28b5256d27dcd82aee2bd52e07ff1cf2a93a9658048ee1e8a7ee",
+        "context": "...............................................                          [100%]\n\n47 passed in 0.29s",
+        "required_facts": [
+          "47 passed in 0.29s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-006",
+        "session_alias": "session-004",
+        "source_sha256": "69448bf5679ebaaa5e5ceca4e79e4ef5c8ff96cef0f617b0bd14f725d5c6ae60",
+        "record_number": 732,
+        "collected_at": "2026-06-19T09:13:45.033Z",
+        "excerpt_sha256": "529eefaf226a4e6395403066b4189e4f4bb78fdbe5606a2ac4de89a9d8541433",
+        "context": "68 passed in 0.59s",
+        "required_facts": [
+          "68 passed in 0.59s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-007",
+        "session_alias": "session-006",
+        "source_sha256": "a6382092d1c885f165c036d4258665110bd18d57c96c1cf913bc7dede510987b",
+        "record_number": 107,
+        "collected_at": "2026-06-19T22:33:22.552Z",
+        "excerpt_sha256": "328fbb581423fb24e9691d568a5a1413206aafc33a25fa880602a1aefa694125",
+        "context": "77 passed in 0.44s",
+        "required_facts": [
+          "77 passed in 0.44s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-008",
+        "session_alias": "session-007",
+        "source_sha256": "c579b128a22d366d2074f4d5eec42693fb8f5aa0a3139607732d849594a6569c",
+        "record_number": 1352,
+        "collected_at": "2026-06-19T11:29:33.873Z",
+        "excerpt_sha256": "e31f265a177cd082601d27a70d2422cc6afdb24c7054989e0ce26a9242dff632",
+        "context": "........................................................................ [ 93%]\n\n.....                                                                    [100%]\n\n77 passed in 0.43s",
+        "required_facts": [
+          "77 passed in 0.43s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-009",
+        "session_alias": "session-009",
+        "source_sha256": "8ba7b954b0a97de6a97e78e09c6a3f096ea12687f73aa6e31024468401a70ac9",
+        "record_number": 396,
+        "collected_at": "2026-06-19T16:39:52.605Z",
+        "excerpt_sha256": "58e2485d6be8598a6db5d1dd988a608edee2197e833ee89b4796ce2429744d02",
+        "context": "........................................................................ [ 93%]\n\n.....                                                                    [100%]\n\n77 passed in 0.65s",
+        "required_facts": [
+          "77 passed in 0.65s"
+        ]
+      },
+      {
+        "trace_id": "local-pytest-010",
+        "session_alias": "session-010",
+        "source_sha256": "f217859dae473936821f00a8fd0c5a236fb6b19cb8dfd55d0e956722755e7a19",
+        "record_number": 906,
+        "collected_at": "2026-06-19T22:55:16.176Z",
+        "excerpt_sha256": "5b523ad5bf2cfb5148e7ca26b2e9c61f266f287bfa8c655053693d81cdbf87ad",
+        "context": "........................................................................ [ 73%]\n\n..........................                                               [100%]\n\n98 passed in 0.56s",
+        "required_facts": [
+          "98 passed in 0.56s"
+        ]
+      }
+    ]
+  },
+  "quality_rubric": "Required pytest summaries preserved verbatim AND structural sufficiency passes; this is retention quality, not agent task success.",
+  "cost_scope": "No model/network calls; external API spend = 0. CPU/energy not priced.",
+  "runs": [
+    {
+      "trace_id": "local-pytest-001",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 16,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.6008,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-001:full",
+        "task_id": "local-pytest-001",
+        "selected_units": [
+          "cf65cd3d0ae155208ef55be9308ef44cc528ccfa46dc5eb210011de55b012993"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 16,
+          "tokens_out": 16,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.574785+00:00",
+          "finished_at": "2026-10-03T16:00:05.575169+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "48ca6331b43ef5e3c47bdec8689ba8546a81435b798a63b297833218c0ab429e"
+    },
+    {
+      "trace_id": "local-pytest-001",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 75.9956,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-001-r1",
+        "task_id": "local-pytest-001",
+        "selected_units": [
+          "blk_0002_d9cf81d1c6d4"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_9ee20c71942e",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 75,
+          "tokens_in": 16,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.651479+00:00",
+          "finished_at": "2026-10-03T16:00:05.651481+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.651461+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:1-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.651473+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "e2a8a057452e9036904e4f68396f2d68760886390f2d2650ed276a4e6ba319c0"
+    },
+    {
+      "trace_id": "local-pytest-002",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 16,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0289,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-002:full",
+        "task_id": "local-pytest-002",
+        "selected_units": [
+          "9b8f599acbbc84d6101456a9a55b6c8fbe121acab90781d1e2cd98ec8e52b913"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 16,
+          "tokens_out": 16,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.651581+00:00",
+          "finished_at": "2026-10-03T16:00:05.651583+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "d9b90ddc080883cc3106c6e366d4b846a46a001eb032b5288ce1c3c35711136f"
+    },
+    {
+      "trace_id": "local-pytest-002",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.4521,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-002-r1",
+        "task_id": "local-pytest-002",
+        "selected_units": [
+          "blk_0002_baafee666621"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_b2c6720453f0",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 16,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.653052+00:00",
+          "finished_at": "2026-10-03T16:00:05.653053+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.653043+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:1-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.653047+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "c915d0f5827e2c02b46002eaaaabf104cbd2d0585280f4dfb49f188da57da0ba"
+    },
+    {
+      "trace_id": "local-pytest-003",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 16,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.024,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-003:full",
+        "task_id": "local-pytest-003",
+        "selected_units": [
+          "c7dbe459778d0942ab39246ced935f04e3778d3075a13a068602367adc5dc814"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 16,
+          "tokens_out": 16,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.653115+00:00",
+          "finished_at": "2026-10-03T16:00:05.653117+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "dd141226aa2059c03b66c1fa7b6ab7989b52872f558d5f98dc077661fc8591db"
+    },
+    {
+      "trace_id": "local-pytest-003",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.2373,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-003-r1",
+        "task_id": "local-pytest-003",
+        "selected_units": [
+          "blk_0002_5873b055d395"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_b2c6720453f0",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 16,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.654369+00:00",
+          "finished_at": "2026-10-03T16:00:05.654370+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.654362+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:1-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.654365+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "c5d67734d00773eeccbee6a256825c8eeb298c1dffe03f32ca1c1ece4478c286"
+    },
+    {
+      "trace_id": "local-pytest-004",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 16,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0227,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-004:full",
+        "task_id": "local-pytest-004",
+        "selected_units": [
+          "e19da9181cb0c9107a4f7a9fb783df110bced1d2ce66ace4eeed2ed83e9a28ab"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 16,
+          "tokens_out": 16,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.654425+00:00",
+          "finished_at": "2026-10-03T16:00:05.654426+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "e9ccf01b8db5d217b39400a826f3c3304a96d5b2d3e0ca8df48e0c8058c57383"
+    },
+    {
+      "trace_id": "local-pytest-004",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.2329,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-004-r1",
+        "task_id": "local-pytest-004",
+        "selected_units": [
+          "blk_0002_9dfed4ebc26e"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_325b7cf7b0d6",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 16,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.655671+00:00",
+          "finished_at": "2026-10-03T16:00:05.655673+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.655662+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:1-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.655665+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "66844aff30cbfdad8f24fc064ddf9be0d5ec65c3f98a85380011d310439985fe"
+    },
+    {
+      "trace_id": "local-pytest-005",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 16,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0217,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-005:full",
+        "task_id": "local-pytest-005",
+        "selected_units": [
+          "65660a375aec28b5256d27dcd82aee2bd52e07ff1cf2a93a9658048ee1e8a7ee"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 16,
+          "tokens_out": 16,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.655726+00:00",
+          "finished_at": "2026-10-03T16:00:05.655728+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "d189a55201c648f9c71192b856bdc0edb541b52d7d539cb9edbc6ca3d00a3d8a"
+    },
+    {
+      "trace_id": "local-pytest-005",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 16,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.2107,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-005-r1",
+        "task_id": "local-pytest-005",
+        "selected_units": [
+          "blk_0002_d90697dfbeba"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_325b7cf7b0d6",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 16,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.656951+00:00",
+          "finished_at": "2026-10-03T16:00:05.656952+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.656945+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:1-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.656948+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "93c171e3ff5dd21ccd3d9dd5d374eb99f674ed82d2b2fc7e301bd575171b9007"
+    },
+    {
+      "trace_id": "local-pytest-006",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 5,
+      "retained_tokens": 5,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0206,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-006:full",
+        "task_id": "local-pytest-006",
+        "selected_units": [
+          "529eefaf226a4e6395403066b4189e4f4bb78fdbe5606a2ac4de89a9d8541433"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 5,
+          "tokens_out": 5,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.657004+00:00",
+          "finished_at": "2026-10-03T16:00:05.657005+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "0fdcebf4aba03a7e1c3c0c83c33dd382a940feeaab894c31611b487f911d3ac6"
+    },
+    {
+      "trace_id": "local-pytest-006",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 5,
+      "retained_tokens": 5,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.1062,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-006-r1",
+        "task_id": "local-pytest-006",
+        "selected_units": [
+          "blk_0001_529eefaf226a"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 5,
+          "tokens_out": 5,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.658123+00:00",
+          "finished_at": "2026-10-03T16:00:05.658124+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.658116+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:0-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.658119+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "2177270db81b7de967553c5480dfe7cd4baa10a4acfdb7f10691b8b6a5ef1608"
+    },
+    {
+      "trace_id": "local-pytest-007",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 5,
+      "retained_tokens": 5,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0201,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-007:full",
+        "task_id": "local-pytest-007",
+        "selected_units": [
+          "328fbb581423fb24e9691d568a5a1413206aafc33a25fa880602a1aefa694125"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 5,
+          "tokens_out": 5,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.658172+00:00",
+          "finished_at": "2026-10-03T16:00:05.658174+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "8008f34edc0554b29daff71f1e6ac6f98f9794d2336ad3785988d5bfd8c8f474"
+    },
+    {
+      "trace_id": "local-pytest-007",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 5,
+      "retained_tokens": 5,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.1021,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-007-r1",
+        "task_id": "local-pytest-007",
+        "selected_units": [
+          "blk_0001_328fbb581423"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 5,
+          "tokens_out": 5,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.659286+00:00",
+          "finished_at": "2026-10-03T16:00:05.659288+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.659280+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:0-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.659283+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "c95a4d876ddab0d2e3bffe1c3509f7fa5200c464932e781889467ef62f065664"
+    },
+    {
+      "trace_id": "local-pytest-008",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 28,
+      "retained_tokens": 28,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0222,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-008:full",
+        "task_id": "local-pytest-008",
+        "selected_units": [
+          "e31f265a177cd082601d27a70d2422cc6afdb24c7054989e0ce26a9242dff632"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 28,
+          "tokens_out": 28,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.659335+00:00",
+          "finished_at": "2026-10-03T16:00:05.659337+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "db31ac40ff4a73a006953dbd027e96c6a2b5b03c4e3e355ecfcfa6a846cdc7c8"
+    },
+    {
+      "trace_id": "local-pytest-008",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 28,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.3118,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-008-r1",
+        "task_id": "local-pytest-008",
+        "selected_units": [
+          "blk_0003_4643d015dd78"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_e913bb94997a",
+            "rationale": "no_lexical_overlap"
+          },
+          {
+            "id": "blk_0002_4d2df7a96ce4",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 28,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.660653+00:00",
+          "finished_at": "2026-10-03T16:00:05.660654+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.660644+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:2-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.660649+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "0df83b3e4aaeb0840231121787675bc4340a2125e7a0e96ea43c2479b2bb52dc"
+    },
+    {
+      "trace_id": "local-pytest-009",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 28,
+      "retained_tokens": 28,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0228,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-009:full",
+        "task_id": "local-pytest-009",
+        "selected_units": [
+          "58e2485d6be8598a6db5d1dd988a608edee2197e833ee89b4796ce2429744d02"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 28,
+          "tokens_out": 28,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.660718+00:00",
+          "finished_at": "2026-10-03T16:00:05.660720+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "eccb6c7eebb2223e2474cc21fd2c3426cdc8fc1c6907f169e8a3280bada9705f"
+    },
+    {
+      "trace_id": "local-pytest-009",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 28,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.3689,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-009-r1",
+        "task_id": "local-pytest-009",
+        "selected_units": [
+          "blk_0003_09ac87e281f7"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_e913bb94997a",
+            "rationale": "no_lexical_overlap"
+          },
+          {
+            "id": "blk_0002_4d2df7a96ce4",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 28,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.662096+00:00",
+          "finished_at": "2026-10-03T16:00:05.662097+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.662087+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:2-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.662092+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "b540fe5942987565387b4c95cb32aca8f6d6f7e68deb1e45d3490a877437ca5c"
+    },
+    {
+      "trace_id": "local-pytest-010",
+      "arm": "full",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 28,
+      "retained_tokens": 28,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 0.0219,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-010:full",
+        "task_id": "local-pytest-010",
+        "selected_units": [
+          "5b523ad5bf2cfb5148e7ca26b2e9c61f266f287bfa8c655053693d81cdbf87ad"
+        ],
+        "omitted_units": [],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 0,
+          "tokens_in": 28,
+          "tokens_out": 28,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "full-context-1.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.662159+00:00",
+          "finished_at": "2026-10-03T16:00:05.662161+00:00"
+        },
+        "decision_events": [],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "743a5028032daae3d2293c49221543a15548e21d035e41270469e07192c4b1c9"
+    },
+    {
+      "trace_id": "local-pytest-010",
+      "arm": "msi_api",
+      "success": true,
+      "verification_result": "PASS",
+      "verification_failures": 0,
+      "missing_facts": [],
+      "sufficiency_failures": 0,
+      "full_tokens": 28,
+      "retained_tokens": 14,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 1,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0,
+      "wall_ms_measured": 1.258,
+      "receipt": {
+        "schema_version": "inference-receipt/0.1",
+        "receipt_id": "local-pytest-010-r1",
+        "task_id": "local-pytest-010",
+        "selected_units": [
+          "blk_0003_5c124747859b"
+        ],
+        "omitted_units": [
+          {
+            "id": "blk_0001_4fff69e9ca9e",
+            "rationale": "no_lexical_overlap"
+          },
+          {
+            "id": "blk_0002_64576d99c4ce",
+            "rationale": "no_lexical_overlap"
+          }
+        ],
+        "model": {
+          "class": "local_small",
+          "reasoning_budget": "low"
+        },
+        "tools_used": [],
+        "verification": {
+          "profile": "standard",
+          "result": "PASS"
+        },
+        "restorations": {
+          "restored": [],
+          "retries": 0,
+          "escalations": []
+        },
+        "cost": {
+          "latency_ms": 1,
+          "tokens_in": 28,
+          "tokens_out": 14,
+          "cost_usd": 0.0
+        },
+        "versions": {
+          "compiler": "lcc-1.0.0",
+          "policy": "planner-1.0",
+          "model": "local_small",
+          "schema": "inference-receipt/0.1",
+          "dataset": "msi-session-replay-9-2026-10-03",
+          "evaluator": "verify-1.0"
+        },
+        "timestamps": {
+          "started_at": "2026-10-03T16:00:05.663430+00:00",
+          "finished_at": "2026-10-03T16:00:05.663432+00:00"
+        },
+        "decision_events": [
+          {
+            "event": "routed",
+            "reason": "msi.compile:deterministic:LOCAL_THEN_VERIFY",
+            "at": "2026-10-03T16:00:05.663423+00:00"
+          },
+          {
+            "event": "dropped",
+            "reason": "mechanical:2-dropped:0-trimmed",
+            "at": "2026-10-03T16:00:05.663427+00:00"
+          }
+        ],
+        "outcome": {
+          "result": "",
+          "evaluation": "PASS"
+        }
+      },
+      "receipt_hash": "12ed4e0903d1b630b990bfc7380bc1450edc2786907ad691fba49771a0fdcec2"
+    }
+  ],
+  "aggregate": {
+    "full": {
+      "n": 10,
+      "successes": 10,
+      "wall_ms_p50": 0.0227,
+      "retained_tokens": 174,
+      "full_tokens": 174,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 10,
+      "verification_failures": 0,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0
+    },
+    "msi_api": {
+      "n": 10,
+      "successes": 10,
+      "wall_ms_p50": 1.258,
+      "retained_tokens": 122,
+      "full_tokens": 174,
+      "cost_usd_external": 0.0,
+      "model_calls": 0,
+      "frontier_calls": 0,
+      "frontier_calls_avoided": 0,
+      "verification_calls": 10,
+      "verification_failures": 0,
+      "restores": 0,
+      "retries": 0,
+      "escalations": 0
+    }
+  },
+  "regressions": [],
+  "pareto_arms": [
+    "msi_api"
+  ]
+}
