@@ -161,7 +161,7 @@ scenario overlap preclude a production-transfer conclusion.
 - New runtime CLI, dependency, orchestration layer: runner is research-only
   and uses existing public compiler/planner/verifier interfaces.
 - Repo archive, deployment and publication: outside scope.
-- GitHub push/PR: not performed under the user's explicit "não use GitHub"
+- GitHub push/PR at initial sprint completion: not performed under the user's explicit "não use GitHub"
   constraint; the only configured remote is GitHub. Local commit is the
   explicit override to the protocol's working-tree-only rule. Opening the
   requested PR needs a narrow exception to that user constraint.
@@ -176,9 +176,52 @@ scenario overlap preclude a production-transfer conclusion.
   they are regression fixtures, not an independent evaluation holdout.
 - Costs for probes are illustrative, all executed attempts only. Escalation
   handlers are not run; CPU/energy and model inference latency are absent.
-- Schema validation requires the local spec checkout and existing jsonschema;
-  the corresponding portable test skips when those are unavailable.
+- Initial validation used the local spec checkout. Publication preparation
+  replaces machine-specific test paths with pinned in-repo schema fixtures
+  and includes jsonschema in the development extra, so CI validates contracts.
 
 ## Next
 
 Sprint 10 may use these PASS artifacts for release gates while retaining the explicit limits on summary quality, oracle probes and production-transfer evidence.
+
+## Publication preparation — 2026-10-03
+
+The user subsequently authorized committing and opening a PR for all local
+work, including GitHub access. This supersedes the initial publication
+restriction above. PR branch: `codex/msi-local-work`, based on remote main
+`7ac648dfdddc715d0acfdd2f4358fd4a7dfa0117`.
+
+The original local and fetched histories had no merge base. Instead of
+forcing a history merge or rewriting either branch, publication commit
+`e09d3352dac5fc1305e40d1822379dc8b97ba7da` applies the exact local tracked
+content delta (sprints 6–9 and the icon helper) to remote main. The index
+was compared against local source `d92501cafcf0bce80e6225c673d1c5205a8f0948`
+before committing: byte-identical tracked files. Original local commits
+remain preserved; their historical SHAs above are local evidence references.
+
+CI preparation commit `9df8b57c70faa0399f959a0ae81f25cb6d28e73d` pins four
+unchanged schemas as test fixtures, adds only a dev validator dependency,
+replaces a removed Typer test-runner helper with pytest fixtures, and binds
+the correct attribute name in the network-guard fallback diagnostic. The
+new diagnostic regression failed before the fix and passed afterward.
+
+Reproduction with fresh environments and `pip install -e ".[dev,tiktoken]"`:
+
+- Python 3.11.5: `python -m pytest tests/ -p no:cacheprovider -o addopts='' -q`
+  → **822 passed, 5 skipped in 11.39s**.
+- Python 3.12.14: same command → **822 passed, 5 skipped in 12.45s**.
+- Exact CI Ruff scope → `All checks passed!`; exact CI mypy scope →
+  `Success: no issues found in 3 source files` in both environments.
+- Additional changed Python scope: mypy → success in 7 source files;
+  research/icon Ruff → all checks passed.
+- Node unit suite → all passed; hook mapping suite → 11 passed (local Node 22).
+- CI answer regression → 30 cases, 0 regressions; multi-agent smoke →
+  20 tasks per arm, 0 E0/E1 regressions; injection smoke → 3/3 PASS.
+- Pilot, 72-run bench, 60-run probes and 20-run API replay all reproduce;
+  original frozen result JSONs were not rewritten by publication preparation.
+- `python -m build` → wheel and sdist built; `python -m twine check` → both PASS.
+- `git merge-tree --write-tree origin/main HEAD` → exit 0, no conflicts.
+
+These are local macOS checks. Actual Linux/Python 3.11/3.12 and Node 20
+GitHub checks are reported on the PR after opening; local results alone do
+not claim that a remote job has already completed.

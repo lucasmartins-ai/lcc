@@ -68,6 +68,11 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- Development installs now include JSON Schema validation, and contract tests
+  use pinned in-repo schema fixtures rather than machine-specific clone paths.
+  CLI error tests use pytest filesystem fixtures for current Typer versions.
+  Network-guard fallback errors name the requested attribute consistently.
+
 - The transcript mode accepts `laya` alongside `jev`, in the CLI, the MCP tool, and the
   library API. The default stays `jev`; `--provider laya` is opt-in.
 
