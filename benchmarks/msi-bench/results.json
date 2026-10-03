@@ -57,6 +57,14 @@
       "tokens_out": 39,
       "retained_tokens": 39,
       "full_tokens": 50,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 50,
+          "tokens_out": 39,
+          "cost_usd_modeled": 1.336
+        }
+      ],
       "cost_usd_modeled": 1.336,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -66,7 +74,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.5056,
+      "wall_ms_measured": 0.3522,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-01:full:s7",
@@ -95,9 +103,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 50,
+          "tokens_out": 39,
+          "cost_usd": 1.336
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -108,21 +116,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.814400+00:00",
-          "finished_at": "2026-10-03T10:19:24.814860+00:00"
+          "started_at": "2026-10-03T17:45:29.280211+00:00",
+          "finished_at": "2026-10-03T17:45:29.280523+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.814400+00:00"
+            "at": "2026-10-03T17:45:29.280211+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "d302f77fc9f306f9401654d83d72221a4e11834dca863e341399446c8db9c981"
     },
     {
       "task_id": "msi-bench-7-coding-01",
@@ -142,6 +151,14 @@
       "tokens_out": 20,
       "retained_tokens": 20,
       "full_tokens": 50,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 20,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -151,7 +168,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.068,
+      "wall_ms_measured": 0.057,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-01:lcc:s7",
@@ -187,8 +204,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 20,
           "cost_usd": 0.0
         },
         "versions": {
@@ -200,21 +217,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815031+00:00",
-          "finished_at": "2026-10-03T10:19:24.815072+00:00"
+          "started_at": "2026-10-03T17:45:29.280752+00:00",
+          "finished_at": "2026-10-03T17:45:29.280788+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.815031+00:00"
+            "at": "2026-10-03T17:45:29.280752+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "16532b1a925d1067698a6883c9d2b7ab294221cc65a8e76fe9e5f9c4dda946cd"
     },
     {
       "task_id": "msi-bench-7-coding-01",
@@ -236,6 +254,14 @@
       "tokens_out": 39,
       "retained_tokens": 39,
       "full_tokens": 50,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 50,
+          "tokens_out": 39,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -245,7 +271,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0449,
+      "wall_ms_measured": 0.0401,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-01:routing:s7",
@@ -274,8 +300,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 50,
+          "tokens_out": 39,
           "cost_usd": 0.0
         },
         "versions": {
@@ -287,21 +313,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815148+00:00",
-          "finished_at": "2026-10-03T10:19:24.815177+00:00"
+          "started_at": "2026-10-03T17:45:29.280889+00:00",
+          "finished_at": "2026-10-03T17:45:29.280915+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815148+00:00"
+            "at": "2026-10-03T17:45:29.280889+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "d8521058ec93181d1d4a5dc22161fdb63f7ae358a760d429c73624498bccf00e"
     },
     {
       "task_id": "msi-bench-7-coding-01",
@@ -321,6 +348,14 @@
       "tokens_out": 20,
       "retained_tokens": 20,
       "full_tokens": 50,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 20,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -330,7 +365,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0372,
+      "wall_ms_measured": 0.0331,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-01:lcc_routing:s7",
@@ -366,8 +401,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 20,
           "cost_usd": 0.0
         },
         "versions": {
@@ -379,21 +414,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815243+00:00",
-          "finished_at": "2026-10-03T10:19:24.815266+00:00"
+          "started_at": "2026-10-03T17:45:29.281004+00:00",
+          "finished_at": "2026-10-03T17:45:29.281025+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815243+00:00"
+            "at": "2026-10-03T17:45:29.281004+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "1eb226a280d8b5862a2e1af240227a80c60e1564260e8618351bef5ad3530205"
     },
     {
       "task_id": "msi-bench-7-coding-01",
@@ -413,6 +449,14 @@
       "tokens_out": 20,
       "retained_tokens": 20,
       "full_tokens": 50,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 20,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -422,7 +466,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0305,
+      "wall_ms_measured": 0.026,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-01:lcc_routing_verify:s7",
@@ -458,8 +502,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 20,
           "cost_usd": 0.0
         },
         "versions": {
@@ -471,21 +515,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815315+00:00",
-          "finished_at": "2026-10-03T10:19:24.815337+00:00"
+          "started_at": "2026-10-03T17:45:29.281094+00:00",
+          "finished_at": "2026-10-03T17:45:29.281113+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815315+00:00"
+            "at": "2026-10-03T17:45:29.281094+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "5ea236659239419555eb5f98d66762df0473f28157e687d6f3aba48918b3252a"
     },
     {
       "task_id": "msi-bench-7-coding-01",
@@ -505,6 +550,14 @@
       "tokens_out": 20,
       "retained_tokens": 20,
       "full_tokens": 50,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 20,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -514,7 +567,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0277,
+      "wall_ms_measured": 0.0274,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-01:msi:s7",
@@ -550,8 +603,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 20,
           "cost_usd": 0.0
         },
         "versions": {
@@ -563,21 +616,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815389+00:00",
-          "finished_at": "2026-10-03T10:19:24.815409+00:00"
+          "started_at": "2026-10-03T17:45:29.281185+00:00",
+          "finished_at": "2026-10-03T17:45:29.281205+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815389+00:00"
+            "at": "2026-10-03T17:45:29.281185+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "47beaec2187681610c35b64e012ae7fb155662edfcab44b42022f6ae24a8bf74"
     },
     {
       "task_id": "msi-bench-7-coding-02",
@@ -599,6 +653,14 @@
       "tokens_out": 41,
       "retained_tokens": 41,
       "full_tokens": 52,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 52,
+          "tokens_out": 41,
+          "cost_usd_modeled": 1.4
+        }
+      ],
       "cost_usd_modeled": 1.4,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -608,7 +670,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0326,
+      "wall_ms_measured": 0.0328,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-02:full:s7",
@@ -637,9 +699,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 52,
+          "tokens_out": 41,
+          "cost_usd": 1.4
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -650,21 +712,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815438+00:00",
-          "finished_at": "2026-10-03T10:19:24.815458+00:00"
+          "started_at": "2026-10-03T17:45:29.281255+00:00",
+          "finished_at": "2026-10-03T17:45:29.281276+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.815438+00:00"
+            "at": "2026-10-03T17:45:29.281255+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "63f94d85302c45c2e2c0b8c786ebd5ea11f21744bea0b002e7f8341e08beffe9"
     },
     {
       "task_id": "msi-bench-7-coding-02",
@@ -682,6 +745,14 @@
       "tokens_out": 0,
       "retained_tokens": 0,
       "full_tokens": 52,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 11,
+          "tokens_out": 0,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -693,7 +764,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0549,
+      "wall_ms_measured": 0.0477,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-02:lcc:s7",
@@ -733,7 +804,7 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
+          "tokens_in": 11,
           "tokens_out": 0,
           "cost_usd": 0.0
         },
@@ -746,31 +817,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815499+00:00",
-          "finished_at": "2026-10-03T10:19:24.815541+00:00"
+          "started_at": "2026-10-03T17:45:29.281343+00:00",
+          "finished_at": "2026-10-03T17:45:29.281378+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.815499+00:00"
+            "at": "2026-10-03T17:45:29.281343+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=ABORT failures=schema_valid:output_schema_invalid:missing=[] empty=['summary'];required_facts_present:required_fact_missing:missing=['rotation window 0400 UTC']",
-            "at": "2026-10-03T10:19:24.815535+00:00"
+            "at": "2026-10-03T17:45:29.281373+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=ABORT retries=0/0 restored=0 target=abort",
-            "at": "2026-10-03T10:19:24.815540+00:00"
+            "at": "2026-10-03T17:45:29.281377+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "747c9b71076a0d76318e9936eec8038a80994ea9d3c1baf504456bcd9058935a"
     },
     {
       "task_id": "msi-bench-7-coding-02",
@@ -792,6 +864,14 @@
       "tokens_out": 41,
       "retained_tokens": 41,
       "full_tokens": 52,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 52,
+          "tokens_out": 41,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -801,7 +881,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.034,
+      "wall_ms_measured": 0.054,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-02:routing:s7",
@@ -830,8 +910,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 52,
+          "tokens_out": 41,
           "cost_usd": 0.0
         },
         "versions": {
@@ -843,21 +923,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815587+00:00",
-          "finished_at": "2026-10-03T10:19:24.815610+00:00"
+          "started_at": "2026-10-03T17:45:29.281484+00:00",
+          "finished_at": "2026-10-03T17:45:29.281520+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815587+00:00"
+            "at": "2026-10-03T17:45:29.281484+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "fcfa08f906fa576c4e17d73ffb15f9958b7696a0e66f7f8180bca7d2ba61fae4"
     },
     {
       "task_id": "msi-bench-7-coding-02",
@@ -875,6 +956,14 @@
       "tokens_out": 0,
       "retained_tokens": 0,
       "full_tokens": 52,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 11,
+          "tokens_out": 0,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -886,7 +975,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0451,
+      "wall_ms_measured": 0.0535,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-02:lcc_routing:s7",
@@ -926,7 +1015,7 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
+          "tokens_in": 11,
           "tokens_out": 0,
           "cost_usd": 0.0
         },
@@ -939,31 +1028,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815658+00:00",
-          "finished_at": "2026-10-03T10:19:24.815691+00:00"
+          "started_at": "2026-10-03T17:45:29.281624+00:00",
+          "finished_at": "2026-10-03T17:45:29.281663+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815658+00:00"
+            "at": "2026-10-03T17:45:29.281624+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=ABORT failures=schema_valid:output_schema_invalid:missing=[] empty=['summary'];required_facts_present:required_fact_missing:missing=['rotation window 0400 UTC']",
-            "at": "2026-10-03T10:19:24.815685+00:00"
+            "at": "2026-10-03T17:45:29.281656+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=ABORT retries=0/0 restored=0 target=abort",
-            "at": "2026-10-03T10:19:24.815689+00:00"
+            "at": "2026-10-03T17:45:29.281661+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "48c03e7094a0024e43422466e1748ecd7f23e874fefdc2386b99c6ddf5d98eba"
     },
     {
       "task_id": "msi-bench-7-coding-02",
@@ -981,6 +1071,14 @@
       "tokens_out": 0,
       "retained_tokens": 0,
       "full_tokens": 52,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 11,
+          "tokens_out": 0,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -992,7 +1090,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0356,
+      "wall_ms_measured": 0.0392,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-02:lcc_routing_verify:s7",
@@ -1032,7 +1130,7 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
+          "tokens_in": 11,
           "tokens_out": 0,
           "cost_usd": 0.0
         },
@@ -1045,31 +1143,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815731+00:00",
-          "finished_at": "2026-10-03T10:19:24.815760+00:00"
+          "started_at": "2026-10-03T17:45:29.281750+00:00",
+          "finished_at": "2026-10-03T17:45:29.281781+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815731+00:00"
+            "at": "2026-10-03T17:45:29.281750+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=ABORT failures=schema_valid:output_schema_invalid:missing=[] empty=['summary'];required_facts_present:required_fact_missing:missing=['rotation window 0400 UTC']",
-            "at": "2026-10-03T10:19:24.815755+00:00"
+            "at": "2026-10-03T17:45:29.281776+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=ABORT retries=0/2 restored=0 target=abort",
-            "at": "2026-10-03T10:19:24.815758+00:00"
+            "at": "2026-10-03T17:45:29.281779+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "d806f801a5fdb55f247c493beb43f307b91669bc9e6612951590ffa2de99f685"
     },
     {
       "task_id": "msi-bench-7-coding-02",
@@ -1090,6 +1189,14 @@
       "tokens_out": 29,
       "retained_tokens": 29,
       "full_tokens": 52,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 40,
+          "tokens_out": 29,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1099,7 +1206,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0287,
+      "wall_ms_measured": 0.0284,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-coding-02:msi:s7",
@@ -1132,8 +1239,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 40,
+          "tokens_out": 29,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1145,21 +1252,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815804+00:00",
-          "finished_at": "2026-10-03T10:19:24.815825+00:00"
+          "started_at": "2026-10-03T17:45:29.281862+00:00",
+          "finished_at": "2026-10-03T17:45:29.281882+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815804+00:00"
+            "at": "2026-10-03T17:45:29.281862+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "b7e86b3abba10bde00839cd7c1a39c6ea7d59bf65e6d64177f41220bbbccdff1"
     },
     {
       "task_id": "msi-bench-7-research-01",
@@ -1181,6 +1289,14 @@
       "tokens_out": 40,
       "retained_tokens": 40,
       "full_tokens": 54,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 54,
+          "tokens_out": 40,
+          "cost_usd_modeled": 1.392
+        }
+      ],
       "cost_usd_modeled": 1.392,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -1190,7 +1306,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0328,
+      "wall_ms_measured": 0.0346,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-01:full:s7",
@@ -1219,9 +1335,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 54,
+          "tokens_out": 40,
+          "cost_usd": 1.392
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -1232,21 +1348,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815853+00:00",
-          "finished_at": "2026-10-03T10:19:24.815875+00:00"
+          "started_at": "2026-10-03T17:45:29.281944+00:00",
+          "finished_at": "2026-10-03T17:45:29.281966+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.815853+00:00"
+            "at": "2026-10-03T17:45:29.281944+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "77615b7a723c498e4c1414221673fbd138a17583a1399529a432819f3673cb62"
     },
     {
       "task_id": "msi-bench-7-research-01",
@@ -1266,6 +1383,14 @@
       "tokens_out": 17,
       "retained_tokens": 17,
       "full_tokens": 54,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 17,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1275,7 +1400,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0313,
+      "wall_ms_measured": 0.0344,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-01:lcc:s7",
@@ -1311,8 +1436,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 17,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1324,21 +1449,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815916+00:00",
-          "finished_at": "2026-10-03T10:19:24.815935+00:00"
+          "started_at": "2026-10-03T17:45:29.282039+00:00",
+          "finished_at": "2026-10-03T17:45:29.282059+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.815916+00:00"
+            "at": "2026-10-03T17:45:29.282039+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "15bcdbb53de063a0defb61de658bfff5dbe89eeebd2bb5c29839b27aef5501f2"
     },
     {
       "task_id": "msi-bench-7-research-01",
@@ -1360,6 +1486,14 @@
       "tokens_out": 40,
       "retained_tokens": 40,
       "full_tokens": 54,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 54,
+          "tokens_out": 40,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1369,7 +1503,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0299,
+      "wall_ms_measured": 0.0303,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-01:routing:s7",
@@ -1398,8 +1532,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 54,
+          "tokens_out": 40,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1411,21 +1545,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.815969+00:00",
-          "finished_at": "2026-10-03T10:19:24.815988+00:00"
+          "started_at": "2026-10-03T17:45:29.282125+00:00",
+          "finished_at": "2026-10-03T17:45:29.282144+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:low;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.815969+00:00"
+            "at": "2026-10-03T17:45:29.282125+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "89002f1b7941f66dab55ead14ababcbe51df23930198802dbe3946a8130739f5"
     },
     {
       "task_id": "msi-bench-7-research-01",
@@ -1445,6 +1580,14 @@
       "tokens_out": 17,
       "retained_tokens": 17,
       "full_tokens": 54,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 17,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1454,7 +1597,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0294,
+      "wall_ms_measured": 0.0295,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-01:lcc_routing:s7",
@@ -1490,8 +1633,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 17,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1503,21 +1646,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816039+00:00",
-          "finished_at": "2026-10-03T10:19:24.816058+00:00"
+          "started_at": "2026-10-03T17:45:29.282213+00:00",
+          "finished_at": "2026-10-03T17:45:29.282231+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:low;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.816039+00:00"
+            "at": "2026-10-03T17:45:29.282213+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "b64fa4e955f474bc1b13ac2aac769d2662e2fba80c7bf2b16773f9bd3168d1f0"
     },
     {
       "task_id": "msi-bench-7-research-01",
@@ -1537,6 +1681,14 @@
       "tokens_out": 17,
       "retained_tokens": 17,
       "full_tokens": 54,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 17,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1546,7 +1698,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.025,
+      "wall_ms_measured": 0.0239,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-01:lcc_routing_verify:s7",
@@ -1582,8 +1734,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 17,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1595,21 +1747,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816101+00:00",
-          "finished_at": "2026-10-03T10:19:24.816119+00:00"
+          "started_at": "2026-10-03T17:45:29.282293+00:00",
+          "finished_at": "2026-10-03T17:45:29.282310+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:low;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.816101+00:00"
+            "at": "2026-10-03T17:45:29.282293+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "b12c403177aff5ef5fd82bfbf64cd6cfa15f58c2161579af7b2b5a7a804f1a60"
     },
     {
       "task_id": "msi-bench-7-research-01",
@@ -1629,6 +1782,14 @@
       "tokens_out": 17,
       "retained_tokens": 17,
       "full_tokens": 54,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 17,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1638,7 +1799,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0273,
+      "wall_ms_measured": 0.0274,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-01:msi:s7",
@@ -1674,8 +1835,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 17,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1687,21 +1848,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816172+00:00",
-          "finished_at": "2026-10-03T10:19:24.816192+00:00"
+          "started_at": "2026-10-03T17:45:29.282373+00:00",
+          "finished_at": "2026-10-03T17:45:29.282391+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:low;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.816172+00:00"
+            "at": "2026-10-03T17:45:29.282373+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "2fd44ddc47152fb52d51c47a15efe58124d5d7d7524b183fa36e61ba38b97b6a"
     },
     {
       "task_id": "msi-bench-7-research-02",
@@ -1724,6 +1886,14 @@
       "tokens_out": 51,
       "retained_tokens": 51,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 64,
+          "tokens_out": 51,
+          "cost_usd_modeled": 1.736
+        }
+      ],
       "cost_usd_modeled": 1.736,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -1733,7 +1903,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0329,
+      "wall_ms_measured": 0.0294,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-02:full:s7",
@@ -1763,9 +1933,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 64,
+          "tokens_out": 51,
+          "cost_usd": 1.736
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -1776,21 +1946,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816223+00:00",
-          "finished_at": "2026-10-03T10:19:24.816244+00:00"
+          "started_at": "2026-10-03T17:45:29.282442+00:00",
+          "finished_at": "2026-10-03T17:45:29.282460+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.816223+00:00"
+            "at": "2026-10-03T17:45:29.282442+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "894a08f51a1b2f13376e7dd1fd1d73636f24216d6036d95d31f6e4eb42f59ad0"
     },
     {
       "task_id": "msi-bench-7-research-02",
@@ -1810,6 +1981,14 @@
       "tokens_out": 15,
       "retained_tokens": 15,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 29,
+          "tokens_out": 15,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1821,7 +2000,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0411,
+      "wall_ms_measured": 0.0369,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-02:lcc:s7",
@@ -1863,8 +2042,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 29,
+          "tokens_out": 15,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1876,31 +2055,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816289+00:00",
-          "finished_at": "2026-10-03T10:19:24.816318+00:00"
+          "started_at": "2026-10-03T17:45:29.282526+00:00",
+          "finished_at": "2026-10-03T17:45:29.282552+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.816289+00:00"
+            "at": "2026-10-03T17:45:29.282526+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RESTORE_CONTEXT failures=citations_resolve:citation_missing:output carries no citations",
-            "at": "2026-10-03T10:19:24.816313+00:00"
+            "at": "2026-10-03T17:45:29.282547+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RESTORE_CONTEXT retries=0/0 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.816316+00:00"
+            "at": "2026-10-03T17:45:29.282550+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "210d41a5804d0fc23d9e4e81b1783b94cf59ba6655a12726c82afaf103a62490"
     },
     {
       "task_id": "msi-bench-7-research-02",
@@ -1923,6 +2103,14 @@
       "tokens_out": 51,
       "retained_tokens": 51,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 64,
+          "tokens_out": 51,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -1932,7 +2120,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0303,
+      "wall_ms_measured": 0.0311,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-02:routing:s7",
@@ -1962,8 +2150,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 64,
+          "tokens_out": 51,
           "cost_usd": 0.0
         },
         "versions": {
@@ -1975,21 +2163,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816355+00:00",
-          "finished_at": "2026-10-03T10:19:24.816374+00:00"
+          "started_at": "2026-10-03T17:45:29.282613+00:00",
+          "finished_at": "2026-10-03T17:45:29.282634+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.816355+00:00"
+            "at": "2026-10-03T17:45:29.282613+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "5de4799a5b3d82c87f5d3ff161796e7a7a143a2c96217899aa6c9a1ec654bc5f"
     },
     {
       "task_id": "msi-bench-7-research-02",
@@ -2009,6 +2198,14 @@
       "tokens_out": 15,
       "retained_tokens": 15,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 29,
+          "tokens_out": 15,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -2020,7 +2217,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0388,
+      "wall_ms_measured": 0.0374,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-02:lcc_routing:s7",
@@ -2062,8 +2259,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 29,
+          "tokens_out": 15,
           "cost_usd": 0.0
         },
         "versions": {
@@ -2075,31 +2272,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816427+00:00",
-          "finished_at": "2026-10-03T10:19:24.816455+00:00"
+          "started_at": "2026-10-03T17:45:29.282704+00:00",
+          "finished_at": "2026-10-03T17:45:29.282731+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.816427+00:00"
+            "at": "2026-10-03T17:45:29.282704+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RESTORE_CONTEXT failures=citations_resolve:citation_missing:output carries no citations",
-            "at": "2026-10-03T10:19:24.816449+00:00"
+            "at": "2026-10-03T17:45:29.282726+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RESTORE_CONTEXT retries=0/0 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.816453+00:00"
+            "at": "2026-10-03T17:45:29.282729+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "763ff27d30faf568ccfd5a4ffa2d2bb627d1d6489be9cb31c2825692d0a58910"
     },
     {
       "task_id": "msi-bench-7-research-02",
@@ -2120,6 +2318,20 @@
       "tokens_out": 28,
       "retained_tokens": 28,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 29,
+          "tokens_out": 15,
+          "cost_usd_modeled": 0.0
+        },
+        {
+          "model": "local_small",
+          "tokens_in": 42,
+          "tokens_out": 28,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 2,
@@ -2129,7 +2341,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0595,
+      "wall_ms_measured": 0.0568,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-02:lcc_routing_verify:s7",
@@ -2171,8 +2383,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 71,
+          "tokens_out": 43,
           "cost_usd": 0.0
         },
         "versions": {
@@ -2184,31 +2396,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816501+00:00",
-          "finished_at": "2026-10-03T10:19:24.816553+00:00"
+          "started_at": "2026-10-03T17:45:29.282801+00:00",
+          "finished_at": "2026-10-03T17:45:29.282851+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.816501+00:00"
+            "at": "2026-10-03T17:45:29.282801+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RESTORE_CONTEXT failures=citations_resolve:citation_missing:output carries no citations",
-            "at": "2026-10-03T10:19:24.816523+00:00"
+            "at": "2026-10-03T17:45:29.282821+00:00"
           },
           {
             "event": "restored",
             "reason": "restored=['u_cite'] budget=4",
-            "at": "2026-10-03T10:19:24.816531+00:00"
+            "at": "2026-10-03T17:45:29.282829+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "2be687c4d2ccf23ea120ac0f9e05a11fb3aec6aa67c5f28462b045b75c1066ac"
     },
     {
       "task_id": "msi-bench-7-research-02",
@@ -2229,6 +2442,14 @@
       "tokens_out": 28,
       "retained_tokens": 28,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 42,
+          "tokens_out": 28,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -2238,7 +2459,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0267,
+      "wall_ms_measured": 0.025,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-research-02:msi:s7",
@@ -2275,8 +2496,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 42,
+          "tokens_out": 28,
           "cost_usd": 0.0
         },
         "versions": {
@@ -2288,21 +2509,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816606+00:00",
-          "finished_at": "2026-10-03T10:19:24.816625+00:00"
+          "started_at": "2026-10-03T17:45:29.282928+00:00",
+          "finished_at": "2026-10-03T17:45:29.282946+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.816606+00:00"
+            "at": "2026-10-03T17:45:29.282928+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "2c6c110d648c3e0a2c5981690caa2a1256986300017224556715eb850c9e224e"
     },
     {
       "task_id": "msi-bench-7-decision-01",
@@ -2325,6 +2547,14 @@
       "tokens_out": 52,
       "retained_tokens": 52,
       "full_tokens": 66,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 66,
+          "tokens_out": 52,
+          "cost_usd_modeled": 1.776
+        }
+      ],
       "cost_usd_modeled": 1.776,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -2334,7 +2564,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0324,
+      "wall_ms_measured": 0.029,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-01:full:s7",
@@ -2364,9 +2594,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 66,
+          "tokens_out": 52,
+          "cost_usd": 1.776
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -2377,21 +2607,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816653+00:00",
-          "finished_at": "2026-10-03T10:19:24.816674+00:00"
+          "started_at": "2026-10-03T17:45:29.283001+00:00",
+          "finished_at": "2026-10-03T17:45:29.283019+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.816653+00:00"
+            "at": "2026-10-03T17:45:29.283001+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "ed7fdf9b8f29cc8a33f182c78228885e0642b6f3de81aa19a666ad2ba5bea995"
     },
     {
       "task_id": "msi-bench-7-decision-01",
@@ -2412,6 +2643,14 @@
       "tokens_out": 30,
       "retained_tokens": 30,
       "full_tokens": 66,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 44,
+          "tokens_out": 30,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -2423,7 +2662,7 @@
       "false_deescalation": 1,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0418,
+      "wall_ms_measured": 0.0365,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-01:lcc:s7",
@@ -2462,8 +2701,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 44,
+          "tokens_out": 30,
           "cost_usd": 0.0
         },
         "versions": {
@@ -2475,31 +2714,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816720+00:00",
-          "finished_at": "2026-10-03T10:19:24.816750+00:00"
+          "started_at": "2026-10-03T17:45:29.283086+00:00",
+          "finished_at": "2026-10-03T17:45:29.283111+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.816720+00:00"
+            "at": "2026-10-03T17:45:29.283086+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['friday close of business']",
-            "at": "2026-10-03T10:19:24.816745+00:00"
+            "at": "2026-10-03T17:45:29.283107+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=0/0 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.816748+00:00"
+            "at": "2026-10-03T17:45:29.283110+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "7f206404929090c41322f16bbe0bb904095f29908c8b1928835e91ac2fdbac6b"
     },
     {
       "task_id": "msi-bench-7-decision-01",
@@ -2522,6 +2762,14 @@
       "tokens_out": 52,
       "retained_tokens": 52,
       "full_tokens": 66,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 66,
+          "tokens_out": 52,
+          "cost_usd_modeled": 1.776
+        }
+      ],
       "cost_usd_modeled": 1.776,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -2531,7 +2779,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0312,
+      "wall_ms_measured": 0.0298,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-01:routing:s7",
@@ -2561,9 +2809,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 66,
+          "tokens_out": 52,
+          "cost_usd": 1.776
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -2574,21 +2822,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816789+00:00",
-          "finished_at": "2026-10-03T10:19:24.816809+00:00"
+          "started_at": "2026-10-03T17:45:29.283176+00:00",
+          "finished_at": "2026-10-03T17:45:29.283196+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=routing;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.816789+00:00"
+            "at": "2026-10-03T17:45:29.283176+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "2bb4eeb5d17d320940607499b40bc3036ed29215d343fc2e73ec4a0d76c871ad"
     },
     {
       "task_id": "msi-bench-7-decision-01",
@@ -2609,6 +2858,14 @@
       "tokens_out": 30,
       "retained_tokens": 30,
       "full_tokens": 66,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 44,
+          "tokens_out": 30,
+          "cost_usd_modeled": 1.072
+        }
+      ],
       "cost_usd_modeled": 1.072,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -2620,7 +2877,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0426,
+      "wall_ms_measured": 0.0379,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-01:lcc_routing:s7",
@@ -2659,9 +2916,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 44,
+          "tokens_out": 30,
+          "cost_usd": 1.072
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -2672,31 +2929,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816860+00:00",
-          "finished_at": "2026-10-03T10:19:24.816888+00:00"
+          "started_at": "2026-10-03T17:45:29.283266+00:00",
+          "finished_at": "2026-10-03T17:45:29.283294+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.816860+00:00"
+            "at": "2026-10-03T17:45:29.283266+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['friday close of business']",
-            "at": "2026-10-03T10:19:24.816883+00:00"
+            "at": "2026-10-03T17:45:29.283287+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=0/0 restored=0 target=human",
-            "at": "2026-10-03T10:19:24.816886+00:00"
+            "at": "2026-10-03T17:45:29.283290+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "0ef164e55659922233fd800614335258bcf86797c480b09b4d78639e6cb2d210"
     },
     {
       "task_id": "msi-bench-7-decision-01",
@@ -2717,8 +2975,28 @@
       "tokens_out": 30,
       "retained_tokens": 30,
       "full_tokens": 66,
-      "cost_usd_modeled": 1.072,
-      "frontier_call_modeled": 1,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 44,
+          "tokens_out": 30,
+          "cost_usd_modeled": 1.072
+        },
+        {
+          "model": "frontier",
+          "tokens_in": 44,
+          "tokens_out": 30,
+          "cost_usd_modeled": 1.072
+        },
+        {
+          "model": "frontier",
+          "tokens_in": 44,
+          "tokens_out": 30,
+          "cost_usd_modeled": 1.072
+        }
+      ],
+      "cost_usd_modeled": 3.216,
+      "frontier_call_modeled": 3,
       "verification_calls": 3,
       "restores": 0,
       "retries": 2,
@@ -2728,7 +3006,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0867,
+      "wall_ms_measured": 0.0835,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-01:lcc_routing_verify:s7",
@@ -2767,9 +3045,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 132,
+          "tokens_out": 90,
+          "cost_usd": 3.216
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -2780,51 +3058,52 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.816940+00:00",
-          "finished_at": "2026-10-03T10:19:24.817018+00:00"
+          "started_at": "2026-10-03T17:45:29.283361+00:00",
+          "finished_at": "2026-10-03T17:45:29.283435+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.816940+00:00"
+            "at": "2026-10-03T17:45:29.283361+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['friday close of business']",
-            "at": "2026-10-03T10:19:24.816965+00:00"
+            "at": "2026-10-03T17:45:29.283384+00:00"
           },
           {
             "event": "routed",
             "reason": "retry=1/2 action=RETRY model=frontier reasoning=low",
-            "at": "2026-10-03T10:19:24.816969+00:00"
+            "at": "2026-10-03T17:45:29.283388+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=1 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['friday close of business']",
-            "at": "2026-10-03T10:19:24.816990+00:00"
+            "at": "2026-10-03T17:45:29.283407+00:00"
           },
           {
             "event": "routed",
             "reason": "retry=2/2 action=RETRY model=frontier reasoning=low",
-            "at": "2026-10-03T10:19:24.816993+00:00"
+            "at": "2026-10-03T17:45:29.283413+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=2 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['friday close of business']",
-            "at": "2026-10-03T10:19:24.817013+00:00"
+            "at": "2026-10-03T17:45:29.283431+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=2/2 restored=0 target=human",
-            "at": "2026-10-03T10:19:24.817016+00:00"
+            "at": "2026-10-03T17:45:29.283433+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "cc4ea1af73d9e62be528ba46203a5cd9b8bc9075b7ccb9e533e0c61c3a3b7de6"
     },
     {
       "task_id": "msi-bench-7-decision-01",
@@ -2846,6 +3125,14 @@
       "tokens_out": 39,
       "retained_tokens": 39,
       "full_tokens": 66,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 53,
+          "tokens_out": 39,
+          "cost_usd_modeled": 1.36
+        }
+      ],
       "cost_usd_modeled": 1.36,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -2855,7 +3142,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0292,
+      "wall_ms_measured": 0.0253,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-01:msi:s7",
@@ -2889,9 +3176,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 53,
+          "tokens_out": 39,
+          "cost_usd": 1.36
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -2902,21 +3189,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817070+00:00",
-          "finished_at": "2026-10-03T10:19:24.817092+00:00"
+          "started_at": "2026-10-03T17:45:29.283525+00:00",
+          "finished_at": "2026-10-03T17:45:29.283544+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=msi;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.817070+00:00"
+            "at": "2026-10-03T17:45:29.283525+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "b3d465c3643d49b648d9f60df4cda6eb42b299ab44406451ce21710b64c67552"
     },
     {
       "task_id": "msi-bench-7-decision-02",
@@ -2938,6 +3226,14 @@
       "tokens_out": 43,
       "retained_tokens": 43,
       "full_tokens": 55,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 55,
+          "tokens_out": 43,
+          "cost_usd_modeled": 1.472
+        }
+      ],
       "cost_usd_modeled": 1.472,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -2947,7 +3243,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0348,
+      "wall_ms_measured": 0.0278,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-02:full:s7",
@@ -2976,9 +3272,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 55,
+          "tokens_out": 43,
+          "cost_usd": 1.472
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -2989,21 +3285,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817123+00:00",
-          "finished_at": "2026-10-03T10:19:24.817144+00:00"
+          "started_at": "2026-10-03T17:45:29.283597+00:00",
+          "finished_at": "2026-10-03T17:45:29.283614+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.817123+00:00"
+            "at": "2026-10-03T17:45:29.283597+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "c8a39121abc7c2a4d190c7ca877fae82d21c25c2f88f9d14a4a3a4f8e97e81ef"
     },
     {
       "task_id": "msi-bench-7-decision-02",
@@ -3024,6 +3321,14 @@
       "tokens_out": 33,
       "retained_tokens": 33,
       "full_tokens": 55,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 44,
+          "tokens_out": 33,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -3033,7 +3338,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 1,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0295,
+      "wall_ms_measured": 0.027,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-02:lcc:s7",
@@ -3066,8 +3371,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 44,
+          "tokens_out": 33,
           "cost_usd": 0.0
         },
         "versions": {
@@ -3079,21 +3384,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817183+00:00",
-          "finished_at": "2026-10-03T10:19:24.817202+00:00"
+          "started_at": "2026-10-03T17:45:29.283672+00:00",
+          "finished_at": "2026-10-03T17:45:29.283689+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.817183+00:00"
+            "at": "2026-10-03T17:45:29.283672+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "e31f15429f3c3b690f0f07699169e2934bfa739eea0d7f79f112bde84903b459"
     },
     {
       "task_id": "msi-bench-7-decision-02",
@@ -3115,6 +3421,14 @@
       "tokens_out": 43,
       "retained_tokens": 43,
       "full_tokens": 55,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 55,
+          "tokens_out": 43,
+          "cost_usd_modeled": 1.472
+        }
+      ],
       "cost_usd_modeled": 1.472,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -3124,7 +3438,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.03,
+      "wall_ms_measured": 0.027,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-02:routing:s7",
@@ -3153,9 +3467,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 55,
+          "tokens_out": 43,
+          "cost_usd": 1.472
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -3166,21 +3480,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817237+00:00",
-          "finished_at": "2026-10-03T10:19:24.817256+00:00"
+          "started_at": "2026-10-03T17:45:29.283746+00:00",
+          "finished_at": "2026-10-03T17:45:29.283763+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=routing;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.817237+00:00"
+            "at": "2026-10-03T17:45:29.283746+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "5432bf96d0ab3d9d7b43381c0b8aa038ddf37f965e3e554ebbc21da050b0b98f"
     },
     {
       "task_id": "msi-bench-7-decision-02",
@@ -3201,6 +3516,14 @@
       "tokens_out": 33,
       "retained_tokens": 33,
       "full_tokens": 55,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 44,
+          "tokens_out": 33,
+          "cost_usd_modeled": 1.144
+        }
+      ],
       "cost_usd_modeled": 1.144,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -3210,7 +3533,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0296,
+      "wall_ms_measured": 0.0258,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-02:lcc_routing:s7",
@@ -3243,9 +3566,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 44,
+          "tokens_out": 33,
+          "cost_usd": 1.144
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -3256,21 +3579,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817301+00:00",
-          "finished_at": "2026-10-03T10:19:24.817320+00:00"
+          "started_at": "2026-10-03T17:45:29.283826+00:00",
+          "finished_at": "2026-10-03T17:45:29.283842+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.817301+00:00"
+            "at": "2026-10-03T17:45:29.283826+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "6d94373f689d8cf63318a913d55ee18e0312cd5fa02f910ebd5cd8c0d4ae2d04"
     },
     {
       "task_id": "msi-bench-7-decision-02",
@@ -3291,6 +3615,14 @@
       "tokens_out": 33,
       "retained_tokens": 33,
       "full_tokens": 55,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 44,
+          "tokens_out": 33,
+          "cost_usd_modeled": 1.144
+        }
+      ],
       "cost_usd_modeled": 1.144,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -3300,7 +3632,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0257,
+      "wall_ms_measured": 0.023,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-02:lcc_routing_verify:s7",
@@ -3333,9 +3665,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 44,
+          "tokens_out": 33,
+          "cost_usd": 1.144
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -3346,21 +3678,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817359+00:00",
-          "finished_at": "2026-10-03T10:19:24.817377+00:00"
+          "started_at": "2026-10-03T17:45:29.283900+00:00",
+          "finished_at": "2026-10-03T17:45:29.283917+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.817359+00:00"
+            "at": "2026-10-03T17:45:29.283900+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "e1f30279f9b44f257d2352b8d7548e53ad745aa45d95ca5608a7bd879f783b42"
     },
     {
       "task_id": "msi-bench-7-decision-02",
@@ -3381,6 +3714,14 @@
       "tokens_out": 33,
       "retained_tokens": 33,
       "full_tokens": 55,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 44,
+          "tokens_out": 33,
+          "cost_usd_modeled": 1.144
+        }
+      ],
       "cost_usd_modeled": 1.144,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -3390,7 +3731,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0245,
+      "wall_ms_measured": 0.0223,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-decision-02:msi:s7",
@@ -3423,9 +3764,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 44,
+          "tokens_out": 33,
+          "cost_usd": 1.144
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -3436,21 +3777,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817421+00:00",
-          "finished_at": "2026-10-03T10:19:24.817438+00:00"
+          "started_at": "2026-10-03T17:45:29.283979+00:00",
+          "finished_at": "2026-10-03T17:45:29.283995+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=frontier reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:high;fail_closed_risk_upgrade:cheap->frontier;fail_closed_added_escalate_fallback;bench:arm=msi;bench_pairing:profile=standard;plan_profile=strict",
-            "at": "2026-10-03T10:19:24.817421+00:00"
+            "at": "2026-10-03T17:45:29.283979+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "247c1cdb5edfa250ee2de054ae792dde0fe001b094fd1c54bb5cf478a7689176"
     },
     {
       "task_id": "msi-bench-7-longctx-01",
@@ -3477,6 +3819,14 @@
       "tokens_out": 110,
       "retained_tokens": 110,
       "full_tokens": 119,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 119,
+          "tokens_out": 110,
+          "cost_usd_modeled": 3.592
+        }
+      ],
       "cost_usd_modeled": 3.592,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -3486,7 +3836,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0379,
+      "wall_ms_measured": 0.0331,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-01:full:s7",
@@ -3520,9 +3870,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 119,
+          "tokens_out": 110,
+          "cost_usd": 3.592
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -3533,21 +3883,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817465+00:00",
-          "finished_at": "2026-10-03T10:19:24.817491+00:00"
+          "started_at": "2026-10-03T17:45:29.284041+00:00",
+          "finished_at": "2026-10-03T17:45:29.284062+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.817465+00:00"
+            "at": "2026-10-03T17:45:29.284041+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "9660c98bb96a4121ef73e4a8c3609fb77297815f7511882e5487dff386264210"
     },
     {
       "task_id": "msi-bench-7-longctx-01",
@@ -3568,6 +3919,14 @@
       "tokens_out": 35,
       "retained_tokens": 35,
       "full_tokens": 119,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 44,
+          "tokens_out": 35,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -3577,7 +3936,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 1,
-      "wall_ms_measured": 0.0324,
+      "wall_ms_measured": 0.0327,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-01:lcc:s7",
@@ -3630,8 +3989,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 44,
+          "tokens_out": 35,
           "cost_usd": 0.0
         },
         "versions": {
@@ -3643,21 +4002,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817557+00:00",
-          "finished_at": "2026-10-03T10:19:24.817577+00:00"
+          "started_at": "2026-10-03T17:45:29.284175+00:00",
+          "finished_at": "2026-10-03T17:45:29.284196+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.817557+00:00"
+            "at": "2026-10-03T17:45:29.284175+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "b78eb8fd33cd7215ef4bc4dcef6e09369590b2a43adf6bab6b9c7d54ff203a45"
     },
     {
       "task_id": "msi-bench-7-longctx-01",
@@ -3684,6 +4044,14 @@
       "tokens_out": 110,
       "retained_tokens": 110,
       "full_tokens": 119,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 119,
+          "tokens_out": 110,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -3693,7 +4061,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0325,
+      "wall_ms_measured": 0.0328,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-01:routing:s7",
@@ -3727,8 +4095,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 119,
+          "tokens_out": 110,
           "cost_usd": 0.0
         },
         "versions": {
@@ -3740,21 +4108,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817620+00:00",
-          "finished_at": "2026-10-03T10:19:24.817642+00:00"
+          "started_at": "2026-10-03T17:45:29.284285+00:00",
+          "finished_at": "2026-10-03T17:45:29.284308+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.817620+00:00"
+            "at": "2026-10-03T17:45:29.284285+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "193dd2213803fee496b4e5d62972d1d16e8df8fe434236ca54f8d9167057a3ed"
     },
     {
       "task_id": "msi-bench-7-longctx-01",
@@ -3775,6 +4144,14 @@
       "tokens_out": 35,
       "retained_tokens": 35,
       "full_tokens": 119,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 44,
+          "tokens_out": 35,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -3784,7 +4161,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 1,
-      "wall_ms_measured": 0.0312,
+      "wall_ms_measured": 0.0305,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-01:lcc_routing:s7",
@@ -3837,8 +4214,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 44,
+          "tokens_out": 35,
           "cost_usd": 0.0
         },
         "versions": {
@@ -3850,21 +4227,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817706+00:00",
-          "finished_at": "2026-10-03T10:19:24.817726+00:00"
+          "started_at": "2026-10-03T17:45:29.284394+00:00",
+          "finished_at": "2026-10-03T17:45:29.284414+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.817706+00:00"
+            "at": "2026-10-03T17:45:29.284394+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "38b5c1d09bc8931916cd50efbdb436e82a31c45de782bdc1c0688bb1691565b2"
     },
     {
       "task_id": "msi-bench-7-longctx-01",
@@ -3885,6 +4263,14 @@
       "tokens_out": 35,
       "retained_tokens": 35,
       "full_tokens": 119,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 44,
+          "tokens_out": 35,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -3894,7 +4280,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 1,
-      "wall_ms_measured": 0.0259,
+      "wall_ms_measured": 0.0248,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-01:lcc_routing_verify:s7",
@@ -3947,8 +4333,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 44,
+          "tokens_out": 35,
           "cost_usd": 0.0
         },
         "versions": {
@@ -3960,21 +4346,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817780+00:00",
-          "finished_at": "2026-10-03T10:19:24.817798+00:00"
+          "started_at": "2026-10-03T17:45:29.284493+00:00",
+          "finished_at": "2026-10-03T17:45:29.284510+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.817780+00:00"
+            "at": "2026-10-03T17:45:29.284493+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "5c916d8434579a304ee84625b05f90337358c381e4a685e16a539d3b46ada8bc"
     },
     {
       "task_id": "msi-bench-7-longctx-01",
@@ -3996,6 +4383,14 @@
       "tokens_out": 47,
       "retained_tokens": 47,
       "full_tokens": 119,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 56,
+          "tokens_out": 47,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4005,7 +4400,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0311,
+      "wall_ms_measured": 0.0245,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-01:msi:s7",
@@ -4055,8 +4450,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 56,
+          "tokens_out": 47,
           "cost_usd": 0.0
         },
         "versions": {
@@ -4068,21 +4463,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817869+00:00",
-          "finished_at": "2026-10-03T10:19:24.817891+00:00"
+          "started_at": "2026-10-03T17:45:29.284601+00:00",
+          "finished_at": "2026-10-03T17:45:29.284618+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.817869+00:00"
+            "at": "2026-10-03T17:45:29.284601+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "8e816ce5a71b4223477e5d7b24c424647b39375da287fbd3f10a8c23dcfa3121"
     },
     {
       "task_id": "msi-bench-7-longctx-02",
@@ -4108,6 +4504,14 @@
       "tokens_out": 82,
       "retained_tokens": 82,
       "full_tokens": 95,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 95,
+          "tokens_out": 82,
+          "cost_usd_modeled": 2.728
+        }
+      ],
       "cost_usd_modeled": 2.728,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -4117,7 +4521,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.037,
+      "wall_ms_measured": 0.0297,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-02:full:s7",
@@ -4150,9 +4554,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 95,
+          "tokens_out": 82,
+          "cost_usd": 2.728
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -4163,21 +4567,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.817922+00:00",
-          "finished_at": "2026-10-03T10:19:24.817948+00:00"
+          "started_at": "2026-10-03T17:45:29.284675+00:00",
+          "finished_at": "2026-10-03T17:45:29.284694+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.817922+00:00"
+            "at": "2026-10-03T17:45:29.284675+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "4c9e504051549490470a7083dcfe107c7f96d86aace656f511400e8c5d7e64c7"
     },
     {
       "task_id": "msi-bench-7-longctx-02",
@@ -4195,6 +4600,14 @@
       "tokens_out": 0,
       "retained_tokens": 0,
       "full_tokens": 95,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 14,
+          "tokens_out": 0,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4206,7 +4619,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0417,
+      "wall_ms_measured": 0.0547,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-02:lcc:s7",
@@ -4262,7 +4675,7 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
+          "tokens_in": 14,
           "tokens_out": 0,
           "cost_usd": 0.0
         },
@@ -4275,31 +4688,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818000+00:00",
-          "finished_at": "2026-10-03T10:19:24.818029+00:00"
+          "started_at": "2026-10-03T17:45:29.284768+00:00",
+          "finished_at": "2026-10-03T17:45:29.284811+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.818000+00:00"
+            "at": "2026-10-03T17:45:29.284768+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=ABORT failures=schema_valid:output_schema_invalid:missing=[] empty=['summary'];required_facts_present:required_fact_missing:missing=['41 por cento']",
-            "at": "2026-10-03T10:19:24.818024+00:00"
+            "at": "2026-10-03T17:45:29.284790+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=ABORT retries=0/0 restored=0 target=abort",
-            "at": "2026-10-03T10:19:24.818027+00:00"
+            "at": "2026-10-03T17:45:29.284807+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "d2a5d2c57db3ffe3fdf9b81c3d75abe8c1c199a1bdc4b2aa93b4f8ab1bf6a38d"
     },
     {
       "task_id": "msi-bench-7-longctx-02",
@@ -4325,6 +4739,14 @@
       "tokens_out": 82,
       "retained_tokens": 82,
       "full_tokens": 95,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 95,
+          "tokens_out": 82,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4334,7 +4756,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0318,
+      "wall_ms_measured": 0.0279,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-02:routing:s7",
@@ -4367,8 +4789,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 95,
+          "tokens_out": 82,
           "cost_usd": 0.0
         },
         "versions": {
@@ -4380,21 +4802,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818070+00:00",
-          "finished_at": "2026-10-03T10:19:24.818091+00:00"
+          "started_at": "2026-10-03T17:45:29.284875+00:00",
+          "finished_at": "2026-10-03T17:45:29.284893+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818070+00:00"
+            "at": "2026-10-03T17:45:29.284875+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "3a751749423ecef3dd9219374003bbf9e0bfae2f9aa965b0e2977dee81d17709"
     },
     {
       "task_id": "msi-bench-7-longctx-02",
@@ -4412,6 +4835,14 @@
       "tokens_out": 0,
       "retained_tokens": 0,
       "full_tokens": 95,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 14,
+          "tokens_out": 0,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4423,7 +4854,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0374,
+      "wall_ms_measured": 0.0366,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-02:lcc_routing:s7",
@@ -4479,7 +4910,7 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
+          "tokens_in": 14,
           "tokens_out": 0,
           "cost_usd": 0.0
         },
@@ -4492,31 +4923,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818148+00:00",
-          "finished_at": "2026-10-03T10:19:24.818174+00:00"
+          "started_at": "2026-10-03T17:45:29.284968+00:00",
+          "finished_at": "2026-10-03T17:45:29.284994+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818148+00:00"
+            "at": "2026-10-03T17:45:29.284968+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=ABORT failures=schema_valid:output_schema_invalid:missing=[] empty=['summary'];required_facts_present:required_fact_missing:missing=['41 por cento']",
-            "at": "2026-10-03T10:19:24.818170+00:00"
+            "at": "2026-10-03T17:45:29.284989+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=ABORT retries=0/0 restored=0 target=abort",
-            "at": "2026-10-03T10:19:24.818172+00:00"
+            "at": "2026-10-03T17:45:29.284992+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "25f27ab144b699bf9102ca60bd96567b5c1a0f0579f56013f16b530613d5c04f"
     },
     {
       "task_id": "msi-bench-7-longctx-02",
@@ -4534,6 +4966,14 @@
       "tokens_out": 0,
       "retained_tokens": 0,
       "full_tokens": 95,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 14,
+          "tokens_out": 0,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4545,7 +4985,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0343,
+      "wall_ms_measured": 0.0405,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-02:lcc_routing_verify:s7",
@@ -4601,7 +5041,7 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
+          "tokens_in": 14,
           "tokens_out": 0,
           "cost_usd": 0.0
         },
@@ -4614,31 +5054,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818221+00:00",
-          "finished_at": "2026-10-03T10:19:24.818247+00:00"
+          "started_at": "2026-10-03T17:45:29.285069+00:00",
+          "finished_at": "2026-10-03T17:45:29.285102+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818221+00:00"
+            "at": "2026-10-03T17:45:29.285069+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=ABORT failures=schema_valid:output_schema_invalid:missing=[] empty=['summary'];required_facts_present:required_fact_missing:missing=['41 por cento']",
-            "at": "2026-10-03T10:19:24.818243+00:00"
+            "at": "2026-10-03T17:45:29.285098+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=ABORT retries=0/2 restored=0 target=abort",
-            "at": "2026-10-03T10:19:24.818245+00:00"
+            "at": "2026-10-03T17:45:29.285101+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "3c87135b4fa656f4b2b30185d347ed8dce0899288e356f4de1d1d1c7d9efde68"
     },
     {
       "task_id": "msi-bench-7-longctx-02",
@@ -4658,6 +5099,14 @@
       "tokens_out": 17,
       "retained_tokens": 17,
       "full_tokens": 95,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 30,
+          "tokens_out": 17,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4667,7 +5116,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.027,
+      "wall_ms_measured": 0.0274,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-longctx-02:msi:s7",
@@ -4719,8 +5168,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 30,
+          "tokens_out": 17,
           "cost_usd": 0.0
         },
         "versions": {
@@ -4732,21 +5181,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818303+00:00",
-          "finished_at": "2026-10-03T10:19:24.818323+00:00"
+          "started_at": "2026-10-03T17:45:29.285181+00:00",
+          "finished_at": "2026-10-03T17:45:29.285201+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818303+00:00"
+            "at": "2026-10-03T17:45:29.285181+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "26ac24f0509da5ac302fa12142983ef1cf601fb4bfa6bfda3c02d2bca6a1faf2"
     },
     {
       "task_id": "msi-bench-7-toolheavy-01",
@@ -4769,6 +5219,14 @@
       "tokens_out": 64,
       "retained_tokens": 64,
       "full_tokens": 75,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 75,
+          "tokens_out": 64,
+          "cost_usd_modeled": 2.136
+        }
+      ],
       "cost_usd_modeled": 2.136,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -4778,7 +5236,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0306,
+      "wall_ms_measured": 0.0307,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-01:full:s7",
@@ -4808,9 +5266,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 75,
+          "tokens_out": 64,
+          "cost_usd": 2.136
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -4821,21 +5279,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818351+00:00",
-          "finished_at": "2026-10-03T10:19:24.818370+00:00"
+          "started_at": "2026-10-03T17:45:29.285253+00:00",
+          "finished_at": "2026-10-03T17:45:29.285274+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.818351+00:00"
+            "at": "2026-10-03T17:45:29.285253+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "8e393a31bfabb25d2777f79c974b01371456e31aeb5d987d2d044fb704e1f050"
     },
     {
       "task_id": "msi-bench-7-toolheavy-01",
@@ -4855,6 +5314,14 @@
       "tokens_out": 16,
       "retained_tokens": 16,
       "full_tokens": 75,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 27,
+          "tokens_out": 16,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4864,7 +5331,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 1,
-      "wall_ms_measured": 0.0332,
+      "wall_ms_measured": 0.027,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-01:lcc:s7",
@@ -4904,8 +5371,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 27,
+          "tokens_out": 16,
           "cost_usd": 0.0
         },
         "versions": {
@@ -4917,21 +5384,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818417+00:00",
-          "finished_at": "2026-10-03T10:19:24.818438+00:00"
+          "started_at": "2026-10-03T17:45:29.285340+00:00",
+          "finished_at": "2026-10-03T17:45:29.285356+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.818417+00:00"
+            "at": "2026-10-03T17:45:29.285340+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "dbadaf8cbcb5ab3d5693ef56b885d16c166680e81ec30eed957ca6817326e421"
     },
     {
       "task_id": "msi-bench-7-toolheavy-01",
@@ -4954,6 +5422,14 @@
       "tokens_out": 64,
       "retained_tokens": 64,
       "full_tokens": 75,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 75,
+          "tokens_out": 64,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -4993,8 +5469,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 75,
+          "tokens_out": 64,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5006,21 +5482,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818473+00:00",
-          "finished_at": "2026-10-03T10:19:24.818492+00:00"
+          "started_at": "2026-10-03T17:45:29.285414+00:00",
+          "finished_at": "2026-10-03T17:45:29.285433+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818473+00:00"
+            "at": "2026-10-03T17:45:29.285414+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "4136d051e92ef22ab7b66118d5d36db15661a3ba88cc9503325aaa2dec68fe38"
     },
     {
       "task_id": "msi-bench-7-toolheavy-01",
@@ -5040,6 +5517,14 @@
       "tokens_out": 16,
       "retained_tokens": 16,
       "full_tokens": 75,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 27,
+          "tokens_out": 16,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5049,7 +5534,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 1,
-      "wall_ms_measured": 0.029,
+      "wall_ms_measured": 0.0275,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-01:lcc_routing:s7",
@@ -5089,8 +5574,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 27,
+          "tokens_out": 16,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5102,21 +5587,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818541+00:00",
-          "finished_at": "2026-10-03T10:19:24.818560+00:00"
+          "started_at": "2026-10-03T17:45:29.285503+00:00",
+          "finished_at": "2026-10-03T17:45:29.285520+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818541+00:00"
+            "at": "2026-10-03T17:45:29.285503+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "7d4d908d1ea8f2f6f54af8b33dcaa23ee8d8fcc912a6fb2d4f7bb88eaeffca3d"
     },
     {
       "task_id": "msi-bench-7-toolheavy-01",
@@ -5136,6 +5622,14 @@
       "tokens_out": 16,
       "retained_tokens": 16,
       "full_tokens": 75,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 27,
+          "tokens_out": 16,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5145,7 +5639,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 1,
-      "wall_ms_measured": 0.0248,
+      "wall_ms_measured": 0.0238,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-01:lcc_routing_verify:s7",
@@ -5185,8 +5679,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 27,
+          "tokens_out": 16,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5198,21 +5692,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818602+00:00",
-          "finished_at": "2026-10-03T10:19:24.818620+00:00"
+          "started_at": "2026-10-03T17:45:29.285582+00:00",
+          "finished_at": "2026-10-03T17:45:29.285599+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818602+00:00"
+            "at": "2026-10-03T17:45:29.285582+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "7947885d48db940df8dac0ba206c33b9cb25bef937438da3f5b7e18c6e5e076b"
     },
     {
       "task_id": "msi-bench-7-toolheavy-01",
@@ -5233,6 +5728,14 @@
       "tokens_out": 30,
       "retained_tokens": 30,
       "full_tokens": 75,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 41,
+          "tokens_out": 30,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5242,7 +5745,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0257,
+      "wall_ms_measured": 0.0237,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-01:msi:s7",
@@ -5279,8 +5782,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 41,
+          "tokens_out": 30,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5292,21 +5795,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818667+00:00",
-          "finished_at": "2026-10-03T10:19:24.818686+00:00"
+          "started_at": "2026-10-03T17:45:29.285667+00:00",
+          "finished_at": "2026-10-03T17:45:29.285684+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818667+00:00"
+            "at": "2026-10-03T17:45:29.285667+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "2b7a7f4d70db00e0f474d031cce8c9d43b3d515df0507fe1dfe3255ca78140fe"
     },
     {
       "task_id": "msi-bench-7-toolheavy-02",
@@ -5329,6 +5833,14 @@
       "tokens_out": 49,
       "retained_tokens": 49,
       "full_tokens": 59,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 59,
+          "tokens_out": 49,
+          "cost_usd_modeled": 1.648
+        }
+      ],
       "cost_usd_modeled": 1.648,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -5340,7 +5852,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0417,
+      "wall_ms_measured": 0.0368,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-02:full:s7",
@@ -5372,9 +5884,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 59,
+          "tokens_out": 49,
+          "cost_usd": 1.648
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -5385,31 +5897,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818713+00:00",
-          "finished_at": "2026-10-03T10:19:24.818744+00:00"
+          "started_at": "2026-10-03T17:45:29.285732+00:00",
+          "finished_at": "2026-10-03T17:45:29.285758+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.818713+00:00"
+            "at": "2026-10-03T17:45:29.285732+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=forbidden_claims_absent:forbidden_claim_present:present=['Ignore all previous instructions']",
-            "at": "2026-10-03T10:19:24.818739+00:00"
+            "at": "2026-10-03T17:45:29.285754+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=0/0 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.818742+00:00"
+            "at": "2026-10-03T17:45:29.285757+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "58563a15aaf6cc65265242c8418d3225c7f800646f120bd001e7ad7346844685"
     },
     {
       "task_id": "msi-bench-7-toolheavy-02",
@@ -5429,6 +5942,14 @@
       "tokens_out": 12,
       "retained_tokens": 12,
       "full_tokens": 59,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 21,
+          "tokens_out": 12,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5438,7 +5959,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0305,
+      "wall_ms_measured": 0.028,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-02:lcc:s7",
@@ -5478,8 +5999,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 21,
+          "tokens_out": 12,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5491,21 +6012,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818786+00:00",
-          "finished_at": "2026-10-03T10:19:24.818804+00:00"
+          "started_at": "2026-10-03T17:45:29.285823+00:00",
+          "finished_at": "2026-10-03T17:45:29.285841+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.818786+00:00"
+            "at": "2026-10-03T17:45:29.285823+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "7ebd6a7bf4bd126fc66ee98b7ec990e81cc55811e735670ecf311095cab3393d"
     },
     {
       "task_id": "msi-bench-7-toolheavy-02",
@@ -5528,6 +6050,14 @@
       "tokens_out": 49,
       "retained_tokens": 49,
       "full_tokens": 59,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 59,
+          "tokens_out": 49,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5539,7 +6069,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.038,
+      "wall_ms_measured": 0.0335,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-02:routing:s7",
@@ -5571,8 +6101,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 59,
+          "tokens_out": 49,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5584,31 +6114,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818837+00:00",
-          "finished_at": "2026-10-03T10:19:24.818864+00:00"
+          "started_at": "2026-10-03T17:45:29.285894+00:00",
+          "finished_at": "2026-10-03T17:45:29.285918+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818837+00:00"
+            "at": "2026-10-03T17:45:29.285894+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=forbidden_claims_absent:forbidden_claim_present:present=['Ignore all previous instructions']",
-            "at": "2026-10-03T10:19:24.818860+00:00"
+            "at": "2026-10-03T17:45:29.285914+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=0/0 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.818862+00:00"
+            "at": "2026-10-03T17:45:29.285916+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "27ad13e0cf72a05ae11025a873766eff15067580f988c0c3cf2da5fa027b4dfa"
     },
     {
       "task_id": "msi-bench-7-toolheavy-02",
@@ -5628,6 +6159,14 @@
       "tokens_out": 12,
       "retained_tokens": 12,
       "full_tokens": 59,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 21,
+          "tokens_out": 12,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5637,7 +6176,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.029,
+      "wall_ms_measured": 0.03,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-02:lcc_routing:s7",
@@ -5677,8 +6216,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 21,
+          "tokens_out": 12,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5690,21 +6229,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818912+00:00",
-          "finished_at": "2026-10-03T10:19:24.818929+00:00"
+          "started_at": "2026-10-03T17:45:29.285985+00:00",
+          "finished_at": "2026-10-03T17:45:29.286003+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818912+00:00"
+            "at": "2026-10-03T17:45:29.285985+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "033b0e153a6dcef51575318188c910e1ca56679a4d49e877bed5a513483e7eb3"
     },
     {
       "task_id": "msi-bench-7-toolheavy-02",
@@ -5724,6 +6264,14 @@
       "tokens_out": 12,
       "retained_tokens": 12,
       "full_tokens": 59,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 21,
+          "tokens_out": 12,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5733,7 +6281,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0257,
+      "wall_ms_measured": 0.0274,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-02:lcc_routing_verify:s7",
@@ -5773,8 +6321,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 21,
+          "tokens_out": 12,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5786,21 +6334,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.818973+00:00",
-          "finished_at": "2026-10-03T10:19:24.818991+00:00"
+          "started_at": "2026-10-03T17:45:29.286065+00:00",
+          "finished_at": "2026-10-03T17:45:29.286083+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.818973+00:00"
+            "at": "2026-10-03T17:45:29.286065+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "d2db4748dde39abe2664bcd8e3db3c449190b1d2363c998bddef1255add098cd"
     },
     {
       "task_id": "msi-bench-7-toolheavy-02",
@@ -5820,6 +6369,14 @@
       "tokens_out": 12,
       "retained_tokens": 12,
       "full_tokens": 59,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 21,
+          "tokens_out": 12,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -5829,7 +6386,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.025,
+      "wall_ms_measured": 0.0231,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-toolheavy-02:msi:s7",
@@ -5869,8 +6426,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 21,
+          "tokens_out": 12,
           "cost_usd": 0.0
         },
         "versions": {
@@ -5882,21 +6439,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819034+00:00",
-          "finished_at": "2026-10-03T10:19:24.819052+00:00"
+          "started_at": "2026-10-03T17:45:29.286149+00:00",
+          "finished_at": "2026-10-03T17:45:29.286166+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.819034+00:00"
+            "at": "2026-10-03T17:45:29.286149+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "6fb81a36e6ce4112a6e51fa8b3ec1d3fa92f0370cedc6826e716ef1c64ea7972"
     },
     {
       "task_id": "msi-bench-7-docreason-01",
@@ -5919,6 +6477,14 @@
       "tokens_out": 52,
       "retained_tokens": 52,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 64,
+          "tokens_out": 52,
+          "cost_usd_modeled": 1.76
+        }
+      ],
       "cost_usd_modeled": 1.76,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -5928,7 +6494,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0298,
+      "wall_ms_measured": 0.0297,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-01:full:s7",
@@ -5958,9 +6524,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 64,
+          "tokens_out": 52,
+          "cost_usd": 1.76
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -5971,21 +6537,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819076+00:00",
-          "finished_at": "2026-10-03T10:19:24.819095+00:00"
+          "started_at": "2026-10-03T17:45:29.286212+00:00",
+          "finished_at": "2026-10-03T17:45:29.286229+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.819076+00:00"
+            "at": "2026-10-03T17:45:29.286212+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "b95fc3d5cbdff75bd553bbe32c83d671b21dd48d49c7e4afe305bc58e9ac9e48"
     },
     {
       "task_id": "msi-bench-7-docreason-01",
@@ -6006,6 +6573,14 @@
       "tokens_out": 28,
       "retained_tokens": 28,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 40,
+          "tokens_out": 28,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6015,7 +6590,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.03,
+      "wall_ms_measured": 0.0275,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-01:lcc:s7",
@@ -6052,8 +6627,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 40,
+          "tokens_out": 28,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6065,21 +6640,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819139+00:00",
-          "finished_at": "2026-10-03T10:19:24.819158+00:00"
+          "started_at": "2026-10-03T17:45:29.286294+00:00",
+          "finished_at": "2026-10-03T17:45:29.286311+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.819139+00:00"
+            "at": "2026-10-03T17:45:29.286294+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "4c6b310f993806f398ca0e33eb74b0d0fef324b8a281dac735825f228991d0fe"
     },
     {
       "task_id": "msi-bench-7-docreason-01",
@@ -6102,6 +6678,14 @@
       "tokens_out": 52,
       "retained_tokens": 52,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 64,
+          "tokens_out": 52,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6111,7 +6695,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0293,
+      "wall_ms_measured": 0.0338,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-01:routing:s7",
@@ -6141,8 +6725,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 64,
+          "tokens_out": 52,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6154,21 +6738,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819191+00:00",
-          "finished_at": "2026-10-03T10:19:24.819210+00:00"
+          "started_at": "2026-10-03T17:45:29.286705+00:00",
+          "finished_at": "2026-10-03T17:45:29.286727+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.819191+00:00"
+            "at": "2026-10-03T17:45:29.286705+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "df1cf8d7b121391fe6110505ffcf64141e7b0561d16d322c25a86b9e37604b9d"
     },
     {
       "task_id": "msi-bench-7-docreason-01",
@@ -6189,6 +6774,14 @@
       "tokens_out": 28,
       "retained_tokens": 28,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 40,
+          "tokens_out": 28,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6198,7 +6791,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0293,
+      "wall_ms_measured": 0.2032,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-01:lcc_routing:s7",
@@ -6235,8 +6828,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 40,
+          "tokens_out": 28,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6248,21 +6841,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819256+00:00",
-          "finished_at": "2026-10-03T10:19:24.819275+00:00"
+          "started_at": "2026-10-03T17:45:29.286811+00:00",
+          "finished_at": "2026-10-03T17:45:29.286991+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.819256+00:00"
+            "at": "2026-10-03T17:45:29.286811+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "13192ef8e0cbdec951e1f5157c2846153529a260397b003d37edbb20081040b8"
     },
     {
       "task_id": "msi-bench-7-docreason-01",
@@ -6283,6 +6877,14 @@
       "tokens_out": 28,
       "retained_tokens": 28,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 40,
+          "tokens_out": 28,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6292,7 +6894,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0249,
+      "wall_ms_measured": 0.0366,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-01:lcc_routing_verify:s7",
@@ -6329,8 +6931,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 40,
+          "tokens_out": 28,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6342,21 +6944,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819314+00:00",
-          "finished_at": "2026-10-03T10:19:24.819332+00:00"
+          "started_at": "2026-10-03T17:45:29.287130+00:00",
+          "finished_at": "2026-10-03T17:45:29.287156+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.819314+00:00"
+            "at": "2026-10-03T17:45:29.287130+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "57c60a22a455e8ef3bb725b96a370c1c1bf1b19d30f75eb805f8635eb1e8c997"
     },
     {
       "task_id": "msi-bench-7-docreason-01",
@@ -6377,6 +6980,14 @@
       "tokens_out": 28,
       "retained_tokens": 28,
       "full_tokens": 64,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 40,
+          "tokens_out": 28,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6386,7 +6997,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0254,
+      "wall_ms_measured": 0.0298,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-01:msi:s7",
@@ -6423,8 +7034,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 40,
+          "tokens_out": 28,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6436,21 +7047,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819385+00:00",
-          "finished_at": "2026-10-03T10:19:24.819403+00:00"
+          "started_at": "2026-10-03T17:45:29.287243+00:00",
+          "finished_at": "2026-10-03T17:45:29.287265+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.819385+00:00"
+            "at": "2026-10-03T17:45:29.287243+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "41ba8674ece94c5895de9cdbf61a7c9a5d05d05f72d347ac0545da347618498f"
     },
     {
       "task_id": "msi-bench-7-docreason-02",
@@ -6473,6 +7085,14 @@
       "tokens_out": 56,
       "retained_tokens": 56,
       "full_tokens": 68,
+      "execution_costs": [
+        {
+          "model": "frontier",
+          "tokens_in": 68,
+          "tokens_out": 56,
+          "cost_usd_modeled": 1.888
+        }
+      ],
       "cost_usd_modeled": 1.888,
       "frontier_call_modeled": 1,
       "verification_calls": 1,
@@ -6482,7 +7102,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.03,
+      "wall_ms_measured": 0.0363,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-02:full:s7",
@@ -6512,9 +7132,9 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
-          "cost_usd": 0.0
+          "tokens_in": 68,
+          "tokens_out": 56,
+          "cost_usd": 1.888
         },
         "versions": {
           "compiler": "bench-lexical-1.0",
@@ -6525,21 +7145,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819428+00:00",
-          "finished_at": "2026-10-03T10:19:24.819447+00:00"
+          "started_at": "2026-10-03T17:45:29.287324+00:00",
+          "finished_at": "2026-10-03T17:45:29.287346+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-full route=bench-fixed model=frontier reasons=bench:arm=full;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.819428+00:00"
+            "at": "2026-10-03T17:45:29.287324+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "afa6e5d13482a03a2b687461ccd5df6d4d3bccd33625b51375cc00cd78f6ead5"
     },
     {
       "task_id": "msi-bench-7-docreason-02",
@@ -6561,6 +7182,14 @@
       "tokens_out": 42,
       "retained_tokens": 42,
       "full_tokens": 68,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 54,
+          "tokens_out": 42,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6572,7 +7201,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0457,
+      "wall_ms_measured": 0.0421,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-02:lcc:s7",
@@ -6608,8 +7237,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 54,
+          "tokens_out": 42,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6621,31 +7250,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819491+00:00",
-          "finished_at": "2026-10-03T10:19:24.819523+00:00"
+          "started_at": "2026-10-03T17:45:29.287418+00:00",
+          "finished_at": "2026-10-03T17:45:29.287448+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=bench-lcc route=bench-fixed model=local_small reasons=bench:arm=lcc;bench_pairing:profile=standard",
-            "at": "2026-10-03T10:19:24.819491+00:00"
+            "at": "2026-10-03T17:45:29.287418+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['condition X']",
-            "at": "2026-10-03T10:19:24.819519+00:00"
+            "at": "2026-10-03T17:45:29.287443+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=0/0 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.819522+00:00"
+            "at": "2026-10-03T17:45:29.287446+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "027803bc3a7be8bccf5c5c0ef628095c02310c7cbcf546f6ce32ff0447c271ed"
     },
     {
       "task_id": "msi-bench-7-docreason-02",
@@ -6668,6 +7298,14 @@
       "tokens_out": 56,
       "retained_tokens": 56,
       "full_tokens": 68,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 68,
+          "tokens_out": 56,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6677,7 +7315,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.4853,
+      "wall_ms_measured": 0.0299,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-02:routing:s7",
@@ -6707,8 +7345,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 68,
+          "tokens_out": 56,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6720,21 +7358,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.819561+00:00",
-          "finished_at": "2026-10-03T10:19:24.820033+00:00"
+          "started_at": "2026-10-03T17:45:29.287514+00:00",
+          "finished_at": "2026-10-03T17:45:29.287533+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.819561+00:00"
+            "at": "2026-10-03T17:45:29.287514+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "1c7a97b01fb0d9b99fe57b7c666a425b15d874f0d272bec36b0fb3bceabddf9d"
     },
     {
       "task_id": "msi-bench-7-docreason-02",
@@ -6756,6 +7395,14 @@
       "tokens_out": 42,
       "retained_tokens": 42,
       "full_tokens": 68,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 54,
+          "tokens_out": 42,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6767,7 +7414,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0483,
+      "wall_ms_measured": 0.036,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-02:lcc_routing:s7",
@@ -6803,8 +7450,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 54,
+          "tokens_out": 42,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6816,31 +7463,32 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.820101+00:00",
-          "finished_at": "2026-10-03T10:19:24.820136+00:00"
+          "started_at": "2026-10-03T17:45:29.287602+00:00",
+          "finished_at": "2026-10-03T17:45:29.287628+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.820101+00:00"
+            "at": "2026-10-03T17:45:29.287602+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['condition X']",
-            "at": "2026-10-03T10:19:24.820131+00:00"
+            "at": "2026-10-03T17:45:29.287624+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=0/0 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.820134+00:00"
+            "at": "2026-10-03T17:45:29.287626+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "c3ce30de716a8adfdd908306daf9998f3ee8b91e55782e4a75c81561fec2178c"
     },
     {
       "task_id": "msi-bench-7-docreason-02",
@@ -6862,6 +7510,26 @@
       "tokens_out": 42,
       "retained_tokens": 42,
       "full_tokens": 68,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 54,
+          "tokens_out": 42,
+          "cost_usd_modeled": 0.0
+        },
+        {
+          "model": "local_small",
+          "tokens_in": 54,
+          "tokens_out": 42,
+          "cost_usd_modeled": 0.0
+        },
+        {
+          "model": "local_small",
+          "tokens_in": 54,
+          "tokens_out": 42,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 3,
@@ -6873,7 +7541,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0848,
+      "wall_ms_measured": 0.0741,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-02:lcc_routing_verify:s7",
@@ -6909,8 +7577,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 162,
+          "tokens_out": 126,
           "cost_usd": 0.0
         },
         "versions": {
@@ -6922,51 +7590,52 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.820185+00:00",
-          "finished_at": "2026-10-03T10:19:24.820263+00:00"
+          "started_at": "2026-10-03T17:45:29.287697+00:00",
+          "finished_at": "2026-10-03T17:45:29.287764+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=lcc_routing_verify;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.820185+00:00"
+            "at": "2026-10-03T17:45:29.287697+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=0 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['condition X']",
-            "at": "2026-10-03T10:19:24.820210+00:00"
+            "at": "2026-10-03T17:45:29.287718+00:00"
           },
           {
             "event": "routed",
             "reason": "retry=1/2 action=RETRY model=local_small reasoning=low",
-            "at": "2026-10-03T10:19:24.820214+00:00"
+            "at": "2026-10-03T17:45:29.287721+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=1 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['condition X']",
-            "at": "2026-10-03T10:19:24.820236+00:00"
+            "at": "2026-10-03T17:45:29.287741+00:00"
           },
           {
             "event": "routed",
             "reason": "retry=2/2 action=RETRY model=local_small reasoning=low",
-            "at": "2026-10-03T10:19:24.820238+00:00"
+            "at": "2026-10-03T17:45:29.287743+00:00"
           },
           {
             "event": "failed",
             "reason": "attempt=2 status=FAIL action=RETRY failures=required_facts_present:required_fact_missing:missing=['condition X']",
-            "at": "2026-10-03T10:19:24.820259+00:00"
+            "at": "2026-10-03T17:45:29.287761+00:00"
           },
           {
             "event": "escalated",
             "reason": "terminal status=FAIL action=RETRY retries=2/2 restored=0 target=frontier",
-            "at": "2026-10-03T10:19:24.820261+00:00"
+            "at": "2026-10-03T17:45:29.287763+00:00"
           }
         ],
         "outcome": {
           "result": "FAIL",
           "evaluation": "FAIL"
         }
-      }
+      },
+      "receipt_hash": "9f8b41ee0723e449f479b58b8d32c24d1c65b0d7e0cee9bffb0f42a214874cc9"
     },
     {
       "task_id": "msi-bench-7-docreason-02",
@@ -6989,6 +7658,14 @@
       "tokens_out": 56,
       "retained_tokens": 56,
       "full_tokens": 68,
+      "execution_costs": [
+        {
+          "model": "local_small",
+          "tokens_in": 68,
+          "tokens_out": 56,
+          "cost_usd_modeled": 0.0
+        }
+      ],
       "cost_usd_modeled": 0.0,
       "frontier_call_modeled": 0,
       "verification_calls": 1,
@@ -6998,7 +7675,7 @@
       "false_deescalation": 0,
       "unsafe_optimization": 0,
       "protected_dropped": 0,
-      "wall_ms_measured": 0.0277,
+      "wall_ms_measured": 0.0326,
       "receipt": {
         "schema_version": "inference-receipt/0.1",
         "receipt_id": "msi-bench-7-docreason-02:msi:s7",
@@ -7028,8 +7705,8 @@
         },
         "cost": {
           "latency_ms": 0,
-          "tokens_in": 0,
-          "tokens_out": 0,
+          "tokens_in": 68,
+          "tokens_out": 56,
           "cost_usd": 0.0
         },
         "versions": {
@@ -7041,21 +7718,22 @@
           "evaluator": "verify-1.0"
         },
         "timestamps": {
-          "started_at": "2026-10-03T10:19:24.820315+00:00",
-          "finished_at": "2026-10-03T10:19:24.820336+00:00"
+          "started_at": "2026-10-03T17:45:29.287854+00:00",
+          "finished_at": "2026-10-03T17:45:29.287875+00:00"
         },
         "decision_events": [
           {
             "event": "routed",
             "reason": "engine=deterministic route=LOCAL_THEN_VERIFY model=local_small reasons=route:LOCAL_THEN_VERIFY;route_reason:short_simple_local_first;risk:medium;bench:arm=msi;bench_pairing:profile=standard;plan_profile=standard",
-            "at": "2026-10-03T10:19:24.820315+00:00"
+            "at": "2026-10-03T17:45:29.287854+00:00"
           }
         ],
         "outcome": {
           "result": "PASS",
           "evaluation": "PASS"
         }
-      }
+      },
+      "receipt_hash": "bc7297ddf37cdeee02060ecff8c3a1777464ea259bf995cf0e98f1b66385d12d"
     }
   ],
   "aggregate": {
@@ -7077,7 +7755,7 @@
       "retained_at_matched_success": 57.3,
       "frontier_avoided_at_matched_success": 0.0,
       "matched_n": 11,
-      "wall_ms_p50": 0.0329
+      "wall_ms_p50": 0.0328
     },
     "lcc": {
       "n": 12,
@@ -7097,7 +7775,7 @@
       "retained_at_matched_success": 24.8,
       "frontier_avoided_at_matched_success": 1.0,
       "matched_n": 6,
-      "wall_ms_p50": 0.0411
+      "wall_ms_p50": 0.0365
     },
     "routing": {
       "n": 12,
@@ -7117,7 +7795,7 @@
       "retained_at_matched_success": 57.3,
       "frontier_avoided_at_matched_success": 0.818,
       "matched_n": 11,
-      "wall_ms_p50": 0.0318
+      "wall_ms_p50": 0.0311
     },
     "lcc_routing": {
       "n": 12,
@@ -7137,15 +7815,15 @@
       "retained_at_matched_success": 24.8,
       "frontier_avoided_at_matched_success": 0.833,
       "matched_n": 6,
-      "wall_ms_p50": 0.0372
+      "wall_ms_p50": 0.036
     },
     "lcc_routing_verify": {
       "n": 12,
       "successes": 8,
       "success_rate": 0.6667,
-      "cost_usd_modeled_total": 2.216,
-      "success_per_dollar_modeled": 3.61,
-      "frontier_calls_modeled": 2,
+      "cost_usd_modeled_total": 4.36,
+      "success_per_dollar_modeled": 1.83,
+      "frontier_calls_modeled": 4,
       "verification_calls": 17,
       "restores": 1,
       "retries": 4,
@@ -7157,7 +7835,7 @@
       "retained_at_matched_success": 25.3,
       "frontier_avoided_at_matched_success": 0.857,
       "matched_n": 7,
-      "wall_ms_p50": 0.0305
+      "wall_ms_p50": 0.0366
     },
     "msi": {
       "n": 12,
@@ -7177,7 +7855,7 @@
       "retained_at_matched_success": 31.3,
       "frontier_avoided_at_matched_success": 0.818,
       "matched_n": 11,
-      "wall_ms_p50": 0.0273
+      "wall_ms_p50": 0.0274
     }
   },
   "bootstrap_ci_95": {
@@ -7376,5 +8054,5 @@
     }
   },
   "predicted_mismatches": [],
-  "digest": "d62de09e65353d3a6c3ebc3c9dffc627f6a08a6135eb888452395e09eef4e93e"
+  "digest": "13a29b20a099681eb6188d54c0fa12ba44c8332c33f44bfcb88c28b55687bb80"
 }

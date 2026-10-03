@@ -1,12 +1,13 @@
 # MSI-Bench report (sprint 7) — PILOT, N=12
 
-**Audit notice (2026-10-03):** this frozen historical result has
-final-attempt cost accounting, per-arm bootstrap draws and incomplete
-aggregate/receipt coverage in `--check`. Its label-protected `msi` arm is
-an oracle probe, not the public compiler. Cost/Pareto and paired-uncertainty
-claims below require revision before research release. See the
-[audit and reproduction probes](../../research/msi-audit-2026-10-03.md).
-Frozen data and original figures are preserved for traceability.
+**Release revision (2026-10-03, Sprint 10):** methodological findings
+R1–R3 from the audit are resolved. Full-chain attempt costs are instrumented
+(all attempts and retries accounted for; decision-01 verify arm records 3 attempts
+and 3 frontier calls at $3.2160, bringing verify arm total to $4.3600), bootstrap
+draws are shared across all arms in paired resamples, and `--check` validates
+the complete stable payload against aggregate/receipt drift. The label-protected
+`msi` arm remains an oracle probe, not the public mechanical compiler.
+See [audit report](../../research/msi-audit-2026-10-03.md).
 
 Question: "with how many fewer resources is the outcome preserved?"
 Hypothesis: LCC+routing+verification dominates Pareto
@@ -20,7 +21,7 @@ Method: `research/benchmark-methodology.md`. Reproduce (repo root):
 PYTHONPATH=src:benchmarks/msi-bench python3 benchmarks/msi-bench/run.py --check
 ```
 
-Matrix digest `d62de09e65353d3a6c3ebc3c9dffc627f6a08a6135eb888452395e09eef4e93e`
+Matrix digest `13a29b20a099681eb6188d54c0fa12ba44c8332c33f44bfcb88c28b55687bb80`
 (72 runs: 12 tasks x 6 arms). Pre-registered predictions (`tasks.py#PREDICTED`,
 written before the first run): 72/72 cells match after one documented
 fixture repair (research-02 carrier split; methodology correction log C1).
@@ -61,7 +62,7 @@ receipt in `results.json`.
 | lcc | 7/12 | 0.583 | [0.333, 0.833] | $0.0000 | n/a (zero cost) | 0 | 12 | 0 | 0 | 5 | 1 | 1 | 2 | 248 | 0.037ms |
 | routing | 11/12 | 0.917 | [0.750, 1.000] | $3.2480 | 3.39 | 2 | 12 | 0 | 0 | 1 | 0 | 0 | 0 | 679 | 0.031ms |
 | lcc_routing | 7/12 | 0.583 | [0.333, 0.833] | $2.2160 | 3.16 | 2 | 12 | 0 | 0 | 5 | 0 | 0 | 2 | 248 | 0.035ms |
-| verify (lcc+routing+verification) | 8/12 | 0.667 | [0.417, 0.917] | $2.2160 | 3.61 | 2 | 17 | 1 | 4 | 4 | 0 | 0 | 2 | 261 | 0.032ms |
+| verify (lcc+routing+verification) | 8/12 | 0.667 | [0.417, 0.917] | $4.3600 | 1.83 | 4 | 17 | 1 | 4 | 4 | 0 | 0 | 2 | 261 | 0.032ms |
 | msi (closed loop) | 12/12 | 1.000 | [1.000, 1.000] | $2.5040 | 4.79 | 2 | 12 | 0 | 0 | 0 | 0 | 0 | 0 | 356 | 0.027ms |
 
 \* `succ/$` uses modeled illustrative prices; absolute dollars are not a

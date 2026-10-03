@@ -144,3 +144,37 @@ def test_no_provider_literals_in_bench_sources():
     for name in ("bench.py", "tasks.py", "run.py"):
         text = (BENCH_DIR / name).read_text()
         assert not pat.search(text), f"provider literal in {name}"
+
+
+# --- R1-R3 audit regressions ----------------------------------------------
+
+
+def test_modeled_chain_cost_counts_all_executed_attempts():
+    cell = _by_cell(FROZEN["runs"])[("msi-bench-7-decision-01", "lcc_routing_verify")]
+    assert cell["verification_calls"] == 3
+    assert len(cell["execution_costs"]) == 3
+    assert cell["frontier_call_modeled"] == 3
+    assert cell["cost_usd_modeled"] == 3.216
+    assert cell["receipt"]["cost"]["cost_usd"] == 3.216
+
+
+def test_paired_bootstrap_uses_same_task_sample_for_every_arm():
+    dummy_runs = [
+        {"arm": arm, "task_id": t.task_id, "success": i < 5}
+        for arm in bench.ARMS for i, t in enumerate(tasks.TASKS)
+    ]
+    bands = bench.bootstrap_ci(dummy_runs, resamples=200)
+    assert len({(b["lo"], b["hi"]) for b in bands.values()}) == 1
+
+
+def test_check_rejects_aggregate_drift_even_when_outcome_digest_matches():
+    from copy import deepcopy
+
+    import run
+
+    live = run.build()
+    corrupt = deepcopy(live)
+    corrupt["aggregate"]["full"]["cost_usd_modeled_total"] = 9999.0
+
+    with pytest.raises(AssertionError, match="payload drift"):
+        run.check_payload(live, corrupt)
