@@ -90,14 +90,17 @@ def build() -> dict:
     return payload
 
 
+def check_payload(actual: dict, frozen: dict) -> None:
+    assert bench._stable(actual) == bench._stable(frozen), (
+        "payload drift (excluding receipt clocks/wall time)"
+    )
+
+
 def main(check: bool = False) -> None:
     payload = build()
     if check:
         frozen = json.loads(RESULTS_PATH.read_text())
-        assert payload["digest"] == frozen["digest"], (
-            f"msi-bench not reproducible: {payload['digest']} != {frozen['digest']}"
-        )
-        assert payload["task_hashes"] == frozen["task_hashes"], "task freeze drifted"
+        check_payload(payload, frozen)
         print(f"reproducible: digest {payload['digest']} "
               f"({len(payload['runs'])} runs, {len(tasks.TASKS)} tasks x {len(tasks.ARMS)} arms)")
         if payload["predicted_mismatches"] != frozen["predicted_mismatches"]:

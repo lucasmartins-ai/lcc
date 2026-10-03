@@ -176,13 +176,18 @@ def test_paired_bootstrap_uses_same_trace_sample_for_every_arm():
 
 def test_modeled_chain_cost_counts_each_executed_frontier_attempt():
     task = traces.TRACES[4]
-    final_only = bench.run_arm(task, "msi")
+    bench_run = bench.run_arm(task, "msi")
     run = replay.run_replay_arm(task, "msi")
-    assert final_only["verification_calls"] == 3
-    assert run["cost_usd_modeled"] == round(3 * final_only["cost_usd_modeled"], 6)
+    assert bench_run["verification_calls"] == 3
+    assert run["cost_usd_modeled"] == bench_run["cost_usd_modeled"]
+    assert run["cost_usd_modeled"] == round(
+        3 * (bench_run["tokens_in"] / 1000 * bench.PRICE_IN_PER_1K["frontier"]
+             + bench_run["tokens_out"] / 1000 * bench.PRICE_OUT_PER_1K["frontier"]),
+        6,
+    )
     assert run["frontier_call_modeled"] == 3
     assert len(run["execution_costs"]) == 3
-    assert run["receipt"]["cost"]["tokens_in"] == 3 * final_only["tokens_in"]
+    assert run["receipt"]["cost"]["tokens_in"] == 3 * bench_run["tokens_in"]
 
 
 def test_every_curated_failure_has_a_case_investigation():

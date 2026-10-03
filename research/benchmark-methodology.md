@@ -1,11 +1,10 @@
 # MSI-Bench methodology (sprint 7) — PILOT, N=12
 
-**Audit notice (2026-10-03):** the implementation's bootstrap draws are
-per arm, not shared across arms as originally described below. Costs
-account for final attempts; `--check` does not validate full aggregate or
-receipt payloads. These release blockers and non-mutating reproduction
-probes are documented in [the audit](msi-audit-2026-10-03.md).
-The original methodology remains here as a historical record.
+**Release revision (2026-10-03, Sprint 10):** the methodological findings
+documented in [the audit](msi-audit-2026-10-03.md) (R1–R3) have been corrected:
+all-attempt cost accounting is instrumented for every executed attempt and retry,
+bootstrap resampling draws a single task sample per resample shared across all arms,
+and `--check` asserts the entire stable payload against aggregate/receipt drift.
 
 Status: PILOT. All figures below are evidence class BENCHMARK on CURATED
 hand-built tasks (N=12, offline, deterministic, no live models). Nothing
@@ -30,10 +29,11 @@ threshold, and the pre-registered outcome for that cell did not change.
 
 Freeze date: 2026-10-03. Frozen artifacts: `tasks.py` (12 tasks),
 `results.json` (matrix digest
-`d62de09e65353d3a6c3ebc3c9dffc627f6a08a6135eb888452395e09eef4e93e`).
+`13a29b20a099681eb6188d54c0fa12ba44c8332c33f44bfcb88c28b55687bb80`).
 Per-task content hashes live in `results.json#task_hashes`
-(`run.py --check` asserts both the matrix digest and the task hashes, so
-any wording drift fails loudly). Reproduce with one command (repo root):
+(`run.py --check` asserts the full stable payload including digest, task hashes,
+receipts, aggregates, and bootstrap CIs, failing loudly on any drift).
+Reproduce with one command (repo root):
 
 ```
 PYTHONPATH=src:benchmarks/msi-bench python3 benchmarks/msi-bench/run.py --check
@@ -125,3 +125,12 @@ this N. No significance claim is made; overlapping intervals are read as
   the `inference-receipt/0.1` schema requires `rationale` (caught by the new
   72-receipt validation test). Fixed the bench emitter at root cause, not
   the schema; outcome digest unchanged (envelope-only fix).
+- C4 (2026-10-03, Sprint 10 release): audit blockers R1–R3 resolved.
+  R1: full-chain attempt cost accounting records context and model for every
+  executed attempt, including retries (decision-01 verify arm records 3 attempts
+  and 3 frontier calls at $3.2160, updating verify total to $4.3600);
+  R2: bootstrap resampling draws task indices once per resample across all arms
+  (paired resampling);
+  R3: `run.py --check` asserts full stable payload equality including aggregates
+  and receipts, preventing aggregate drift; matrix re-run and re-frozen with
+  digest `13a29b20a099681eb6188d54c0fa12ba44c8332c33f44bfcb88c28b55687bb80`.

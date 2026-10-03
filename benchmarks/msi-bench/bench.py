@@ -163,10 +163,25 @@ def _subject(task: BenchTask, selected: list[str]) -> VerificationSubject:
     )
 
 
+def _stable(value):
+    """Exclude measured wall time and receipt clocks, preserving audit fields."""
+    if isinstance(value, dict):
+        clocks = {"timestamps", "at", "latency_ms", "wall_ms_measured", "wall_ms_p50"}
+        return {k: _stable(v) for k, v in value.items() if k not in clocks}
+    if isinstance(value, list):
+        return [_stable(v) for v in value]
+    return value
+
+
+def receipt_hash(receipt: dict) -> str:
+    return hashlib.sha256(json.dumps(_stable(receipt), sort_keys=True).encode()).hexdigest()
+
+
 def _restore_fn(task: BenchTask, dropped: list[str], budget: int):
     """Re-add dropped exact-carriers/citation carriers, up to budget."""
     cands = [uid for uid in carriers(task) if uid in dropped]
     return cands[: max(0, budget)]
+
 
 def _modeled_cost(model: str, tokens_in: int, tokens_out: int) -> float:
     return round(
@@ -175,7 +190,11 @@ def _modeled_cost(model: str, tokens_in: int, tokens_out: int) -> float:
 
 
 def run_arm(task: BenchTask, arm: str, seed: int = SEED) -> dict:
-    """Run one arm on one task. Returns a JSON-able run record with receipt."""
+    """Run one arm on one task. Returns a JSON-able run record with receipt.
+
+    Models each actually executed attempt using its routed model and context.
+    Terminal escalation records a request, not an additional model execution.
+    """
     if arm not in ARMS:
         raise ValueError(f"unknown arm {arm!r}")
     selected = _selection(task, arm)
@@ -228,6 +247,46 @@ def run_arm(task: BenchTask, arm: str, seed: int = SEED) -> dict:
     success = status == "PASS"
     model = receipt.model_class
     prot_dropped = sum(1 for u in task.units if u.protected and u.id not in final_ids)
+
+    # Full-chain attempt accounting (R1 fix): count context and model for every
+    # executed attempt. Terminal escalation is a request, not a model execution.
+    cur_selected = list(selected)
+    cur_model = plan.model_class
+    costs = []
+
+    def account():
+        s = "\n".join(by_id[uid] for uid in cur_selected)
+        tin = approximate_token_count(task.objective + "\n" + s)
+        tout = approximate_token_count(s)
+        return {
+            "model": cur_model,
+            "tokens_in": tin,
+            "tokens_out": tout,
+            "cost_usd_modeled": _modeled_cost(cur_model, tin, tout),
+        }
+
+    for event in receipt.decision_events:
+        if event.event == "routed":
+            match = re.search(r"model=([a-z_]+)", event.reason)
+            if match is not None:
+                cur_model = match.group(1)
+        elif event.event == "restored":
+            cur_selected += [uid for uid in receipt.restored if uid not in cur_selected]
+        elif event.event == "failed":
+            costs.append(account())
+    if success:
+        costs.append(account())
+    assert len(costs) == run.attempts, f"attempt accounting drift: {len(costs)} != {run.attempts}"
+
+    cost_usd_modeled = round(sum(c["cost_usd_modeled"] for c in costs), 6)
+    frontier_call_modeled = sum(c["model"] == "frontier" for c in costs)
+    receipt_dict = receipt.to_spec_dict()
+    receipt_dict["cost"].update(
+        tokens_in=sum(c["tokens_in"] for c in costs),
+        tokens_out=sum(c["tokens_out"] for c in costs),
+        cost_usd=cost_usd_modeled,
+    )
+
     record = {
         "task_id": task.task_id,
         "category": task.category,
@@ -244,8 +303,9 @@ def run_arm(task: BenchTask, arm: str, seed: int = SEED) -> dict:
         "tokens_out": tokens_out,
         "retained_tokens": retained_tokens,
         "full_tokens": full_tokens,
-        "cost_usd_modeled": _modeled_cost(model, tokens_in, tokens_out),
-        "frontier_call_modeled": 1 if model == "frontier" else 0,
+        "execution_costs": costs,
+        "cost_usd_modeled": cost_usd_modeled,
+        "frontier_call_modeled": frontier_call_modeled,
         "verification_calls": run.attempts,
         "restores": len(receipt.restored),
         "retries": receipt.retries,
@@ -259,7 +319,8 @@ def run_arm(task: BenchTask, arm: str, seed: int = SEED) -> dict:
         ),
         "protected_dropped": prot_dropped,
         "wall_ms_measured": wall_ms,
-        "receipt": receipt.to_spec_dict(),
+        "receipt": receipt_dict,
+        "receipt_hash": receipt_hash(receipt_dict),
     }
     return record
 
@@ -371,11 +432,11 @@ def bootstrap_ci(runs: list[dict], resamples: int = BOOTSTRAP_RESAMPLES,
     tids = [t.task_id for t in TASKS]
     by_arm = {a: {r["task_id"]: r["success"] for r in runs if r["arm"] == a} for a in ARMS}
     rng = random.Random(seed)
+    samples = [[rng.choice(tids) for _ in tids] for _ in range(resamples)]
     out: dict[str, dict] = {}
     for arm in ARMS:
         rates = []
-        for _ in range(resamples):
-            sample = [rng.choice(tids) for _ in tids]
+        for sample in samples:
             rates.append(sum(by_arm[arm][t] for t in sample) / len(sample))
         rates.sort()
         lo = rates[int(0.025 * resamples)]
