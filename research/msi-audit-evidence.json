@@ -1,0 +1,540 @@
+{
+  "captured_at": "2026-10-03T17:09:08.092723+00:00",
+  "code_commit": "310ab9e21121c46c254d643ffb738d8cb8d41eb4",
+  "records": [
+    {
+      "name": "types-312",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.152,
+      "stdout": "Success: no issues found in 95 source files\n",
+      "stderr": ""
+    },
+    {
+      "name": "lint",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src",
+        "tests",
+        "benchmarks/research/run_multiagent_ab.py",
+        "benchmarks/research/run_injection_e2e.py",
+        "benchmarks/usability/run.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.043,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "name": "types-311",
+      "command": [
+        "/tmp/lcc-pr-ci311/bin/python",
+        "-m",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.344,
+      "stdout": "Success: no issues found in 95 source files\n",
+      "stderr": ""
+    },
+    {
+      "name": "node",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.201,
+      "stdout": "\n> local-context-compiler@1.0.0 test\n> node test/index.test.js && node test/hook-map.test.mjs\n\nRunning lcc JS unit tests...\n\u2713 All lcc JS unit tests passed cleanly!\nok   resolveOptions keeps the documented defaults\nok   resolveOptions coerces strings and refuses nonsense\nok   deriveGoal uses the newest user prompts, not the assistant's chatter\nok   deriveGoal joins up to three user prompts and caps the length\nok   hasUnsupportedContent stands down on content it cannot rebuild\nok   toMcpMessages carries the fields the MCP tool reads\nok   the judge is configurable and defaults to jev\nok   buildCompactArgs prefers an explicit question, then the /compact instructions\nok   parseToolResult reads the JSON out of the MCP content blocks\nok   decideReplacement replaces only a judged pass that removed something\nok   toSessionMessages returns exactly what the engine rebuilds from\n\nAll 11 hook-mapping tests passed.\n",
+      "stderr": ""
+    },
+    {
+      "name": "msi-example",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "examples/msi_quickstart.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.187,
+      "stdout": "task: reduce mobile booking friction\nprovider: mechanical degraded=False\nsufficiency: {'checks': 1, 'failures': 0, 'restored': 0, 'result': 'PASS'}\nplan: local_small/low route=LOCAL_THEN_VERIFY\nreceipt: msi-f3cbf4b72b98-r1 verification=PASS\n--- compacted context ---\nThe clinic booking widget loses 63 percent of mobile visitors before the second step.\n\nA quoted complaint carries the evidence: the patient wrote: the form erased everything\nwhen I tapped back on my phone, so I gave up and called instead.\n\n[lcc-compact: dropped 3 blocks (250 chars)]\nThe decline occurred after the mobile redesign shipped to all users in June.\n\n\nreceipt ok: inference-receipt/0.1 task=msi-f3cbf4b72b98\n{\n  \"sufficiency\": {\n    \"checks\": 1,\n    \"failures\": 0,\n    \"restored\": 0,\n    \"result\": \"PASS\"\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "pilot",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "benchmarks/ablation/pilot.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.128,
+      "stdout": "reproducible: digest 5251d16c76d0af962d85e85f5e4963bc19d7bcc05c1515ab3db874a74c676972\n",
+      "stderr": ""
+    },
+    {
+      "name": "bench",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "benchmarks/msi-bench/run.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.168,
+      "stdout": "reproducible: digest d62de09e65353d3a6c3ebc3c9dffc627f6a08a6135eb888452395e09eef4e93e (72 runs, 12 tasks x 6 arms)\n",
+      "stderr": ""
+    },
+    {
+      "name": "replay",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "benchmarks/msi-replay/replay.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.147,
+      "stdout": "reproducible: digest a636d2f1ff4ac1f46f20e343c6b48e80b0f99cd3475c54405ab47cc5f085f5fb (60 runs, 10 traces x 6 arms)\n",
+      "stderr": ""
+    },
+    {
+      "name": "session-replay",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "benchmarks/msi-replay/session_replay.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.199,
+      "stdout": "public API replay reproducible: 20 runs\n",
+      "stderr": ""
+    },
+    {
+      "name": "distribution-check",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "twine",
+        "check",
+        "/tmp/lcc-msi-audit-fixed-dist/local_context_compiler-1.0.0-py3-none-any.whl",
+        "/tmp/lcc-msi-audit-fixed-dist/local_context_compiler-1.0.0.tar.gz"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.239,
+      "stdout": "Checking \n/tmp/lcc-msi-audit-fixed-dist/local_context_compiler-1.0.0-py3-none-any.whl: PASSED\nChecking /tmp/lcc-msi-audit-fixed-dist/local_context_compiler-1.0.0.tar.gz: PASSED\n",
+      "stderr": ""
+    },
+    {
+      "name": "suite-312",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "pytest",
+        "tests/",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "-q",
+        "-rs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.804,
+      "stdout": "........................................s............................... [  8%]\n.........................................s.............................. [ 17%]\n........................................................................ [ 26%]\n........................................................................ [ 34%]\n........................................................................ [ 43%]\n...................s.................................................... [ 52%]\ns....................................................................... [ 60%]\n........................................................................ [ 69%]\n........................................................................ [ 78%]\n............................................................s........... [ 86%]\n........................................................................ [ 95%]\n....................................                                     [100%]\n=========================== short test summary info ============================\nSKIPPED [1] tests/test_adversarial_compaction.py:103: no recorded deterministic-scorer gaps\nSKIPPED [1] tests/test_benchmarking.py:493: exact-mode benchmark cases require tiktoken encoding assets cached offline (ADR 0008)\nSKIPPED [1] tests/test_laya_integration.py:39: live Laya integration: set LCC_LAYA_INTEGRATION=1 (loads real weights)\nSKIPPED [1] tests/test_mcp_server.py:324: needs a Jev key\nSKIPPED [1] tests/test_token_budget.py:190: tiktoken gpt-4.1 encoding assets are not cached offline\n823 passed, 5 skipped in 10.61s\n",
+      "stderr": ""
+    },
+    {
+      "name": "suite-311",
+      "command": [
+        "/tmp/lcc-pr-ci311/bin/python",
+        "-m",
+        "pytest",
+        "tests/",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "-q",
+        "-rs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.45,
+      "stdout": "........................................s............................... [  8%]\n.........................................s.............................. [ 17%]\n........................................................................ [ 26%]\n........................................................................ [ 34%]\n........................................................................ [ 43%]\n...................s.................................................... [ 52%]\ns....................................................................... [ 60%]\n........................................................................ [ 69%]\n........................................................................ [ 78%]\n............................................................s........... [ 86%]\n........................................................................ [ 95%]\n....................................                                     [100%]\n=========================== short test summary info ============================\nSKIPPED [1] tests/test_adversarial_compaction.py:103: no recorded deterministic-scorer gaps\nSKIPPED [1] tests/test_benchmarking.py:493: exact-mode benchmark cases require tiktoken encoding assets cached offline (ADR 0008)\nSKIPPED [1] tests/test_laya_integration.py:39: live Laya integration: set LCC_LAYA_INTEGRATION=1 (loads real weights)\nSKIPPED [1] tests/test_mcp_server.py:324: needs a Jev key\nSKIPPED [1] tests/test_token_budget.py:190: tiktoken gpt-4.1 encoding assets are not cached offline\n823 passed, 5 skipped in 10.23s\n",
+      "stderr": ""
+    },
+    {
+      "name": "final-readme-package-0",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "venv",
+        "<workspace>/venv"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "final-readme-package-1",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--disable-pip-version-check",
+        "/tmp/lcc-msi-audit-readme-dist/local_context_compiler-1.0.0-py3-none-any.whl"
+      ],
+      "exit_code": 0,
+      "stdout": "Processing /tmp/lcc-msi-audit-readme-dist/local_context_compiler-1.0.0-py3-none-any.whl\nCollecting typer>=0.12 (from local-context-compiler==1.0.0)\n  Using cached typer-0.27.2-py3-none-any.whl.metadata (16 kB)\nCollecting rich>=13.0 (from local-context-compiler==1.0.0)\n  Using cached rich-15.0.0-py3-none-any.whl.metadata (18 kB)\nCollecting pyyaml>=6.0 (from local-context-compiler==1.0.0)\n  Using cached pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl.metadata (2.4 kB)\nCollecting markdown-it-py>=2.2.0 (from rich>=13.0->local-context-compiler==1.0.0)\n  Using cached markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)\nCollecting pygments<3.0.0,>=2.13.0 (from rich>=13.0->local-context-compiler==1.0.0)\n  Using cached pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.0->local-context-compiler==1.0.0)\n  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)\nCollecting shellingham>=1.3.0 (from typer>=0.12->local-context-compiler==1.0.0)\n  Using cached shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)\nCollecting annotated-doc>=0.0.2 (from typer>=0.12->local-context-compiler==1.0.0)\n  Using cached annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)\nUsing cached pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl (173 kB)\nUsing cached rich-15.0.0-py3-none-any.whl (310 kB)\nUsing cached pygments-2.21.0-py3-none-any.whl (1.3 MB)\nUsing cached markdown_it_py-4.2.0-py3-none-any.whl (91 kB)\nUsing cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)\nUsing cached typer-0.27.2-py3-none-any.whl (123 kB)\nUsing cached annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)\nUsing cached shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)\nInstalling collected packages: shellingham, pyyaml, pygments, mdurl, annotated-doc, markdown-it-py, rich, typer, local-context-compiler\n\nSuccessfully installed annotated-doc-0.0.5 local-context-compiler-1.0.0 markdown-it-py-4.2.0 mdurl-0.1.2 pygments-2.21.0 pyyaml-6.0.3 rich-15.0.0 shellingham-1.5.4 typer-0.27.2\n",
+      "stderr": ""
+    },
+    {
+      "name": "final-readme-package-2",
+      "command": [
+        "/bin/sh",
+        "-c",
+        "cat > dossier.md <<'EOF'\nThe mobile booking form erased patient input at step two.\n\nThe mobile booking form erased patient input at step two.\n\nLOG: worker heartbeat ok in 554ms.\nEOF\n\nlcc optimize dossier.md -o prompt.md -r clean.json\nlcc inspect dossier.md -r inspect.json\nlcc compact dossier.md -q 'reduce mobile booking friction' \\\n  --provider mechanical -o compacted.md -r report.json\nlcc explain report.json --source dossier.md\nlcc diff dossier.md compacted.md\n"
+      ],
+      "exit_code": 0,
+      "stdout": "lcc explain \u2014 why every block was kept, trimmed or dropped\n\nObjective           reduce mobile booking friction\nProvider            mechanical (requested mechanical)\nSemantic guarantee  none\nThresholds          keep >= 0.40, trim 0.20-0.40\nBlocks              3 total | 0 scored | 3 protected\nDecisions           3 keep | 0 trim | 0 drop\nChars               153 -> 153 (0.0% smaller)\nTokens              36 -> 36 (approximate)\nVerdict             worth a cache epoch\n\nDROPPED (0)\n-----------\n  (none)\n\nTRIMMED (0)\n-----------\n  (none)\n\nKEPT (3)\n--------\n  blk_0001_dfbb93989f8f    n/a   lines 1-1             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0002_dfbb93989f8f    n/a   lines 3-3             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0003_68df246ed7b5    n/a   lines 5-5             35 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: LOG: worker heartbeat ok in 554ms.\n\nWARNINGS (1)\n----------\n  - approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer assets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\n",
+      "stderr": "        lcc -- optimization summary        \nModel               gpt-4.1                \nToken counting      approximate (heuristic)\nOriginal tokens     36                     \nOptimized tokens    22                     \nToken savings       38.9%                  \nCompression ratio   0.611                  \nFull prompt tokens  182                    \nEst. cost before    0.000072 USD           \nEst. cost after     0.000044 USD           \nEst. cost savings   0.000028 USD           \nPrompt written to: prompt.md\nReport written to: clean.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates.   \u2502\n\u2502 tiktoken is not installed; used the heuristic estimator.                     \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n                lcc -- inspection summary                 \nSource                             file                   \nDecision                           skip                   \nReason                             small_input            \nCharacters                         153                    \nModel                              gpt-4.1                \nToken counting                     approximate (heuristic)\nInput tokens                       36                     \nProjected tokens                   22                     \nEst. input cost                    0.000072 USD           \nDuplicate paragraphs (projection)  1 exact + 0 near       \nProjected token savings            38.9%                  \nProjected char savings             39.2%                  \nReport written to: inspect.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates.   \u2502\n\u2502 tiktoken is not installed; used the heuristic estimator.                     \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n          lcc -- instant relevance compaction          \nProvider               mechanical                      \nBlocks                 3 total | 0 scored | 3 protected\nDropped                0                               \nSufficiency            1 check(s), 0 failure(s)        \nChars                  153 -> 153 (-0)                 \nReduction              0.0%                            \nTokens                 36 -> 36 (approximate)          \nSemantic guarantee     none                            \nFirst mutation offset  -                               \nPrefix sha256          1bc0d776c2011a1d...             \nwarning: approximate_token_count: every token figure in this report is an \nestimate, not a measurement. The tokenizer assets are not cached locally and lcc\nwill not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before \nrelying on any token or cost decision, or pass --require-exact-tokens to fail \ninstead of guessing.\nCompacted context written to: compacted.md\nCompaction report written to: report.json\n         lcc -- diff summary         \nIdentical  yes                       \nChars      153 -> 153 (+0)           \nLines      5 -> 5 (+0)               \nTokens     36 -> 36 (+0, approximate)\n"
+    },
+    {
+      "name": "final-readme-package-3",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "from pathlib import Path\nfrom lcc.msi import compile\n\nresult = compile(\n    'reduce mobile booking friction',\n    Path('dossier.md').read_text(encoding='utf-8'),\n    task_id='booking-01',\n)\nprint(result.context)\nprint(result.sufficiency)\nprint(result.receipt.to_spec_dict())\n"
+      ],
+      "exit_code": 0,
+      "stdout": "The mobile booking form erased patient input at step two.\n\nThe mobile booking form erased patient input at step two.\n\nLOG: worker heartbeat ok in 554ms.\n\n{'checks': 1, 'failures': 0, 'restored': 0, 'result': 'PASS'}\n{'schema_version': 'inference-receipt/0.1', 'receipt_id': 'booking-01-r1', 'task_id': 'booking-01', 'selected_units': ['blk_0001_dfbb93989f8f', 'blk_0002_dfbb93989f8f', 'blk_0003_68df246ed7b5'], 'omitted_units': [], 'model': {'class': 'local_small', 'reasoning_budget': 'low'}, 'tools_used': [], 'verification': {'profile': 'standard', 'result': 'PASS'}, 'restorations': {'restored': [], 'retries': 0, 'escalations': []}, 'cost': {'latency_ms': 0, 'tokens_in': 36, 'tokens_out': 36, 'cost_usd': 0.0}, 'versions': {'compiler': 'lcc-1.0.0', 'policy': 'planner-1.0', 'model': 'local_small', 'schema': 'inference-receipt/0.1', 'dataset': 'n/a', 'evaluator': 'verify-1.0'}, 'timestamps': {'started_at': '2026-10-03T17:20:42.808460+00:00', 'finished_at': '2026-10-03T17:20:42.808461+00:00'}, 'decision_events': [{'event': 'routed', 'reason': 'msi.compile:deterministic:LOCAL_THEN_VERIFY', 'at': '2026-10-03T17:20:42.808264+00:00'}, {'event': 'dropped', 'reason': 'mechanical:0-dropped:0-trimmed', 'at': '2026-10-03T17:20:42.808453+00:00'}], 'outcome': {'result': '', 'evaluation': 'PASS'}}\n",
+      "stderr": ""
+    },
+    {
+      "name": "spec-fixtures",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "scripts/validate_examples.py"
+      ],
+      "cwd": "/Users/Master/msi-repos/minimum-sufficient-inference",
+      "exit_code": 0,
+      "stdout": "PASS 01-coding-fix.json :: task_contract\nPASS 01-coding-fix.json :: context_ir\nPASS 01-coding-fix.json :: inference_plan\nPASS 01-coding-fix.json :: verification_result\nPASS 01-coding-fix.json :: inference_receipt\nPASS 02-repo-investigation.json :: task_contract\nPASS 02-repo-investigation.json :: context_ir\nPASS 02-repo-investigation.json :: inference_plan\nPASS 02-repo-investigation.json :: verification_result\nPASS 02-repo-investigation.json :: inference_receipt\nPASS 03-multi-tool-task.json :: task_contract\nPASS 03-multi-tool-task.json :: context_ir\nPASS 03-multi-tool-task.json :: inference_plan\nPASS 03-multi-tool-task.json :: verification_result\nPASS 03-multi-tool-task.json :: inference_receipt\nPASS 04-research-brief.json :: task_contract\nPASS 04-research-brief.json :: context_ir\nPASS 04-research-brief.json :: inference_plan\nPASS 04-research-brief.json :: verification_result\nPASS 04-research-brief.json :: inference_receipt\nPASS 05-structured-decision.json :: task_contract\nPASS 05-structured-decision.json :: context_ir\nPASS 05-structured-decision.json :: inference_plan\nPASS 05-structured-decision.json :: verification_result\nPASS 05-structured-decision.json :: inference_receipt\nEXPECTED-FAIL negative-provider-field.json :: context_ir: ValidationError\nPASS negative-provider-field.json: rejected as expected\nALL GREEN\n",
+      "stderr": ""
+    },
+    {
+      "name": "final-distribution-check",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "twine",
+        "check",
+        "/tmp/lcc-msi-audit-readme-dist/local_context_compiler-1.0.0-py3-none-any.whl",
+        "/tmp/lcc-msi-audit-readme-dist/local_context_compiler-1.0.0.tar.gz"
+      ],
+      "exit_code": 0,
+      "stdout": "Checking \n/tmp/lcc-msi-audit-readme-dist/local_context_compiler-1.0.0-py3-none-any.whl: PASSED\nChecking /tmp/lcc-msi-audit-readme-dist/local_context_compiler-1.0.0.tar.gz: PASSED\n",
+      "stderr": ""
+    }
+  ],
+  "initial_doc_failure": [
+    {
+      "name": "suite-312",
+      "command": [
+        "/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "pytest",
+        "tests/",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "-q",
+        "-rs"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 11.143,
+      "stdout": "........................................s............................... [  8%]\n.........................................s.............................. [ 17%]\n........................................................................ [ 26%]\n........................................................................ [ 34%]\n........................................................................ [ 43%]\n.............F.....s.................................................... [ 52%]\ns....................................................................... [ 60%]\n........................................................................ [ 69%]\n........................................................................ [ 78%]\n............................................................s........... [ 86%]\n........................................................................ [ 95%]\n....................................                                     [100%]\n=================================== FAILURES ===================================\n___________________ test_laya_docs_cover_limits_and_tradeoff ___________________\n\n    def test_laya_docs_cover_limits_and_tradeoff():\n        from pathlib import Path as _P\n    \n        root = _P(__file__).resolve().parents[1]\n        doc = (root / \"docs\" / \"LAYA.md\").read_text(encoding=\"utf-8\").lower()\n        for cue in (\"512\", \"1024\", \"319\", \"831\", \"latency_ms\", \"when to use\",\n                    \"conservative\", \"context_budget_used\", \"degraded\"):\n            assert cue in doc, cue\n        readme = (root / \"README.md\").read_text(encoding=\"utf-8\")\n        assert \"docs/LAYA.md\" in readme\n>       assert \"relevance-compaction-1.2\" in readme\nE       AssertionError: assert 'relevance-compaction-1.2' in '# Local Context Compiler\\n\\n`lcc` prepares text for model calls: clean duplicates and boilerplate, select\\ncontext fo...ribution in [NOTICE](NOTICE), included with packaged license files.\\nMaintained by [LookADev](https://lookadev.com).\\n'\n\ntests/test_laya_cli.py:186: AssertionError\n=========================== short test summary info ============================\nSKIPPED [1] tests/test_adversarial_compaction.py:103: no recorded deterministic-scorer gaps\nSKIPPED [1] tests/test_benchmarking.py:493: exact-mode benchmark cases require tiktoken encoding assets cached offline (ADR 0008)\nSKIPPED [1] tests/test_laya_integration.py:39: live Laya integration: set LCC_LAYA_INTEGRATION=1 (loads real weights)\nSKIPPED [1] tests/test_mcp_server.py:324: needs a Jev key\nSKIPPED [1] tests/test_token_budget.py:190: tiktoken gpt-4.1 encoding assets are not cached offline\n1 failed, 822 passed, 5 skipped in 10.91s\n",
+      "stderr": ""
+    },
+    {
+      "name": "suite-311",
+      "command": [
+        "/tmp/lcc-pr-ci311/bin/python",
+        "-m",
+        "pytest",
+        "tests/",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "-q",
+        "-rs"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 11.477,
+      "stdout": "........................................s............................... [  8%]\n.........................................s.............................. [ 17%]\n........................................................................ [ 26%]\n........................................................................ [ 34%]\n........................................................................ [ 43%]\n.............F.....s.................................................... [ 52%]\ns....................................................................... [ 60%]\n........................................................................ [ 69%]\n........................................................................ [ 78%]\n............................................................s........... [ 86%]\n........................................................................ [ 95%]\n....................................                                     [100%]\n=================================== FAILURES ===================================\n___________________ test_laya_docs_cover_limits_and_tradeoff ___________________\n\n    def test_laya_docs_cover_limits_and_tradeoff():\n        from pathlib import Path as _P\n    \n        root = _P(__file__).resolve().parents[1]\n        doc = (root / \"docs\" / \"LAYA.md\").read_text(encoding=\"utf-8\").lower()\n        for cue in (\"512\", \"1024\", \"319\", \"831\", \"latency_ms\", \"when to use\",\n                    \"conservative\", \"context_budget_used\", \"degraded\"):\n            assert cue in doc, cue\n        readme = (root / \"README.md\").read_text(encoding=\"utf-8\")\n        assert \"docs/LAYA.md\" in readme\n>       assert \"relevance-compaction-1.2\" in readme\nE       AssertionError: assert 'relevance-compaction-1.2' in '# Local Context Compiler\\n\\n`lcc` prepares text for model calls: clean duplicates and boilerplate, select\\ncontext fo...ribution in [NOTICE](NOTICE), included with packaged license files.\\nMaintained by [LookADev](https://lookadev.com).\\n'\n\ntests/test_laya_cli.py:186: AssertionError\n=========================== short test summary info ============================\nSKIPPED [1] tests/test_adversarial_compaction.py:103: no recorded deterministic-scorer gaps\nSKIPPED [1] tests/test_benchmarking.py:493: exact-mode benchmark cases require tiktoken encoding assets cached offline (ADR 0008)\nSKIPPED [1] tests/test_laya_integration.py:39: live Laya integration: set LCC_LAYA_INTEGRATION=1 (loads real weights)\nSKIPPED [1] tests/test_mcp_server.py:324: needs a Jev key\nSKIPPED [1] tests/test_token_budget.py:190: tiktoken gpt-4.1 encoding assets are not cached offline\n1 failed, 822 passed, 5 skipped in 10.79s\n",
+      "stderr": ""
+    }
+  ],
+  "initial_doc_failure_note": "README rewrite omitted relevance-compaction-1.2, required by the Laya documentation test. Added an artifact-version paragraph; no runtime failure or relaxed assertion.",
+  "links": {
+    "scope": [
+      "README.md",
+      "docs/QUICKSTART.md",
+      "research/msi-audit-2026-10-03.md",
+      "research/benchmark-methodology.md",
+      "benchmarks/msi-bench/REPORT.md",
+      "benchmarks/usability/REPORT.md"
+    ],
+    "local": [
+      {
+        "source": "README.md",
+        "target": "LICENSE",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "research/msi-audit-2026-10-03.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/adr/0008-tokenizer-network-boundary.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/QUICKSTART.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/lcc/inference-planning.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/lcc/msi-api.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/msi/verification.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/msi/escalation.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/JEV.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/LAYA.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/adr/0014-minimum-sufficient-context.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/lcc/context-ir.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/lcc/restoration.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/MCP.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/TOOL_CALLS.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/CLAUDE_CODE.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/QUICKSTART.md#offline--command-matrix-all-rows-verified-without-key-or-network",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "benchmarks/usability/REPORT.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "benchmarks/usability/results.json",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "research/real-world-integration.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "benchmarks/msi-bench/REPORT.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "benchmarks/research/RESEARCH_STATUS.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "benchmarks/research/TRANSCRIPT_AB.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "benchmarks/research/REAL_SESSIONS.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "research/msi-audit-evidence.json",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/adr/0010-deterministic-first-preparation-model-assistance.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/architecture.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "docs/adr/README.md",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "LICENSE",
+        "pass": true
+      },
+      {
+        "source": "README.md",
+        "target": "NOTICE",
+        "pass": true
+      },
+      {
+        "source": "research/msi-audit-2026-10-03.md",
+        "target": "../benchmarks/usability/REPORT.md",
+        "pass": true
+      },
+      {
+        "source": "research/msi-audit-2026-10-03.md",
+        "target": "msi-audit-evidence.json",
+        "pass": true
+      },
+      {
+        "source": "research/benchmark-methodology.md",
+        "target": "msi-audit-2026-10-03.md",
+        "pass": true
+      },
+      {
+        "source": "benchmarks/msi-bench/REPORT.md",
+        "target": "../../research/msi-audit-2026-10-03.md",
+        "pass": true
+      },
+      {
+        "source": "benchmarks/usability/REPORT.md",
+        "target": "results.json",
+        "pass": true
+      },
+      {
+        "source": "benchmarks/usability/REPORT.md",
+        "target": "../../research/msi-audit-2026-10-03.md",
+        "pass": true
+      }
+    ],
+    "external": [
+      {
+        "url": "https://github.com/lucasmartins-ai/lcc/actions/runs/37138301230",
+        "status": "200",
+        "exit_code": 0,
+        "pass": true,
+        "error": ""
+      },
+      {
+        "url": "https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml",
+        "status": "200",
+        "exit_code": 0,
+        "pass": true,
+        "error": ""
+      },
+      {
+        "url": "https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml/badge.svg",
+        "status": "200",
+        "exit_code": 0,
+        "pass": true,
+        "error": ""
+      },
+      {
+        "url": "https://github.com/lucasmartins-ai/lcc/issues/18",
+        "status": "200",
+        "exit_code": 0,
+        "pass": true,
+        "error": ""
+      },
+      {
+        "url": "https://github.com/lucasmartins-ai/lcc/issues/19",
+        "status": "200",
+        "exit_code": 0,
+        "pass": true,
+        "error": ""
+      },
+      {
+        "url": "https://img.shields.io/badge/license-MIT-blue.svg",
+        "status": "200",
+        "exit_code": 0,
+        "pass": true,
+        "error": ""
+      },
+      {
+        "url": "https://lookadev.com",
+        "status": "200",
+        "exit_code": 0,
+        "pass": true,
+        "error": ""
+      }
+    ],
+    "initial_external_error": "System Python CA configuration rejected certificates. Retried with curl using its normal certificate validation; no insecure TLS option used."
+  },
+  "packaged_attribution": {
+    "wheel_notice": true,
+    "sdist_notice": true,
+    "wheel_sha256": "19ff3b6e2a6e6836c9c4e6df1c0eb25c6853c49fd1660fc9db2205333ef194d6"
+  },
+  "document_sha256": {
+    "README.md": "50923967efad7e6c45968a001aee5f821c19b3f4bc58d319cbf18a02e6c1b288",
+    "docs/QUICKSTART.md": "8bc3e133e9a5d87e6347582a9441bd713746149eaa16e7d651b5524f652dd2de",
+    "tests/test_docs.py": "999f2dce7538850fa23001d7927af010ce8658c34298b854bf88554e9b07a68b"
+  },
+  "validation_scope": "Runtime code commit 310ab9e21121c46c254d643ffb738d8cb8d41eb4 with updated README/quickstart/docs test in the working tree. Document hashes below pin the verified text; final commit adds these artifacts."
+}

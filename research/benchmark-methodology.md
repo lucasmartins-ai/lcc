@@ -1,5 +1,12 @@
 # MSI-Bench methodology (sprint 7) — PILOT, N=12
 
+**Audit notice (2026-10-03):** the implementation's bootstrap draws are
+per arm, not shared across arms as originally described below. Costs
+account for final attempts; `--check` does not validate full aggregate or
+receipt payloads. These release blockers and non-mutating reproduction
+probes are documented in [the audit](msi-audit-2026-10-03.md).
+The original methodology remains here as a historical record.
+
 Status: PILOT. All figures below are evidence class BENCHMARK on CURATED
 hand-built tasks (N=12, offline, deterministic, no live models). Nothing
 here generalizes beyond the frozen task set; intervals are published wide

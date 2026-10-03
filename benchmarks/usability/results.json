@@ -1,0 +1,741 @@
+{
+  "benchmark": "lcc-offline-workflow-usability-1.0",
+  "captured_at": "2026-10-03T17:03:42.345354+00:00",
+  "code_commit": "310ab9e21121c46c254d643ffb738d8cb8d41eb4",
+  "runner_sha256": "8d47e6ed10e1065f4b3e7c9a85e08b6f6f93d6f72df8f2c11f65cb1519a6652a",
+  "wheel_sha256": "8dbf98023284535b31106e86abece58f07abd3a1be852aac78a2bb9d600a2645",
+  "context_sha256": "d80bcf24ff8b7d9b6c7653687c82c4e71ed730147829d8e7e9732a9fa6aab563",
+  "evidence_class": "BENCHMARK",
+  "data_class": "CURATED workflows / SYNTHETIC text",
+  "python": "3.12.14",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "repeats": 3,
+  "first_compile_ms": 3141.92,
+  "packages": {
+    "annotated-doc": "0.0.5",
+    "local-context-compiler": "1.0.0",
+    "markdown-it-py": "4.2.0",
+    "mdurl": "0.1.2",
+    "pip": "26.2.1",
+    "Pygments": "2.21.0",
+    "PyYAML": "6.0.3",
+    "rich": "15.0.0",
+    "shellingham": "1.5.4",
+    "typer": "0.27.2"
+  },
+  "limits": "Fresh venv, existing pip cache. One machine, no human users or live models. Installation may use network; LCC_DISABLE_NETWORK=1 for workflows. Times include process startup.",
+  "records": [
+    {
+      "name": "create_venv",
+      "command": [
+        "/private/tmp/lcc-pr-ci312/bin/python",
+        "-m",
+        "venv",
+        "<workspace>/venv"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 1458.144,
+      "stdout": "",
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "name": "install_wheel",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--disable-pip-version-check",
+        "/private/tmp/lcc-msi-audit-fixed-dist/local_context_compiler-1.0.0-py3-none-any.whl"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 1210.652,
+      "stdout": "Processing /private/tmp/lcc-msi-audit-fixed-dist/local_context_compiler-1.0.0-py3-none-any.whl\nCollecting typer>=0.12 (from local-context-compiler==1.0.0)\n  Using cached typer-0.27.2-py3-none-any.whl.metadata (16 kB)\nCollecting rich>=13.0 (from local-context-compiler==1.0.0)\n  Using cached rich-15.0.0-py3-none-any.whl.metadata (18 kB)\nCollecting pyyaml>=6.0 (from local-context-compiler==1.0.0)\n  Using cached pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl.metadata (2.4 kB)\nCollecting markdown-it-py>=2.2.0 (from rich>=13.0->local-context-compiler==1.0.0)\n  Using cached markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)\nCollecting pygments<3.0.0,>=2.13.0 (from rich>=13.0->local-context-compiler==1.0.0)\n  Using cached pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)\nCollecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.0->local-context-compiler==1.0.0)\n  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)\nCollecting shellingham>=1.3.0 (from typer>=0.12->local-context-compiler==1.0.0)\n  Using cached shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)\nCollecting annotated-doc>=0.0.2 (from typer>=0.12->local-context-compiler==1.0.0)\n  Using cached annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)\nUsing cached pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl (173 kB)\nUsing cached rich-15.0.0-py3-none-any.whl (310 kB)\nUsing cached pygments-2.21.0-py3-none-any.whl (1.3 MB)\nUsing cached markdown_it_py-4.2.0-py3-none-any.whl (91 kB)\nUsing cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)\nUsing cached typer-0.27.2-py3-none-any.whl (123 kB)\nUsing cached annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)\nUsing cached shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)\nInstalling collected packages: shellingham, pyyaml, pygments, mdurl, annotated-doc, markdown-it-py, rich, typer, local-context-compiler\n\nSuccessfully installed annotated-doc-0.0.5 local-context-compiler-1.0.0 markdown-it-py-4.2.0 mdurl-0.1.2 pygments-2.21.0 pyyaml-6.0.3 rich-15.0.0 shellingham-1.5.4 typer-0.27.2\n",
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "name": "installed_packages",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-m",
+        "pip",
+        "list",
+        "--format=json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 129.119,
+      "stdout": "[{\"name\": \"annotated-doc\", \"version\": \"0.0.5\"}, {\"name\": \"local-context-compiler\", \"version\": \"1.0.0\"}, {\"name\": \"markdown-it-py\", \"version\": \"4.2.0\"}, {\"name\": \"mdurl\", \"version\": \"0.1.2\"}, {\"name\": \"pip\", \"version\": \"26.2.1\"}, {\"name\": \"Pygments\", \"version\": \"2.21.0\"}, {\"name\": \"PyYAML\", \"version\": \"6.0.3\"}, {\"name\": \"rich\", \"version\": \"15.0.0\"}, {\"name\": \"shellingham\", \"version\": \"1.5.4\"}, {\"name\": \"typer\", \"version\": \"0.27.2\"}]\n",
+      "stderr": ""
+    },
+    {
+      "name": "first_compile",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "import json; from pathlib import Path; from lcc.msi import compile; r=compile('reduce mobile booking friction', Path('dossier.md').read_text(), task_id='ux-01'); print(json.dumps(r.to_dict(), sort_keys=True))"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 341.364,
+      "stdout": "{\"api_version\": \"msi-api-1.0\", \"context\": \"The mobile booking form erased patient input at step two.\\n\\nThe mobile booking form erased patient input at step two.\\n\\nLOG: worker heartbeat ok in 554ms.\\n\\n\", \"degraded\": false, \"plan\": {\"context_profile\": \"minimal\", \"escalation_policy\": {\"escalate_to\": \"frontier\", \"max_restorations\": 4, \"max_retries\": 2}, \"fallbacks\": [{\"action\": \"RESTORE_CONTEXT\", \"trigger\": \"VERIFY_FAIL\"}, {\"action\": \"INCREASE_REASONING\", \"trigger\": \"LOW_CONF\"}, {\"action\": \"RETRY\", \"trigger\": \"TIMEOUT\"}], \"model_class\": \"local_small\", \"reasoning_budget\": \"low\", \"schema_version\": \"inference-plan/0.1\", \"tools\": [], \"verification_profile\": \"standard\"}, \"provider_used\": \"mechanical\", \"receipt\": {\"cost\": {\"cost_usd\": 0.0, \"latency_ms\": 0, \"tokens_in\": 37, \"tokens_out\": 37}, \"decision_events\": [{\"at\": \"2026-10-03T17:03:35.532363+00:00\", \"event\": \"routed\", \"reason\": \"msi.compile:deterministic:LOCAL_THEN_VERIFY\"}, {\"at\": \"2026-10-03T17:03:35.532580+00:00\", \"event\": \"dropped\", \"reason\": \"mechanical:0-dropped:0-trimmed\"}], \"model\": {\"class\": \"local_small\", \"reasoning_budget\": \"low\"}, \"omitted_units\": [], \"outcome\": {\"evaluation\": \"PASS\", \"result\": \"\"}, \"receipt_id\": \"ux-01-r1\", \"restorations\": {\"escalations\": [], \"restored\": [], \"retries\": 0}, \"schema_version\": \"inference-receipt/0.1\", \"selected_units\": [\"blk_0001_dfbb93989f8f\", \"blk_0002_dfbb93989f8f\", \"blk_0003_68df246ed7b5\"], \"task_id\": \"ux-01\", \"timestamps\": {\"finished_at\": \"2026-10-03T17:03:35.532589+00:00\", \"started_at\": \"2026-10-03T17:03:35.532587+00:00\"}, \"tools_used\": [], \"verification\": {\"profile\": \"standard\", \"result\": \"PASS\"}, \"versions\": {\"compiler\": \"lcc-1.0.0\", \"dataset\": \"n/a\", \"evaluator\": \"verify-1.0\", \"model\": \"local_small\", \"policy\": \"planner-1.0\", \"schema\": \"inference-receipt/0.1\"}}, \"sufficiency\": {\"checks\": 1, \"failures\": 0, \"restored\": 0, \"result\": \"PASS\"}}\n",
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "name": "help",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "--help"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 468.818,
+      "stdout": "                                                                                                                        \n Usage: lcc [OPTIONS] COMMAND [ARGS]...                                                                                 \n                                                                                                                        \n Local Context Compiler (lcc): deterministic, local-first context optimization for LLM prompts.                         \n                                                                                                                        \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --version          Show the version and exit.                                                                        \u2502\n\u2502 --help             Show this message and exit.                                                                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 optimize            Clean, deduplicate, and structure INPUT into an optimized prompt and JSON report.                \u2502\n\u2502 prepare             Inspect INPUT first, then generate a prompt only when safe optimization is useful.               \u2502\n\u2502 bench               Report mechanical optimization and prepare-selection metrics for benchmark cases.                \u2502\n\u2502 semantic-retrieval  Report the Phase 2 semantic retrieval boundary status; no retrieval is performed.                \u2502\n\u2502 inspect             Analyze INPUT and emit a deterministic diagnostic report -- no prompt is generated.              \u2502\n\u2502 diff                Compare two text files: sizes, token deltas, and a unified diff \u2014 offline.                       \u2502\n\u2502 compact             Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe).          \u2502\n\u2502 explain             Explain a compaction report: why each block was kept, trimmed or dropped.                        \u2502\n\u2502 intake              Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC.        \u2502\n\u2502 agent               Manage and execute local LLM agents (Gemma 4 e4b, Qwen3.5-4B).                                   \u2502\n\u2502 route               Hybrid local/cloud context routing and evaluation.                                               \u2502\n\u2502 mcp                 Run the MCP (Model Context Protocol) server (see docs/MCP.md).                                   \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n",
+      "stderr": "",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "optimize",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "optimize",
+        "dossier.md",
+        "-o",
+        "prompt.md",
+        "-r",
+        "clean.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 208.292,
+      "stdout": "",
+      "stderr": "        lcc -- optimization summary        \nModel               gpt-4.1                \nToken counting      approximate (heuristic)\nOriginal tokens     37                     \nOptimized tokens    22                     \nToken savings       40.5%                  \nCompression ratio   0.595                  \nFull prompt tokens  182                    \nEst. cost before    0.000074 USD           \nEst. cost after     0.000044 USD           \nEst. cost savings   0.000030 USD           \nPrompt written to: prompt.md\nReport written to: clean.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates. tiktoken is not installed; used the       \u2502\n\u2502 heuristic estimator.                                                                                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "inspect",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "inspect",
+        "dossier.md",
+        "-r",
+        "inspect.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 189.097,
+      "stdout": "",
+      "stderr": "                lcc -- inspection summary                 \nSource                             file                   \nDecision                           skip                   \nReason                             small_input            \nCharacters                         154                    \nModel                              gpt-4.1                \nToken counting                     approximate (heuristic)\nInput tokens                       37                     \nProjected tokens                   22                     \nEst. input cost                    0.000074 USD           \nDuplicate paragraphs (projection)  1 exact + 0 near       \nProjected token savings            40.5%                  \nProjected char savings             39.6%                  \nReport written to: inspect.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates. tiktoken is not installed; used the       \u2502\n\u2502 heuristic estimator.                                                                                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "compact",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "compact",
+        "dossier.md",
+        "-q",
+        "reduce mobile booking friction",
+        "--provider",
+        "mechanical",
+        "-o",
+        "compacted.md",
+        "-r",
+        "report.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 186.603,
+      "stdout": "",
+      "stderr": "          lcc -- instant relevance compaction          \nProvider               mechanical                      \nBlocks                 3 total | 0 scored | 3 protected\nDropped                0                               \nSufficiency            1 check(s), 0 failure(s)        \nChars                  154 -> 154 (-0)                 \nReduction              0.0%                            \nTokens                 37 -> 37 (approximate)          \nSemantic guarantee     none                            \nFirst mutation offset  -                               \nPrefix sha256          d80bcf24ff8b7d9b...             \nwarning: approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer \nassets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before \nrelying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\nCompacted context written to: compacted.md\nCompaction report written to: report.json\n",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "explain",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "explain",
+        "report.json",
+        "--source",
+        "dossier.md"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 179.611,
+      "stdout": "lcc explain \u2014 why every block was kept, trimmed or dropped\n\nObjective           reduce mobile booking friction\nProvider            mechanical (requested mechanical)\nSemantic guarantee  none\nThresholds          keep >= 0.40, trim 0.20-0.40\nBlocks              3 total | 0 scored | 3 protected\nDecisions           3 keep | 0 trim | 0 drop\nChars               154 -> 154 (0.0% smaller)\nTokens              37 -> 37 (approximate)\nVerdict             worth a cache epoch\n\nDROPPED (0)\n-----------\n  (none)\n\nTRIMMED (0)\n-----------\n  (none)\n\nKEPT (3)\n--------\n  blk_0001_dfbb93989f8f    n/a   lines 1-1             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0002_dfbb93989f8f    n/a   lines 3-3             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0003_68df246ed7b5    n/a   lines 5-5             35 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: LOG: worker heartbeat ok in 554ms.\n\nWARNINGS (1)\n----------\n  - approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer assets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\n",
+      "stderr": "",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "diff",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "diff",
+        "dossier.md",
+        "compacted.md"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 198.592,
+      "stdout": "",
+      "stderr": "         lcc -- diff summary         \nIdentical  yes                       \nChars      154 -> 154 (+0)           \nLines      6 -> 6 (+0)               \nTokens     37 -> 37 (+0, approximate)\n",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "python_api",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "import json; from pathlib import Path; from lcc.msi import compile; r=compile('reduce mobile booking friction', Path('dossier.md').read_text(), task_id='ux-01'); print(json.dumps(r.to_dict(), sort_keys=True))"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 151.025,
+      "stdout": "{\"api_version\": \"msi-api-1.0\", \"context\": \"The mobile booking form erased patient input at step two.\\n\\nThe mobile booking form erased patient input at step two.\\n\\nLOG: worker heartbeat ok in 554ms.\\n\\n\", \"degraded\": false, \"plan\": {\"context_profile\": \"minimal\", \"escalation_policy\": {\"escalate_to\": \"frontier\", \"max_restorations\": 4, \"max_retries\": 2}, \"fallbacks\": [{\"action\": \"RESTORE_CONTEXT\", \"trigger\": \"VERIFY_FAIL\"}, {\"action\": \"INCREASE_REASONING\", \"trigger\": \"LOW_CONF\"}, {\"action\": \"RETRY\", \"trigger\": \"TIMEOUT\"}], \"model_class\": \"local_small\", \"reasoning_budget\": \"low\", \"schema_version\": \"inference-plan/0.1\", \"tools\": [], \"verification_profile\": \"standard\"}, \"provider_used\": \"mechanical\", \"receipt\": {\"cost\": {\"cost_usd\": 0.0, \"latency_ms\": 0, \"tokens_in\": 37, \"tokens_out\": 37}, \"decision_events\": [{\"at\": \"2026-10-03T17:03:37.115317+00:00\", \"event\": \"routed\", \"reason\": \"msi.compile:deterministic:LOCAL_THEN_VERIFY\"}, {\"at\": \"2026-10-03T17:03:37.115582+00:00\", \"event\": \"dropped\", \"reason\": \"mechanical:0-dropped:0-trimmed\"}], \"model\": {\"class\": \"local_small\", \"reasoning_budget\": \"low\"}, \"omitted_units\": [], \"outcome\": {\"evaluation\": \"PASS\", \"result\": \"\"}, \"receipt_id\": \"ux-01-r1\", \"restorations\": {\"escalations\": [], \"restored\": [], \"retries\": 0}, \"schema_version\": \"inference-receipt/0.1\", \"selected_units\": [\"blk_0001_dfbb93989f8f\", \"blk_0002_dfbb93989f8f\", \"blk_0003_68df246ed7b5\"], \"task_id\": \"ux-01\", \"timestamps\": {\"finished_at\": \"2026-10-03T17:03:37.115593+00:00\", \"started_at\": \"2026-10-03T17:03:37.115592+00:00\"}, \"tools_used\": [], \"verification\": {\"profile\": \"standard\", \"result\": \"PASS\"}, \"versions\": {\"compiler\": \"lcc-1.0.0\", \"dataset\": \"n/a\", \"evaluator\": \"verify-1.0\", \"model\": \"local_small\", \"policy\": \"planner-1.0\", \"schema\": \"inference-receipt/0.1\"}}, \"sufficiency\": {\"checks\": 1, \"failures\": 0, \"restored\": 0, \"result\": \"PASS\"}}\n",
+      "stderr": "",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "missing_file",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "compact",
+        "missing.md",
+        "-q",
+        "reduce mobile booking friction"
+      ],
+      "stdin": null,
+      "exit_code": 1,
+      "elapsed_ms": 277.009,
+      "stdout": "",
+      "stderr": "Error: input file not found: missing.md; check the path or pass '-' to read from stdin\n",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "invalid_report",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "explain",
+        "bad.json"
+      ],
+      "stdin": null,
+      "exit_code": 1,
+      "elapsed_ms": 196.343,
+      "stdout": "",
+      "stderr": "Error: bad.json is not valid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1); re-run \n`lcc compact -r report.json` to regenerate it\n",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "invalid_api",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "from lcc.msi import compile\ntry: compile('', 'text')\nexcept ValueError as e: print(e)\nelse: raise SystemExit(1)"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 137.035,
+      "stdout": "compile() needs a non-empty task; e.g. task='summarize the outage'\n",
+      "stderr": "",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "retrieval_status",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "semantic-retrieval"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 185.387,
+      "stdout": "{\n  \"schema_version\": \"semantic-retrieval-0.1\",\n  \"enabled\": false,\n  \"status\": \"disabled\",\n  \"reason_code\": \"semantic_retrieval_disabled\",\n  \"message\": \"Semantic retrieval is disabled by default. Deterministic lcc commands do not retrieve, rank, embed, call models, or touch the network.\",\n  \"top_k\": 8,\n  \"index_manifest_present\": false,\n  \"embedding_assets_present\": false,\n  \"retrieval_performed\": false\n}\n",
+      "stderr": "",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "mcp",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "mcp"
+      ],
+      "stdin": "Content-Length: 65\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"initialize\", \"params\": {}}Content-Length: 65\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/list\", \"params\": {}}Content-Length: 315\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 3, \"method\": \"tools/call\", \"params\": {\"name\": \"compact\", \"arguments\": {\"text\": \"The mobile booking form erased patient input at step two.\\n\\nThe mobile booking form erased patient input at step two.\\n\\nLOG: worker heartbeat ok in 554ms.\\n\\n\", \"question\": \"reduce mobile booking friction\"}}}",
+      "exit_code": 0,
+      "elapsed_ms": 178.425,
+      "stdout": "Content-Length: 154\n\n{\"jsonrpc\": \"2.0\", \"id\": 1, \"result\": {\"protocolVersion\": \"2024-11-05\", \"capabilities\": {\"tools\": {}}, \"serverInfo\": {\"name\": \"lcc\", \"version\": \"1.0.0\"}}}Content-Length: 3481\n\n{\"jsonrpc\": \"2.0\", \"id\": 2, \"result\": {\"tools\": [{\"name\": \"compact\", \"description\": \"Drop context blocks irrelevant to an objective. Default provider mechanical is fully offline (no key, no network); laya is offline semantic (needs the [laya] extra, else honest mechanical fallback); jev needs TYPESAFE_API_KEY. Fail-safe: failures keep content.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\"}, \"provider\": {\"type\": \"string\", \"enum\": [\"auto\", \"jev\", \"laya\", \"mechanical\"], \"default\": \"mechanical\"}, \"threshold\": {\"type\": \"number\", \"default\": 0.4}}, \"required\": [\"text\", \"question\"]}}, {\"name\": \"compact_transcript\", \"description\": \"Tool-call compaction for a session transcript: pairs each tool call with its result, pins the first and newest messages, and drops the pairs a semantic judge says are spent \\u2014 kept messages stay verbatim, so nothing is summarized. Provider 'laya' runs locally and offline (needs the [laya] extra); 'jev' is remote and needs TYPESAFE_API_KEY. Every failure keeps the call.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"messages\": {\"type\": \"array\", \"description\": \"Messages with role/text and toolUses/toolResults blocks (Claude Code hook shape) or tool_calls/tool_results.\", \"items\": {\"type\": \"object\"}}, \"question\": {\"type\": \"string\"}, \"provider\": {\"type\": \"string\", \"enum\": [\"jev\", \"laya\", \"auto\"], \"default\": \"jev\", \"description\": \"Semantic judge. 'laya' is local and offline (needs the [laya] extra); 'jev' is the remote TypeSafe System 1 and needs TYPESAFE_API_KEY. 'auto' prefers Jev.\"}, \"threshold\": {\"type\": \"number\", \"default\": 0.5}, \"preserve_recent\": {\"type\": \"integer\", \"default\": 6}, \"trim_head_chars\": {\"type\": \"integer\", \"default\": 300}, \"max_state_tokens\": {\"type\": \"integer\", \"default\": 25000}, \"max_request_tokens\": {\"type\": \"integer\", \"default\": 30000}, \"max_workers\": {\"type\": \"integer\", \"default\": 4}, \"min_reduction\": {\"type\": \"number\", \"default\": 0.25}, \"jev_model\": {\"type\": \"string\", \"default\": \"jev-latest\"}, \"laya_model\": {\"type\": \"string\"}}, \"required\": [\"messages\", \"question\"]}}, {\"name\": \"inspect\", \"description\": \"Read-only diagnostic inspection of a text: tokens, structure, duplication, cleanup projection, and recommendation. Offline.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}}, \"required\": [\"text\"]}}, {\"name\": \"prepare\", \"description\": \"Inspect-first deterministic prompt preparation: runs inspection, then lexical selection + safe optimization only when recommended. Never summarizes or paraphrases. Offline.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\", \"default\": \"\"}}, \"required\": [\"text\"]}}, {\"name\": \"explain\", \"description\": \"Explain a relevance-compaction report (as produced by compact): why every block was kept, trimmed, or dropped. Never re-runs, never touches the network.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"report\": {\"type\": \"object\"}, \"source_text\": {\"type\": \"string\"}, \"only\": {\"type\": \"string\", \"enum\": [\"keep\", \"trim\", \"drop\"]}, \"limit\": {\"type\": \"integer\"}}, \"required\": [\"report\"]}}, {\"name\": \"intake\", \"description\": \"Intake triage for raw prompt input: readiness, intent, clarifying questions, assumptions, and a compiled prompt. Offline by default.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\", \"default\": \"\"}}, \"required\": [\"text\"]}}]}}Content-Length: 3981\n\n{\"jsonrpc\": \"2.0\", \"id\": 3, \"result\": {\"content\": [{\"type\": \"text\", \"text\": \"{\\\"compacted_text\\\": \\\"The mobile booking form erased patient input at step two.\\\\n\\\\nThe mobile booking form erased patient input at step two.\\\\n\\\\nLOG: worker heartbeat ok in 554ms.\\\\n\\\\n\\\", \\\"report\\\": {\\\"schema_version\\\": \\\"relevance-compaction-1.2\\\", \\\"provider_requested\\\": \\\"mechanical\\\", \\\"provider_used\\\": \\\"mechanical\\\", \\\"degraded\\\": false, \\\"objective\\\": \\\"reduce mobile booking friction\\\", \\\"threshold\\\": 0.4, \\\"trim_threshold\\\": 0.2, \\\"trim_head_chars\\\": 300, \\\"blocks_total\\\": 3, \\\"blocks_scored\\\": 0, \\\"blocks_protected\\\": 3, \\\"blocks_dropped\\\": 0, \\\"blocks_trimmed\\\": 0, \\\"blocks_restored\\\": 0, \\\"chars_before\\\": 154, \\\"chars_after\\\": 154, \\\"chars_removed\\\": 0, \\\"tokens_before\\\": 37, \\\"tokens_after\\\": 37, \\\"token_count_method\\\": \\\"approximate\\\", \\\"tokenizer\\\": \\\"heuristic\\\", \\\"tokenizer_id\\\": \\\"heuristic-v1\\\", \\\"tokenizer_version\\\": null, \\\"is_estimate\\\": true, \\\"jev_model_requested\\\": \\\"jev-latest\\\", \\\"jev_model_resolved\\\": null, \\\"laya_model_requested\\\": null, \\\"laya_model_resolved\\\": null, \\\"laya_context_limit\\\": null, \\\"context_budget_used\\\": null, \\\"laya_temperature\\\": null, \\\"reduction_ratio\\\": 0.0, \\\"worth_it\\\": true, \\\"min_reduction\\\": 0.25, \\\"calls\\\": 0, \\\"latency_ms\\\": 0, \\\"compilation_ms\\\": 0, \\\"reused_decisions\\\": 0, \\\"semantic_decisions\\\": 0, \\\"semantic_cache_hits\\\": 0, \\\"semantic_cache_misses\\\": 0, \\\"sufficiency_checks\\\": 1, \\\"sufficiency_failures\\\": 0, \\\"sufficiency_confidence\\\": 1.0, \\\"relationship_edges\\\": 2, \\\"marker_tokens\\\": 0, \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"trim_policy_version\\\": \\\"trim-1.2\\\", \\\"parser_version\\\": \\\"blocks-1.0\\\", \\\"protection_version\\\": \\\"protection-1.1\\\", \\\"relationship_version\\\": \\\"relationships-1.0\\\", \\\"prefix_protected\\\": false, \\\"prefix_untouched\\\": true, \\\"first_mutation_offset\\\": null, \\\"prefix_sha256\\\": \\\"d80bcf24ff8b7d9b6c7653687c82c4e71ed730147829d8e7e9732a9fa6aab563\\\", \\\"output_sha256\\\": \\\"d80bcf24ff8b7d9b6c7653687c82c4e71ed730147829d8e7e9732a9fa6aab563\\\", \\\"degradation_reason\\\": null, \\\"semantic_guarantee\\\": \\\"none\\\", \\\"invalidated_tokens\\\": 0, \\\"break_even_reuses\\\": null, \\\"needs_review\\\": false, \\\"review_reason\\\": null, \\\"semantic_verifier_sufficient\\\": null, \\\"semantic_verifier_decision\\\": null, \\\"semantic_verifier_confidence\\\": null, \\\"semantic_verifier_model\\\": null, \\\"semantic_verifier_missing\\\": [], \\\"semantic_verifier_risks\\\": [], \\\"warnings\\\": [\\\"approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer assets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\\\"], \\\"decisions\\\": [{\\\"id\\\": \\\"blk_0001_dfbb93989f8f\\\", \\\"index\\\": 1, \\\"line_start\\\": 1, \\\"line_end\\\": 1, \\\"chars\\\": 58, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [\\\"DUPLICATES:blk_0002_dfbb93989f8f\\\", \\\"SUPPORTS:blk_0002_dfbb93989f8f\\\"], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}, {\\\"id\\\": \\\"blk_0002_dfbb93989f8f\\\", \\\"index\\\": 2, \\\"line_start\\\": 3, \\\"line_end\\\": 3, \\\"chars\\\": 58, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [\\\"DUPLICATES:blk_0001_dfbb93989f8f\\\", \\\"SUPPORTS:blk_0001_dfbb93989f8f\\\"], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}, {\\\"id\\\": \\\"blk_0003_68df246ed7b5\\\", \\\"index\\\": 3, \\\"line_start\\\": 5, \\\"line_end\\\": 5, \\\"chars\\\": 35, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}]}}\"}]}}",
+      "stderr": "",
+      "repeat": 0,
+      "pass": true
+    },
+    {
+      "name": "help",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "--help"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 213.791,
+      "stdout": "                                                                                                                        \n Usage: lcc [OPTIONS] COMMAND [ARGS]...                                                                                 \n                                                                                                                        \n Local Context Compiler (lcc): deterministic, local-first context optimization for LLM prompts.                         \n                                                                                                                        \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --version          Show the version and exit.                                                                        \u2502\n\u2502 --help             Show this message and exit.                                                                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 optimize            Clean, deduplicate, and structure INPUT into an optimized prompt and JSON report.                \u2502\n\u2502 prepare             Inspect INPUT first, then generate a prompt only when safe optimization is useful.               \u2502\n\u2502 bench               Report mechanical optimization and prepare-selection metrics for benchmark cases.                \u2502\n\u2502 semantic-retrieval  Report the Phase 2 semantic retrieval boundary status; no retrieval is performed.                \u2502\n\u2502 inspect             Analyze INPUT and emit a deterministic diagnostic report -- no prompt is generated.              \u2502\n\u2502 diff                Compare two text files: sizes, token deltas, and a unified diff \u2014 offline.                       \u2502\n\u2502 compact             Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe).          \u2502\n\u2502 explain             Explain a compaction report: why each block was kept, trimmed or dropped.                        \u2502\n\u2502 intake              Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC.        \u2502\n\u2502 agent               Manage and execute local LLM agents (Gemma 4 e4b, Qwen3.5-4B).                                   \u2502\n\u2502 route               Hybrid local/cloud context routing and evaluation.                                               \u2502\n\u2502 mcp                 Run the MCP (Model Context Protocol) server (see docs/MCP.md).                                   \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n",
+      "stderr": "",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "optimize",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "optimize",
+        "dossier.md",
+        "-o",
+        "prompt.md",
+        "-r",
+        "clean.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 188.205,
+      "stdout": "",
+      "stderr": "        lcc -- optimization summary        \nModel               gpt-4.1                \nToken counting      approximate (heuristic)\nOriginal tokens     37                     \nOptimized tokens    22                     \nToken savings       40.5%                  \nCompression ratio   0.595                  \nFull prompt tokens  182                    \nEst. cost before    0.000074 USD           \nEst. cost after     0.000044 USD           \nEst. cost savings   0.000030 USD           \nPrompt written to: prompt.md\nReport written to: clean.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates. tiktoken is not installed; used the       \u2502\n\u2502 heuristic estimator.                                                                                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "inspect",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "inspect",
+        "dossier.md",
+        "-r",
+        "inspect.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 181.494,
+      "stdout": "",
+      "stderr": "                lcc -- inspection summary                 \nSource                             file                   \nDecision                           skip                   \nReason                             small_input            \nCharacters                         154                    \nModel                              gpt-4.1                \nToken counting                     approximate (heuristic)\nInput tokens                       37                     \nProjected tokens                   22                     \nEst. input cost                    0.000074 USD           \nDuplicate paragraphs (projection)  1 exact + 0 near       \nProjected token savings            40.5%                  \nProjected char savings             39.6%                  \nReport written to: inspect.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates. tiktoken is not installed; used the       \u2502\n\u2502 heuristic estimator.                                                                                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "compact",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "compact",
+        "dossier.md",
+        "-q",
+        "reduce mobile booking friction",
+        "--provider",
+        "mechanical",
+        "-o",
+        "compacted.md",
+        "-r",
+        "report.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 191.917,
+      "stdout": "",
+      "stderr": "          lcc -- instant relevance compaction          \nProvider               mechanical                      \nBlocks                 3 total | 0 scored | 3 protected\nDropped                0                               \nSufficiency            1 check(s), 0 failure(s)        \nChars                  154 -> 154 (-0)                 \nReduction              0.0%                            \nTokens                 37 -> 37 (approximate)          \nSemantic guarantee     none                            \nFirst mutation offset  -                               \nPrefix sha256          d80bcf24ff8b7d9b...             \nwarning: approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer \nassets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before \nrelying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\nCompacted context written to: compacted.md\nCompaction report written to: report.json\n",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "explain",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "explain",
+        "report.json",
+        "--source",
+        "dossier.md"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 214.354,
+      "stdout": "lcc explain \u2014 why every block was kept, trimmed or dropped\n\nObjective           reduce mobile booking friction\nProvider            mechanical (requested mechanical)\nSemantic guarantee  none\nThresholds          keep >= 0.40, trim 0.20-0.40\nBlocks              3 total | 0 scored | 3 protected\nDecisions           3 keep | 0 trim | 0 drop\nChars               154 -> 154 (0.0% smaller)\nTokens              37 -> 37 (approximate)\nVerdict             worth a cache epoch\n\nDROPPED (0)\n-----------\n  (none)\n\nTRIMMED (0)\n-----------\n  (none)\n\nKEPT (3)\n--------\n  blk_0001_dfbb93989f8f    n/a   lines 1-1             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0002_dfbb93989f8f    n/a   lines 3-3             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0003_68df246ed7b5    n/a   lines 5-5             35 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: LOG: worker heartbeat ok in 554ms.\n\nWARNINGS (1)\n----------\n  - approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer assets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\n",
+      "stderr": "",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "diff",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "diff",
+        "dossier.md",
+        "compacted.md"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 183.056,
+      "stdout": "",
+      "stderr": "         lcc -- diff summary         \nIdentical  yes                       \nChars      154 -> 154 (+0)           \nLines      6 -> 6 (+0)               \nTokens     37 -> 37 (+0, approximate)\n",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "python_api",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "import json; from pathlib import Path; from lcc.msi import compile; r=compile('reduce mobile booking friction', Path('dossier.md').read_text(), task_id='ux-01'); print(json.dumps(r.to_dict(), sort_keys=True))"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 131.183,
+      "stdout": "{\"api_version\": \"msi-api-1.0\", \"context\": \"The mobile booking form erased patient input at step two.\\n\\nThe mobile booking form erased patient input at step two.\\n\\nLOG: worker heartbeat ok in 554ms.\\n\\n\", \"degraded\": false, \"plan\": {\"context_profile\": \"minimal\", \"escalation_policy\": {\"escalate_to\": \"frontier\", \"max_restorations\": 4, \"max_retries\": 2}, \"fallbacks\": [{\"action\": \"RESTORE_CONTEXT\", \"trigger\": \"VERIFY_FAIL\"}, {\"action\": \"INCREASE_REASONING\", \"trigger\": \"LOW_CONF\"}, {\"action\": \"RETRY\", \"trigger\": \"TIMEOUT\"}], \"model_class\": \"local_small\", \"reasoning_budget\": \"low\", \"schema_version\": \"inference-plan/0.1\", \"tools\": [], \"verification_profile\": \"standard\"}, \"provider_used\": \"mechanical\", \"receipt\": {\"cost\": {\"cost_usd\": 0.0, \"latency_ms\": 0, \"tokens_in\": 37, \"tokens_out\": 37}, \"decision_events\": [{\"at\": \"2026-10-03T17:03:39.396500+00:00\", \"event\": \"routed\", \"reason\": \"msi.compile:deterministic:LOCAL_THEN_VERIFY\"}, {\"at\": \"2026-10-03T17:03:39.396708+00:00\", \"event\": \"dropped\", \"reason\": \"mechanical:0-dropped:0-trimmed\"}], \"model\": {\"class\": \"local_small\", \"reasoning_budget\": \"low\"}, \"omitted_units\": [], \"outcome\": {\"evaluation\": \"PASS\", \"result\": \"\"}, \"receipt_id\": \"ux-01-r1\", \"restorations\": {\"escalations\": [], \"restored\": [], \"retries\": 0}, \"schema_version\": \"inference-receipt/0.1\", \"selected_units\": [\"blk_0001_dfbb93989f8f\", \"blk_0002_dfbb93989f8f\", \"blk_0003_68df246ed7b5\"], \"task_id\": \"ux-01\", \"timestamps\": {\"finished_at\": \"2026-10-03T17:03:39.396716+00:00\", \"started_at\": \"2026-10-03T17:03:39.396715+00:00\"}, \"tools_used\": [], \"verification\": {\"profile\": \"standard\", \"result\": \"PASS\"}, \"versions\": {\"compiler\": \"lcc-1.0.0\", \"dataset\": \"n/a\", \"evaluator\": \"verify-1.0\", \"model\": \"local_small\", \"policy\": \"planner-1.0\", \"schema\": \"inference-receipt/0.1\"}}, \"sufficiency\": {\"checks\": 1, \"failures\": 0, \"restored\": 0, \"result\": \"PASS\"}}\n",
+      "stderr": "",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "missing_file",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "compact",
+        "missing.md",
+        "-q",
+        "reduce mobile booking friction"
+      ],
+      "stdin": null,
+      "exit_code": 1,
+      "elapsed_ms": 175.713,
+      "stdout": "",
+      "stderr": "Error: input file not found: missing.md; check the path or pass '-' to read from stdin\n",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "invalid_report",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "explain",
+        "bad.json"
+      ],
+      "stdin": null,
+      "exit_code": 1,
+      "elapsed_ms": 183.408,
+      "stdout": "",
+      "stderr": "Error: bad.json is not valid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1); re-run \n`lcc compact -r report.json` to regenerate it\n",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "invalid_api",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "from lcc.msi import compile\ntry: compile('', 'text')\nexcept ValueError as e: print(e)\nelse: raise SystemExit(1)"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 127.884,
+      "stdout": "compile() needs a non-empty task; e.g. task='summarize the outage'\n",
+      "stderr": "",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "retrieval_status",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "semantic-retrieval"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 171.973,
+      "stdout": "{\n  \"schema_version\": \"semantic-retrieval-0.1\",\n  \"enabled\": false,\n  \"status\": \"disabled\",\n  \"reason_code\": \"semantic_retrieval_disabled\",\n  \"message\": \"Semantic retrieval is disabled by default. Deterministic lcc commands do not retrieve, rank, embed, call models, or touch the network.\",\n  \"top_k\": 8,\n  \"index_manifest_present\": false,\n  \"embedding_assets_present\": false,\n  \"retrieval_performed\": false\n}\n",
+      "stderr": "",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "mcp",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "mcp"
+      ],
+      "stdin": "Content-Length: 65\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"initialize\", \"params\": {}}Content-Length: 65\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/list\", \"params\": {}}Content-Length: 315\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 3, \"method\": \"tools/call\", \"params\": {\"name\": \"compact\", \"arguments\": {\"text\": \"The mobile booking form erased patient input at step two.\\n\\nThe mobile booking form erased patient input at step two.\\n\\nLOG: worker heartbeat ok in 554ms.\\n\\n\", \"question\": \"reduce mobile booking friction\"}}}",
+      "exit_code": 0,
+      "elapsed_ms": 177.465,
+      "stdout": "Content-Length: 154\n\n{\"jsonrpc\": \"2.0\", \"id\": 1, \"result\": {\"protocolVersion\": \"2024-11-05\", \"capabilities\": {\"tools\": {}}, \"serverInfo\": {\"name\": \"lcc\", \"version\": \"1.0.0\"}}}Content-Length: 3481\n\n{\"jsonrpc\": \"2.0\", \"id\": 2, \"result\": {\"tools\": [{\"name\": \"compact\", \"description\": \"Drop context blocks irrelevant to an objective. Default provider mechanical is fully offline (no key, no network); laya is offline semantic (needs the [laya] extra, else honest mechanical fallback); jev needs TYPESAFE_API_KEY. Fail-safe: failures keep content.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\"}, \"provider\": {\"type\": \"string\", \"enum\": [\"auto\", \"jev\", \"laya\", \"mechanical\"], \"default\": \"mechanical\"}, \"threshold\": {\"type\": \"number\", \"default\": 0.4}}, \"required\": [\"text\", \"question\"]}}, {\"name\": \"compact_transcript\", \"description\": \"Tool-call compaction for a session transcript: pairs each tool call with its result, pins the first and newest messages, and drops the pairs a semantic judge says are spent \\u2014 kept messages stay verbatim, so nothing is summarized. Provider 'laya' runs locally and offline (needs the [laya] extra); 'jev' is remote and needs TYPESAFE_API_KEY. Every failure keeps the call.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"messages\": {\"type\": \"array\", \"description\": \"Messages with role/text and toolUses/toolResults blocks (Claude Code hook shape) or tool_calls/tool_results.\", \"items\": {\"type\": \"object\"}}, \"question\": {\"type\": \"string\"}, \"provider\": {\"type\": \"string\", \"enum\": [\"jev\", \"laya\", \"auto\"], \"default\": \"jev\", \"description\": \"Semantic judge. 'laya' is local and offline (needs the [laya] extra); 'jev' is the remote TypeSafe System 1 and needs TYPESAFE_API_KEY. 'auto' prefers Jev.\"}, \"threshold\": {\"type\": \"number\", \"default\": 0.5}, \"preserve_recent\": {\"type\": \"integer\", \"default\": 6}, \"trim_head_chars\": {\"type\": \"integer\", \"default\": 300}, \"max_state_tokens\": {\"type\": \"integer\", \"default\": 25000}, \"max_request_tokens\": {\"type\": \"integer\", \"default\": 30000}, \"max_workers\": {\"type\": \"integer\", \"default\": 4}, \"min_reduction\": {\"type\": \"number\", \"default\": 0.25}, \"jev_model\": {\"type\": \"string\", \"default\": \"jev-latest\"}, \"laya_model\": {\"type\": \"string\"}}, \"required\": [\"messages\", \"question\"]}}, {\"name\": \"inspect\", \"description\": \"Read-only diagnostic inspection of a text: tokens, structure, duplication, cleanup projection, and recommendation. Offline.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}}, \"required\": [\"text\"]}}, {\"name\": \"prepare\", \"description\": \"Inspect-first deterministic prompt preparation: runs inspection, then lexical selection + safe optimization only when recommended. Never summarizes or paraphrases. Offline.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\", \"default\": \"\"}}, \"required\": [\"text\"]}}, {\"name\": \"explain\", \"description\": \"Explain a relevance-compaction report (as produced by compact): why every block was kept, trimmed, or dropped. Never re-runs, never touches the network.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"report\": {\"type\": \"object\"}, \"source_text\": {\"type\": \"string\"}, \"only\": {\"type\": \"string\", \"enum\": [\"keep\", \"trim\", \"drop\"]}, \"limit\": {\"type\": \"integer\"}}, \"required\": [\"report\"]}}, {\"name\": \"intake\", \"description\": \"Intake triage for raw prompt input: readiness, intent, clarifying questions, assumptions, and a compiled prompt. Offline by default.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\", \"default\": \"\"}}, \"required\": [\"text\"]}}]}}Content-Length: 3981\n\n{\"jsonrpc\": \"2.0\", \"id\": 3, \"result\": {\"content\": [{\"type\": \"text\", \"text\": \"{\\\"compacted_text\\\": \\\"The mobile booking form erased patient input at step two.\\\\n\\\\nThe mobile booking form erased patient input at step two.\\\\n\\\\nLOG: worker heartbeat ok in 554ms.\\\\n\\\\n\\\", \\\"report\\\": {\\\"schema_version\\\": \\\"relevance-compaction-1.2\\\", \\\"provider_requested\\\": \\\"mechanical\\\", \\\"provider_used\\\": \\\"mechanical\\\", \\\"degraded\\\": false, \\\"objective\\\": \\\"reduce mobile booking friction\\\", \\\"threshold\\\": 0.4, \\\"trim_threshold\\\": 0.2, \\\"trim_head_chars\\\": 300, \\\"blocks_total\\\": 3, \\\"blocks_scored\\\": 0, \\\"blocks_protected\\\": 3, \\\"blocks_dropped\\\": 0, \\\"blocks_trimmed\\\": 0, \\\"blocks_restored\\\": 0, \\\"chars_before\\\": 154, \\\"chars_after\\\": 154, \\\"chars_removed\\\": 0, \\\"tokens_before\\\": 37, \\\"tokens_after\\\": 37, \\\"token_count_method\\\": \\\"approximate\\\", \\\"tokenizer\\\": \\\"heuristic\\\", \\\"tokenizer_id\\\": \\\"heuristic-v1\\\", \\\"tokenizer_version\\\": null, \\\"is_estimate\\\": true, \\\"jev_model_requested\\\": \\\"jev-latest\\\", \\\"jev_model_resolved\\\": null, \\\"laya_model_requested\\\": null, \\\"laya_model_resolved\\\": null, \\\"laya_context_limit\\\": null, \\\"context_budget_used\\\": null, \\\"laya_temperature\\\": null, \\\"reduction_ratio\\\": 0.0, \\\"worth_it\\\": true, \\\"min_reduction\\\": 0.25, \\\"calls\\\": 0, \\\"latency_ms\\\": 0, \\\"compilation_ms\\\": 0, \\\"reused_decisions\\\": 0, \\\"semantic_decisions\\\": 0, \\\"semantic_cache_hits\\\": 0, \\\"semantic_cache_misses\\\": 0, \\\"sufficiency_checks\\\": 1, \\\"sufficiency_failures\\\": 0, \\\"sufficiency_confidence\\\": 1.0, \\\"relationship_edges\\\": 2, \\\"marker_tokens\\\": 0, \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"trim_policy_version\\\": \\\"trim-1.2\\\", \\\"parser_version\\\": \\\"blocks-1.0\\\", \\\"protection_version\\\": \\\"protection-1.1\\\", \\\"relationship_version\\\": \\\"relationships-1.0\\\", \\\"prefix_protected\\\": false, \\\"prefix_untouched\\\": true, \\\"first_mutation_offset\\\": null, \\\"prefix_sha256\\\": \\\"d80bcf24ff8b7d9b6c7653687c82c4e71ed730147829d8e7e9732a9fa6aab563\\\", \\\"output_sha256\\\": \\\"d80bcf24ff8b7d9b6c7653687c82c4e71ed730147829d8e7e9732a9fa6aab563\\\", \\\"degradation_reason\\\": null, \\\"semantic_guarantee\\\": \\\"none\\\", \\\"invalidated_tokens\\\": 0, \\\"break_even_reuses\\\": null, \\\"needs_review\\\": false, \\\"review_reason\\\": null, \\\"semantic_verifier_sufficient\\\": null, \\\"semantic_verifier_decision\\\": null, \\\"semantic_verifier_confidence\\\": null, \\\"semantic_verifier_model\\\": null, \\\"semantic_verifier_missing\\\": [], \\\"semantic_verifier_risks\\\": [], \\\"warnings\\\": [\\\"approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer assets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\\\"], \\\"decisions\\\": [{\\\"id\\\": \\\"blk_0001_dfbb93989f8f\\\", \\\"index\\\": 1, \\\"line_start\\\": 1, \\\"line_end\\\": 1, \\\"chars\\\": 58, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [\\\"DUPLICATES:blk_0002_dfbb93989f8f\\\", \\\"SUPPORTS:blk_0002_dfbb93989f8f\\\"], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}, {\\\"id\\\": \\\"blk_0002_dfbb93989f8f\\\", \\\"index\\\": 2, \\\"line_start\\\": 3, \\\"line_end\\\": 3, \\\"chars\\\": 58, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [\\\"DUPLICATES:blk_0001_dfbb93989f8f\\\", \\\"SUPPORTS:blk_0001_dfbb93989f8f\\\"], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}, {\\\"id\\\": \\\"blk_0003_68df246ed7b5\\\", \\\"index\\\": 3, \\\"line_start\\\": 5, \\\"line_end\\\": 5, \\\"chars\\\": 35, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}]}}\"}]}}",
+      "stderr": "",
+      "repeat": 1,
+      "pass": true
+    },
+    {
+      "name": "help",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "--help"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 202.675,
+      "stdout": "                                                                                                                        \n Usage: lcc [OPTIONS] COMMAND [ARGS]...                                                                                 \n                                                                                                                        \n Local Context Compiler (lcc): deterministic, local-first context optimization for LLM prompts.                         \n                                                                                                                        \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --version          Show the version and exit.                                                                        \u2502\n\u2502 --help             Show this message and exit.                                                                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 optimize            Clean, deduplicate, and structure INPUT into an optimized prompt and JSON report.                \u2502\n\u2502 prepare             Inspect INPUT first, then generate a prompt only when safe optimization is useful.               \u2502\n\u2502 bench               Report mechanical optimization and prepare-selection metrics for benchmark cases.                \u2502\n\u2502 semantic-retrieval  Report the Phase 2 semantic retrieval boundary status; no retrieval is performed.                \u2502\n\u2502 inspect             Analyze INPUT and emit a deterministic diagnostic report -- no prompt is generated.              \u2502\n\u2502 diff                Compare two text files: sizes, token deltas, and a unified diff \u2014 offline.                       \u2502\n\u2502 compact             Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe).          \u2502\n\u2502 explain             Explain a compaction report: why each block was kept, trimmed or dropped.                        \u2502\n\u2502 intake              Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC.        \u2502\n\u2502 agent               Manage and execute local LLM agents (Gemma 4 e4b, Qwen3.5-4B).                                   \u2502\n\u2502 route               Hybrid local/cloud context routing and evaluation.                                               \u2502\n\u2502 mcp                 Run the MCP (Model Context Protocol) server (see docs/MCP.md).                                   \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n",
+      "stderr": "",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "optimize",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "optimize",
+        "dossier.md",
+        "-o",
+        "prompt.md",
+        "-r",
+        "clean.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 180.148,
+      "stdout": "",
+      "stderr": "        lcc -- optimization summary        \nModel               gpt-4.1                \nToken counting      approximate (heuristic)\nOriginal tokens     37                     \nOptimized tokens    22                     \nToken savings       40.5%                  \nCompression ratio   0.595                  \nFull prompt tokens  182                    \nEst. cost before    0.000074 USD           \nEst. cost after     0.000044 USD           \nEst. cost savings   0.000030 USD           \nPrompt written to: prompt.md\nReport written to: clean.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates. tiktoken is not installed; used the       \u2502\n\u2502 heuristic estimator.                                                                                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "inspect",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "inspect",
+        "dossier.md",
+        "-r",
+        "inspect.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 182.719,
+      "stdout": "",
+      "stderr": "                lcc -- inspection summary                 \nSource                             file                   \nDecision                           skip                   \nReason                             small_input            \nCharacters                         154                    \nModel                              gpt-4.1                \nToken counting                     approximate (heuristic)\nInput tokens                       37                     \nProjected tokens                   22                     \nEst. input cost                    0.000074 USD           \nDuplicate paragraphs (projection)  1 exact + 0 near       \nProjected token savings            40.5%                  \nProjected char savings             39.6%                  \nReport written to: inspect.json\n\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Warnings \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 - Token counts are approximate; treat token and cost figures as estimates. tiktoken is not installed; used the       \u2502\n\u2502 heuristic estimator.                                                                                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "compact",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "compact",
+        "dossier.md",
+        "-q",
+        "reduce mobile booking friction",
+        "--provider",
+        "mechanical",
+        "-o",
+        "compacted.md",
+        "-r",
+        "report.json"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 188.55,
+      "stdout": "",
+      "stderr": "          lcc -- instant relevance compaction          \nProvider               mechanical                      \nBlocks                 3 total | 0 scored | 3 protected\nDropped                0                               \nSufficiency            1 check(s), 0 failure(s)        \nChars                  154 -> 154 (-0)                 \nReduction              0.0%                            \nTokens                 37 -> 37 (approximate)          \nSemantic guarantee     none                            \nFirst mutation offset  -                               \nPrefix sha256          d80bcf24ff8b7d9b...             \nwarning: approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer \nassets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before \nrelying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\nCompacted context written to: compacted.md\nCompaction report written to: report.json\n",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "explain",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "explain",
+        "report.json",
+        "--source",
+        "dossier.md"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 179.378,
+      "stdout": "lcc explain \u2014 why every block was kept, trimmed or dropped\n\nObjective           reduce mobile booking friction\nProvider            mechanical (requested mechanical)\nSemantic guarantee  none\nThresholds          keep >= 0.40, trim 0.20-0.40\nBlocks              3 total | 0 scored | 3 protected\nDecisions           3 keep | 0 trim | 0 drop\nChars               154 -> 154 (0.0% smaller)\nTokens              37 -> 37 (approximate)\nVerdict             worth a cache epoch\n\nDROPPED (0)\n-----------\n  (none)\n\nTRIMMED (0)\n-----------\n  (none)\n\nKEPT (3)\n--------\n  blk_0001_dfbb93989f8f    n/a   lines 1-1             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0002_dfbb93989f8f    n/a   lines 3-3             58 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: The mobile booking form erased patient input at step two.\n  blk_0003_68df246ed7b5    n/a   lines 5-5             35 chars  protected\n      why: below the scoring floor, so it was never judged\n      text: LOG: worker heartbeat ok in 554ms.\n\nWARNINGS (1)\n----------\n  - approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer assets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\n",
+      "stderr": "",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "diff",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "diff",
+        "dossier.md",
+        "compacted.md"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 178.392,
+      "stdout": "",
+      "stderr": "         lcc -- diff summary         \nIdentical  yes                       \nChars      154 -> 154 (+0)           \nLines      6 -> 6 (+0)               \nTokens     37 -> 37 (+0, approximate)\n",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "python_api",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "import json; from pathlib import Path; from lcc.msi import compile; r=compile('reduce mobile booking friction', Path('dossier.md').read_text(), task_id='ux-01'); print(json.dumps(r.to_dict(), sort_keys=True))"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 131.004,
+      "stdout": "{\"api_version\": \"msi-api-1.0\", \"context\": \"The mobile booking form erased patient input at step two.\\n\\nThe mobile booking form erased patient input at step two.\\n\\nLOG: worker heartbeat ok in 554ms.\\n\\n\", \"degraded\": false, \"plan\": {\"context_profile\": \"minimal\", \"escalation_policy\": {\"escalate_to\": \"frontier\", \"max_restorations\": 4, \"max_retries\": 2}, \"fallbacks\": [{\"action\": \"RESTORE_CONTEXT\", \"trigger\": \"VERIFY_FAIL\"}, {\"action\": \"INCREASE_REASONING\", \"trigger\": \"LOW_CONF\"}, {\"action\": \"RETRY\", \"trigger\": \"TIMEOUT\"}], \"model_class\": \"local_small\", \"reasoning_budget\": \"low\", \"schema_version\": \"inference-plan/0.1\", \"tools\": [], \"verification_profile\": \"standard\"}, \"provider_used\": \"mechanical\", \"receipt\": {\"cost\": {\"cost_usd\": 0.0, \"latency_ms\": 0, \"tokens_in\": 37, \"tokens_out\": 37}, \"decision_events\": [{\"at\": \"2026-10-03T17:03:41.477960+00:00\", \"event\": \"routed\", \"reason\": \"msi.compile:deterministic:LOCAL_THEN_VERIFY\"}, {\"at\": \"2026-10-03T17:03:41.478179+00:00\", \"event\": \"dropped\", \"reason\": \"mechanical:0-dropped:0-trimmed\"}], \"model\": {\"class\": \"local_small\", \"reasoning_budget\": \"low\"}, \"omitted_units\": [], \"outcome\": {\"evaluation\": \"PASS\", \"result\": \"\"}, \"receipt_id\": \"ux-01-r1\", \"restorations\": {\"escalations\": [], \"restored\": [], \"retries\": 0}, \"schema_version\": \"inference-receipt/0.1\", \"selected_units\": [\"blk_0001_dfbb93989f8f\", \"blk_0002_dfbb93989f8f\", \"blk_0003_68df246ed7b5\"], \"task_id\": \"ux-01\", \"timestamps\": {\"finished_at\": \"2026-10-03T17:03:41.478187+00:00\", \"started_at\": \"2026-10-03T17:03:41.478185+00:00\"}, \"tools_used\": [], \"verification\": {\"profile\": \"standard\", \"result\": \"PASS\"}, \"versions\": {\"compiler\": \"lcc-1.0.0\", \"dataset\": \"n/a\", \"evaluator\": \"verify-1.0\", \"model\": \"local_small\", \"policy\": \"planner-1.0\", \"schema\": \"inference-receipt/0.1\"}}, \"sufficiency\": {\"checks\": 1, \"failures\": 0, \"restored\": 0, \"result\": \"PASS\"}}\n",
+      "stderr": "",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "missing_file",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "compact",
+        "missing.md",
+        "-q",
+        "reduce mobile booking friction"
+      ],
+      "stdin": null,
+      "exit_code": 1,
+      "elapsed_ms": 178.856,
+      "stdout": "",
+      "stderr": "Error: input file not found: missing.md; check the path or pass '-' to read from stdin\n",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "invalid_report",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "explain",
+        "bad.json"
+      ],
+      "stdin": null,
+      "exit_code": 1,
+      "elapsed_ms": 177.609,
+      "stdout": "",
+      "stderr": "Error: bad.json is not valid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1); re-run \n`lcc compact -r report.json` to regenerate it\n",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "invalid_api",
+      "command": [
+        "<workspace>/venv/bin/python",
+        "-c",
+        "from lcc.msi import compile\ntry: compile('', 'text')\nexcept ValueError as e: print(e)\nelse: raise SystemExit(1)"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 135.516,
+      "stdout": "compile() needs a non-empty task; e.g. task='summarize the outage'\n",
+      "stderr": "",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "retrieval_status",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "semantic-retrieval"
+      ],
+      "stdin": null,
+      "exit_code": 0,
+      "elapsed_ms": 184.272,
+      "stdout": "{\n  \"schema_version\": \"semantic-retrieval-0.1\",\n  \"enabled\": false,\n  \"status\": \"disabled\",\n  \"reason_code\": \"semantic_retrieval_disabled\",\n  \"message\": \"Semantic retrieval is disabled by default. Deterministic lcc commands do not retrieve, rank, embed, call models, or touch the network.\",\n  \"top_k\": 8,\n  \"index_manifest_present\": false,\n  \"embedding_assets_present\": false,\n  \"retrieval_performed\": false\n}\n",
+      "stderr": "",
+      "repeat": 2,
+      "pass": true
+    },
+    {
+      "name": "mcp",
+      "command": [
+        "<workspace>/venv/bin/lcc",
+        "mcp"
+      ],
+      "stdin": "Content-Length: 65\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"initialize\", \"params\": {}}Content-Length: 65\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"tools/list\", \"params\": {}}Content-Length: 315\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 3, \"method\": \"tools/call\", \"params\": {\"name\": \"compact\", \"arguments\": {\"text\": \"The mobile booking form erased patient input at step two.\\n\\nThe mobile booking form erased patient input at step two.\\n\\nLOG: worker heartbeat ok in 554ms.\\n\\n\", \"question\": \"reduce mobile booking friction\"}}}",
+      "exit_code": 0,
+      "elapsed_ms": 180.462,
+      "stdout": "Content-Length: 154\n\n{\"jsonrpc\": \"2.0\", \"id\": 1, \"result\": {\"protocolVersion\": \"2024-11-05\", \"capabilities\": {\"tools\": {}}, \"serverInfo\": {\"name\": \"lcc\", \"version\": \"1.0.0\"}}}Content-Length: 3481\n\n{\"jsonrpc\": \"2.0\", \"id\": 2, \"result\": {\"tools\": [{\"name\": \"compact\", \"description\": \"Drop context blocks irrelevant to an objective. Default provider mechanical is fully offline (no key, no network); laya is offline semantic (needs the [laya] extra, else honest mechanical fallback); jev needs TYPESAFE_API_KEY. Fail-safe: failures keep content.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\"}, \"provider\": {\"type\": \"string\", \"enum\": [\"auto\", \"jev\", \"laya\", \"mechanical\"], \"default\": \"mechanical\"}, \"threshold\": {\"type\": \"number\", \"default\": 0.4}}, \"required\": [\"text\", \"question\"]}}, {\"name\": \"compact_transcript\", \"description\": \"Tool-call compaction for a session transcript: pairs each tool call with its result, pins the first and newest messages, and drops the pairs a semantic judge says are spent \\u2014 kept messages stay verbatim, so nothing is summarized. Provider 'laya' runs locally and offline (needs the [laya] extra); 'jev' is remote and needs TYPESAFE_API_KEY. Every failure keeps the call.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"messages\": {\"type\": \"array\", \"description\": \"Messages with role/text and toolUses/toolResults blocks (Claude Code hook shape) or tool_calls/tool_results.\", \"items\": {\"type\": \"object\"}}, \"question\": {\"type\": \"string\"}, \"provider\": {\"type\": \"string\", \"enum\": [\"jev\", \"laya\", \"auto\"], \"default\": \"jev\", \"description\": \"Semantic judge. 'laya' is local and offline (needs the [laya] extra); 'jev' is the remote TypeSafe System 1 and needs TYPESAFE_API_KEY. 'auto' prefers Jev.\"}, \"threshold\": {\"type\": \"number\", \"default\": 0.5}, \"preserve_recent\": {\"type\": \"integer\", \"default\": 6}, \"trim_head_chars\": {\"type\": \"integer\", \"default\": 300}, \"max_state_tokens\": {\"type\": \"integer\", \"default\": 25000}, \"max_request_tokens\": {\"type\": \"integer\", \"default\": 30000}, \"max_workers\": {\"type\": \"integer\", \"default\": 4}, \"min_reduction\": {\"type\": \"number\", \"default\": 0.25}, \"jev_model\": {\"type\": \"string\", \"default\": \"jev-latest\"}, \"laya_model\": {\"type\": \"string\"}}, \"required\": [\"messages\", \"question\"]}}, {\"name\": \"inspect\", \"description\": \"Read-only diagnostic inspection of a text: tokens, structure, duplication, cleanup projection, and recommendation. Offline.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}}, \"required\": [\"text\"]}}, {\"name\": \"prepare\", \"description\": \"Inspect-first deterministic prompt preparation: runs inspection, then lexical selection + safe optimization only when recommended. Never summarizes or paraphrases. Offline.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\", \"default\": \"\"}}, \"required\": [\"text\"]}}, {\"name\": \"explain\", \"description\": \"Explain a relevance-compaction report (as produced by compact): why every block was kept, trimmed, or dropped. Never re-runs, never touches the network.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"report\": {\"type\": \"object\"}, \"source_text\": {\"type\": \"string\"}, \"only\": {\"type\": \"string\", \"enum\": [\"keep\", \"trim\", \"drop\"]}, \"limit\": {\"type\": \"integer\"}}, \"required\": [\"report\"]}}, {\"name\": \"intake\", \"description\": \"Intake triage for raw prompt input: readiness, intent, clarifying questions, assumptions, and a compiled prompt. Offline by default.\", \"inputSchema\": {\"type\": \"object\", \"properties\": {\"text\": {\"type\": \"string\"}, \"question\": {\"type\": \"string\", \"default\": \"\"}}, \"required\": [\"text\"]}}]}}Content-Length: 3981\n\n{\"jsonrpc\": \"2.0\", \"id\": 3, \"result\": {\"content\": [{\"type\": \"text\", \"text\": \"{\\\"compacted_text\\\": \\\"The mobile booking form erased patient input at step two.\\\\n\\\\nThe mobile booking form erased patient input at step two.\\\\n\\\\nLOG: worker heartbeat ok in 554ms.\\\\n\\\\n\\\", \\\"report\\\": {\\\"schema_version\\\": \\\"relevance-compaction-1.2\\\", \\\"provider_requested\\\": \\\"mechanical\\\", \\\"provider_used\\\": \\\"mechanical\\\", \\\"degraded\\\": false, \\\"objective\\\": \\\"reduce mobile booking friction\\\", \\\"threshold\\\": 0.4, \\\"trim_threshold\\\": 0.2, \\\"trim_head_chars\\\": 300, \\\"blocks_total\\\": 3, \\\"blocks_scored\\\": 0, \\\"blocks_protected\\\": 3, \\\"blocks_dropped\\\": 0, \\\"blocks_trimmed\\\": 0, \\\"blocks_restored\\\": 0, \\\"chars_before\\\": 154, \\\"chars_after\\\": 154, \\\"chars_removed\\\": 0, \\\"tokens_before\\\": 37, \\\"tokens_after\\\": 37, \\\"token_count_method\\\": \\\"approximate\\\", \\\"tokenizer\\\": \\\"heuristic\\\", \\\"tokenizer_id\\\": \\\"heuristic-v1\\\", \\\"tokenizer_version\\\": null, \\\"is_estimate\\\": true, \\\"jev_model_requested\\\": \\\"jev-latest\\\", \\\"jev_model_resolved\\\": null, \\\"laya_model_requested\\\": null, \\\"laya_model_resolved\\\": null, \\\"laya_context_limit\\\": null, \\\"context_budget_used\\\": null, \\\"laya_temperature\\\": null, \\\"reduction_ratio\\\": 0.0, \\\"worth_it\\\": true, \\\"min_reduction\\\": 0.25, \\\"calls\\\": 0, \\\"latency_ms\\\": 0, \\\"compilation_ms\\\": 0, \\\"reused_decisions\\\": 0, \\\"semantic_decisions\\\": 0, \\\"semantic_cache_hits\\\": 0, \\\"semantic_cache_misses\\\": 0, \\\"sufficiency_checks\\\": 1, \\\"sufficiency_failures\\\": 0, \\\"sufficiency_confidence\\\": 1.0, \\\"relationship_edges\\\": 2, \\\"marker_tokens\\\": 0, \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"trim_policy_version\\\": \\\"trim-1.2\\\", \\\"parser_version\\\": \\\"blocks-1.0\\\", \\\"protection_version\\\": \\\"protection-1.1\\\", \\\"relationship_version\\\": \\\"relationships-1.0\\\", \\\"prefix_protected\\\": false, \\\"prefix_untouched\\\": true, \\\"first_mutation_offset\\\": null, \\\"prefix_sha256\\\": \\\"d80bcf24ff8b7d9b6c7653687c82c4e71ed730147829d8e7e9732a9fa6aab563\\\", \\\"output_sha256\\\": \\\"d80bcf24ff8b7d9b6c7653687c82c4e71ed730147829d8e7e9732a9fa6aab563\\\", \\\"degradation_reason\\\": null, \\\"semantic_guarantee\\\": \\\"none\\\", \\\"invalidated_tokens\\\": 0, \\\"break_even_reuses\\\": null, \\\"needs_review\\\": false, \\\"review_reason\\\": null, \\\"semantic_verifier_sufficient\\\": null, \\\"semantic_verifier_decision\\\": null, \\\"semantic_verifier_confidence\\\": null, \\\"semantic_verifier_model\\\": null, \\\"semantic_verifier_missing\\\": [], \\\"semantic_verifier_risks\\\": [], \\\"warnings\\\": [\\\"approximate_token_count: every token figure in this report is an estimate, not a measurement. The tokenizer assets are not cached locally and lcc will not fetch them. Set TIKTOKEN_CACHE_DIR to a populated directory before relying on any token or cost decision, or pass --require-exact-tokens to fail instead of guessing.\\\"], \\\"decisions\\\": [{\\\"id\\\": \\\"blk_0001_dfbb93989f8f\\\", \\\"index\\\": 1, \\\"line_start\\\": 1, \\\"line_end\\\": 1, \\\"chars\\\": 58, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [\\\"DUPLICATES:blk_0002_dfbb93989f8f\\\", \\\"SUPPORTS:blk_0002_dfbb93989f8f\\\"], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}, {\\\"id\\\": \\\"blk_0002_dfbb93989f8f\\\", \\\"index\\\": 2, \\\"line_start\\\": 3, \\\"line_end\\\": 3, \\\"chars\\\": 58, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [\\\"DUPLICATES:blk_0001_dfbb93989f8f\\\", \\\"SUPPORTS:blk_0001_dfbb93989f8f\\\"], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}, {\\\"id\\\": \\\"blk_0003_68df246ed7b5\\\", \\\"index\\\": 3, \\\"line_start\\\": 5, \\\"line_end\\\": 5, \\\"chars\\\": 35, \\\"decision\\\": \\\"keep\\\", \\\"source\\\": \\\"protected\\\", \\\"score\\\": null, \\\"reason\\\": \\\"short_block\\\", \\\"chars_after\\\": null, \\\"confidence\\\": null, \\\"relationships\\\": [], \\\"policy_version\\\": \\\"relevance-compaction-1.2\\\", \\\"content_type\\\": \\\"prose\\\"}]}}\"}]}}",
+      "stderr": "",
+      "repeat": 2,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "help": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 213.791
+    },
+    "optimize": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 188.205
+    },
+    "inspect": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 182.719
+    },
+    "compact": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 188.55
+    },
+    "explain": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 179.611
+    },
+    "diff": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 183.056
+    },
+    "python_api": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 131.183
+    },
+    "missing_file": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 178.856
+    },
+    "invalid_report": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 183.408
+    },
+    "invalid_api": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 135.516
+    },
+    "retrieval_status": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 184.272
+    },
+    "mcp": {
+      "n": 3,
+      "passed": 3,
+      "median_ms": 178.425
+    }
+  }
+}

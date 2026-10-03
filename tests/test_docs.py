@@ -175,7 +175,8 @@ def test_jev_path_is_documented_consistently() -> None:
         assert phrase in doc, phrase
 
     readme = _read("README.md")
-    assert "Jev-powered relevance compaction that never summarizes" in readme
+    assert "optional path" in readme
+    assert "semantic_guarantee: none" in readme
     assert path in readme
     assert "--provider jev" in readme
     assert path in _read("docs/QUICKSTART.md")
