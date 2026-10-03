@@ -1,53 +1,86 @@
 <div align="center">
 
-# ⚡ Local Context Compiler (`lcc`)
+# Local Context Compiler
 
-**Jev-powered relevance compaction that never summarizes, and the local-first engine around it: deterministic context optimization, intake triage, exact token accounting, and local LLM agents (Gemma 4 e4b & Qwen3.5-4B).**
+**Jev-powered relevance compaction that never summarizes.**
+
+Give it a long document, transcript, or tool log plus a goal. It returns only the blocks
+that serve that goal, kept byte for byte, and a report naming every block it dropped.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 [![Node 18+](https://img.shields.io/badge/node-18%2B-green.svg)](package.json)
-[![GitHub Stars](https://img.shields.io/github/stars/lucasmartins-ai/lcc?style=social)](https://github.com/lucasmartins-ai/lcc)
-[![CI Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/lucasmartins-ai/lcc/actions)
-[![Local-First](https://img.shields.io/badge/privacy-100%25_local_--_zero_telemetry-success.svg)](SECURITY.md)
-[![TypeSafe Jev](https://img.shields.io/badge/TypeSafe-Jev_powered_compaction-blueviolet.svg)](docs/JEV.md)
+[![CI](https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasmartins-ai/lcc/actions)
+[![Local-first](https://img.shields.io/badge/privacy-local--zero_telemetry-success.svg)](SECURITY.md)
+
+[ChatGPT plugin](plugins/chatgpt/plugin.json) · [Claude Code plugin](docs/CLAUDE_CODE.md) ·
+[Docs](docs/QUICKSTART.md) · [Roadmap](docs/roadmap.md)
 
 </div>
 
 ---
 
-## 📌 Table of Contents
+## Why
 
-- [The Jev path](#-the-jev-path-fastest-way-to-the-strongest-pass)
-- [Overview & The 3 Pillars](#-overview--the-3-pillars)
-- [Start here: QUICKSTART and MCP Server](#-start-here-quickstart-and-mcp-server)
-- [See it work](#-see-it-work)
-- [Does it work without a model API key?](#-does-it-work-without-a-model-api-key-yes-and-that-is-the-default-path)
-- [Proven Token Savings & Cache Alignment](#-proven-token-savings--cache-alignment)
-- [Single-Step Installation](#-single-step-installation)
-- [The Unified Workflow](#-the-unified-workflow)
-- [CLI Usage Guide](#-cli-usage-guide)
-  - [`lcc intake` — Prompt Intake & Triage](#1-lcc-intake--prompt-intake--triage)
-  - [`lcc optimize` — Direct Context Optimization](#2-lcc-optimize--direct-context-optimization)
-  - [`lcc inspect` — Read-Only Diagnostic Inspection](#3-lcc-inspect--read-only-diagnostic-inspection)
-  - [`lcc agent` — Local LLM Agents (Gemma 4 e4b & Qwen3.5-4B)](#4-lcc-agent--local-llm-agents-gemma-4-e4b--qwen35-4b)
-  - [`lcc route` — Hybrid Local/Cloud Routing](#5-lcc-route--hybrid-localcloud-routing)
-  - [`lcc compact` — Instant Relevance Compaction](#6-lcc-compact--instant-relevance-compaction-opt-in-cache-aware)
-    - [Local Semantic Decision Backend: Laya](#local-semantic-decision-backend-laya-apache-20)
-  - [`lcc explain` — Audit a compaction pass](#7-lcc-explain--audit-a-compaction-pass-after-the-fact)
-  - [`lcc mcp` — MCP server for agents](#8-lcc-mcp--mcp-server-for-agents)
-- [Programmatic Library API Usage](#-programmatic-library-api-usage)
-  - [Python API](#python-api)
-  - [TypeScript / Node.js API](#typescript--nodejs-api)
-- [2026 Context Engineering Templates](#-2026-context-engineering-templates)
-- [Architectural Boundaries & ADRs](#-architectural-boundaries--adrs)
-- [Running Tests & Validation](#-running-tests--validation)
-- [Built by LookADev](#built-by-lookadev)
-- [License](#-license)
+Long context is expensive to send and slow to read. Summarizing it loses the exact
+details you needed. `lcc` scores every block against a goal you state and drops what
+does not serve it. Kept text is re-emitted unchanged, so it stays quotable, auditable,
+and honest.
+
+When it cannot judge a block, it keeps the block and says so. A failed or degraded pass
+never silently discards content.
+
+## Install
+
+```bash
+pip install local-context-compiler
+```
+
+```bash
+pipx install local-context-compiler   # CLI only, isolated
+```
+
+Optional extras:
+
+```bash
+pip install "local-context-compiler[tiktoken]"   # exact token counts
+pip install "local-context-compiler[laya]"       # local semantic backend
+```
+
+## Use it
+
+```bash
+# Cut a transcript down to one topic, kept lines verbatim
+lcc compact transcript.txt --question "why the deploy failed"
+
+# See exactly what would be dropped, and why
+lcc explain report.json
+
+# Measure a prompt before sending it to an expensive model
+lcc inspect prompt.md
+```
+
+## Use it from an agent
+
+```json
+{ "mcpServers": { "lcc": { "command": "lcc", "args": ["mcp"] } } }
+```
+
+Exposes `compact`, `compact_transcript`, `inspect`, `prepare`, `explain`, and `intake`.
+The default provider is fully offline: no API key, no network, no telemetry.
+
+## Measured, not estimated
+
+Token counts, cache alignment, and the stress matrix are produced by benchmarks in this
+repository. Methodology in [docs/evaluation.md](docs/evaluation.md); the cache-epoch
+reasoning behind the compaction guard is in
+[docs/CACHE_ALIGNMENT.md](docs/CACHE_ALIGNMENT.md).
 
 ---
 
-## ⚡ The Jev path (fastest way to the strongest pass)
+## Contents
+
+## The Jev path (fastest way to the strongest pass)
 
 `lcc compact --provider jev` sends your objective and your context blocks to TypeSafe's
 System One as typed questions, gets keep-probabilities back, and drops only what the judge
@@ -114,7 +147,7 @@ out. The fallback row lives in [`docs/JEV.md`](docs/JEV.md) §3.
 
 ---
 
-## 🏛️ Overview & The 3 Pillars
+## Overview & The 3 Pillars
 
 **`lcc` (Local Context Compiler)** is a unified toolkit engineered for production AI workflows across CLI, Python, and TypeScript/Node.js. It operates around three permanent, decoupled pillars:
 
@@ -162,7 +195,7 @@ flowchart LR
 
 ---
 
-## 🧭 Start here: QUICKSTART and MCP Server
+## Start here: QUICKSTART and MCP Server
 
 New to `lcc`? Start with [`docs/QUICKSTART.md`](docs/QUICKSTART.md) for the five-minute,
 offline-first path: install, clean, inspect, compact, and audit a pass.
@@ -187,7 +220,7 @@ built-in summary whenever it cannot judge. Install, options and limits:
 
 ---
 
-## 🎬 See it work
+## See it work
 
 Three recordings, each rendered from a real run against the files in `demos/`. Regenerate them
 with `python3 demos/make_gifs.py`; the commands in `demos/*.tape` run the same sessions through
@@ -210,7 +243,7 @@ audio tags stripped, speaker turns collapsed, then compiled with an intake readi
 
 ---
 
-## 🔑 Does it work without a model API key? Yes, and that is the default path
+## Does it work without a model API key? Yes, and that is the default path
 
 Everything in LCC's deterministic core runs 100% locally: `lcc optimize`, `prepare`, `inspect`, `intake`,
 `bench` and `compact --provider mechanical` require **no API key, no account, and zero network calls**.
@@ -228,6 +261,8 @@ For relevance compaction (`lcc compact`), LCC provides **three distinct scoring 
 | **Context Limit** | Unbounded | 512 / 1024 tokens (budgeted) | 32,768 tokens |
 | **Category Recall (Small to XL)** | **100%** | **100%** | **100%** |
 | **Measured Reduction (real backends 2026-09-21, small → XL)** | **26.2% → 70.0%** | **0.0% → 0.5%** | **21.2% → 52.1%** |
+| **Tool-call mode (`--mode tool-calls`)** | n/a | **56.2%** (9 real calls) | supported |
+| **Payloads inside the context window** | 100% | 97.2% of tool calls / 31.2% of prose | 100% |
 | **Semantic Guarantee** | `none` (Heuristic fallback) | `judged` (Local semantic pass) | `judged` (Remote semantic pass) |
 
 > Reduction figures are benchmark-scoped, not universal: measured on the deterministic stress corpora in `benchmarks/research/` with real backends and default thresholds (`--threshold 0.4`, trim band on). Your corpus, objective and thresholds decide your number — run `lcc compact` and read `reduction_ratio`, `invalidated_tokens` and `break_even_reuses` before trusting any saving. Token reduction alone is not cost reduction (see Cache alignment below). Full rows, provenance and the labelled mock archives: `benchmarks/research/RESEARCH_STATUS.md`. The Jev provider's contract, key resolution and fallback table: [`docs/JEV.md`](docs/JEV.md).
@@ -245,7 +280,7 @@ lcc compact dossier.md -q "<objective>" --provider jev -o compacted.md -r report
 
 ---
 
-## 📊 Token Savings & Cache Alignment (benchmark-scoped evidence)
+## Token Savings & Cache Alignment (benchmark-scoped evidence)
 
 Measured on the deterministic corpora in `benchmarks/research/` (exact `o200k` token counts of
 the emitted context; reproduce with `python3 benchmarks/research/run_comparative_stress_test.py` or `run_matrix.py`).
@@ -294,7 +329,7 @@ at ~12–20 reuses). Full study: `benchmarks/research/` and `docs/CACHE_ALIGNMEN
 
 ---
 
-## 📦 Single-Step Installation
+## Single-Step Installation
 
 ### 1. Python CLI & Library (Includes LCC Core + Intake + Local Agents)
 
@@ -351,7 +386,7 @@ lcc --help
 
 ---
 
-## 🔄 The Unified Workflow
+## The Unified Workflow
 
 ```text
 [Raw Input / Voice Note / Context Dump]
@@ -376,7 +411,7 @@ lcc --help
 
 ---
 
-## 🖥️ CLI Usage Guide
+## CLI Usage Guide
 
 ### 1. `lcc intake` — Prompt Intake & Triage
 
@@ -520,10 +555,10 @@ LCC supports **[Laya](https://github.com/NandhaKishorM/laya)** as an optional, f
 
 - **Optional Installation**:
   ```bash
-  # Install LCC with optional Laya dependencies (PyTorch & Transformers)
+ # Install LCC with optional Laya dependencies (PyTorch & Transformers)
   pip install "local-context-compiler[laya]"
   
-  # Or install dependencies manually
+ # Or install dependencies manually
   pip install laya torch transformers
   ```
 
@@ -605,7 +640,7 @@ Contract, smoke test and integrator notes: [`docs/MCP.md`](docs/MCP.md).
 
 ---
 
-## 🚀 Programmatic Library API Usage
+## Programmatic Library API Usage
 
 ### Python API
 
@@ -670,7 +705,7 @@ console.log(`Saved: ${compressed.savingsPercentage}%`);
 
 ---
 
-## 🎨 2026 Context Engineering Templates
+## 2026 Context Engineering Templates
 
 | Template Name | Target Ecosystem | Format & Highlights |
 | --- | --- | --- |
@@ -681,7 +716,7 @@ console.log(`Saved: ${compressed.savingsPercentage}%`);
 
 ---
 
-## 🏛️ Architectural Boundaries & ADRs
+## Architectural Boundaries & ADRs
 
 `lcc` is engineered around strict architectural boundaries:
 
@@ -695,7 +730,7 @@ console.log(`Saved: ${compressed.savingsPercentage}%`);
 
 ---
 
-## 🧪 Running Tests & Validation
+## Running Tests & Validation
 
 Run all test suites for Python and Node.js:
 
@@ -712,11 +747,13 @@ pytest tests/test_docs.py
 
 ---
 
-## ⭐ Star & Support
+## Star & Support
 
 If `lcc` saves you tokens and API expenses:
-- ⭐ **Star this repository** on GitHub!
-- 🍴 **Fork & Integrate** into your AI agent pipelines.
+
+- **Star this repository** if it earned it
+- **Fork it** to fit your own agent pipeline
+- **Open an issue** when something is wrong or missing
 
 ---
 
@@ -728,7 +765,7 @@ If `lcc` saves you tokens and API expenses:
 
 ---
 
-## 📄 License & Attribution
+## License & Attribution
 
 - Open-source software licensed under the [MIT License](LICENSE).
 - The Laya integration and semantic decision adapter interfaces adapt models and concepts from [Laya](https://github.com/NandhaKishorM/laya) by NandhaKishorM / Convai Innovations, licensed under the Apache License 2.0. See [NOTICE](NOTICE) for attribution and licensing notices.

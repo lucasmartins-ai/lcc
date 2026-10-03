@@ -76,10 +76,11 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(question, str) or not question.strip():
         raise ValueError("compact_transcript requires non-empty 'question'")
     provider = args.get("provider", "jev")
-    if provider not in ("auto", "jev"):
+    if provider not in ("auto", "jev", "laya"):
         raise ValueError(
-            "compact_transcript needs a semantic judge: use 'jev' or 'auto' "
-            "(mechanical and laya cannot judge tool-call relevance)"
+            "compact_transcript needs a semantic judge: use 'laya' (local, offline), "
+            "'jev', or 'auto' — 'mechanical' scores lexical overlap, which cannot say "
+            "whether a tool's work is finished"
         )
     threshold = float(args.get("threshold", 0.5))
     if not 0.0 <= threshold <= 1.0:
@@ -100,6 +101,7 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             max_request_tokens=int(args.get("max_request_tokens", 30000)),
             max_workers=int(args.get("max_workers", 4)),
             min_reduction=float(args.get("min_reduction", 0.25)),
+            laya_model=args.get("laya_model"),
             jev_model=str(args.get("jev_model", "jev-latest")),
         )
     )
@@ -232,7 +234,8 @@ TOOLS: dict[str, dict[str, Any]] = {
             "Tool-call compaction for a session transcript: pairs each tool call with its "
             "result, pins the first and newest messages, and drops the pairs a semantic "
             "judge says are spent — kept messages stay verbatim, so nothing is summarized. "
-            "Needs TYPESAFE_API_KEY (provider jev/auto); every failure keeps the call."
+            "Provider 'laya' runs locally and offline (needs the [laya] extra); 'jev' is "
+            "remote and needs TYPESAFE_API_KEY. Every failure keeps the call."
         ),
         "schema": {
             "type": "object",
@@ -246,7 +249,16 @@ TOOLS: dict[str, dict[str, Any]] = {
                     "items": {"type": "object"},
                 },
                 "question": {"type": "string"},
-                "provider": {"type": "string", "enum": ["jev", "auto"], "default": "jev"},
+                "provider": {
+                    "type": "string",
+                    "enum": ["jev", "laya", "auto"],
+                    "default": "jev",
+                    "description": (
+                        "Semantic judge. 'laya' is local and offline (needs the [laya] "
+                        "extra); 'jev' is the remote TypeSafe System 1 and needs "
+                        "TYPESAFE_API_KEY. 'auto' prefers Jev."
+                    ),
+                },
                 "threshold": {"type": "number", "default": 0.5},
                 "preserve_recent": {"type": "integer", "default": 6},
                 "trim_head_chars": {"type": "integer", "default": 300},
@@ -255,6 +267,7 @@ TOOLS: dict[str, dict[str, Any]] = {
                 "max_workers": {"type": "integer", "default": 4},
                 "min_reduction": {"type": "number", "default": 0.25},
                 "jev_model": {"type": "string", "default": "jev-latest"},
+                "laya_model": {"type": "string"},
             },
             "required": ["messages", "question"],
         },

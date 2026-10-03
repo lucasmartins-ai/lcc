@@ -14,7 +14,7 @@ import urllib.request
 
 import pytest
 
-from lcc.chatgpt_server import HTTP_PROTOCOL_VERSION, build_server
+from lcc.chatgpt_server import CHALLENGE_PATH, HTTP_PROTOCOL_VERSION, build_server
 
 DOSSIER = (
     "The clinic booking widget loses mobile visitors at step two of the funnel.\n\n"
@@ -219,6 +219,40 @@ def test_bad_tool_call_reports_iserror(mcp_url):
     )
     assert status == 200
     assert _sse_payload(body)["result"]["isError"] is True
+
+
+def test_challenge_endpoint_returns_the_exact_token_as_plain_text(mcp_url, monkeypatch):
+    """The portal requires the exact token, not JSON or a list."""
+    monkeypatch.setenv("OPENAI_CHALLENGE_TOKEN", "tok-abc123")
+
+    request = urllib.request.Request(mcp_url.replace("/mcp", CHALLENGE_PATH), method="GET")
+    with urllib.request.urlopen(request, timeout=10) as response:
+        assert response.status == 200
+        assert response.headers["Content-Type"].startswith("text/plain")
+        body = response.read().decode("utf-8")
+    # Exactly the token: no JSON object, no quotes, no list.
+    assert body == "tok-abc123"
+    assert not body.strip().startswith(("{", "["))
+
+
+def test_challenge_endpoint_is_404_without_a_token(mcp_url, monkeypatch):
+    """No configured token must not answer with a placeholder that fails review."""
+    monkeypatch.delenv("OPENAI_CHALLENGE_TOKEN", raising=False)
+    request = urllib.request.Request(mcp_url.replace("/mcp", CHALLENGE_PATH), method="GET")
+    with pytest.raises(urllib.error.HTTPError) as excinfo:
+        urllib.request.urlopen(request, timeout=10)
+    assert excinfo.value.code == 404
+
+
+def test_robots_and_favicon_do_not_404(mcp_url):
+    """Scanners fetch these before probing /mcp; a 404 reads as a broken host."""
+    for path, expected in (("/robots.txt", 200), ("/favicon.ico", 204)):
+        request = urllib.request.Request(mcp_url.replace("/mcp", path), method="GET")
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                assert response.status == expected, path
+        except urllib.error.HTTPError as exc:
+            assert exc.code == expected, f"{path}: got {exc.code}"
 
 
 def test_get_is_answered_not_hung(mcp_url):

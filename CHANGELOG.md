@@ -8,6 +8,104 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Laya judges tool-call compaction.** `--mode tool-calls --provider laya` retires spent
+  tool calls locally and offline, so this mode no longer requires `TYPESAFE_API_KEY`.
+  Measured on 9 real tool calls with `laya-typed-decisions`: 56.2% reduction,
+  `semantic_guarantee: judged`, no warnings, 2.7s over 9 calls. It dropped the
+  reconnaissance and kept `edit_file` (0.75) and `pytest` (0.56). See
+  [docs/LAYA.md](docs/LAYA.md) § 2.
+- Versioned Context IR emission (`context-ir/0.1`, ADR 0017): `lcc compact --emit-ir ir.json`
+  writes a provider-independent envelope (verbatim units + provenance, typed relationships,
+  selection + rationale, sufficiency, restoration); `lcc explain` reads IR files and
+  `lcc inspect --ir` summarizes them. Opt-in: default outputs are byte-identical.
+  Mapping, guarantees and limits: `docs/lcc/context-ir.md`.
+- Sufficiency/restoration hardening, MSI sprint 3 (ADR 0018): per-layer restoration budgets,
+  both CLI-explicit (`--max-restorations` 8 structural, `--verifier-max-restorations` 4
+  verifier-side, independent); every restore carries motive + origin layer in the report
+  (`decisions[].reason`/`relationships`) and the IR (`selection.rationale`,
+  `restoration.restored`); any layer crashing fails closed (typed warning + REVIEW,
+  never a silent drop). Measured: structural cuts false-drop rate 0.660 → 0.151 under
+  judge error (30 curated adversarial cases). Docs: `docs/lcc/sufficiency.md` (ablation +
+  adversarial matrix), `docs/lcc/restoration.md` (audit trail).
+
+### Changed
+
+- The transcript mode accepts `laya` alongside `jev`, in the CLI, the MCP tool, and the
+  library API. The default stays `jev`; `--provider laya` is opt-in.
+
+### Fixed
+
+- An unavailable Laya now degrades with one typed `laya_unavailable` warning naming the
+  cause, instead of one `laya_batch_N_failed` warning per batch that read like a flaky
+  judge.
+- The transcript summary no longer labels local Laya calls as "Jev calls".
+- `laya_confidence_missing` warnings are gone. Confidence never gates a decision and Laya
+  returns none, so the warning added noise without changing a keep or a drop.
+
+## [1.0.0] - 2026-10-02
+
+First stable release. The library API, the CLI surface, and the MCP tool set are now
+covered by the compatibility promise.
+
+### Added
+
+- **ChatGPT plugin.** `lcc` is served over streamable HTTP at
+  `https://lcc.lookadev.com/mcp` and submitted to the ChatGPT plugin directory as
+  *Context Compiler*. Six read-only tools, each declaring `readOnlyHint`,
+  `destructiveHint`, and `openWorldHint`, plus the `trim-long-context` skill.
+  See [docs/CHATGPT_PLUGIN.md](docs/CHATGPT_PLUGIN.md).
+- **Domain-verification endpoint.** `GET /.well-known/openai-apps-challenge` returns the
+  configured token as plain text, byte for byte. Unset means 404 rather than a
+  placeholder.
+- **Published privacy policy** at
+  <https://lucasmartins-ai.github.io/lcc/PRIVACY_POLICY>.
+
+### Changed
+
+- README restructured: rationale, install, and a first-command example now precede the
+  reference material.
+- `lcc mcp --http` serves the same tools over streamable HTTP, bound to `$HOST`/`$PORT`.
+  An unexpanded `$PORT` is resolved from the environment instead of failing validation.
+
+### Fixed
+
+- `robots.txt` and `favicon.ico` answer 200/204. Plugin scanners probe both before
+  `/mcp`, and a 404 read as a broken host stalled tool discovery.
+- HTTP transport negotiates protocol revision `2025-06-18`; the stdio server keeps
+  `2024-11-05`.
+
+### Security
+
+- The hosted deployment sets no `TYPESAFE_API_KEY`, so `compact` runs the offline
+  `mechanical` provider and submitted text never leaves the process.
+
+## [Unreleased]
+
+### Added
+
+- **Laya judges tool-call compaction.** `--mode tool-calls --provider laya` retires spent
+  tool calls locally and offline, so this mode no longer requires `TYPESAFE_API_KEY`.
+  Measured on 9 real tool calls with `laya-typed-decisions`: 56.2% reduction,
+  `semantic_guarantee: judged`, no warnings, 2.7s over 9 calls. It dropped the
+  reconnaissance and kept `edit_file` (0.75) and `pytest` (0.56). See
+  [docs/LAYA.md](docs/LAYA.md) § 2.
+
+### Changed
+
+- The transcript mode accepts `laya` alongside `jev`, in the CLI, the MCP tool, and the
+  library API. The default stays `jev`; `--provider laya` is opt-in.
+
+### Fixed
+
+- An unavailable Laya now degrades with one typed `laya_unavailable` warning naming the
+  cause, instead of one `laya_batch_N_failed` warning per batch that read like a flaky
+  judge.
+- The transcript summary no longer labels local Laya calls as "Jev calls".
+- `laya_confidence_missing` warnings are gone. Confidence never gates a decision, and Laya
+  returns none, so the warning added noise without changing a keep or a drop.
+
+### Added
+
 - Laya specialisation harness, and the measurement it produced. `benchmarks/research/laya_finetune_items.py`
   turns the corpus factory into supervised items — de-labelled first, because the corpora's literal
   `GROUND TRUTH`/`(not evidence, ignore)` markers would be learned as label vocabulary, and with six

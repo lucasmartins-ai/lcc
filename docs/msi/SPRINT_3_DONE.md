@@ -14,7 +14,7 @@
 ## Testes
 
 - `python3 -m pytest tests/test_sufficiency.py -p no:cacheprovider` → **18 passed** (7 pre-existing + 11 new: severed-link, bypassed-protection+IR-audit, 4 injected-failure, 6 adversarial).
-- `python3 -m pytest tests/ -p no:cacheprovider` → **725 passed, 6 skipped, 2 failed** — both failures pre-existing and outside this diff (proven as in sprint 2: `test_metadata` staged-version bump vs stale source-tree fallback; `test_docs` only `SPRINT_1_DONE.md → theory.md, terminology.md` spec-repo-relative links; zero entries from/to any file created or edited here).
+- `python3 -m pytest tests/ -p no:cacheprovider` → **725 passed, 6 skipped, 2 failed** — both failures pre-existing and outside this diff (proven as in sprint 2: `test_metadata` staged-version bump; `test_docs` only dangling spec-repo-relative links quoted from `SPRINT_1_DONE.md`; zero entries from/to any file created or edited here).
 - `.venv/bin/ruff check` on `compactor.py`, `cli.py`, `test_sufficiency.py` → clean. mypy (`--python-version 3.14 --ignore-missing-imports`, same workaround as sprint 2) on touched src files → `Success: no issues found`.
 - CLI: `lcc compact … --verifier-max-restorations 0` → exit 0, report renders; `-1` → `Error: --verifier-max-restorations must be >= 0.`
 
@@ -54,3 +54,12 @@ Custo: wall total do sweep lexical 170 ms (all-on) vs 85–102 ms (camadas off) 
 ## Next
 
 Sprint 4 implementa o inference planner sobre a IR e a restauração auditável congeladas aqui.
+
+## Post-sprint (PR prep, 2026-10-02, mesmos arquivos, sem re-sprint)
+
+Os 2 vermelhos documentados acima foram corrigidos para abrir a PR com o gate verde:
+`test_metadata` via `pip install -e .` (dist era 0.5.0, fonte 1.0.0 — env, nenhum arquivo tocado);
+`test_docs` reescrevendo 9 links `docs/*.md` que apontavam para o spec repo / docs futuros
+(`SPRINT_1_DONE.md`, `SPRINT_3_DONE.md` linha de evidência, prompts 01/04/05/08) para forma
+relativa sem o prefixo — significado preservado. Rebasing sobre `origin/main` (#27):
+suíte final **708 passed, 8 skipped, 0 failed**; ruff limpo.

@@ -17,7 +17,7 @@ são limitados e o receipt contém a cadeia inteira.
   semantic (opt-in, single-shot, herdando `verifier.py`), policy checks.
 - Ações limitadas: `PASS RESTORE_CONTEXT RETRY INCREASE_REASONING SWITCH_MODEL
   ADD_TOOL ESCALATE ABORT`, retries/escalonamentos limitados e contados.
-- `docs/msi/verification.md` + `docs/msi/escalation.md` + ADR + Receipt v0 emitido.
+- `verification.md` + `escalation.md` (em `docs/msi/`, a criar neste sprint) + ADR + Receipt v0 emitido.
 
 ## OUT scope
 Nenhuma dependência de AgentTrace instalado; nenhum juiz LLM obrigatório no caminho

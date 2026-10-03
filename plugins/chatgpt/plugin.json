@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "lcc",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Compacts a document or transcript down to only the blocks that matter for a stated goal, keeping kept text byte for byte instead of summarizing it.",
   "author": {
     "name": "Local Context Compiler contributors"
@@ -20,7 +20,7 @@
     "com.openai": {
       "interface": {
         "displayName": "Context Compiler",
-        "shortDescription": "Cut a document or transcript down to the blocks that matter for your goal.",
+        "shortDescription": "Trim context to what matters",
         "longDescription": "Paste a long document, transcript, or tool log and state a goal. This plugin scores each block against that goal and returns only the relevant ones, verbatim, plus a report naming every block it dropped. Nothing is summarized or paraphrased, so kept content stays quotable and auditable.",
         "developerName": "Local Context Compiler",
         "category": "Productivity",
@@ -28,6 +28,11 @@
           "Read"
         ],
         "websiteURL": "https://github.com/lucasmartins-ai/lcc",
+        "supportURL": "https://github.com/lucasmartins-ai/lcc/issues",
+        "privacyPolicyURL": "https://lucasmartins-ai.github.io/lcc/PRIVACY_POLICY",
+        "termsOfServiceURL": "https://github.com/lucasmartins-ai/lcc",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/icon.png",
         "defaultPrompt": [
           "Here's a long support transcript. Cut it down to just the part about refund delays.",
           "This meeting transcript is 20 pages. Keep only what decides the launch date.",
