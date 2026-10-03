@@ -368,6 +368,15 @@ def test_jev_scoring_reports_a_semantic_guarantee():
     assert result.report.degradation_reason is None
 
 
+def test_fully_protected_mechanical_pass_does_not_claim_semantic_judgment():
+    result = compact_context(_request(provider="mechanical", preserve_tail_blocks=100))
+    assert result.compacted_text == SAMPLE
+    assert result.report.blocks_scored == 0
+    assert result.report.calls == 0
+    assert result.report.provider_used == "mechanical"
+    assert result.report.semantic_guarantee == "none"
+
+
 def test_marker_omits_scores_by_default():
     """Live scores wobble between calls; embedding them would rewrite the emitted bytes."""
     out = compact_context(_request(client=FakeJevClient(_judge))).compacted_text

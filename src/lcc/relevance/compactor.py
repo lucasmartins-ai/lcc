@@ -1347,7 +1347,9 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     provider_used = "mechanical"
     degraded = False
     degradation_reason: str | None = None
-    semantic_guarantee = "judged"
+    # Mechanical passes never perform semantic judgment, even when protection
+    # or cached decisions leave no pending blocks to score.
+    semantic_guarantee = "none" if provider_requested == "mechanical" else "judged"
     calls = 0
     latency_ms = 0
     jev_resolved: str | None = None

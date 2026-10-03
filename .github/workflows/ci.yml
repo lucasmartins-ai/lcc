@@ -28,10 +28,10 @@ jobs:
         pytest -q
     - name: Lint (ruff)
       run: |
-        ruff check src tests benchmarks/research/run_multiagent_ab.py benchmarks/research/run_injection_e2e.py src/lcc/relevance/verifier.py || true
+        ruff check src tests benchmarks/research/run_multiagent_ab.py benchmarks/research/run_injection_e2e.py benchmarks/usability/run.py
     - name: Typecheck (mypy)
       run: |
-        mypy src/lcc/relevance/verifier.py src/lcc/relevance/compactor.py src/lcc/relevance/trim.py || true
+        mypy
     - name: Answer-level regression (E0)
       run: |
         python3 benchmarks/research/run_answer_eval.py --provider mechanical
@@ -50,4 +50,4 @@ jobs:
         node-version: '20'
     - name: Run Node Tests
       run: |
-        node test/index.test.js
+        npm test

@@ -276,8 +276,8 @@ def parse_transcript(payload: Any) -> list[TranscriptMessage]:
             )
         )
 
-    for message in messages:
-        for call in message.tool_calls:
+    for parsed_message in messages:
+        for call in parsed_message.tool_calls:
             call.result = results_by_id.get(call.id)
     return messages
 
