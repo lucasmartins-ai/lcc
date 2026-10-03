@@ -1,7 +1,8 @@
 # LCC in 5 minutes
 
 Install once, then pick the one command that matches your situation.
-Everything below runs **100% offline** unless marked otherwise.
+The deterministic examples below run offline. Installing dependencies or
+staging local-model assets may use the network; Jev is an explicit remote path.
 
 ```bash
 pip install "local-context-compiler[tiktoken]"   # exact token counting (optional)
@@ -29,19 +30,20 @@ worth building at all (`skip` / `manual_review` / `optimize_safe`).
 ## 3. Drop what the objective doesn't need
 
 ```bash
-# No key, no network, no new deps — lexical baseline, biggest reduction:
+# No key, no network — lexical baseline:
 lcc compact dossier.md -q "reduce mobile booking friction" --provider mechanical -o compacted.md -r report.json
 
 # No key, but want a real semantic pass (needs the [laya] extra):
 lcc compact dossier.md -q "reduce mobile booking friction" --provider laya -o compacted.md -r report.json
 
-# Key available, strongest judgment on subtle evidence (only online command here):
+# Key available — remote semantic judgment:
 lcc compact dossier.md -q "reduce mobile booking friction" --provider jev -o compacted.md -r report.json
 ```
 
-**Which provider?** `mechanical` = offline heuristic, max reduction.
-`laya` = offline semantic, more conservative (keeps more). `jev` = remote
-semantic, best on nuance. Missing Laya extra falls back honestly to mechanical
+**Which provider?** `mechanical` = offline lexical heuristic.
+`laya` = local semantic judgment with staged assets. `jev` = remote
+semantic judgment. These descriptions are not a ranking of answer quality.
+Missing Laya extra falls back honestly to mechanical
 (`degraded: true`). Full table: `docs/LAYA.md`. Runnable comparison:
 `examples/compact_providers.py`.
 
@@ -73,9 +75,9 @@ lcc compact dossier.md -q "<objective>" --provider mechanical \
   --decisions-cache ~/.cache/lcc/decisions.jsonl --append-to session.md
 ```
 
-Why: a whole-session rewrite invalidates every cached token right of the first
-drop (~12–20 reuses to pay off). Per-payload compaction measured **42.4%**
-saved vs **7.9%** for whole-session passes. Details: `docs/CACHE_ALIGNMENT.md`.
+Why: a whole-session rewrite invalidates cached tokens after the first change.
+Compacting a payload before appending preserves the existing prefix. Cost
+depends on scorer calls, token counts and reuse; see `docs/CACHE_ALIGNMENT.md`.
 Runnable demo: `examples/long_session_cache.py`.
 
 ## 5. Audit any pass after the fact (offline)
@@ -119,7 +121,7 @@ match or not; the summary tells you. Never touches the network.
 | `optimize` | yes | no | deterministic cleaning only |
 | `prepare` | yes | no | inspect + lexical selection when safe |
 | `inspect` | yes | no | read-only diagnostic |
-| `compact --provider mechanical` | yes | no | lexical baseline, biggest reduction |
+| `compact --provider mechanical` | yes | no | lexical baseline; no semantic judgment |
 | `compact --provider laya` | yes (extra or honest fallback) | no | offline semantic; missing extra → `laya+mechanical_fallback`, `degraded: true` |
 | `compact --provider jev` / `auto` | falls back, never silent | yes for judgment | no key → `auto` falls back to mechanical, `jev` keeps everything (`degraded`) |
 | `explain` / `inspect --ir` | yes | no | reads reports/IR only |

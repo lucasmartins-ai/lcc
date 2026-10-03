@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Audit corrections
+
+- Fully protected mechanical passes now report `semantic_guarantee: none`;
+  regression coverage proves that zero scoring calls cannot imply judgment.
+- CI now blocks lint/type failures, runs configured-package mypy and includes
+  Node hook tests. A transcript loop-variable type conflict is corrected.
+- Packaged license files include the existing NOTICE attribution.
+- README and quickstart describe current MSI behavior, pending sprint 10,
+  reproducible offline usability measurements and explicit benchmark limits.
+- Sprint-7 historical reports now carry an audit notice for final-attempt
+  costs, unpaired bootstrap sampling and incomplete reproducibility checks.
+
 ### Added
 
 - **Laya judges tool-call compaction.** `--mode tool-calls --provider laya` retires spent

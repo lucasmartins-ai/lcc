@@ -1,5 +1,13 @@
 # MSI-Bench report (sprint 7) — PILOT, N=12
 
+**Audit notice (2026-10-03):** this frozen historical result has
+final-attempt cost accounting, per-arm bootstrap draws and incomplete
+aggregate/receipt coverage in `--check`. Its label-protected `msi` arm is
+an oracle probe, not the public compiler. Cost/Pareto and paired-uncertainty
+claims below require revision before research release. See the
+[audit and reproduction probes](../../research/msi-audit-2026-10-03.md).
+Frozen data and original figures are preserved for traceability.
+
 Question: "with how many fewer resources is the outcome preserved?"
 Hypothesis: LCC+routing+verification dominates Pareto
 (quality x cost x latency x context) against full-context on >=1 category,

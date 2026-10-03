@@ -1,5 +1,11 @@
 # Sprint 2 — DONE (PASS)
 
+> Current recertification (2026-10-03): the two historical full-suite failures
+> below are absent from the audited current code. Python 3.11 and 3.12 each
+> pass 823 tests with 5 documented skips; configured-package mypy passes on
+> 95 files. This does not alter the historical gate exception. See
+> [audit and evidence](../../research/msi-audit-2026-10-03.md).
+
 - Commit: working tree (no commit/push/PR per protocol anti-slop rule and user instruction; HEAD `284f11f`)
 - Gate: `SPRINT_1_DONE.md` = PASS; schemas at `/Users/Master/msi-repos/minimum-sufficient-inference/spec/` readable; `src/lcc/relevance/{blocks,decisions,graph,sufficiency}.py` read before any edit.
 
