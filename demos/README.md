@@ -1,10 +1,11 @@
 # Demo recordings
 
-The three GIFs in the README, plus the inputs and the recipes that produce them.
+The demo GIFs (`compact.gif` and `compile.gif` are embedded in the top-level README), plus the inputs
+and the recipes that produce them.
 
 | file | what it shows |
 |---|---|
-| `compact.gif` | `lcc compact` dropping noise from a 22-block dossier, then `lcc explain` showing why each block went |
+| `compact.gif` | `lcc compact` dropping noise from a 23-block dossier, then `lcc explain` showing why each block went |
 | `compile.gif` | `lcc optimize` turning a brief dumped from three places into a structured XML prompt |
 | `audio-to-prompt.gif` | `lcc intake` cleaning a Whisper-style transcript and compiling it into a prompt |
 
@@ -15,7 +16,8 @@ python3 demos/make_gifs.py            # all three
 python3 demos/make_gifs.py compact    # one
 ```
 
-Requires Pillow (the system `python3` has it) and `lcc` on PATH. The script runs the real
+Requires Pillow and `lcc` on PATH. The font is Menlo on macOS, else the first of Fira Code /
+DejaVu Sans Mono found; set `LCC_DEMO_FONT=/path/to/font.ttf` to choose one. The script runs the real
 commands, captures their real output, and draws it into frames, so the GIFs are a recording of
 what the tool actually printed rather than a mock-up. The render is deterministic: regenerating
 produces byte-identical files.

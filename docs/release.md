@@ -1,9 +1,9 @@
 # Release process
 
 This document is the checklist for cutting a public release of `lcc`. The next prepared
-release is **v0.5.0**.
+release is **v1.0.0**.
 
-> **Scope reminder.** v0.5.0 is the deterministic core (clean, dedupe, token budget,
+> **Scope reminder.** v1.0.0 is the deterministic core (clean, dedupe, token budget,
 > prompt builder) plus `lcc bench`, `lcc inspect`, deterministic Phase 1.7 prepare
 > (`lcc prepare`, recommendations, chunk inventory, lexical selection; see
 > [ADR 0010](adr/0010-deterministic-first-preparation-model-assistance.md)), opt-in
@@ -96,8 +96,8 @@ python -m twine check dist/*
 Audit package contents before publishing:
 
 ```bash
-python -m tarfile -l dist/local_context_compiler-0.5.0.tar.gz
-python -m zipfile -l dist/local_context_compiler-0.5.0-py3-none-any.whl
+python -m tarfile -l dist/local_context_compiler-1.0.0.tar.gz
+python -m zipfile -l dist/local_context_compiler-1.0.0-py3-none-any.whl
 ```
 
 Expected shape:
@@ -114,7 +114,7 @@ Install the built wheel in a virtual environment outside the repository:
 ```bash
 python -m venv /tmp/lcc-wheel-smoke
 /tmp/lcc-wheel-smoke/bin/python -m pip install --upgrade pip
-/tmp/lcc-wheel-smoke/bin/python -m pip install dist/local_context_compiler-0.5.0-py3-none-any.whl
+/tmp/lcc-wheel-smoke/bin/python -m pip install dist/local_context_compiler-1.0.0-py3-none-any.whl
 ```
 
 Smoke-test the installed console script, not the editable checkout:
@@ -194,8 +194,8 @@ Trusted Publishing details:
 Only after CI, local checks, package checks, and the clean-venv smoke test pass:
 
 ```bash
-git tag -a v0.5.0 -m "lcc v0.5.0"
-git push origin v0.5.0
+git tag -a v1.0.0 -m "lcc v1.0.0"
+git push origin v1.0.0
 ```
 
 The tag push triggers `.github/workflows/publish.yml`. Watch the workflow. If PyPI rejects
@@ -206,8 +206,8 @@ Tag names are `vMAJOR.MINOR.PATCH`. Do not move or reuse a published tag.
 
 ## 8. GitHub release notes checklist
 
-- [ ] Title: `v0.5.0`.
-- [ ] Body: paste the `[0.5.0]` section from `CHANGELOG.md` (rename it to the release date when tagging).
+- [ ] Title: `v1.0.0`.
+- [ ] Body: paste the `[1.0.0]` section from `CHANGELOG.md` (rename it to the release date when tagging).
 - [ ] State the boundaries explicitly: deterministic, local-first, no runtime network by
       default, no API keys, no model/LLM/embedding calls in the core, and no model assistance
       inside the deterministic Phase 1.7 prepare boundary from

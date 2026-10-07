@@ -15,6 +15,7 @@ Requires Pillow (system python3 has it) and the repository's own `lcc` on PATH.
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
@@ -25,7 +26,16 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "demos"
 
-FONT_PATH = "/System/Library/Fonts/Menlo.ttc"
+# Menlo on macOS; on Linux the first monospace font found. LCC_DEMO_FONT overrides both.
+FONT_CANDIDATES = (
+    os.environ.get("LCC_DEMO_FONT", ""),
+    "/System/Library/Fonts/Menlo.ttc",
+    "/usr/share/fonts/truetype/firacode/FiraCode-Regular.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+)
+FONT_PATH = next(
+    (p for p in FONT_CANDIDATES if p and os.path.isfile(p)), "/System/Library/Fonts/Menlo.ttc"
+)
 FONT_SIZE = 13
 
 # Canvas and palette. Sized so the longest demo line fits without wrapping.
