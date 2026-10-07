@@ -1,22 +1,92 @@
-# Local Context Compiler
+<div align="center">
+
+# lcc — Local Context Compiler
+
+**Shrink what you send to the model. Keep every byte you didn't cut. Get a receipt.**
+
+[![PyPI](https://img.shields.io/pypi/v/local-context-compiler.svg)](https://pypi.org/project/local-context-compiler/)
+[![Python](https://img.shields.io/pypi/pyversions/local-context-compiler.svg)](https://pypi.org/project/local-context-compiler/)
+[![CI](https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml)
+[![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/lucasmartins-ai/lcc?style=social)](https://github.com/lucasmartins-ai/lcc/stargazers)
+
+<img src="https://raw.githubusercontent.com/lucasmartins-ai/lcc/main/demos/compact.gif" alt="lcc compact dropping noise from a 23-block dossier, then lcc explain showing why each block went" width="820">
+
+</div>
 
 `lcc` prepares text for model calls: clean duplicates and boilerplate, select
 context for an explicit objective, and record what was kept, trimmed or omitted.
-The default offline workflow uses lexical scoring and structural checks.
-Optional semantic providers run locally (Laya) or remotely (Jev).
+Selected spans stay **verbatim** (no LLM rewriting), the default path runs
+**offline with no API key**, and every pass writes a JSON report you can audit.
 
-Selected source spans remain verbatim; compaction may add omission markers.
-Cleaning and prompt templates are separate transformations. A structural
-`PASS` does not establish that a model will answer correctly.
+| Measured on | Before → after | What was kept |
+| --- | --- | --- |
+| A real Claude Code session (192 messages, 75 tool calls) | 55,411 → 18,761 tokens (**−66.1%**) | all 42 user/assistant texts, byte for byte |
+| A real 337-message agent session (187 tool calls) | 199,717 → 36,645 tokens (**−81.7%**) | all 58 user/assistant texts, byte for byte |
+| The demo dossier above, offline `mechanical` provider | 642 → 393 tokens (**−39.6%**) | 13 of 23 blocks, plus a reason for every drop |
+| A messy brief compiled by `lcc optimize` | 415 → 245 tokens (**−41.0%**) | deduplicated content in a structured prompt |
 
-[![CI](https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml)
-[![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+The session rows use tool-call mode with the Jev judge; source, commands and limits are in
+[real-session measurements](benchmarks/research/REAL_SESSIONS.md). The demo rows are reproducible
+with the commands in the GIFs (exact tiktoken counts). Your reduction depends on how much of
+your context is actually noise; below a 25% gain, `lcc` tells you it is not worth it.
 
-## Status
+## Quick start
+
+```sh
+pip install "local-context-compiler[tiktoken]"   # the CLI is `lcc`
+
+lcc compact notes.md -q "what is wrong with the booking flow?" \
+  --provider mechanical -o compacted.md -r report.json
+lcc explain report.json --source notes.md        # why every block was kept or dropped
+```
+
+Use it from any MCP client (Claude Code, Cursor, Claude Desktop…):
+
+```json
+{"mcpServers": {"lcc": {"command": "lcc", "args": ["mcp"]}}}
+```
+
+Or replace Claude Code's lossy `/compact` summary with verbatim tool-call compaction:
+
+```sh
+claude plugin marketplace add lucasmartins-ai/lcc
+claude plugin install lcc@lcc
+```
+
+The plugin needs the early-access function-hooks flag and a judge (a TypeSafe key for Jev, or
+`provider: laya` for fully local); without one it falls back to the built-in summary. See the
+[Claude Code plugin guide](docs/CLAUDE_CODE.md).
+
+## Where it fits in a token-saving stack
+
+| Tool | Shrinks | How |
+| --- | --- | --- |
+| [RTK](https://github.com/rtk-ai/rtk) | command output (`git`, `ls`, test runners) | CLI proxy that filters what a shell prints |
+| [caveman](https://github.com/JuliusBrussee/caveman) | the model's answers | prompt style that makes replies terse |
+| **lcc** | the context itself (docs, logs, transcripts, tool calls) | objective-driven verbatim selection with an audit report |
+
+They compose: RTK and caveman cut what flows in and out per turn; `lcc` cuts what accumulates.
+
+<details>
+<summary><b>More demos:</b> <code>lcc optimize</code> compiling a messy brief into a structured prompt</summary>
+
+<img src="https://raw.githubusercontent.com/lucasmartins-ai/lcc/main/demos/compile.gif" alt="lcc optimize turning a brief dumped from three places into a structured XML prompt" width="820">
+
+</details>
+
+## What it does not do
+
+A structural `PASS` does not establish that a model will answer correctly.
+Cleaning and prompt templates are separate transformations; compaction may add omission markers.
+The default offline workflow uses lexical scoring and structural checks. Optional semantic
+providers run locally (Laya) or remotely (Jev). No RAG, embeddings or vector store is implemented.
+
+## Project status
 
 The checkout declares Python and Node package version **1.0.0** and Python
 **3.11+**. MSI sprints **1–10 have PASS reports; the research release is complete**.
-The software is classified Alpha in package metadata.
+The software is classified Beta in package metadata.
 
 The [2026-10-03 audit](research/msi-audit-2026-10-03.md) findings R1–R3 are
 resolved in Sprint 10: all-attempt cost accounting, shared paired bootstrap,
@@ -26,7 +96,8 @@ the [architecture paper](research/paper.md), [prior-art review](research/prior-a
 and [master results](research/results-master.md) are published.
 
 
-## Install the audited source
+
+## Install from source
 
 From a local checkout:
 
