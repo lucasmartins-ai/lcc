@@ -144,7 +144,7 @@ class RelevanceCompactionRequest:
     #: scoring. On by default, because the local scorer is a fallback and a fallback should
     #: err toward keeping evidence.
     deterministic_protection: bool = True
-    provider: str = "auto"  # auto | jev | laya | mechanical
+    provider: str = "auto"  # auto | jev | laya | mechanical | specialist (shadow)
     model: str = "gpt-4.1"  # token counting model (ADR 0005 honesty contract)
     jev_model: str = "jev-latest"
     laya_model: str = DEFAULT_LAYA_MODEL
@@ -283,6 +283,9 @@ class RelevanceCompactionReport:
     #: the only recorded identifier).
     jev_model_requested: str = "jev-latest"
     jev_model_resolved: str | None = None
+    #: Native diagnostics from provider="specialist", injected through client.
+    #: Shadow preserves blocks; these scores do not establish a drop policy.
+    specialist_ranking: dict[str, Any] | None = None
     laya_model_requested: str | None = None
     laya_model_resolved: str | None = None
     laya_context_limit: int | None = None
@@ -1123,6 +1126,15 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     """Run an opt-in relevance compaction pass over ``request.text``."""
     started_total = time.perf_counter()
     warnings: list[str] = []
+    if request.provider == "specialist":
+        if request.decisions_cache_path is not None:
+            raise ValueError(
+                "Specialist shadow does not support a decision cache until policy validation"
+            )
+        if request.enable_semantic_verify:
+            raise ValueError(
+                "Specialist shadow cannot execute the arbitrary semantic verifier question"
+            )
     text = request.text
     if not request.question.strip():
         raise ValueError("relevance compaction requires a non-empty objective (--question)")
@@ -1349,12 +1361,13 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     degradation_reason: str | None = None
     # Mechanical passes never perform semantic judgment, even when protection
     # or cached decisions leave no pending blocks to score.
-    semantic_guarantee = "none" if provider_requested == "mechanical" else "judged"
+    semantic_guarantee = "none" if provider_requested in ("mechanical", "specialist") else "judged"
     calls = 0
     latency_ms = 0
     jev_resolved: str | None = None
     laya_resolved: str | None = None
     context_budget_used: int | None = None
+    specialist_ranking: dict[str, Any] | None = None
     client: Any | None = None
     laya_fallback_to_mechanical = False
     nimble_fallback_to_mechanical = False
@@ -1404,6 +1417,15 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
             temp = request.laya_temperature
             if isinstance(temp, (int, float)) and temp > 0:
                 client.temperature = float(temp)
+    elif provider_requested == "specialist":
+        client = request.client
+        if (client is None or getattr(client, "is_local", False) is not True
+                or not callable(getattr(client, "rank_context", None))):
+            client = None
+            degraded = True
+            provider_used = "degraded"
+            degradation_reason = "specialist_unavailable"
+            warnings.append("specialist_unavailable: kept every block; no lexical drop fallback")
     elif provider_requested == "nimble":
         # No Nimble scorer in-tree (in-flight CLI surface only): honest
         # mechanical fallback, degraded=True, never a fake `judged`.
@@ -1434,7 +1456,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 decision="keep",
                 source="degraded",
                 score=None,
-                reason="jev_unavailable_fail_safe",
+                reason=(degradation_reason or "jev_unavailable") + "_fail_safe",
                 confidence=None,
                 relationships=(),
                 policy_version=POLICY_VERSION,
@@ -1446,7 +1468,31 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         results: dict[str, tuple[float, str, str | None, float | None]] = {}
         jev_resolved = None
         laya_resolved = None
-        if provider_requested == "laya" and client is not None:
+        if provider_requested == "specialist" and client is not None:
+            provider_used = "specialist_shadow"
+            started_ranking = time.perf_counter()
+            try:
+                specialist_ranking = client.rank_context(
+                    request.question, [{"id": block.id, "text": block.text} for block in pending]
+                )
+                if (
+                    not isinstance(specialist_ranking, dict)
+                    or specialist_ranking.get("mode") != "shadow"
+                ):
+                    raise ValueError("Specialist provider must return native shadow ranking")
+                calls = 1
+            except Exception as exc:
+                specialist_ranking = None
+                degraded = True
+                degradation_reason = "specialist_ranking_failed"
+                warnings.append(
+                    f"specialist_ranking_failed: {type(exc).__name__}; kept every block"
+                )
+            latency_ms = round((time.perf_counter() - started_ranking) * 1000)
+            # These values encode preservation policy, never model probabilities.
+            results = {block.id: (1.0, "specialist_shadow", "shadow_preserve", 0.0)
+                       for block in pending}
+        elif provider_requested == "laya" and client is not None:
             provider_used = "laya"
             (
                 laya_results,
@@ -2228,6 +2274,7 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         if provider_requested == "laya" or provider_used.startswith("laya")
         else None,
         laya_model_resolved=laya_resolved,
+        specialist_ranking=specialist_ranking,
         laya_context_limit=(
             getattr(client, "context_limit", None)
             if (provider_requested == "laya" or provider_used.startswith("laya"))
@@ -2330,6 +2377,8 @@ def report_to_dict(report: RelevanceCompactionReport) -> dict[str, Any]:
         "jev_model_resolved": report.jev_model_resolved,
         "laya_model_requested": report.laya_model_requested,
         "laya_model_resolved": report.laya_model_resolved,
+        **({"specialist_ranking": report.specialist_ranking}
+           if report.provider_requested == "specialist" else {}),
         "laya_context_limit": report.laya_context_limit,
         "context_budget_used": report.context_budget_used,
         "laya_temperature": report.laya_temperature,
