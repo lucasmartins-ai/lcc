@@ -1,7 +1,8 @@
 """Minimal MCP (Model Context Protocol) stdio server for `lcc` (Etapa 5 MVP).
 
 Exposes the local-first capabilities to MCP-capable agents over JSON-RPC 2.0
-on stdio (LSP-style ``Content-Length`` framing):
+on stdio (newline-delimited JSON per the MCP spec; LSP-style ``Content-Length``
+framing is also accepted):
 
 - ``compact`` — relevance compaction (default ``mechanical``: offline, no key)
 - ``compact_transcript`` — tool-call compaction of a session transcript (pairs tool calls with
@@ -398,33 +399,44 @@ def handle_message(message: dict[str, Any]) -> dict[str, Any] | None:
     return _error(request_id, -32601, f"method not found: {method!r}")
 
 
-def _read_message(buffer: Any) -> dict[str, Any] | None:
-    """Read one LSP-framed message from a binary stream; None on clean EOF."""
+def _read_message(buffer: Any) -> tuple[dict[str, Any] | None, bool]:
+    """Read one message; return (message, ndjson). Message is None on clean EOF.
+
+    MCP stdio is newline-delimited JSON (what Claude Code, Codex, Cursor send).
+    LSP ``Content-Length`` framing is still accepted for older clients.
+    """
     headers: dict[str, str] = {}
     while True:
         line = buffer.readline()
         if not line:
-            return None
+            return None, False
         line = line.strip()
         if not line:
-            break
+            if headers:
+                break
+            continue
+        if not headers and line.startswith(b"{"):
+            return json.loads(line.decode("utf-8")), True
         name, _, value = line.decode("utf-8", "replace").partition(":")
         headers[name.strip().lower()] = value.strip()
     try:
         length = int(headers.get("content-length", "0"))
     except ValueError:
-        return None
+        return None, False
     if length <= 0:
-        return None
+        return None, False
     body = buffer.read(length)
     if not body:
-        return None
-    return json.loads(body.decode("utf-8"))
+        return None, False
+    return json.loads(body.decode("utf-8")), False
 
 
-def _write_message(buffer: Any, payload: dict[str, Any]) -> None:
+def _write_message(buffer: Any, payload: dict[str, Any], ndjson: bool = True) -> None:
     body = json.dumps(payload).encode("utf-8")
-    buffer.write(b"Content-Length: " + str(len(body)).encode() + b"\r\n\r\n" + body)
+    if ndjson:
+        buffer.write(body + b"\n")
+    else:
+        buffer.write(b"Content-Length: " + str(len(body)).encode() + b"\r\n\r\n" + body)
     buffer.flush()
 
 
@@ -433,7 +445,7 @@ def serve_forever() -> None:
     stdin, stdout = sys.stdin.buffer, sys.stdout.buffer
     while True:
         try:
-            message = _read_message(stdin)
+            message, ndjson = _read_message(stdin)
         except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError):
             break
         if message is None:
@@ -444,7 +456,7 @@ def serve_forever() -> None:
             response = _error(message.get("id"), -32603, f"internal error: {exc}")
         if response is not None:
             try:
-                _write_message(stdout, response)
+                _write_message(stdout, response, ndjson)
             except OSError:
                 break
 

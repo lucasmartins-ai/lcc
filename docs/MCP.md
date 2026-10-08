@@ -2,7 +2,9 @@
 
 `src/lcc/mcp_server.py` is a minimal
 [Model Context Protocol](https://modelcontextprotocol.io/) server over stdio
-(JSON-RPC 2.0, `Content-Length` framing). It exposes six tools:
+(JSON-RPC 2.0, one JSON message per line as the MCP stdio spec requires;
+LSP-style `Content-Length` framing is also accepted, and each reply uses the
+framing of its request). It exposes six tools:
 
 | Tool | What it does | Offline? |
 | :--- | :--- | :--- |
@@ -59,27 +61,14 @@ With `pipx`: replace `"command"` with the full path from
 .venv/bin/python - <<'EOF'
 import json, subprocess
 
-def frame(payload):
-    body = json.dumps(payload).encode()
-    return b"Content-Length: %d\r\n\r\n%s" % (len(body), body)
-
-def unframe(out):
-    _, _, body = out.partition(b"\r\n\r\n")
-    return json.loads(body)
-
 msgs = [
     {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
     {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
 ]
-p = subprocess.run([".venv/bin/lcc", "mcp"], input=b"".join(map(frame, msgs)),
+p = subprocess.run([".venv/bin/lcc", "mcp"],
+                   input=b"".join(json.dumps(m).encode() + b"\n" for m in msgs),
                    capture_output=True, timeout=60)
-responses = []
-rest = p.stdout
-while rest:
-    head, _, rest2 = rest.partition(b"\r\n\r\n")
-    n = int(head.split(b":")[1])
-    responses.append(json.loads(rest2[:n]))
-    rest = rest2[n:]
+responses = [json.loads(line) for line in p.stdout.splitlines() if line.strip()]
 print(responses[0]["result"]["serverInfo"])
 print([t["name"] for t in responses[1]["result"]["tools"]])
 EOF

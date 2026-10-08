@@ -330,3 +330,25 @@ def test_compact_jev_with_key():
                                   "provider": "jev"}}}
     )
     assert resp is not None and "error" not in resp
+
+
+def test_stdio_newline_delimited_json():
+    """MCP stdio spec framing (Claude Code, Codex): one JSON object per line."""
+    env = dict(os.environ)
+    env.pop("TYPESAFE_API_KEY", None)
+    env["PYTHONPATH"] = str(ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    lines = [
+        {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+        {"jsonrpc": "2.0", "method": "notifications/initialized"},
+        {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
+    ]
+    proc = subprocess.run(
+        [sys.executable, "-m", "lcc.mcp_server"],
+        input=b"".join(json.dumps(m).encode() + b"\n" for m in lines),
+        capture_output=True, timeout=60, cwd=str(ROOT), env=env,
+    )
+    assert proc.returncode == 0, proc.stderr.decode()[-2000:]
+    responses = [json.loads(line) for line in proc.stdout.splitlines() if line.strip()]
+    assert [r["id"] for r in responses] == [1, 2]
+    assert responses[0]["result"]["serverInfo"]["name"] == "lcc"
+    assert any(t["name"] == "compact_transcript" for t in responses[1]["result"]["tools"])

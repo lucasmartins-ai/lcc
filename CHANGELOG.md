@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Fixed
+
+- **`lcc mcp` never completed the MCP handshake with real clients.** The stdio server only
+  read LSP-style `Content-Length` frames, while the MCP stdio transport (Claude Code, Codex,
+  Cursor) sends one JSON message per line, so `initialize` hung until the client timed out.
+  In Claude Code this left the plugin's `lcc` server disconnected and every `/compact` fell
+  back to the built-in summary (`no connected MCP tool "compact_transcript"`). The server now
+  reads newline-delimited JSON and still accepts `Content-Length` frames, replying in the
+  framing of each request.
+
 ## [1.0.0] - 2026-10-07
 
 First stable release. The library API, the CLI surface, and the MCP tool set are now
