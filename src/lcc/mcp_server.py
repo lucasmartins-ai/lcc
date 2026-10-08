@@ -389,6 +389,15 @@ def handle_message(message: dict[str, Any]) -> dict[str, Any] | None:
                     "isError": True,
                 },
             )
+        # Opt-in (LCC_REQUEST_LOG=1): logs the redacted goal only, after the output exists.
+        from lcc.request_log import log_request
+
+        log_request(
+            arguments.get("question"),
+            tool=f"mcp:{name}",
+            field=arguments.get("field"),
+            language=arguments.get("language"),
+        )
         return _result(
             request_id, {"content": [{"type": "text", "text": json.dumps(output)}]}
         )
