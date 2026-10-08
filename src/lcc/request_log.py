@@ -49,9 +49,22 @@ RULES: tuple[tuple[str, str], ...] = (
         r"(?i)\b(?:api[_-]?key|access[_-]?key|token|secret|password|passwd|pwd|senha|chave)"
         r"\s*(?:[:=]|\bis\b|\bé\b|\bwas\b|\bera\b)\s*\S+",
     ),
+    # bare "senha minhasenha2024": a value with a digit; prose ("token tomorrow") survives
+    (
+        "<TOKEN>",
+        r"(?i)\b(?:api[_-]?key|access[_-]?key|token|secret|password|passwd|pwd|senha|chave)"
+        r"\s+(?=\S*\d)\S+",
+    ),
     ("<TOKEN>", r"\b(?:sk|pk|rk|ghp|gho|ghs|ghu|github_pat|glpat|xox[abprs]|hf|AKIA)[-_][\w-]{8,}"),
     ("<TOKEN>", r"\bAKIA[0-9A-Z]{12,}\b"),
     ("<TOKEN>", r"\b[\w-]{32,}\b"),
+    # 20+ word chars holding a 12+ alnum run that mixes lower, upper and digits ("pfx_aBcD1EfGh2").
+    # ponytail: also eats long CamelCase-with-digit names (OAuth2ClientCredentials); privacy wins.
+    (
+        "<TOKEN>",
+        r"\b(?=\w{20,}\b)\w*?(?=[A-Za-z0-9]*[a-z])(?=[A-Za-z0-9]*[A-Z])(?=[A-Za-z0-9]*\d)"
+        r"[A-Za-z0-9]{12,}\w*\b",
+    ),
     (
         "<HOST>",
         r"(?i)(?<![\w:])(?:(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}"
@@ -66,6 +79,7 @@ RULES: tuple[tuple[str, str], ...] = (
     ("<HOST>", r"\b[A-Za-z][\w-]*:\d{2,5}\b|\blocalhost\b"),
     ("<VALUE>", r"\"[^\"]*\"|`[^`]*`|“[^”]*”|‘[^’]*’|(?<!\w)'[^'\n]+'(?!\w)"),
     ("<NUMBER>", r"\b\d[\d.,/:-]{3,}\d\b"),
+    ("<NUMBER>", r"(?<!\d)\d{9,}(?!\d)"),  # CPF/phone glued to letters, no word boundary
 )
 RULESET_SHA256 = hashlib.sha256(json.dumps(RULES).encode()).hexdigest()
 _COMPILED = tuple((label, re.compile(pattern)) for label, pattern in RULES)

@@ -246,6 +246,14 @@ def test_cli_compact_records_tool(log_dir, monkeypatch, tmp_path):
         ("ping fe80::1ff:fe23:4567:890a now", "<HOST>", "fe80"),
         ("ping 2001:db8::1 now", "<HOST>", "2001"),
         ("open C:/Users/bob/x.txt", "<PATH>", "C:"),
+        # import review: 20-31 char mixed-case tokens, bare "senha <value>", digits glued to letters
+        ("key abc_1XyzQWERTyUIOpA2Bc3D4e here", "<TOKEN>", "QWERT"),
+        ("use 1a2BCDEFGH3IJK4LMn5op6qR now", "<TOKEN>", "BCDEFGH"),
+        ("key abcde_aBcDeFg1HIJKlm2 ok", "<TOKEN>", "aBcDeFg"),
+        ("a senha minhasenha2024 ok", "<TOKEN>", "2024"),
+        ("PASSWORD abc12345", "<TOKEN>", "abc12345"),
+        ("cpf 12345678901Fulano ok", "<NUMBER>", "12345678901"),
+        ("tel abc987654321", "<NUMBER>", "987654321"),
     ],
 )
 def test_redaction_review_gaps(raw, placeholder, leak):
@@ -258,3 +266,6 @@ def test_redaction_still_keeps_plain_pt_and_en_goals():
     for goal in ("what's the plan for today", "isn't it the latest", "qual a senha padrão do wifi"):
         out = request_log.redact(goal)
         assert "<VALUE>" not in out, out
+    # prose after a secret keyword, CamelCase / snake_case identifiers and short numbers survive
+    for goal in ("rotate the token tomorrow", "refactor HttpRequestLoggerFactoryBuilder", "fix test_import_v2_requests_cases", "retry 3 times"):
+        assert request_log.redact(goal) == goal, goal
