@@ -6,6 +6,25 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Fixed
+
+- **`lcc mcp` never completed the MCP handshake with real clients.** The stdio server only
+  read LSP-style `Content-Length` frames, while the MCP stdio transport (Claude Code, Codex,
+  Cursor) sends one JSON message per line, so `initialize` hung until the client timed out.
+  In Claude Code this left the plugin's `lcc` server disconnected and every `/compact` fell
+  back to the built-in summary (`no connected MCP tool "compact_transcript"`). The server now
+  reads newline-delimited JSON and still accepts `Content-Length` frames, replying in the
+  framing of each request.
+
+## [1.0.0] - 2026-10-07
+
+First stable release. The library API, the CLI surface, and the MCP tool set are now
+covered by the compatibility promise.
+
+This release also publishes everything merged since 0.5.0: the MSI research release
+(sprints 1–10), tool-call compaction judged locally by Laya, the hosted MCP endpoint and the
+ChatGPT plugin.
+
 ### Sprint 10 — Research release and audit resolution
 
 - **Audit findings R1–R3 resolved:**
@@ -106,6 +125,10 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- README leads with measured results, the demo GIFs and a three-line quick start; the
+  research and audit material follows it. Demo GIFs regenerated against this release
+  (`demos/make_gifs.py` now finds a monospace font on Linux). Package metadata moves to
+  `Development Status :: 4 - Beta` and links the docs site and changelog.
 - Development installs now include JSON Schema validation, and contract tests
   use pinned in-repo schema fixtures rather than machine-specific clone paths.
   CLI error tests use pytest filesystem fixtures for current Typer versions.
@@ -123,12 +146,9 @@ All notable changes to this project are documented here. The format is based on
 - `laya_confidence_missing` warnings are gone. Confidence never gates a decision and Laya
   returns none, so the warning added noise without changing a keep or a drop.
 
-## [1.0.0] - 2026-10-02
+### Hosted MCP and ChatGPT plugin
 
-First stable release. The library API, the CLI surface, and the MCP tool set are now
-covered by the compatibility promise.
-
-### Added
+#### Added
 
 - **ChatGPT plugin.** `lcc` is served over streamable HTTP at
   `https://lcc.lookadev.com/mcp` and submitted to the ChatGPT plugin directory as
@@ -141,51 +161,28 @@ covered by the compatibility promise.
 - **Published privacy policy** at
   <https://lucasmartins-ai.github.io/lcc/PRIVACY_POLICY>.
 
-### Changed
+#### Changed
 
 - README restructured: rationale, install, and a first-command example now precede the
   reference material.
 - `lcc mcp --http` serves the same tools over streamable HTTP, bound to `$HOST`/`$PORT`.
   An unexpanded `$PORT` is resolved from the environment instead of failing validation.
 
-### Fixed
+#### Fixed
 
 - `robots.txt` and `favicon.ico` answer 200/204. Plugin scanners probe both before
   `/mcp`, and a 404 read as a broken host stalled tool discovery.
 - HTTP transport negotiates protocol revision `2025-06-18`; the stdio server keeps
   `2024-11-05`.
 
-### Security
+#### Security
 
 - The hosted deployment sets no `TYPESAFE_API_KEY`, so `compact` runs the offline
   `mechanical` provider and submitted text never leaves the process.
 
-## [Unreleased]
+### Laya specialisation
 
-### Added
-
-- **Laya judges tool-call compaction.** `--mode tool-calls --provider laya` retires spent
-  tool calls locally and offline, so this mode no longer requires `TYPESAFE_API_KEY`.
-  Measured on 9 real tool calls with `laya-typed-decisions`: 56.2% reduction,
-  `semantic_guarantee: judged`, no warnings, 2.7s over 9 calls. It dropped the
-  reconnaissance and kept `edit_file` (0.75) and `pytest` (0.56). See
-  [docs/LAYA.md](docs/LAYA.md) § 2.
-
-### Changed
-
-- The transcript mode accepts `laya` alongside `jev`, in the CLI, the MCP tool, and the
-  library API. The default stays `jev`; `--provider laya` is opt-in.
-
-### Fixed
-
-- An unavailable Laya now degrades with one typed `laya_unavailable` warning naming the
-  cause, instead of one `laya_batch_N_failed` warning per batch that read like a flaky
-  judge.
-- The transcript summary no longer labels local Laya calls as "Jev calls".
-- `laya_confidence_missing` warnings are gone. Confidence never gates a decision, and Laya
-  returns none, so the warning added noise without changing a keep or a drop.
-
-### Added
+#### Added
 
 - Laya specialisation harness, and the measurement it produced. `benchmarks/research/laya_finetune_items.py`
   turns the corpus factory into supervised items — de-labelled first, because the corpora's literal
@@ -201,7 +198,7 @@ covered by the compatibility promise.
 - `lcc.relevance.compactor.keep_question`: the typed keep question now lives in one place, shared by the
   Jev and Laya paths and by the fine-tuning harness, so training text cannot drift from inference text.
 
-### Changed
+#### Changed
 
 - `lcc compact --provider laya` documents `--batch-size 1` as the configuration that works. Measured
   2026-09-23 on the same blocks: with several blocks in one state both the shipped and a specialised
@@ -450,7 +447,8 @@ response verification — those remain roadmap items (see `docs/roadmap.md`).
   `CODE_OF_CONDUCT.md`, the `docs/` set (architecture, evaluation, roadmap, release, ADRs),
   examples, and agent guidance (`CLAUDE.md`, `AGENTS.md`).
 
-[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.2.0...v0.4.0
 [0.2.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.1.0...v0.2.0

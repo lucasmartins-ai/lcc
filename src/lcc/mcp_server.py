@@ -1,7 +1,8 @@
 """Minimal MCP (Model Context Protocol) stdio server for `lcc` (Etapa 5 MVP).
 
 Exposes the local-first capabilities to MCP-capable agents over JSON-RPC 2.0
-on stdio (LSP-style ``Content-Length`` framing):
+on stdio (newline-delimited JSON per the MCP spec; LSP-style ``Content-Length``
+framing is also accepted):
 
 - ``compact`` — relevance compaction (default ``mechanical``: offline, no key)
 - ``compact_transcript`` — tool-call compaction of a session transcript (pairs tool calls with
