@@ -312,3 +312,33 @@ def test_supersession_does_not_seed_further_links():
     assert blocks[2].id not in closures, (
         "a block linking only to a pulled revision, with no cue of its own, must not follow"
     )
+
+
+#: A decision and a later conversational reversal of it. Each reversal shares exactly one
+#: distinctive term with the decision and uses no document-style cue ("revised", "corrected"),
+#: so only the conversational cues in the supersession pass can link it.
+REVERSAL_SAMPLES = {
+    "en": (
+        "Decision: the session store will run on Postgres behind the billing gateway.\n\n"
+        "TOOL OUTPUT: the scanner returned HTTP 200 with 41 kB of HTML and no console errors.\n\n"
+        "On second thought, scratch that: drop Postgres and keep SQLite for now.\n"
+    ),
+    "pt": (
+        "Decisão: o armazenamento de sessões vai rodar em Postgres atrás do gateway de cobrança.\n\n"
+        "TOOL OUTPUT: o scanner retornou HTTP 200 com 41 kB de HTML e nenhum erro no console.\n\n"
+        "Mudei de ideia: em vez de Postgres, usa SQLite mesmo.\n"
+    ),
+}
+
+
+@pytest.mark.parametrize("lang", sorted(REVERSAL_SAMPLES))
+def test_conversational_reversal_is_linked_to_the_decision(lang: str):
+    """A decision reversed mid-session must not survive compaction without its reversal.
+
+    Keeping the original and dropping "scratch that, use X" leaves a stale decision that reads
+    as current, which is worse than losing both.
+    """
+    blocks, closures = _closure_for(REVERSAL_SAMPLES[lang], 0)
+    reversal = blocks[2]
+    assert reversal.id in closures, f"the {lang} reversal was not linked to the decision"
+    assert closures[reversal.id].startswith("supersedes_value"), closures[reversal.id]
