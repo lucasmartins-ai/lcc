@@ -536,6 +536,7 @@ def _dependency_closures(
     supersedes = {
         block.id: bool(_SUPERSESSION_CUE_RE.search(block.text)) for block in blocks
     }
+    index_of = {block.id: block.index for block in blocks}
 
     pulled: dict[str, str] = {}
     seen = set(kept_ids)
@@ -566,11 +567,15 @@ def _dependency_closures(
     for block_id in set(terms_for) - seen:
         if not supersedes.get(block_id):
             continue
-        common = set()
-        for source_id in seen:
-            common |= terms_for.get(source_id, set()) & terms_for[block_id]
-        if common:
-            pulled[block_id] = f"supersedes_value:{','.join(sorted(common)[:3])}"
+        # Name the earliest block it shares a term with: the kept bytes stay exact, so the report
+        # is where "which version is current" is recorded.
+        for source_id in sorted(seen, key=index_of.__getitem__):
+            common = terms_for.get(source_id, set()) & terms_for[block_id]
+            if common:
+                pulled[block_id] = (
+                    f"supersedes_value:{source_id}: {','.join(sorted(common)[:3])}"
+                )
+                break
     return pulled
 
 
