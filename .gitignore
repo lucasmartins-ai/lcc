@@ -69,3 +69,6 @@ secrets*.json
 /*-report.json
 .decisions*.json
 lcc-decisions*.json
+
+# Opt-in request log (LCC_REQUEST_LOG=1): local, never committed
+.lcc/

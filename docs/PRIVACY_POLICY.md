@@ -52,6 +52,10 @@ The server's operational log records the request method, path, and status code o
 (for example `POST /mcp 200`). It does **not** record request bodies, tool arguments, or
 response contents.
 
+The open-source CLI and MCP server have an opt-in request log (`LCC_REQUEST_LOG=1`) that
+stores redacted goal strings locally, never the context. It is off by default and **not
+enabled on the hosted deployment**. If that ever changes, this policy must be updated first.
+
 ## Third-party services and subprocessors
 
 None in the request path. The plugin does not embed trackers, analytics, or advertising

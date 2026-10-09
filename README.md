@@ -200,6 +200,9 @@ summaries. Its decisions do not prove downstream answer quality. See [Jev](docs/
 and [Laya](docs/LAYA.md) for limits and fallback contracts.
 `LCC_DISABLE_NETWORK=1` disables the Jev path. Explicit unavailable Jev keeps
 context and reports degradation; unavailable Laya uses a named mechanical fallback.
+`LCC_REQUEST_LOG=1` opts in to a local log of redacted goal strings (never the
+context) in `./.lcc/request-log` (`LCC_REQUEST_LOG_DIR` to move it); it is off by
+default. `lcc request-log` counts entries and `--delete ID` removes one.
 Check `provider_used`, `degraded`, `degradation_reason`, sufficiency failures
 and review flags before using the output.
 
