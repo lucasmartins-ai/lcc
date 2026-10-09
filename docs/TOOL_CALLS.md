@@ -93,9 +93,21 @@ runs requests concurrently.
 is a semantic question, and a lexical scorer cannot answer it honestly. Use `--provider jev`
 (or `auto`, which prefers Jev).
 
+### Offline policy: `--provider rules`
+
+No key, no model, no network. A deterministic policy
+(`src/lcc/relevance/transcript_rules.py`) decides each unpinned call from the transcript's
+structure and records the rule as the reason: it keeps the latest error result and the call
+before it, the latest `git status|diff|log`, plan/todo, edit, question to the user, the most
+recent result, and calls on files/URLs named in the goal or recent turns; it drops outputs
+superseded by a later read/run of the same file or command (`superseded_by_later_call:<id>`)
+and successful reads far from recent work (`stale_read_far_from_recent_work`); it trims other
+outputs over 2000 chars to head + tail (`large_old_output_trimmed`). `semantic_guarantee` is
+`none`. Pass `is_error: true` on a tool result when the host knows it failed.
+
 ## 6. CLI options
 
-Honored: `--question`, `--provider jev|auto`, `--threshold`, `--trim-head-chars`,
+Honored: `--question`, `--provider jev|laya|auto|rules`, `--threshold`, `--trim-head-chars`,
 `--preserve-recent`, `--max-state-tokens`, `--max-request-tokens`, `--batch-size`,
 `--max-workers`, `--min-reduction` (sets `worth_it`), `--model` (token counting),
 `--jev-model`, `-o/--output`, `-r/--report`, `--dry-run`.

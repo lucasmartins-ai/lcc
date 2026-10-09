@@ -29,9 +29,9 @@ export function resolveOptions(options = {}) {
   const merged = { ...DEFAULT_OPTIONS };
   if (options.server) merged.server = String(options.server);
   if (options.question) merged.question = String(options.question);
-  // The MCP tool accepts jev | laya | auto; anything else falls back to the default
-  // rather than sending a value the tool would reject.
-  if (["jev", "laya", "auto"].includes(String(options.provider))) {
+  // The MCP tool accepts jev | laya | auto | rules; anything else falls back to the
+  // default rather than sending a value the tool would reject.
+  if (["jev", "laya", "auto", "rules"].includes(String(options.provider))) {
     merged.provider = String(options.provider);
   }
   merged.threshold = number(options.threshold, DEFAULT_OPTIONS.threshold);
@@ -123,6 +123,8 @@ export function toMcpMessages(messages) {
       entry.toolResults = message.toolResults.map((result) => ({
         tool_use_id: result.tool_use_id,
         text: typeof result.text === "string" ? result.text : "",
+        // The rules policy keeps the latest failed call; forward the flag when present.
+        ...(result.is_error === true || result.isError === true ? { is_error: true } : {}),
       }));
     }
     return entry;

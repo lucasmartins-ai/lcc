@@ -220,3 +220,26 @@ def test_dry_run_writes_the_report_but_no_transcript(tmp_path: Path):
     assert result.exit_code == 0, result.output
     assert not out.exists()
     assert json.loads(report.read_text(encoding="utf-8"))["mode"] == "tool-calls"
+
+
+def test_the_rules_policy_runs_offline_from_the_cli(tmp_path: Path):
+    src = write(tmp_path)
+    report = tmp_path / "report.json"
+    result = runner.invoke(
+        app,
+        [
+            "compact", str(src), "-q", "finish the parser fix", "--mode", "tool-calls",
+            "--provider", "rules", "--preserve-recent", "0", "-r", str(report),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads(report.read_text(encoding="utf-8"))
+    assert data["provider_used"] == "rules"
+    assert data["degraded"] is False
+
+
+def test_the_rules_policy_is_refused_in_blocks_mode(tmp_path: Path):
+    src = write(tmp_path)
+    result = runner.invoke(app, ["compact", str(src), "-q", "x", "--provider", "rules"])
+    assert result.exit_code == 2
+    assert "rules" in result.output

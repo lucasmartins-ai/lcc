@@ -77,11 +77,12 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(question, str) or not question.strip():
         raise ValueError("compact_transcript requires non-empty 'question'")
     provider = args.get("provider", "jev")
-    if provider not in ("auto", "jev", "laya"):
+    if provider not in ("auto", "jev", "laya", "rules"):
         raise ValueError(
-            "compact_transcript needs a semantic judge: use 'laya' (local, offline), "
-            "'jev', or 'auto' — 'mechanical' scores lexical overlap, which cannot say "
-            "whether a tool's work is finished"
+            "compact_transcript needs a semantic judge or the rules policy: use 'laya' "
+            "(local, offline), 'jev', 'auto', or 'rules' (offline deterministic policy) — "
+            "'mechanical' scores lexical overlap, which cannot say whether a tool's work "
+            "is finished"
         )
     threshold = float(args.get("threshold", 0.5))
     if not 0.0 <= threshold <= 1.0:
@@ -252,12 +253,14 @@ TOOLS: dict[str, dict[str, Any]] = {
                 "question": {"type": "string"},
                 "provider": {
                     "type": "string",
-                    "enum": ["jev", "laya", "auto"],
+                    "enum": ["jev", "laya", "auto", "rules"],
                     "default": "jev",
                     "description": (
                         "Semantic judge. 'laya' is local and offline (needs the [laya] "
                         "extra); 'jev' is the remote TypeSafe System 1 and needs "
-                        "TYPESAFE_API_KEY. 'auto' prefers Jev."
+                        "TYPESAFE_API_KEY. 'auto' prefers Jev. 'rules' is an offline "
+                        "deterministic policy (no key, no model): keeps the latest error, "
+                        "git state, plan and edit, drops superseded and stale outputs."
                     ),
                 },
                 "threshold": {"type": "number", "default": 0.5},

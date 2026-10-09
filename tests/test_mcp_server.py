@@ -381,3 +381,38 @@ def test_stdio_survives_malformed_messages():
     assert [(r["id"], r.get("error", {}).get("code")) for r in responses] == [
         (None, -32700), (None, -32600), (3, -32602), (4, -32602), (5, None),
     ]
+
+
+def test_compact_transcript_runs_the_offline_rules_policy():
+    resp = handle_message(
+        {
+            "jsonrpc": "2.0",
+            "id": 9,
+            "method": "tools/call",
+            "params": {
+                "name": "compact_transcript",
+                "arguments": {
+                    "messages": [
+                        {"role": "user", "text": "fix it"},
+                        {"role": "assistant", "text": "", "toolUses": [
+                            {"tool_use_id": "a", "tool": "Read", "input": {"file_path": "x.py"}}]},
+                        {"role": "user", "text": "", "toolResults": [
+                            {"tool_use_id": "a", "text": "old body"}]},
+                        {"role": "assistant", "text": "", "toolUses": [
+                            {"tool_use_id": "b", "tool": "Read", "input": {"file_path": "x.py"}}]},
+                        {"role": "user", "text": "", "toolResults": [
+                            {"tool_use_id": "b", "text": "new body"}]},
+                    ],
+                    "question": "fix it",
+                    "provider": "rules",
+                    "preserve_recent": 2,
+                },
+            },
+        }
+    )
+    assert resp is not None and resp["result"].get("isError") is not True
+    payload = json.loads(resp["result"]["content"][0]["text"])
+    assert payload["report"]["provider_used"] == "rules"
+    decisions = {d["id"]: d for d in payload["decisions"]}
+    assert decisions["a"]["decision"] == "drop"
+    assert decisions["a"]["reason"] == "superseded_by_later_call:b"

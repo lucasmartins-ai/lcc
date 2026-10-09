@@ -35,6 +35,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from lcc.relevance.jev import JEV_CONTEXT_LIMIT_TOKENS, JevClient, jev_tokens, parse_noul_answer
+from lcc.relevance.transcript_rules import rules_decisions
 from lcc.token_budget import count_tokens
 
 TRANSCRIPT_SCHEMA_VERSION = "transcript-compaction-1.0"
@@ -45,8 +46,9 @@ TRANSCRIPT_SCHEMA_VERSION = "transcript-compaction-1.0"
 LAYA_INIT_ERROR: str | None = None
 LOGGER = logging.getLogger("lcc.transcript")
 
-#: Providers this mode accepts: a semantic judge is required, ``auto`` prefers Jev.
-SUPPORTED_PROVIDERS = ("jev", "laya", "auto")
+#: Providers this mode accepts: a semantic judge (``auto`` prefers Jev), or ``rules`` — the
+#: offline deterministic policy in :mod:`lcc.relevance.transcript_rules`.
+SUPPORTED_PROVIDERS = ("jev", "laya", "auto", "rules")
 DEFAULT_THRESHOLD = 0.5
 DEFAULT_PRESERVE_RECENT = 6
 DEFAULT_TRIM_HEAD_CHARS = 300
@@ -88,6 +90,7 @@ class ToolResult:
     id: str
     text: str
     message_index: int
+    is_error: bool = False
 
 
 @dataclass
@@ -170,7 +173,9 @@ def messages_to_payload(messages: list[TranscriptMessage]) -> list[dict[str, Any
             ]
         if message.tool_results:
             entry["toolResults"] = [
-                {"tool_use_id": result.id, "text": result.text} for result in message.tool_results
+                {"tool_use_id": result.id, "text": result.text}
+                | ({"is_error": True} if result.is_error else {})
+                for result in message.tool_results
             ]
         payload.append(entry)
     return payload
@@ -244,6 +249,7 @@ def parse_transcript(payload: Any) -> list[TranscriptMessage]:
                     id=result_id,
                     text=inner if isinstance(inner, str) else json.dumps(inner, default=str),
                     message_index=index,
+                    is_error=raw.get("is_error") is True,
                 )
             )
             results_by_id[result_id] = results[-1]
@@ -674,14 +680,38 @@ def _decide(
     }
 
 
-def _trimmed_result_text(text: str, *, head_chars: int, tool: str) -> str:
+def _with_chars(
+    decision: dict[str, Any], call: ToolCall, *, trim_head_chars: int
+) -> dict[str, Any]:
+    """Fill ``chars`` / ``chars_after`` for a decision made outside :func:`_decide`.
+
+    A trim that would not shrink the result is turned back into a keep, as in ``_decide``.
+    """
+    chars = call.chars
+    after = chars
+    if decision["decision"] == "drop":
+        after = 0
+    elif decision["decision"] == "trim" and call.result is not None:
+        trimmed = _trimmed_result_text(
+            call.result.text,
+            head_chars=trim_head_chars,
+            tool=call.tool,
+            tail_chars=decision.get("trim_tail_chars", 0),
+        )
+        if len(trimmed) < len(call.result.text):
+            after = chars - len(call.result.text) + len(trimmed)
+        else:
+            decision = dict(decision, decision="keep", reason="short_result_kept_whole")
+    return dict(decision, chars=chars, chars_after=after)
+
+
+def _trimmed_result_text(text: str, *, head_chars: int, tool: str, tail_chars: int = 0) -> str:
     if head_chars <= 0:
         return ""
-    removed = len(text) - head_chars
-    return (
-        f"{text[:head_chars]}\n"
-        f"[... lcc: {removed} chars of this tool result dropped; re-run {tool} for the rest ...]"
-    )
+    tail = text[-tail_chars:] if tail_chars > 0 and len(text) > head_chars + tail_chars else ""
+    removed = len(text) - head_chars - len(tail)
+    note = f"[... lcc: {removed} chars of this tool result dropped; re-run {tool} for the rest ...]"
+    return f"{text[:head_chars]}\n{note}" + (f"\n{tail}" if tail else "")
 
 
 def _apply(
@@ -757,8 +787,14 @@ def _possibly_trimmed(
     tool = decision.get("tool") or "the tool"
     return ToolResult(
         id=result.id,
-        text=_trimmed_result_text(result.text, head_chars=trim_head_chars, tool=tool),
+        text=_trimmed_result_text(
+            result.text,
+            head_chars=trim_head_chars,
+            tool=tool,
+            tail_chars=decision.get("trim_tail_chars", 0),
+        ),
         message_index=result.message_index,
+        is_error=result.is_error,
     )
 
 
@@ -790,7 +826,8 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
     if request.provider not in SUPPORTED_PROVIDERS:
         raise UnsupportedTranscriptProviderError(
             f"tool-call compaction needs a semantic judge; {request.provider!r} cannot answer "
-            "'is this tool output still needed'. Use --provider jev (or auto)."
+            "'is this tool output still needed'. Use --provider jev, laya, auto, or "
+            "rules (offline policy)."
         )
     if not 0.0 <= request.threshold <= 1.0:
         raise TranscriptError("threshold must be between 0 and 1")
@@ -830,8 +867,13 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
     batch_count = 0
     decisions: list[dict[str, Any]] = []
 
+    rules = request.provider == "rules"
+    if rules:
+        provider_used = "rules"
     client = (
-        request.client
+        None
+        if rules
+        else request.client
         if request.client is not None
         else _resolve_client(request.provider, request.laya_model)
     )
@@ -842,6 +884,14 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
     if not candidates:
         warnings.append("no_scorable_tool_calls: every call is pinned or has no result yet")
         degradation_reason = "no_candidates"
+    elif rules:
+        judge = "rules"
+        decisions = [
+            _with_chars(decision, call, trim_head_chars=request.trim_head_chars)
+            for decision, call in zip(
+                rules_decisions(messages, candidates, request.question), candidates, strict=True
+            )
+        ]
     elif client is None:
         degraded = True
         degradation_reason = f"{judge}_unavailable_fail_safe"
