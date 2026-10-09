@@ -338,10 +338,10 @@ def test_fitting_stages_are_reported_when_the_budget_is_tight():
     big_input = {"file": "x" * 4000, "offset": 1}
     payload = build(*[("Read", big_input) for _ in range(3)])
     generous = run(payload, ScoreMap(), max_state_tokens=100_000)
-    tight = run(payload, ScoreMap(), max_state_tokens=300)
+    tight = run(payload, ScoreMap(), max_state_tokens=600)
     assert generous.report["state_fit_stage"] == "full"
     assert tight.report["state_fit_stage"] in {"inputs-200", "calls-one-line"}
-    assert tight.report["state_tokens"] <= 300
+    assert tight.report["state_tokens"] <= 600
     assert tight.report["degraded"] is False
 
 
@@ -402,3 +402,58 @@ def test_laya_without_injected_client_never_builds_a_jev_client(monkeypatch):
 
     assert result.report["provider_used"] == "laya"
     assert {entry["source"] for entry in result.decisions} == {"laya"}
+
+
+# --- request sizing against the real Jev limit -------------------------------------------
+
+#: Worst API ``input_tokens`` per request char (ensure_ascii=False JSON) over the 277
+#: accepted transcript-mode requests of real-context bench v0.1. The API accepted up to
+#: 34,741 input tokens; requests projected at >= ~35.7k were refused (77x
+#: ``max_tokens_exceeded``) although LCC counted them under 30k.
+API_TOKENS_PER_CHAR_WORST = 0.434
+
+
+class SizeRecorder(ScoreMap):
+    """Stub Jev that records each request's size exactly as the client would send it."""
+
+    def __init__(self):
+        super().__init__(default=(0.9, 0.9))
+        self.request_chars = []
+
+    def evaluate(self, state, questions):
+        import json as _json
+
+        payload = {"model": self.model, "state": state, "questions": questions}
+        self.request_chars.append(len(_json.dumps(payload, ensure_ascii=False)))
+        return super().evaluate(state, questions)
+
+
+def test_no_request_exceeds_the_calibrated_jev_budget():
+    # Dense, space-free tool inputs (patches, minified JSON, hashes) are where the
+    # word-blended heuristic undercounted 1.3-2.4x: 40 calls of ~2.5k such chars made a
+    # ~100k-char "full" state the old budget scored under 25k tokens, so every batch
+    # reached the API at ~43k real tokens and came back 400.
+    import hashlib
+
+    def dense(i):
+        return "".join(hashlib.sha256(f"{i}-{j}".encode()).hexdigest() for j in range(40))
+
+    payload = build(*[("Edit", {"file": f"m{i}.py", "patch": dense(i)}) for i in range(40)])
+    client = SizeRecorder()
+    result = run(payload, client)
+
+    assert client.request_chars, "the judge must still be asked"
+    worst = max(client.request_chars) * API_TOKENS_PER_CHAR_WORST
+    assert worst <= 30000, f"a request projects to {worst:.0f} API tokens"
+    assert result.report["degraded"] is False
+    assert result.report["state_fit_stage"] != "full"
+
+
+def test_request_budget_never_exceeds_the_jev_window():
+    # A caller asking for more than Jev accepts still gets requests the client will send.
+    from lcc.relevance.jev import JEV_CONTEXT_LIMIT_TOKENS
+
+    payload = build(*[("Read", {"file": f"{i}.py"}) for i in range(80)])
+    client = SizeRecorder()
+    run(payload, client, max_request_tokens=200_000, batch_calls=80)
+    assert max(client.request_chars) * API_TOKENS_PER_CHAR_WORST <= JEV_CONTEXT_LIMIT_TOKENS

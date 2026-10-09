@@ -82,6 +82,7 @@ failed pass never drops content it could not judge.
 | Answer preservation (Jev selector, mock downstream) | −58 tokens/task, correctness delta 0.0; verifier PASS 29–31, REVIEW 19–21, FAIL 0 | 50 tasks |
 | Cost | $0.005 (1.2K) → $0.187 (44K) per pass | 4 scales |
 | Token count, API vs local (pre-flight calibration, 2026-09-22) | worst fit `api = 249 + 0.98 * local` (prose-JSON); second run combined `api = 437 + 0.90 * local` — the API never counted above the local tiktoken count + a small fixed overhead, so at the refusal point it still projects under the cap (32,361 worst case). Cost: the band refused that the API would take, 1–10% of the window across the three fits | 6 API measurements + 1 live refusal, 2 runs |
+| Token count, API vs request chars (re-calibration, 2026-10-09) | supersedes the row above on real sessions: over 277 accepted transcript-mode requests the API spent 0.296–0.434 tokens per request char (`api = -890 + 0.388 * chars`), i.e. up to 1.24x the cl100k count and 1.3–2.4x the chars/words heuristic x1.45 the pre-flight used offline. Accepted up to 34,741 input_tokens; 77 requests projected at >= ~35.7k were refused (`max_tokens_exceeded`). Pre-flight and transcript budgeting now count `ceil(chars / 2.2)` (`jev.jev_tokens`), an upper bound on every accepted request | real-context bench v0.1, 277 ok + 77 refused, offline replay of the same batches |
 
 Limits, stated plainly: the provider is remote, so it needs the network and a key
 (everything else in LCC stays offline); the resolved backend returned no `confidence`,
