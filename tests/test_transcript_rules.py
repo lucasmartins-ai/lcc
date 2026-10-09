@@ -291,3 +291,70 @@ def test_a_small_old_non_read_output_is_kept_by_default():
     c.call("Bash", {"command": "true"}, "")
     d = by_id(run(c))[cid]
     assert (d["decision"], d["reason"], d["chars_after"]) == ("keep", "kept_default", d["chars"])
+
+
+# --- review regressions (PR #45) ---------------------------------------------------------
+
+
+def _error_result(c: Convo) -> None:
+    c.messages[-1]["toolResults"][0]["is_error"] = True
+
+
+def test_a_partial_read_does_not_supersede_a_full_read():
+    c = Convo()
+    full = c.call("Read", {"file_path": "/r/a.py"}, "f" * 5000)
+    c.call("Read", {"file_path": "/r/a.py", "offset": 10, "limit": 5}, "five lines")
+    c.filler(4)
+    assert not by_id(run(c))[full]["reason"].startswith("superseded_by_later_call")
+
+
+@pytest.mark.parametrize("tool", ["Read", "Write"])
+def test_a_failed_later_view_does_not_supersede_a_good_one(tool):
+    c = Convo()
+    good = c.call("Read", {"file_path": "/r/a.py"}, "f" * 5000)
+    c.call("Bash", {"command": "ls"}, "a.py")  # keeps `good` out of call_before_latest_error
+    c.call(tool, {"file_path": "/r/a.py", "content": "x"}, "File does not exist.")
+    _error_result(c)
+    c.filler(4)
+    assert not by_id(run(c))[good]["reason"].startswith("superseded_by_later_call")
+
+
+def test_source_code_mentioning_error_is_not_the_latest_error():
+    c = Convo()
+    failing = c.call(
+        "Bash", {"command": "pytest"}, "FAILED tests/test_p.py::t - AssertionError\n" + "e" * 3000
+    )
+    c.call("Bash", {"command": "pwd"}, "/r")
+    source = c.call("Read", {"file_path": "/r/p.py"}, "class ParseError(Exception):\n    pass\n")
+    c.filler(4)
+    d = by_id(run(c))
+    assert (d[failing]["decision"], d[failing]["reason"]) == ("keep", "latest_error_result")
+    assert d[source]["reason"] != "latest_error_result"
+
+
+def test_is_error_flag_wins_over_the_text_regex():
+    c = Convo()
+    flagged = c.call("Bash", {"command": "make"}, "make: *** [all] stopped " + "m" * 3000)
+    _error_result(c)
+    c.call("Bash", {"command": "grep -rn Error src"}, "src/p.py: raise Error('x')")
+    c.filler(4)
+    assert by_id(run(c))[flagged]["reason"] == "latest_error_result"
+
+
+def test_the_read_of_a_goal_named_file_is_kept_after_a_later_listing_mentions_it():
+    c = Convo()
+    read = c.call("Read", {"file_path": "/r/app.py"}, "a" * 3000)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("Glob", {"pattern": "**/*app.py"}, "/r/app.py\n/r/webapp.py")
+    c.filler(4)
+    d = by_id(run(c, goal="fix the bug in app.py"))
+    assert (d[read]["decision"], d[read]["reason"]) == ("keep", "named_in_goal")
+
+
+def test_a_bare_goal_name_does_not_match_a_longer_file_name():
+    c = Convo()
+    other = c.call("Read", {"file_path": "/r/webapp.py"}, "w" * 3000)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("Bash", {"command": "pwd"}, "/r")
+    c.filler(4)
+    assert by_id(run(c, goal="fix the bug in app.py"))[other]["reason"] != "named_in_goal"

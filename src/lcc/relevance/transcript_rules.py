@@ -6,19 +6,24 @@ follow-up request needs from the history) and are applied in this order, first m
 
 Protect (keep whole)
     latest_error_result / call_before_latest_error
-        failure_report needs the failing output and the action that produced it.
+        failure_report needs the failing output and the action that produced it. A result
+        is an error when ``is_error`` says so; transcripts without that flag fall back to
+        a text regex on command output only (never on Read/Grep of source).
     latest_git_state      git_ship needs the latest ``git status|diff|log`` per subcommand.
     latest_task_state     task_status / handoff need the active plan or todo list.
     latest_artifact_edit  revise_recent_output needs the artifact last written or edited.
     latest_user_question  approve_or_pick needs the options the agent last offered.
     latest_tool_result    task_status needs the most recent tool output.
-    named_in_goal         specified_task needs the files/URLs the goal names: the latest call
-                          whose input or output mentions each one.
+    named_in_goal         specified_task needs the files/URLs the goal names: the latest
+                          read/edit of each named file, plus the latest call that mentions
+                          it (whole-name match: ``app.py`` is not ``webapp.py``). A
+                          goal-named file is never dropped as stale.
     named_in_recent_turns a call on a file the recent (pinned) turns name is current work.
 
 Remove
-    superseded_by_later_call:<id>   a later read/write of the same file, or the same command
-                                    run again, makes this output stale. Dropped with its call.
+    superseded_by_later_call:<id>   a later successful whole-file Read/Write of the same file
+                                    (no offset/limit/pages), or the same command run again,
+                                    makes this output stale. Dropped with its call.
     stale_read_far_from_recent_work a successful read/search more than
                                     ``STALE_AFTER_MESSAGES`` messages before the end.
     large_old_output_trimmed        any other output over ``LARGE_RESULT_CHARS`` keeps its head
@@ -81,10 +86,35 @@ def _input_text(call: Any) -> str:
     return json.dumps(call.input, ensure_ascii=False, sort_keys=True, default=str)
 
 
-def _is_error(call: Any) -> bool:
-    result = call.result
-    return result is not None and (
-        bool(getattr(result, "is_error", False)) or bool(ERROR_RE.search(result.text))
+def _flagged(call: Any) -> bool:
+    return call.result is not None and bool(getattr(call.result, "is_error", False))
+
+
+def _is_error(call: Any, flags_present: bool) -> bool:
+    """``is_error`` decides when the transcript carries it; otherwise the text regex, on
+    command output only (a Read or Grep of source that says ``Error`` is not a failure)."""
+    if flags_present or call.result is None:
+        return _flagged(call)
+    return bool(_command(call)) and bool(ERROR_RE.search(call.result.text))
+
+
+def _names(path: str | None, ref: str) -> bool:
+    """``path`` is the file ``ref`` names (``app.py`` names ``/r/app.py``, not ``webapp.py``)."""
+    return bool(path) and (path == ref or path.endswith("/" + ref))
+
+
+def _mentions(text: str, ref: str) -> bool:
+    return re.search(rf"(?<![\w.-]){re.escape(ref)}(?![\w-])", text) is not None
+
+
+def _whole_view(call: Any) -> bool:
+    """A successful view of the whole file: only that replaces an earlier view of it."""
+    partial = any(call.input.get(k) is not None for k in ("offset", "limit", "pages"))
+    return (
+        call.tool in FILE_VIEW_TOOLS
+        and not partial
+        and call.result is not None
+        and not _flagged(call)
     )
 
 
@@ -102,7 +132,9 @@ def _supersede_key(call: Any) -> tuple[str, str]:
     return ("call", f"{call.tool} {_input_text(call)}")
 
 
-def _protections(all_calls: list[Any], goal: str, recent_text: str) -> dict[str, str]:
+def _protections(
+    all_calls: list[Any], goal: str, recent_text: str, flags_present: bool
+) -> dict[str, str]:
     """call id -> protecting rule, first rule wins."""
     protected: dict[str, str] = {}
 
@@ -114,7 +146,7 @@ def _protections(all_calls: list[Any], goal: str, recent_text: str) -> dict[str,
         return next((call for call in reversed(all_calls) if pred(call)), None)
 
     for index in range(len(all_calls) - 1, -1, -1):
-        if _is_error(all_calls[index]):
+        if _is_error(all_calls[index], flags_present):
             protect(all_calls[index], "latest_error_result")
             if index:
                 protect(all_calls[index - 1], "call_before_latest_error")
@@ -134,10 +166,16 @@ def _protections(all_calls: list[Any], goal: str, recent_text: str) -> dict[str,
     protect(latest(lambda c: c.tool in QUESTION_TOOLS), "latest_user_question")
     protect(latest(lambda c: c.result is not None), "latest_tool_result")
     for ref in _refs(goal):
+        # The file itself first (its latest read/edit), then its latest mention anywhere.
+        protect(
+            latest(lambda c, r=ref: c.tool in FILE_VIEW_TOOLS | EDIT_TOOLS and _names(_path(c), r)),
+            "named_in_goal",
+        )
         protect(
             latest(
                 lambda c, r=ref: (
-                    r in _input_text(c) or (c.result is not None and r in c.result.text)
+                    _mentions(_input_text(c), r)
+                    or (c.result is not None and _mentions(c.result.text, r))
                 )
             ),
             "named_in_goal",
@@ -156,7 +194,9 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
         if message.pinned and message.message_index != 0
         for part in [message.text, *(_input_text(c) for c in message.tool_calls)]
     )
-    protected = _protections(all_calls, goal, recent_text)
+    flags_present = any(_flagged(call) for call in all_calls)
+    protected = _protections(all_calls, goal, recent_text, flags_present)
+    goal_refs = _refs(goal)
     # Walk backwards once: for each call, the nearest later call that supersedes it.
     superseded_by: dict[str, str] = {}
     next_view: dict[tuple[str, str], str] = {}
@@ -164,7 +204,7 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
         key = _supersede_key(call)
         if key in next_view:
             superseded_by[call.id] = next_view[key]
-        if key[0] != "file" or call.tool in FILE_VIEW_TOOLS:
+        if key[0] != "file" or _whole_view(call):
             next_view[key] = call.id
     last_index = messages[-1].message_index if messages else 0
 
@@ -176,7 +216,9 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
                 decision, reason = "drop", f"superseded_by_later_call:{superseded_by[call.id]}"
             elif (
                 _is_read(call)
-                and not _is_error(call)
+                # Conservative on any tool: a read that may have failed is never stale.
+                and not (_flagged(call) or ERROR_RE.search(call.result.text))
+                and not any(_names(_path(call), ref) for ref in goal_refs)
                 and last_index - call.message_index > STALE_AFTER_MESSAGES
             ):
                 decision, reason = "drop", "stale_read_far_from_recent_work"

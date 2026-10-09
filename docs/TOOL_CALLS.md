@@ -100,10 +100,14 @@ No key, no model, no network. A deterministic policy
 structure and records the rule as the reason: it keeps the latest error result and the call
 before it, the latest `git status|diff|log`, plan/todo, edit, question to the user, the most
 recent result, and calls on files/URLs named in the goal or recent turns; it drops outputs
-superseded by a later read/run of the same file or command (`superseded_by_later_call:<id>`)
+superseded by a later successful whole-file Read/Write of the same file (a partial Read with
+`offset`/`limit` or a failed one never supersedes) or the same command run again
+(`superseded_by_later_call:<id>`)
 and successful reads far from recent work (`stale_read_far_from_recent_work`); it trims other
 outputs over 2000 chars to head + tail (`large_old_output_trimmed`). `semantic_guarantee` is
-`none`. Pass `is_error: true` on a tool result when the host knows it failed.
+`none`. Pass `is_error: true` on a tool result when the host knows it failed: when any result
+carries the flag it alone marks errors; otherwise an error regex is applied to command output
+only, never to Read/Grep of source.
 
 ## 6. CLI options
 
