@@ -526,6 +526,7 @@ def _resolve_client(provider: str = "jev", laya_model: str | None = None) -> Any
                 "laya judge unavailable, degrading to keep-everything: %s", exc
             )
             return None
+        return client
 
     from lcc.relevance.jev import default_ledger_path
 

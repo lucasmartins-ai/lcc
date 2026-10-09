@@ -370,3 +370,35 @@ def test_decisions_carry_what_an_auditor_needs():
     assert {"id", "decision", "score", "keep_call", "keep_result", "chars", "chars_after", "reason"} <= set(entry)
     assert entry["keep_call"] == 0.9 and entry["keep_result"] == 0.0
     assert entry["chars"] > entry["chars_after"]
+
+
+# --- provider resolution ---------------------------------------------------------------
+
+
+def test_laya_without_injected_client_never_builds_a_jev_client(monkeypatch):
+    """provider="laya" must judge locally; falling through to Jev leaks the transcript."""
+    import socket
+
+    import lcc.relevance.laya as laya_module
+
+    class FakeLaya(ScoreMap):
+        def __init__(self, model=None):
+            super().__init__(default=(0.9, 0.9))
+
+        def _ensure_agent(self):
+            pass
+
+    def no_jev(*args, **kwargs):
+        raise AssertionError("JevClient constructed for provider='laya'")
+
+    def no_socket(*args, **kwargs):
+        raise AssertionError("network access attempted for provider='laya'")
+
+    monkeypatch.setattr(laya_module, "LayaClient", FakeLaya)
+    monkeypatch.setattr(transcript_module.JevClient, "from_env", no_jev)
+    monkeypatch.setattr(socket.socket, "connect", no_socket)
+
+    result = run(build(("Read", {"file": "a.py"})), None, provider="laya")
+
+    assert result.report["provider_used"] == "laya"
+    assert {entry["source"] for entry in result.decisions} == {"laya"}
