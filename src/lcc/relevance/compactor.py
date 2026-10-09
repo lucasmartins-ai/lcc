@@ -51,7 +51,7 @@ from lcc.relevance.decisions import (
     build_decision_identity,
     decision_key_v2,
 )
-from lcc.relevance.graph import build_graph
+from lcc.relevance.graph import REVERSAL_CUES, build_graph
 from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
 from lcc.relevance.laya import DEFAULT_LAYA_MODEL
 from lcc.relevance.sufficiency import verify_sufficiency
@@ -485,11 +485,7 @@ _DISTINCTIVE_MIN_TERM_CHARS = 4
 #: negation and literal rules already made.
 _SUPERSESSION_CUE_RE = re.compile(
     r"\b(?:revised|revision|superseded|supersedes|corrected|correction|amended|amendment|"
-    r"restated|restatement|down from|up from"
-    # Conversational reversals: a decision changed mid-session rarely says "revised". Bare
-    # "actually" / "na verdade" are left out, they are filler far more often than reversals.
-    r"|scratch that|on second thought|changed (?:my|our) minds?|change of plans?"
-    r"|mudei de ideia|mudamos de ideia|pensando melhor|esquece isso|em vez de|ao inv[eé]s de)\b",
+    r"restated|restatement|down from|up from|" + REVERSAL_CUES + r")\b",
     re.IGNORECASE,
 )
 

@@ -99,9 +99,16 @@ class ContextGraph:
         return pulled
 
 
+#: Conversational reversals: a decision changed mid-session rarely says "revised". Shared with
+#: the mechanical closure in ``compactor`` so the two passes cannot drift apart. Bare "actually"
+#: / "na verdade" are left out, they are filler far more often than reversals.
+REVERSAL_CUES = (
+    r"scratch that|on second thought|changed (?:my|our) minds?|change of plans?"
+    r"|mudei de ideia|mudamos de ideia|pensando melhor|esquece isso|em vez de|ao inv[eé]s de"
+)
 _SUPERSESSION_CUE_RE = re.compile(
     r"\b(?:revised|revision|superseded|supersedes|corrected|correction|amended|amendment|"
-    r"restated|restatement|down from|up from|deprecated|supersede)\b",
+    r"restated|restatement|down from|up from|deprecated|supersede|" + REVERSAL_CUES + r")\b",
     re.IGNORECASE,
 )
 _QUALIFIER_RE = re.compile(
