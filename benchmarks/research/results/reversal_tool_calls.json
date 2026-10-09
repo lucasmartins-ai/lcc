@@ -1,0 +1,98 @@
+[
+  {
+    "variant": "restated",
+    "run": 0,
+    "harness": "real",
+    "provider_used": "jev",
+    "degraded": false,
+    "tokens_before": 551,
+    "tokens_after": 97,
+    "pairs_kept": [
+      "toolu_09",
+      "toolu_23"
+    ],
+    "old_pair_kept": true,
+    "new_pair_kept": true,
+    "pass": true
+  },
+  {
+    "variant": "restated",
+    "run": 1,
+    "harness": "real",
+    "provider_used": "jev",
+    "degraded": false,
+    "tokens_before": 551,
+    "tokens_after": 97,
+    "pairs_kept": [
+      "toolu_09",
+      "toolu_23"
+    ],
+    "old_pair_kept": true,
+    "new_pair_kept": true,
+    "pass": true
+  },
+  {
+    "variant": "restated",
+    "run": 2,
+    "harness": "real",
+    "provider_used": "jev",
+    "degraded": false,
+    "tokens_before": 551,
+    "tokens_after": 97,
+    "pairs_kept": [
+      "toolu_09",
+      "toolu_23"
+    ],
+    "old_pair_kept": true,
+    "new_pair_kept": true,
+    "pass": true
+  },
+  {
+    "variant": "generic",
+    "run": 0,
+    "harness": "real",
+    "provider_used": "jev",
+    "degraded": false,
+    "tokens_before": 545,
+    "tokens_after": 92,
+    "pairs_kept": [
+      "toolu_09",
+      "toolu_23"
+    ],
+    "old_pair_kept": true,
+    "new_pair_kept": true,
+    "pass": true
+  },
+  {
+    "variant": "generic",
+    "run": 1,
+    "harness": "real",
+    "provider_used": "jev",
+    "degraded": false,
+    "tokens_before": 545,
+    "tokens_after": 92,
+    "pairs_kept": [
+      "toolu_09",
+      "toolu_23"
+    ],
+    "old_pair_kept": true,
+    "new_pair_kept": true,
+    "pass": true
+  },
+  {
+    "variant": "generic",
+    "run": 2,
+    "harness": "real",
+    "provider_used": "jev",
+    "degraded": false,
+    "tokens_before": 545,
+    "tokens_after": 92,
+    "pairs_kept": [
+      "toolu_09",
+      "toolu_23"
+    ],
+    "old_pair_kept": true,
+    "new_pair_kept": true,
+    "pass": true
+  }
+]
