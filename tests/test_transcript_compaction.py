@@ -406,11 +406,10 @@ def test_laya_without_injected_client_never_builds_a_jev_client(monkeypatch):
 
 # --- request sizing against the real Jev limit -------------------------------------------
 
-#: Worst API ``input_tokens`` per request char (ensure_ascii=False JSON) over the 277
-#: accepted transcript-mode requests of real-context bench v0.1. The API accepted up to
-#: 34,741 input tokens; requests projected at >= ~35.7k were refused (77x
-#: ``max_tokens_exceeded``) although LCC counted them under 30k.
-API_TOKENS_PER_CHAR_WORST = 0.434
+#: Largest request (``json.dumps(payload, ensure_ascii=False)`` chars) the client may send:
+#: Jev's 32,768-token window at the calibrated floor of 2.2 chars per API token. Written as
+#: a literal on purpose, so loosening ``jev.JEV_CHARS_PER_TOKEN`` or the window fails here.
+JEV_REQUEST_CHAR_CAP = 32768 * 2.2
 
 
 class SizeRecorder(ScoreMap):
@@ -424,36 +423,34 @@ class SizeRecorder(ScoreMap):
         import json as _json
 
         payload = {"model": self.model, "state": state, "questions": questions}
-        self.request_chars.append(len(_json.dumps(payload, ensure_ascii=False)))
+        self.request_chars.append(len(_json.dumps(payload, ensure_ascii=False, default=str)))
         return super().evaluate(state, questions)
 
 
-def test_no_request_exceeds_the_calibrated_jev_budget():
-    # Dense, space-free tool inputs (patches, minified JSON, hashes) are where the
-    # word-blended heuristic undercounted 1.3-2.4x: 40 calls of ~2.5k such chars made a
-    # ~100k-char "full" state the old budget scored under 25k tokens, so every batch
-    # reached the API at ~43k real tokens and came back 400.
-    import hashlib
-
-    def dense(i):
-        return "".join(hashlib.sha256(f"{i}-{j}".encode()).hexdigest() for j in range(40))
-
-    payload = build(*[("Edit", {"file": f"m{i}.py", "patch": dense(i)}) for i in range(40)])
+def test_a_state_the_api_refused_is_never_sent():
+    # Real-context bench v0.1 ledger: the smallest refused transcript-mode state was 76,209
+    # chars (``400 max_tokens_exceeded``), while the old tiktoken count put states like it
+    # under the 25k state budget. Plain prose is where tiktoken is cheapest per char, so a
+    # state of that size scores ~20k there (vs ~34.7k calibrated) and used to be sent as-is. Refusing to
+    # build the request (TranscriptFitError) is the correct outcome; sending it is not.
+    prose = "Refactoring the configuration documentation and implementation responsibilities. "
+    payload = build(("Read", {"file": "parser.py"}), text=prose * (76_209 // len(prose) + 1))
     client = SizeRecorder()
-    result = run(payload, client)
+    with pytest.raises(TranscriptFitError):
+        run(payload, client)
 
-    assert client.request_chars, "the judge must still be asked"
-    worst = max(client.request_chars) * API_TOKENS_PER_CHAR_WORST
-    assert worst <= 30000, f"a request projects to {worst:.0f} API tokens"
-    assert result.report["degraded"] is False
-    assert result.report["state_fit_stage"] != "full"
+    over = [chars for chars in client.request_chars if chars > JEV_REQUEST_CHAR_CAP]
+    assert not over, f"requests of {over} chars exceed the {JEV_REQUEST_CHAR_CAP:.0f}-char cap"
 
 
 def test_request_budget_never_exceeds_the_jev_window():
-    # A caller asking for more than Jev accepts still gets requests the client will send.
-    from lcc.relevance.jev import JEV_CONTEXT_LIMIT_TOKENS
-
-    payload = build(*[("Read", {"file": f"{i}.py"}) for i in range(80)])
+    # A caller asking for more than Jev accepts must still get requests the API takes: the
+    # budget is clamped to Jev's window, so the candidates split into several batches.
+    payload = build(*[("Read", {"file": f"m{i}.py"}) for i in range(80)])
     client = SizeRecorder()
-    run(payload, client, max_request_tokens=200_000, batch_calls=80)
-    assert max(client.request_chars) * API_TOKENS_PER_CHAR_WORST <= JEV_CONTEXT_LIMIT_TOKENS
+    result = run(payload, client, max_request_tokens=200_000, batch_calls=200)
+
+    assert len(client.request_chars) > 1, "the clamp must split the candidates"
+    over = [chars for chars in client.request_chars if chars > JEV_REQUEST_CHAR_CAP]
+    assert not over, f"requests of {over} chars exceed the {JEV_REQUEST_CHAR_CAP:.0f}-char cap"
+    assert result.report["degraded"] is False
