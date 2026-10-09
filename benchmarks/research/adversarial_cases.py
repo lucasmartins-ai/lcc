@@ -128,6 +128,21 @@ _RAW_CASES: tuple[Case, ...] = (
         ),
         checks=(("latest_price_present", r"95 pounds", "present"),),
     ),
+    Case(
+        id="decision_reversal",
+        hazard="temporal",
+        question="Which database will the session store run on?",
+        description="A decision reversed mid-session in conversational words, with no "
+        "'revised' or 'corrected'; keeping the original without the reversal reads as current.",
+        critical=(
+            "Decision from the design review: the session store will run on Postgres behind the "
+            "billing gateway, with nightly backups shipped to cold storage.",
+            "On second thought, scratch that: drop Postgres for now and ship SQLite on the single "
+            "node until real traffic justifies running a cluster.",
+        ),
+        must_survive=(1,),
+        checks=(("reversal_present", r"ship SQLite on the single node", "present"),),
+    ),
     # --- source authority -----------------------------------------------------------
     Case(
         id="source_authority_conflict",
@@ -615,6 +630,11 @@ TRAPS: dict[str, str] = {
         "Conversion discussion note: mobile conversion, the clinic and the booking funnel were "
         "reviewed. The note records that mobile conversion and the funnel were discussed and "
         "states no measured figure for either."
+    ),
+    "decision_reversal": (
+        "Design review log: the session store, the database choice and where the session store "
+        "will run were all discussed. The note records that the database was reviewed and names "
+        "no engine at any point."
     ),
     "temporal_supersession": (
         "Pricing discussion log: the standard plan, the monthly price and the retention discount "

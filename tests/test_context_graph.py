@@ -89,3 +89,15 @@ def test_compaction_respects_qualifier_relationship():
     )
     assert "30 seconds" in result.compacted_text
     assert "60 seconds" in result.compacted_text
+
+
+def test_conversational_reversal_is_a_supersession_edge():
+    """The graph and the mechanical closure share one reversal vocabulary."""
+    g = build_graph(
+        [("a", "Decision: the session store will run on Postgres behind the billing gateway."),
+         ("b", "Mudei de ideia: em vez de Postgres, usa SQLite mesmo nos testes locais.")],
+        _terms("which", "database"),
+    )
+    assert any(
+        e.type == EdgeType.SUPERSEDES and (e.source, e.target) == ("b", "a") for e in g.edges
+    ), [(e.source, e.target, e.type) for e in g.edges]

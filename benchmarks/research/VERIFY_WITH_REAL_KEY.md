@@ -26,10 +26,10 @@ Se `MISSING`, pare e responda apenas: `BLOQUEADO — sem chave Jev`.
 
 1. E0 mecânico (baseline offline, ~1 min):
    `python3 benchmarks/research/run_answer_eval.py --provider mechanical`
-   Gate: `30 cases, 0 regressions`.
-2. E0 Jev (30 casos, ~187 calls no XL; observe o custo):
+   Gate: `31 cases, 0 regressions`.
+2. E0 Jev (31 casos, ~187 calls no XL; observe o custo):
    `python3 benchmarks/research/run_adversarial.py jev`
-   Gate: 30/30 PASS. Anote `reduction_pct` médio e qualquer FAIL com `lost=` / `checks=`.
+   Gate: 31/31 PASS. Anote `reduction_pct` médio e qualquer FAIL com `lost=` / `checks=`.
 3. E1 piloto com Jev (amostra pequena primeiro — custo!):
    `python3 benchmarks/research/run_multiagent_ab.py --tasks 5 --provider jev`
    Se 0 regressões E1, expanda: `--tasks 20 --provider jev`.
@@ -54,7 +54,7 @@ Se `MISSING`, pare e responda apenas: `BLOQUEADO — sem chave Jev`.
 | check | comando | resultado | gate | pass? |
 |---|---|---|---|---|
 | E0 mechanical | run_answer_eval | x/30, y regressions | 0 regressions | |
-| E0 jev | run_adversarial jev | x/30 | 30/30 | |
+| E0 jev | run_adversarial jev | x/31 | 31/31 | |
 | E1 pilot jev | run_multiagent_ab --tasks 20 | E1_reg=x E0_reg=y mean_red=z% reviews=w | E1_reg=0 | |
 | verifier | compact --semantic-verify (3 casos) | sufficient=x/3 reviews=y/3 resolved=<modelo> | campos presentes | |
 | warm stability | 2x compact + sha256 | identical? calls2=x | identical, calls 0 | |
