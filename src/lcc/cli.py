@@ -896,6 +896,29 @@ def _print_inspect_summary(report: Any, report_path: Path | None, summary: str) 
         err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
 
 
+@app.command("request-log")
+def request_log_command(
+    delete: list[str] | None = typer.Option(
+        None, "--delete", help="Remove the entry with this id (repeatable). Owner only."
+    ),
+    as_json: bool = typer.Option(False, "--json", help="Print the summary as JSON."),
+) -> None:
+    """Count (and delete) opt-in request-log entries; enable with LCC_REQUEST_LOG=1."""
+    from lcc import request_log
+
+    if delete:
+        removed = request_log.delete_entries(set(delete))
+        err_console.print(f"Deleted {removed} entr{'y' if removed == 1 else 'ies'}.")
+    summary = request_log.summarize()
+    if as_json:
+        sys.stdout.write(json.dumps(summary, indent=2) + "\n")
+        return
+    console.print(
+        f"{summary['path']}: {summary['total']} entries, {summary['sessions']} sessions, "
+        f"by language {summary['by_language']} (enabled: {summary['enabled']})"
+    )
+
+
 @app.command("diff")
 def diff_command(
     left: str = typer.Argument(..., metavar="LEFT", help="First text file (e.g. the original)."),
@@ -1591,6 +1614,10 @@ def compact_command(
         result = compact_context(request)
     except ValueError as exc:
         _fail(str(exc), code=2)
+    from lcc.request_log import log_request
+
+    # opt-in via LCC_REQUEST_LOG=1; goal only, never INPUT
+    log_request(question, tool="cli:compact")
 
     report = result.report
     if require_exact_tokens and report.token_count_method != "exact":

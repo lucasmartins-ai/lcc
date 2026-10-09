@@ -27,7 +27,7 @@ Se `MISSING`, pare e responda apenas: `BLOQUEADO — sem chave Jev`.
 1. E0 mecânico (baseline offline, ~1 min):
    `python3 benchmarks/research/run_answer_eval.py --provider mechanical`
    Gate: `31 cases, 0 regressions`.
-2. E0 Jev (30 casos, ~187 calls no XL; observe o custo):
+2. E0 Jev (31 casos, ~187 calls no XL; observe o custo):
    `python3 benchmarks/research/run_adversarial.py jev`
    Gate: 31/31 PASS. Anote `reduction_pct` médio e qualquer FAIL com `lost=` / `checks=`.
 3. E1 piloto com Jev (amostra pequena primeiro — custo!):
