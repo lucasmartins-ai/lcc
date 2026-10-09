@@ -342,3 +342,14 @@ def test_conversational_reversal_is_linked_to_the_decision(lang: str):
     reversal = blocks[2]
     assert reversal.id in closures, f"the {lang} reversal was not linked to the decision"
     assert closures[reversal.id].startswith("supersedes_value"), closures[reversal.id]
+
+
+def test_supersession_reason_names_the_block_it_replaces():
+    """Which version is current lives in the report, not in the emitted bytes.
+
+    Kept blocks are re-emitted byte-exact, so the link from a reversal to the decision it
+    replaces is recorded as the reason, where `lcc explain` can show the pair.
+    """
+    blocks, closures = _closure_for(REVERSAL_SAMPLES["en"], 0)
+    decision, reversal = blocks[0], blocks[2]
+    assert closures[reversal.id] == f"supersedes_value:{decision.id}: postgres", closures
