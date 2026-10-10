@@ -126,7 +126,9 @@ def _is_error(call: Any, flags_present: bool) -> bool:
 
 def _names(path: str | None, ref: str) -> bool:
     """``path`` is the file ``ref`` names (``app.py`` names ``/r/app.py``, not ``webapp.py``)."""
-    return bool(path) and (path == ref or path.endswith("/" + ref))
+    if not path:
+        return False
+    return path == ref or path.endswith("/" + ref)
 
 
 def _mentions(text: str, ref: str) -> bool:
