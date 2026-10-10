@@ -115,8 +115,38 @@ def test_earlier_output_contained_in_a_later_one_is_deduped():
     )
     _result, compacted, d = run(messages)
     assert d["c1"]["decision"] == "dedupe"
-    assert result_text(compacted, "c1") == "[output contained in c2]"
+    assert result_text(compacted, "c1") == "[output = lines 6-20 of c2]"
     assert verify_lossless({"messages": messages}, compacted) == []
+
+
+def test_contained_pointer_names_the_exact_lines_so_it_can_be_reversed():
+    # prod returned X, a later read of another file returned X+Y: the note must say which.
+    x = "\n".join(f"10.0.0.{n} prod-{n}" for n in range(1, 8))
+    y = "\n".join(f"10.1.0.{n} dev-{n}" for n in range(1, 8))
+    messages = convo(
+        ("Read", {"file_path": "prod.hosts"}, x),
+        ("Read", {"file_path": "dev.hosts"}, x + "\n" + y),
+    )
+    _result, compacted, d = run(messages)
+    assert result_text(compacted, "c1") == "[output = lines 1-7 of c2]"
+    kept = result_text(compacted, "c2").split("\n")
+    assert "\n".join(kept[0:7]) == x
+    assert verify_lossless({"messages": messages}, compacted) == []
+
+    # a pointer with the wrong range, or the old range-less form, is a violation
+    for bad in ("[output = lines 8-14 of c2]", "[output contained in c2]",
+                "[output = lines 1-6 of c2]"):
+        forged = copy.deepcopy(messages)
+        forged[2]["toolResults"][0]["text"] = bad
+        assert any("c1" in v for v in verify_lossless({"messages": messages}, forged)), bad
+
+
+def test_identical_pointer_must_really_be_identical():
+    partial = "\n".join(BODY.splitlines()[5:20])
+    messages = convo(("Read", {"file_path": "p.py"}, partial), ("Read", {"file_path": "p.py"}, BODY))
+    forged = copy.deepcopy(messages)
+    forged[2]["toolResults"][0]["text"] = "[identical output kept at c2]"
+    assert any("c1" in v for v in verify_lossless({"messages": messages}, forged))
 
 
 def test_mid_line_substring_is_not_a_match():

@@ -98,12 +98,13 @@ is a semantic question, and a lexical scorer cannot answer it honestly. Use `--p
 No key, no model, no network. Two modes (`rules_mode`, MCP argument / Python API):
 
 **`lossless` (default)** — `src/lcc/relevance/transcript_lossless.py`. A tool result is
-replaced by `[identical output kept at <id>]` or `[output contained in <id>]` only when all
-its lines appear, contiguously and in order, in a later result that is kept unchanged and has
-the same `is_error` flag. Calls, inputs, texts and messages are never touched; nothing is
+replaced by a pointer to a later result that is kept unchanged and has the same `is_error`
+flag: `[identical output kept at <id>]` when the two are the same, or
+`[output = lines a-b of <id>]` when the original is exactly raw lines `a`..`b` (1-based,
+inclusive) of `<id>`. The note alone rebuilds the original, wherever `<id>` came from. Calls, inputs, texts and messages are never touched; nothing is
 trimmed; a pointer never targets a replaced result. The only lines ignored are the Codex
 `Chunk ID:` / `Wall time:` / `Original token count:` header lines (exit codes are compared).
-`verify_lossless(original, compacted)` re-checks this from the two payloads; the pass runs it
+`verify_lossless(original, compacted)` re-checks each note's exact claim from the two payloads; the pass runs it
 on its own output and keeps everything if it reports a violation. `semantic_guarantee` is
 `lossless`; decisions are `keep` or `dedupe` (with `kept_at`).
 

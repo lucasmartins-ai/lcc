@@ -5,10 +5,12 @@ failed two session-disjoint blind audits (bench v0.4: 21/150 flagged; v0.5: 36/1
 LLM judges used to grade them are noisy. This mode removes only what can be checked
 mechanically, so no judge is needed:
 
-- A tool result is replaced by a one-line pointer (``[identical output kept at <id>]`` or
-  ``[output contained in <id>]``) only when every one of its lines appears, contiguously and
-  in order, in a LATER result that is itself kept unchanged and carries the same ``is_error``
-  flag. Matching is whole-line: ``ok`` is not found inside ``not ok``.
+- A tool result is replaced by a one-line pointer only when a LATER result, itself kept
+  unchanged and carrying the same ``is_error`` flag, holds it: ``[identical output kept at
+  <id>]`` (same comparable lines, see below) or ``[output = lines a-b of <id>]`` (the original
+  text is exactly lines ``a``..``b``, 1-based and inclusive, of ``<id>``'s raw text). Either
+  note names everything needed to rebuild the original, and the verifier checks that exact
+  claim. Matching is whole-line: ``ok`` is not found inside ``not ok``.
 - The tool call (input), every user/assistant text, every message and every other result
   stay byte for byte. Nothing is trimmed. A pointer never targets a result that was itself
   replaced, so chains resolve to the last kept copy.
@@ -33,6 +35,8 @@ _HEADER_RE = re.compile(
     r"|Original token count)\b.*$"
 )
 _VOLATILE_RE = re.compile(r"^(?:Chunk ID|Wall time|Original token count):")
+_IDENTICAL_RE = re.compile(r"^\[identical output kept at (.+)\]$")
+_LINES_RE = re.compile(r"^\[output = lines ([1-9][0-9]*)-([1-9][0-9]*) of (.+)\]$")
 
 
 def comparable_lines(text: str) -> list[str]:
@@ -53,6 +57,15 @@ def _framed(text: str) -> str:
     on a frame newline is a contiguous run of whole lines, in order.
     """
     return "\n" + "\n".join(comparable_lines(text)) + "\n"
+
+
+def _line_range(text: str, target: str) -> tuple[int, int] | None:
+    """1-based inclusive ``(a, b)`` with ``text`` == lines a..b of ``target`` (raw), else None."""
+    pos = ("\n" + target + "\n").find("\n" + text + "\n")
+    if pos < 0:
+        return None
+    first = target[:pos].count("\n") + 1
+    return first, first + text.count("\n")
 
 
 def _has_content(message: Any) -> bool:
@@ -80,14 +93,16 @@ def lossless_decisions(messages: list[Any], candidates: list[Any]) -> list[dict[
             other = results[later]
             if not kept[later] or other.is_error != result.is_error:
                 continue
-            if framed[index] not in framed[later]:
-                continue
             if framed[index] == framed[later]:
                 note = f"[identical output kept at {other.id}]"
                 reason = "identical_output_kept_later"
             else:
-                note = f"[output contained in {other.id}]"
-                reason = "output_contained_in_later"
+                # Raw lines, so the note alone rebuilds the original byte for byte.
+                span = _line_range(result.text, other.text)
+                if span is None:
+                    continue
+                note = f"[output = lines {span[0]}-{span[1]} of {other.id}]"
+                reason = "output_lines_of_later"
             if len(note) < len(result.text):
                 kept[index] = False
                 found[result.id] = (other.id, note, reason)
@@ -119,8 +134,9 @@ def verify_lossless(original_payload: Any, compacted_payload: Any) -> list[str]:
     """Violations of the lossless contract between two transcript payloads; ``[]`` is a pass.
 
     Every message, role, text, tool call (id, tool, input) and result id/``is_error`` must be
-    unchanged, and every result whose text changed must have all its comparable lines, in
-    order, inside a later result that did not change.
+    unchanged, and every result whose text changed must be a pointer note whose claim holds:
+    the named later, unchanged result is identical (comparable lines) or its stated raw line
+    range equals the original text exactly.
     """
     from lcc.relevance.transcript import parse_transcript
 
@@ -151,18 +167,30 @@ def verify_lossless(original_payload: Any, compacted_payload: Any) -> list[str]:
     old_results = _flat_results(before)
     new_results = _flat_results(after)
     unchanged = [o.text == n.text for o, n in zip(old_results, new_results, strict=True)]
-    framed = [_framed(result.text) for result in new_results]
     for index, (old_result, same) in enumerate(zip(old_results, unchanged, strict=True)):
         if same:
             continue
-        needed = _framed(old_result.text)
-        if not any(
-            unchanged[later]
-            and new_results[later].is_error == old_result.is_error
-            and needed in framed[later]
-            for later in range(index + 1, len(new_results))
-        ):
+        if not _pointer_holds(old_result, new_results[index].text, new_results[index + 1 :],
+                              unchanged[index + 1 :]):
             violations.append(
-                f"result {old_result.id} changed and its text is not in any later unchanged result"
+                f"result {old_result.id} changed and its note does not point at a later "
+                "unchanged result that holds its exact text"
             )
     return violations
+
+
+def _pointer_holds(old: Any, note: str, later: list[Any], later_unchanged: list[bool]) -> bool:
+    """``note`` names a later unchanged result (same ``is_error``) that holds ``old`` exactly."""
+    identical = _IDENTICAL_RE.match(note)
+    lines = _LINES_RE.match(note)
+    target_id = identical.group(1) if identical else lines.group(3) if lines else None
+    for result, same in zip(later, later_unchanged, strict=True):
+        if result.id != target_id or not same or result.is_error != old.is_error:
+            continue
+        if identical:
+            return _framed(old.text) == _framed(result.text)
+        assert lines is not None
+        first, last = int(lines.group(1)), int(lines.group(2))
+        target = result.text.split("\n")
+        return last <= len(target) and "\n".join(target[first - 1 : last]) == old.text
+    return False
