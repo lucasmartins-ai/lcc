@@ -27,7 +27,17 @@ Remove
     stale_read_far_from_recent_work a successful read/search more than
                                     ``STALE_AFTER_MESSAGES`` messages before the end.
     large_old_output_trimmed        any other output over ``LARGE_RESULT_CHARS`` keeps its head
-                                    and tail plus a note.
+                                    and tail plus a note, unless a trim guard keeps it whole.
+
+Trim guards (keep whole; they never change a drop). Real Codex audits showed trims removing the
+middle of files the agent was about to edit, so a trim needs all of these to be false:
+    trim_guard_recent         within ``TRIM_MIN_AGE_MESSAGES`` of the end (still current work).
+    trim_guard_interactive    a ``write_stdin`` poll or a ``wait``-style result (short-lived
+                              process/agent state the next step reads in full).
+    trim_guard_error          flagged ``is_error`` or error text anywhere in the output.
+    trim_guard_edited_later   the call names a file that a later edit (Edit/Write/MultiEdit,
+                              Codex ``apply_patch``) changes: its body is what the edit targets.
+    trim_guard_named          the call names a path/URL from the goal or the recent turns.
 
 Everything else is kept (``kept_default``). Text is never touched; pinned messages (the first
 and the newest ``preserve_recent``) are handled by the caller and never reach these rules.
@@ -42,9 +52,11 @@ from typing import Any
 #: Distance (in messages from the end) after which a successful read is considered stale.
 STALE_AFTER_MESSAGES = 40
 #: Results longer than this, not protected and not dropped, are trimmed to head + tail.
-LARGE_RESULT_CHARS = 2000
-TRIM_HEAD_CHARS = 300
-TRIM_TAIL_CHARS = 300
+LARGE_RESULT_CHARS = 4000
+TRIM_HEAD_CHARS = 1000
+TRIM_TAIL_CHARS = 1000
+#: A large output this close to the end (in messages) is current work: never trimmed.
+TRIM_MIN_AGE_MESSAGES = STALE_AFTER_MESSAGES
 
 ERROR_RE = re.compile(
     r"Traceback \(most recent call last\)|\bError\b|\bERROR\b|\bFAILED?\b"
@@ -62,6 +74,10 @@ QUESTION_TOOLS = {"AskUserQuestion", "ExitPlanMode"}
 #: Whole-file views: a later one replaces an earlier view (or edit) of the same file.
 FILE_VIEW_TOOLS = {"Read", "Write"}
 READ_TOOLS = {"Read", "Grep", "Glob", "LS", "WebFetch", "WebSearch", "NotebookRead"}
+#: Interactive polls and waits: their output is process/agent state, read in full.
+INTERACTIVE_TOOLS = {"write_stdin"}
+_WAIT_NAME_RE = re.compile(r"(?:^|_)wait(?:_|$)", re.I)
+_PATCH_FILE_RE = re.compile(r"^\*\*\* (?:Update|Add|Delete) File: (.+?)\s*$", re.M)
 _READ_NAME_RE = re.compile(r"(?:^|_)(?:read|get|list|search|fetch|find|snapshot|query)", re.I)
 
 
@@ -185,6 +201,39 @@ def _protections(
     return protected
 
 
+def _edited_paths(call: Any) -> list[str]:
+    """Files a call edits: Edit/Write/MultiEdit/NotebookEdit paths, ``apply_patch`` headers."""
+    if call.tool in EDIT_TOOLS:
+        return [p] if (p := _path(call)) else []
+    if call.tool == "apply_patch":
+        return _PATCH_FILE_RE.findall(str(call.input.get("input") or _input_text(call)))
+    return []
+
+
+def _names_file(text: str, path: str) -> bool:
+    """``text`` names ``path``: the whole path, or its file name as a whole word."""
+    name = path.rstrip("/").rsplit("/", 1)[-1]
+    return bool(name) and (_mentions(text, path) or _mentions(text, name))
+
+
+def _trim_guard(call: Any, age: int, later_edits: set[str], refs: list[str]) -> str | None:
+    """The guard that keeps this large output whole, or None when it may be trimmed."""
+    if age <= TRIM_MIN_AGE_MESSAGES:
+        return "trim_guard_recent"
+    if call.tool in INTERACTIVE_TOOLS or _WAIT_NAME_RE.search(call.tool.split("__")[-1]):
+        return "trim_guard_interactive"
+    if _flagged(call) or ERROR_RE.search(call.result.text):
+        return "trim_guard_error"
+    text = _input_text(call)
+    if call.tool not in EDIT_TOOLS | {"apply_patch"} and any(
+        _names_file(text, p) for p in later_edits
+    ):
+        return "trim_guard_edited_later"
+    if any(_mentions(text, ref) for ref in refs):
+        return "trim_guard_named"
+    return None
+
+
 def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> list[dict[str, Any]]:
     """One decision per candidate (non-pinned call with a result), each with its rule."""
     all_calls = [call for message in messages for call in message.tool_calls]
@@ -197,6 +246,13 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
     flags_present = any(_flagged(call) for call in all_calls)
     protected = _protections(all_calls, goal, recent_text, flags_present)
     goal_refs = _refs(goal)
+    guard_refs = list(dict.fromkeys([*goal_refs, *_refs(recent_text)]))
+    # Files edited after each call: walk backwards, accumulating every later edit.
+    edited_after: dict[str, set[str]] = {}
+    seen_edits: set[str] = set()
+    for call in reversed(all_calls):
+        edited_after[call.id] = set(seen_edits)
+        seen_edits.update(_edited_paths(call))
     # Walk backwards once: for each call, the nearest later call that supersedes it.
     superseded_by: dict[str, str] = {}
     next_view: dict[tuple[str, str], str] = {}
@@ -223,7 +279,16 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
             ):
                 decision, reason = "drop", "stale_read_far_from_recent_work"
             elif len(call.result.text) > LARGE_RESULT_CHARS:
-                decision, reason, tail = "trim", "large_old_output_trimmed", TRIM_TAIL_CHARS
+                guard = _trim_guard(
+                    call,
+                    last_index - call.message_index,
+                    edited_after.get(call.id, set()),
+                    guard_refs,
+                )
+                if guard:
+                    reason = guard
+                else:
+                    decision, reason, tail = "trim", "large_old_output_trimmed", TRIM_TAIL_CHARS
             else:
                 reason = "kept_default"
         decisions.append(
@@ -238,6 +303,7 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
                 "message_index": call.message_index,
                 "tool": call.tool,
                 "trim_tail_chars": tail,
+                "trim_head_chars": TRIM_HEAD_CHARS if decision == "trim" else None,
             }
         )
     return decisions

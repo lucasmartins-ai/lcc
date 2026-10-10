@@ -104,7 +104,10 @@ superseded by a later successful whole-file Read/Write of the same file (a parti
 `offset`/`limit` or a failed one never supersedes) or the same command run again
 (`superseded_by_later_call:<id>`)
 and successful reads far from recent work (`stale_read_far_from_recent_work`); it trims other
-outputs over 2000 chars to head + tail (`large_old_output_trimmed`). `semantic_guarantee` is
+outputs over 4000 chars to a 1000-char head + 1000-char tail (`large_old_output_trimmed`),
+except outputs from the last 40 messages, `write_stdin`/wait polls, error-bearing outputs,
+reads of a file a later edit or `apply_patch` changes, and calls naming a path from the goal
+or recent turns (`trim_guard_*`, kept whole). `semantic_guarantee` is
 `none`. Pass `is_error: true` on a tool result when the host knows it failed: when any result
 carries the flag it alone marks errors; otherwise an error regex is applied to command output
 only, never to Read/Grep of source.

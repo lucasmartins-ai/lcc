@@ -358,3 +358,133 @@ def test_a_bare_goal_name_does_not_match_a_longer_file_name():
     c.call("Bash", {"command": "pwd"}, "/r")
     c.filler(4)
     assert by_id(run(c, goal="fix the bug in app.py"))[other]["reason"] != "named_in_goal"
+
+
+# --- trim guards (v0.5 DEV round 1) ------------------------------------------------------------
+# Each guard keeps a large output whole that the old rule would trim; the reason names the guard.
+
+BIG = "HEAD" + "m" * 20000 + "TAIL-LINE"
+
+
+def _old_big(c: Convo, tool: str = "exec_command", tool_input: dict | None = None, body: str = BIG):
+    cid = c.call(tool, tool_input or {"cmd": "npm run build"}, body)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("exec_command", {"cmd": "true"}, "")  # the latest result is protected on its own
+    return cid
+
+
+def test_a_trim_keeps_a_larger_head_and_tail():
+    c = Convo()
+    cid = _old_big(c)
+    result = run(c)
+    d = by_id(result)[cid]
+    assert (d["decision"], d["reason"]) == ("trim", "large_old_output_trimmed")
+    trimmed = next(r.text for m in result.messages for r in m.tool_results if r.id == cid)
+    head, _, tail = trimmed.partition("[... lcc:")
+    assert len(head.rstrip("\n")) == rules.TRIM_HEAD_CHARS >= 1000
+    assert trimmed.endswith(BIG[-rules.TRIM_TAIL_CHARS :]) and rules.TRIM_TAIL_CHARS >= 1000
+
+
+def test_an_output_under_the_raised_threshold_is_kept_whole():
+    c = Convo()
+    cid = _old_big(c, body="x" * (rules.LARGE_RESULT_CHARS - 1))
+    assert rules.LARGE_RESULT_CHARS >= 4000
+    assert by_id(run(c))[cid]["decision"] == "keep"
+
+
+def test_a_large_output_within_the_recent_horizon_is_not_trimmed():
+    c = Convo()
+    cid = c.call("exec_command", {"cmd": "npm run build"}, BIG)
+    c.filler(rules.TRIM_MIN_AGE_MESSAGES - 6)
+    c.call("exec_command", {"cmd": "true"}, "")
+    d = by_id(run(c))[cid]
+    assert (d["decision"], d["reason"]) == ("keep", "trim_guard_recent")
+
+
+def test_a_read_of_a_file_patched_later_is_not_trimmed():
+    c = Convo()
+    cid = c.call("exec_command", {"cmd": "sed -n '1,400p' src/app/page.tsx"}, BIG)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call(
+        "apply_patch",
+        {
+            "input": "*** Begin Patch\n*** Update File: /r/src/app/page.tsx\n@@\n-a\n+b\n*** End Patch"
+        },
+        "Success",
+    )
+    c.filler(4)
+    c.call("exec_command", {"cmd": "true"}, "")
+    d = by_id(run(c))[cid]
+    assert (d["decision"], d["reason"]) == ("keep", "trim_guard_edited_later")
+
+
+def test_a_read_of_a_file_edited_later_by_a_claude_edit_is_not_trimmed():
+    c = Convo()
+    cid = c.call("Bash", {"command": "cat src/config.py"}, BIG)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("Edit", {"file_path": "/r/src/config.py", "old_string": "a", "new_string": "b"}, "ok")
+    c.filler(4)
+    c.call("exec_command", {"cmd": "true"}, "")
+    assert by_id(run(c))[cid]["reason"] == "trim_guard_edited_later"
+
+
+def test_an_unrelated_later_patch_does_not_block_the_trim():
+    c = Convo()
+    cid = c.call("exec_command", {"cmd": "sed -n '1,400p' src/webapp.py"}, BIG)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call(
+        "apply_patch",
+        {"input": "*** Begin Patch\n*** Update File: src/app.py\n@@\n-a\n+b\n*** End Patch"},
+        "Success",
+    )
+    c.filler(4)
+    c.call("exec_command", {"cmd": "true"}, "")
+    assert by_id(run(c))[cid]["decision"] == "trim"
+
+
+@pytest.mark.parametrize("tool", ["write_stdin", "wait", "multi_agent_v1__wait_agent"])
+def test_interactive_and_wait_outputs_are_not_trimmed(tool):
+    c = Convo()
+    cid = _old_big(c, tool=tool, tool_input={"session_id": 7, "chars": ""})
+    d = by_id(run(c))[cid]
+    assert (d["decision"], d["reason"]) == ("keep", "trim_guard_interactive")
+
+
+def test_an_error_bearing_output_is_not_trimmed():
+    c = Convo()
+    cid = _old_big(c, body="ok\n" * 3000 + "FAILED tests/test_x.py::test_y\n" + "z" * 3000)
+    c.call("exec_command", {"cmd": "pytest"}, "Traceback (most recent call last):\nboom")
+    c.filler(4)
+    d = by_id(run(c))[cid]
+    assert (d["decision"], d["reason"]) == ("keep", "trim_guard_error")
+
+
+def test_an_output_whose_call_names_a_goal_reference_is_not_trimmed():
+    c = Convo()
+    cid = c.call("exec_command", {"cmd": "cat docs/ROADMAP.md"}, BIG)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("exec_command", {"cmd": "cat docs/ROADMAP.md | wc -l"}, "12")  # latest mention
+    c.call("exec_command", {"cmd": "true"}, "")
+    d = by_id(run(c, goal="update docs/ROADMAP.md with the new dates"))[cid]
+    assert (d["decision"], d["reason"]) == ("keep", "trim_guard_named")
+
+
+def test_an_output_whose_call_names_a_recent_turn_reference_is_not_trimmed():
+    c = Convo()
+    cid = c.call("exec_command", {"cmd": "cat src/billing.py"}, BIG)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("exec_command", {"cmd": "true"}, "")
+    c.say("Next I will fix src/billing.py rounding.")
+    assert by_id(run(c, preserve_recent=1))[cid]["reason"] == "trim_guard_named"
+
+
+def test_guards_do_not_change_drops():
+    c = Convo()
+    first = c.call("exec_command", {"cmd": "cat src/a.py"}, BIG)
+    second = c.call("exec_command", {"cmd": "cat src/a.py"}, BIG)
+    c.filler(3)
+    d = by_id(run(c, goal="fix src/a.py"))
+    assert (
+        d[first]["decision"] == "drop"
+        and d[first]["reason"] == f"superseded_by_later_call:{second}"
+    )

@@ -694,7 +694,7 @@ def _with_chars(
     elif decision["decision"] == "trim" and call.result is not None:
         trimmed = _trimmed_result_text(
             call.result.text,
-            head_chars=trim_head_chars,
+            head_chars=decision.get("trim_head_chars") or trim_head_chars,
             tool=call.tool,
             tail_chars=decision.get("trim_tail_chars", 0),
         )
@@ -789,7 +789,7 @@ def _possibly_trimmed(
         id=result.id,
         text=_trimmed_result_text(
             result.text,
-            head_chars=trim_head_chars,
+            head_chars=decision.get("trim_head_chars") or trim_head_chars,
             tool=tool,
             tail_chars=decision.get("trim_tail_chars", 0),
         ),
