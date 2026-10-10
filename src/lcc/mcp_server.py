@@ -106,6 +106,8 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             laya_model=args.get("laya_model"),
             jev_model=str(args.get("jev_model", "jev-latest")),
             rules_mode=str(args.get("rules_mode", "lossless")),
+            workspace_root=args.get("workspace_root") or None,
+            disk_check=bool(args.get("disk_check", True)),
         )
     )
     return {
@@ -265,15 +267,26 @@ TOOLS: dict[str, dict[str, Any]] = {
                 },
                 "rules_mode": {
                     "type": "string",
-                    "enum": ["lossless", "lossy"],
+                    "enum": ["lossless", "lossy", "recoverable"],
                     "default": "lossless",
                     "description": (
                         "Only for provider 'rules'. 'lossless' replaces a tool result with a "
                         "pointer only when its text is kept verbatim in a later result, and "
-                        "verifies it. 'lossy' is EXPERIMENTAL (trims and drops outputs; "
-                        "failed blind audits v0.4 and v0.5)."
+                        "verifies it. 'recoverable' also replaces old file reads (of files "
+                        "not written later) and read-only allowlisted command outputs with "
+                        "a re-read/re-run pointer, and verifies it. 'lossy' is EXPERIMENTAL "
+                        "(trims and drops outputs; failed blind audits v0.4 and v0.5)."
                     ),
                 },
+                "workspace_root": {
+                    "type": "string",
+                    "description": (
+                        "rules_mode 'recoverable' only: the directory transcript paths "
+                        "resolve against. When set, a file read is replaced only if the file "
+                        "on disk still holds the removed content."
+                    ),
+                },
+                "disk_check": {"type": "boolean", "default": True},
                 "threshold": {"type": "number", "default": 0.5},
                 "preserve_recent": {"type": "integer", "default": 6},
                 "trim_head_chars": {"type": "integer", "default": 300},

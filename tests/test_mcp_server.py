@@ -417,3 +417,44 @@ def test_compact_transcript_runs_the_offline_rules_policy():
     decisions = {d["id"]: d for d in payload["decisions"]}
     assert decisions["a"]["decision"] == "drop"
     assert decisions["a"]["reason"] == "superseded_by_later_call:b"
+
+
+def test_compact_transcript_accepts_rules_mode_recoverable_with_a_workspace(tmp_path):
+    body = "\n".join(f"line {n}" for n in range(1, 60)) + "\n"
+    (tmp_path / "x.py").write_text(body)
+    numbered = "\n".join(f"{n:>6}\t{line}" for n, line in enumerate(body.splitlines(), 1))
+    resp = handle_message(
+        {
+            "jsonrpc": "2.0",
+            "id": 10,
+            "method": "tools/call",
+            "params": {
+                "name": "compact_transcript",
+                "arguments": {
+                    "messages": [
+                        {"role": "user", "text": "fix it"},
+                        {"role": "assistant", "text": "", "toolUses": [
+                            {"tool_use_id": "a", "tool": "Read", "input": {"file_path": "x.py"}}]},
+                        {"role": "user", "text": "", "toolResults": [
+                            {"tool_use_id": "a", "text": numbered}]},
+                        {"role": "assistant", "text": "", "toolUses": [
+                            {"tool_use_id": "b", "tool": "Bash", "input": {"command": "pytest"}}]},
+                        {"role": "user", "text": "", "toolResults": [
+                            {"tool_use_id": "b", "text": "1 passed"}]},
+                        {"role": "assistant", "text": "done"},
+                    ],
+                    "question": "fix it",
+                    "provider": "rules",
+                    "rules_mode": "recoverable",
+                    "workspace_root": str(tmp_path),
+                    "preserve_recent": 1,
+                },
+            },
+        }
+    )
+    assert resp is not None and resp["result"].get("isError") is not True
+    payload = json.loads(resp["result"]["content"][0]["text"])
+    assert payload["report"]["recoverability_check"] == "disk"
+    decisions = {d["id"]: d for d in payload["decisions"]}
+    assert decisions["a"]["decision"] == "replace"
+    assert decisions["a"]["note"] == "[removed: re-read x.py to recover]"

@@ -165,11 +165,17 @@ export function decideReplacement({ report, messages, minReductionRatio }) {
       reason: `below the ${(minimum * 100).toFixed(0)}% minimum (${(ratio * 100).toFixed(1)}%)`,
     };
   }
-  const dropped = report?.tool_calls_dropped ?? 0;
-  const trimmed = report?.tool_calls_trimmed ?? 0;
+  const dropped = number(report?.tool_calls_dropped, 0);
+  const trimmed = number(report?.tool_calls_trimmed, 0);
+  // rules_mode lossless/recoverable remove by pointer: dedupes and recovery replacements.
+  const deduped = number(report?.tool_calls_deduped, 0);
+  const replaced = number(report?.tool_calls_replaced, 0);
+  if (dropped + trimmed + deduped + replaced === 0) {
+    return { replace: false, reason: "the pass removed no tool output" };
+  }
   return {
     replace: true,
-    reason: `kept ${messages.length} messages, dropped ${dropped} tool call(s), trimmed ${trimmed}`,
+    reason: `kept ${messages.length} messages, dropped ${dropped} tool call(s), trimmed ${trimmed}, deduped ${deduped}, replaced ${replaced}`,
   };
 }
 

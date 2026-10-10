@@ -28,6 +28,7 @@ everything if it ever reports a violation.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from typing import Any
 
 _HEADER_RE = re.compile(
@@ -76,13 +77,23 @@ def _flat_results(messages: list[Any]) -> list[Any]:
     return [result for message in messages for result in message.tool_results]
 
 
-def lossless_decisions(messages: list[Any], candidates: list[Any]) -> list[dict[str, Any]]:
-    """One decision per candidate call (same order): ``dedupe`` with ``kept_at``, or ``keep``."""
-    candidate_ids = {call.result.id for call in candidates if call.result is not None}
+def lossless_decisions(
+    messages: list[Any], candidates: list[Any], *, unavailable: set[str] | None = None
+) -> list[dict[str, Any]]:
+    """One decision per candidate call (same order): ``dedupe`` with ``kept_at``, or ``keep``.
+
+    ``unavailable`` names results another policy replaces: they are never pointer targets
+    (and are not deduped here either).
+    """
+    unavailable = unavailable or set()
+    candidate_ids = {
+        call.result.id for call in candidates
+        if call.result is not None and call.result.id not in unavailable
+    }
     results = _flat_results(messages)
     # ponytail: O(results^2) substring scans; index outputs by line hash if transcripts grow.
     framed = [_framed(result.text) for result in results]
-    kept = [True] * len(results)
+    kept = [result.id not in unavailable for result in results]
     found: dict[str, tuple[str, str, str]] = {}
 
     for index in range(len(results) - 1, -1, -1):
@@ -130,13 +141,19 @@ def lossless_decisions(messages: list[Any], candidates: list[Any]) -> list[dict[
     return decisions
 
 
-def verify_lossless(original_payload: Any, compacted_payload: Any) -> list[str]:
+def verify_lossless(
+    original_payload: Any,
+    compacted_payload: Any,
+    *,
+    allow: Callable[[Any, str], bool] | None = None,
+) -> list[str]:
     """Violations of the lossless contract between two transcript payloads; ``[]`` is a pass.
 
     Every message, role, text, tool call (id, tool, input) and result id/``is_error`` must be
     unchanged, and every result whose text changed must be a pointer note whose claim holds:
     the named later, unchanged result is identical (comparable lines) or its stated raw line
-    range equals the original text exactly.
+    range equals the original text exactly. ``allow(original_result, new_text)`` may accept
+    other replacements (``rules_mode="recoverable"`` recovery pointers).
     """
     from lcc.relevance.transcript import parse_transcript
 
@@ -170,8 +187,10 @@ def verify_lossless(original_payload: Any, compacted_payload: Any) -> list[str]:
     for index, (old_result, same) in enumerate(zip(old_results, unchanged, strict=True)):
         if same:
             continue
-        if not _pointer_holds(old_result, new_results[index].text, new_results[index + 1 :],
-                              unchanged[index + 1 :]):
+        note = new_results[index].text
+        if allow is not None and allow(old_result, note):
+            continue
+        if not _pointer_holds(old_result, note, new_results[index + 1 :], unchanged[index + 1 :]):
             violations.append(
                 f"result {old_result.id} changed and its note does not point at a later "
                 "unchanged result that holds its exact text"

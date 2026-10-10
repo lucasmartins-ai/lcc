@@ -95,7 +95,7 @@ is a semantic question, and a lexical scorer cannot answer it honestly. Use `--p
 
 ### Offline policy: `--provider rules`
 
-No key, no model, no network. Two modes (`rules_mode`, MCP argument / Python API):
+No key, no model, no network. Three modes (`rules_mode`, MCP argument / Python API):
 
 **`lossless` (default)** — `src/lcc/relevance/transcript_lossless.py`. A tool result is
 replaced by a pointer to a later result that is kept unchanged and has the same `is_error`
@@ -107,6 +107,20 @@ trimmed; a pointer never targets a replaced result. The only lines ignored are t
 `verify_lossless(original, compacted)` re-checks each note's exact claim from the two payloads; the pass runs it
 on its own output and keeps everything if it reports a violation. `semantic_guarantee` is
 `lossless`; decisions are `keep` or `dedupe` (with `kept_at`).
+
+**`recoverable`** — `src/lcc/relevance/transcript_recoverable.py`. Everything `lossless` does,
+plus an old result may become `[removed: re-read <path> (lines a-b) to recover]` (a single-file
+read whose path no later non-read call names or writes) or ``[removed: re-run `<cmd>` to
+recover]`` (a command on the read-only allowlist: `ls`, `find` without `-exec/-delete`, `rg`,
+`grep`, `git status|diff|log|show`, `cat`/`head`/`tail`/`sed -n 'a,bp'`, `wc`, `tree` without
+`-o`, `pwd`, `<tool> --version`; no pipes, redirects, substitutions or env prefixes). Never
+replaced: other commands, MCP/web tools, edit results, failed results, the latest error and the
+call before it, the last `preserve_recent` turns, calls named in the goal or recent user turns.
+With `workspace_root` (MCP) and `disk_check` on (default) a file read is replaced only if the
+file on disk still holds the removed text; without a root the report says
+`recoverability_check: transcript_proxy`. Decisions are `replace` (with `note` and `recover`),
+`dedupe` or `keep`; `verify_recoverable` checks texts/inputs are unchanged and each pointer names
+its own call's path or allowlisted command. Not yet benchmarked or audited.
 
 **`lossy` (EXPERIMENTAL)** — failed two session-disjoint blind audits (bench v0.4: 21/150
 decisions flagged; v0.5: 36/132), because its trims and drops remove output an agent may still

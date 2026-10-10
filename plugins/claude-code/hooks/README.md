@@ -42,7 +42,8 @@ The plugin registers one hook:
 Every outcome is reported in one toast and one log line, and each per-call decision is in
 the report the tool returns:
 
-- `lcc: verbatim compaction, no summary (kept N messages, dropped D tool call(s), trimmed T)`
+- `lcc: verbatim compaction, no summary (kept N messages, dropped D tool call(s), trimmed T, deduped P, replaced R)`
+- `lcc: built-in summary (the pass removed no tool output)`
 - `lcc: built-in summary (below the 25% minimum (4.2%))`
 - `lcc: built-in summary (judge unavailable (jev_unavailable_fail_safe))`
 

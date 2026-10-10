@@ -150,7 +150,21 @@ test("decideReplacement replaces only a judged pass that removed something", () 
   const messages = [{ role: "user", text: "hi" }];
   assert.deepEqual(
     decideReplacement({ report: { degraded: false, reduction_ratio: 0.42, tool_calls_dropped: 3 }, messages, minReductionRatio: 0.25 }),
-    { replace: true, reason: "kept 1 messages, dropped 3 tool call(s), trimmed 0" },
+    { replace: true, reason: "kept 1 messages, dropped 3 tool call(s), trimmed 0, deduped 0, replaced 0" },
+  );
+  // Lossless dedupes and recoverable replacements count as removals.
+  assert.deepEqual(
+    decideReplacement({
+      report: { degraded: false, reduction_ratio: 0.4, tool_calls_deduped: 2, tool_calls_replaced: 5 },
+      messages,
+      minReductionRatio: 0.25,
+    }),
+    { replace: true, reason: "kept 1 messages, dropped 0 tool call(s), trimmed 0, deduped 2, replaced 5" },
+  );
+  // A ratio with nothing removed (e.g. only whitespace changed) is not a compaction.
+  assert.equal(
+    decideReplacement({ report: { degraded: false, reduction_ratio: 0.5 }, messages, minReductionRatio: 0.25 }).replace,
+    false,
   );
   assert.equal(
     decideReplacement({ report: { degraded: false, reduction_ratio: 0.05 }, messages, minReductionRatio: 0.25 }).replace,

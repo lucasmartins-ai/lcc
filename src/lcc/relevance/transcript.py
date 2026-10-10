@@ -36,6 +36,7 @@ from typing import Any
 
 from lcc.relevance.jev import JEV_CONTEXT_LIMIT_TOKENS, JevClient, jev_tokens, parse_noul_answer
 from lcc.relevance.transcript_lossless import lossless_decisions, verify_lossless
+from lcc.relevance.transcript_recoverable import recoverable_decisions, verify_recoverable
 from lcc.relevance.transcript_rules import rules_decisions
 from lcc.token_budget import count_tokens
 
@@ -54,7 +55,9 @@ SUPPORTED_PROVIDERS = ("jev", "laya", "auto", "rules")
 #: replaces results whose text survives verbatim in a later kept result, and verifies it.
 #: ``lossy`` (:mod:`lcc.relevance.transcript_rules`) is EXPERIMENTAL: it trims and drops
 #: outputs an agent may still need and failed blind audits v0.4 (21/150) and v0.5 (36/132).
-RULES_MODES = ("lossless", "lossy")
+#: ``recoverable`` (:mod:`lcc.relevance.transcript_recoverable`) also replaces old outputs the
+#: agent can get back by re-reading an unchanged file or re-running a read-only command.
+RULES_MODES = ("lossless", "lossy", "recoverable")
 DEFAULT_THRESHOLD = 0.5
 DEFAULT_PRESERVE_RECENT = 6
 DEFAULT_TRIM_HEAD_CHARS = 300
@@ -153,6 +156,10 @@ class TranscriptCompactionRequest:
     laya_model: str | None = None
     client: Any = None
     rules_mode: str = "lossless"
+    #: ``recoverable`` only: the workspace the transcript's paths resolve against. When set
+    #: (and ``disk_check`` is on) a file read is replaced only if the file still holds it.
+    workspace_root: str | None = None
+    disk_check: bool = True
 
 
 @dataclass
@@ -698,7 +705,7 @@ def _with_chars(
     after = chars
     if decision["decision"] == "drop":
         after = 0
-    elif decision["decision"] == "dedupe" and call.result is not None:
+    elif decision["decision"] in ("dedupe", "replace") and call.result is not None:
         after = chars - len(call.result.text) + len(decision["note"])
     elif decision["decision"] == "trim" and call.result is not None:
         trimmed = _trimmed_result_text(
@@ -791,7 +798,7 @@ def _possibly_trimmed(
     *,
     trim_head_chars: int,
 ) -> ToolResult:
-    if decision is not None and decision["decision"] == "dedupe":
+    if decision is not None and decision["decision"] in ("dedupe", "replace"):
         return ToolResult(
             id=result.id,
             text=decision["note"],
@@ -887,6 +894,9 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
 
     rules = request.provider == "rules"
     lossless = rules and request.rules_mode == "lossless"
+    recoverable = rules and request.rules_mode == "recoverable"
+    verified = lossless or recoverable
+    use_disk = recoverable and bool(request.workspace_root) and request.disk_check
     if rules:
         provider_used = "rules"
     client = (
@@ -905,11 +915,15 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         degradation_reason = "no_candidates"
     elif rules:
         judge = "rules"
-        raw_decisions = (
-            lossless_decisions(messages, candidates)
-            if lossless
-            else rules_decisions(messages, candidates, request.question)
-        )
+        if lossless:
+            raw_decisions = lossless_decisions(messages, candidates)
+        elif recoverable:
+            raw_decisions = recoverable_decisions(
+                messages, candidates, request.question,
+                root=request.workspace_root, disk_check=request.disk_check,
+            )
+        else:
+            raw_decisions = rules_decisions(messages, candidates, request.question)
         decisions = [
             _with_chars(decision, call, trim_head_chars=request.trim_head_chars)
             for decision, call in zip(raw_decisions, candidates, strict=True)
@@ -1006,16 +1020,18 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         else list(messages)
     )
     lossless_violations: list[str] = []
-    if lossless and decisions:
+    if verified and decisions:
         # Belt and braces: the output is re-checked from the payloads alone. A violation
         # would be a bug in the policy, so the pass keeps everything instead of shipping it.
-        lossless_violations = verify_lossless(request.payload, messages_to_payload(rebuilt))
+        verify = verify_lossless if lossless else verify_recoverable
+        lossless_violations = verify(request.payload, messages_to_payload(rebuilt))
         if lossless_violations:
+            mode = request.rules_mode
             degraded = True
-            degradation_reason = "lossless_verification_failed_fail_safe"
-            warnings.append("lossless_verification_failed: kept every tool call (fail-safe)")
+            degradation_reason = f"{mode}_verification_failed_fail_safe"
+            warnings.append(f"{mode}_verification_failed: kept every tool call (fail-safe)")
             decisions = [
-                dict(d, decision="keep", reason="lossless_verification_failed",
+                dict(d, decision="keep", reason=f"{mode}_verification_failed",
                      chars_after=d["chars"])
                 for d in decisions
             ]
@@ -1030,8 +1046,8 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
 
     scored = [decision for decision in decisions if decision["source"] == judge]
     judged_count = len(scored)
-    if lossless and decisions and not lossless_violations:
-        semantic_guarantee = "lossless"
+    if verified and decisions and not lossless_violations:
+        semantic_guarantee = request.rules_mode
     elif not candidates or client is None:
         semantic_guarantee = "none"
     elif decisions and judged_count == len(decisions):
@@ -1055,6 +1071,9 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         "provider_used": provider_used,
         "rules_mode": request.rules_mode if rules else None,
         "lossless_violations": lossless_violations,
+        "recoverability_check": (
+            ("disk" if use_disk else "transcript_proxy") if recoverable else None
+        ),
         "degraded": degraded,
         "degradation_reason": degradation_reason,
         "semantic_guarantee": semantic_guarantee,
@@ -1093,6 +1112,9 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         "tool_calls_dropped": sum(1 for decision in decisions if decision["decision"] == "drop"),
         "tool_calls_deduped": sum(
             1 for decision in decisions if decision["decision"] == "dedupe"
+        ),
+        "tool_calls_replaced": sum(
+            1 for decision in decisions if decision["decision"] == "replace"
         ),
         "warnings": warnings,
         "decisions": pinned_decisions + decisions,
