@@ -93,9 +93,57 @@ runs requests concurrently.
 is a semantic question, and a lexical scorer cannot answer it honestly. Use `--provider jev`
 (or `auto`, which prefers Jev).
 
+### Offline policy: `--provider rules`
+
+No key, no model, no network. Three modes (`rules_mode`, MCP argument / Python API):
+
+**`lossless` (default)** — `src/lcc/relevance/transcript_lossless.py`. A tool result is
+replaced by a pointer to a later result that is kept unchanged and has the same `is_error`
+flag: `[identical output kept at <id>]` when the two are the same, or
+`[output = lines a-b of <id>]` when the original is exactly raw lines `a`..`b` (1-based,
+inclusive) of `<id>`. The note alone rebuilds the original, wherever `<id>` came from. Calls, inputs, texts and messages are never touched; nothing is
+trimmed; a pointer never targets a replaced result. The only lines ignored are the Codex
+`Chunk ID:` / `Wall time:` / `Original token count:` header lines (exit codes are compared).
+`verify_lossless(original, compacted)` re-checks each note's exact claim from the two payloads; the pass runs it
+on its own output and keeps everything if it reports a violation. `semantic_guarantee` is
+`lossless`; decisions are `keep` or `dedupe` (with `kept_at`).
+
+**`recoverable`** — `src/lcc/relevance/transcript_recoverable.py`. Everything `lossless` does,
+plus an old result may become `[removed: re-read <path> (lines a-b) to recover]` (a single-file
+read whose path no later non-read call names or writes) or ``[removed: re-run `<cmd>` to
+recover]`` (a command on the read-only allowlist: `ls`, `find` without `-exec/-delete`, `rg`,
+`grep`, `git status|diff|log|show`, `cat`/`head`/`tail`/`sed -n 'a,bp'`, `wc`, `tree` without
+`-o`, `pwd`, `<tool> --version`; no pipes, redirects, substitutions or env prefixes). Never
+replaced: other commands, MCP/web tools, edit results, failed results, the latest error and the
+call before it, the last `preserve_recent` turns, calls named in the goal or recent user turns.
+With `workspace_root` (MCP) and `disk_check` on (default) a file read is replaced only if the
+file on disk still holds the removed text; without a root the report says
+`recoverability_check: transcript_proxy`. Decisions are `replace` (with `note` and `recover`),
+`dedupe` or `keep`; `verify_recoverable` checks texts/inputs are unchanged and each pointer names
+its own call's path or allowlisted command. Not yet benchmarked or audited.
+
+**`lossy` (EXPERIMENTAL)** — failed two session-disjoint blind audits (bench v0.4: 21/150
+decisions flagged; v0.5: 36/132), because its trims and drops remove output an agent may still
+need. A deterministic policy (`src/lcc/relevance/transcript_rules.py`) decides each unpinned call from the transcript's
+structure and records the rule as the reason: it keeps the latest error result and the call
+before it, the latest `git status|diff|log`, plan/todo, edit, question to the user, the most
+recent result, and calls on files/URLs named in the goal or recent turns; it drops outputs
+superseded by a later successful whole-file Read/Write of the same file (a partial Read with
+`offset`/`limit` or a failed one never supersedes) or the same call run again with the same
+output, ignoring Codex chunk/timing header lines (`superseded_by_later_call:<id>`; a rerun
+whose output changed, such as a poll or a test before and after a fix, is not dropped)
+and successful reads far from recent work (`stale_read_far_from_recent_work`); it trims other
+outputs over 4000 chars to a 1000-char head + 1000-char tail (`large_old_output_trimmed`),
+except outputs from the last 40 messages, `write_stdin`/wait polls, error-bearing outputs,
+reads of a file a later edit or `apply_patch` body (sent through any tool) changes, and calls naming a path from the goal
+or recent turns (`trim_guard_*`, kept whole). `semantic_guarantee` is
+`none`. Pass `is_error: true` on a tool result when the host knows it failed: when any result
+carries the flag it alone marks errors; otherwise an error regex is applied to command output
+only, never to Read/Grep of source.
+
 ## 6. CLI options
 
-Honored: `--question`, `--provider jev|auto`, `--threshold`, `--trim-head-chars`,
+Honored: `--question`, `--provider jev|laya|auto|rules`, `--threshold`, `--trim-head-chars`,
 `--preserve-recent`, `--max-state-tokens`, `--max-request-tokens`, `--batch-size`,
 `--max-workers`, `--min-reduction` (sets `worth_it`), `--model` (token counting),
 `--jev-model`, `-o/--output`, `-r/--report`, `--dry-run`.

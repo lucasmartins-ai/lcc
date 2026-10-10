@@ -1218,7 +1218,8 @@ def compact_command(
             "What to compact. 'blocks' (default): text blocks inside INPUT. 'tool-calls': "
             "INPUT is a session transcript (JSON messages array or {'messages': [...]}) and "
             "the unit of decision is a tool call paired with its result; user and assistant "
-            "text is never scored, trimmed or rewritten. Needs --provider jev/auto. "
+            "text is never scored, trimmed or rewritten. Needs --provider jev/laya/auto, or "
+            "'rules' (offline deterministic policy, no key, no model). "
             "See docs/TOOL_CALLS.md."
         ),
     ),
@@ -1477,9 +1478,13 @@ def compact_command(
     ),
 ) -> None:
     """Drop context blocks irrelevant to OBJECTIVE (opt-in narrow model judgment; fails safe)."""
-    if provider not in ("auto", "jev", "nimble", "laya", "mechanical"):
+    # 'rules' is the offline tool-call policy; it has no block-mode equivalent.
+    if provider not in ("auto", "jev", "nimble", "laya", "mechanical") and not (
+        provider == "rules" and mode == "tool-calls"
+    ):
         _fail(
-            f"unknown provider {provider!r}; expected auto, jev, nimble, laya, or mechanical.",
+            f"unknown provider {provider!r}; expected auto, jev, nimble, laya, or mechanical "
+            "('rules' only with --mode tool-calls).",
             code=2,
         )
     if not 0.0 <= threshold <= 1.0:
