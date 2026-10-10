@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -34,22 +35,26 @@ DEFAULT_ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 DEFAULT_MODEL = "jev-latest"
 DEFAULT_FEATURE = "lcc_compact"
 _RETRYABLE_STATUS = frozenset({408, 425, 429, 500, 502, 503, 504, 529})
-#: TypeSafe System One context window — mirrors ``provider.JevProvider.context_limit``.
-#: Above it the API answers ``400 max_tokens_exceeded``. Accepted up to 31.136 input_tokens
-#: (measured, ledger 17-21/09); a 123.741-char JSON state was refused there 38 times on 21/09
-#: and the API returns no count for what it refuses. Calibrated by 6 API measurements in
-#: 2 runs plus 1 live refusal (2026-09-22, resolved ``jev-1.13.0``): ``api = 249 +
-#: 0.98 * local`` (prose-JSON, worst slope) and ``api = 437 + 0.90 * local`` (second run
-#: combined) — the API never counted more than tiktoken on the payload, so refusing at
-#: 32.768 LOCAL tokens lets no over-window request leave (worst fit still projects 32.361
-#: at the refusal point). The cost is the band we refuse that the API would take: 1-10% of
-#: the window across the three fits. Re-probe
-#: ``benchmarks/research/calibrate_preflight_tokens.py`` if TypeSafe changes tokenizer or
-#: cap: a slope above 1.0 would invert the safety direction.
+#: TypeSafe System One context window, in calibrated tokens (see ``jev_tokens``) — mirrors
+#: ``provider.JevProvider.context_limit``. Above the API's own cap it answers ``400
+#: max_tokens_exceeded`` and returns no count. Real-context bench v0.1 (2026-10-09, 277
+#: accepted + 77 refused transcript-mode requests, resolved ``jev-1.13.x``): accepted up to
+#: 34,741 API input_tokens, refused every request projected at >= ~35.7k. Kept at 32,768:
+#: under ``jev_tokens`` (an upper bound on API tokens) nothing over the cap can leave.
 JEV_CONTEXT_LIMIT_TOKENS = 32768
-#: Undercount of the chars/4 heuristic on JSON-heavy states, as measured in
-#: ``transcript._budget_tokens``: without a tokenizer, inflate rather than trust it.
-_APPROXIMATE_SAFETY_FACTOR = 1.45
+#: Request chars (``json.dumps(payload, ensure_ascii=False)``) per API token, floor. The
+#: 277 accepted bench requests spent 0.296-0.434 API tokens per char (fit ``api = -890 +
+#: 0.388 * chars``); 2.2 chars/token (0.455/char) sits above the worst of them. It replaces
+#: tiktoken / the chars-words heuristic x1.45, which the API outcounted 1.04-1.24x and
+#: 1.3-2.4x respectively — how 77 requests LCC scored under 30k came back 400. A pure
+#: char bound is also the same on every machine, tokenizer cached or not. Re-fit if
+#: TypeSafe changes tokenizer or cap.
+JEV_CHARS_PER_TOKEN = 2.2
+
+
+def jev_tokens(text: str) -> int:
+    """Upper bound on the API ``input_tokens`` ``text`` costs inside a Jev request."""
+    return math.ceil(len(text) / JEV_CHARS_PER_TOKEN)
 
 
 class JevError(RuntimeError):
@@ -179,30 +184,8 @@ def _iso_timestamp() -> str:
 
 
 def _request_tokens(payload: dict[str, Any]) -> tuple[int, str]:
-    """Token count of the whole request as the API will see it, as ``(tokens, method)``.
-
-    Prefers the real tokenizer (tiktoken, when installed): on JSON-heavy states the
-    chars/4 heuristic undercounts by roughly a third, which is exactly how a 123.741-char
-    state reached the API on 21/09 and came back ``400 max_tokens_exceeded`` 38 times.
-    Without a tokenizer, inflate the blended estimate by the measured factor instead of
-    trusting it — a false refusal costs one mechanical fallback, a false allowance costs
-    a wasted round trip plus a 400. ``lcc.token_budget`` has no dependency on
-    ``lcc.relevance``, so this import cannot cycle.
-    """
-    text = json.dumps(payload, ensure_ascii=False, default=str)
-    try:
-        from lcc.schemas import TokenCountMethod
-        from lcc.token_budget import count_tokens
-        from lcc.token_budget.counters import approximate_token_count
-    except Exception:  # tokenizer stack unavailable: last-resort chars/4 estimate
-        return int(len(text) / 4 * _APPROXIMATE_SAFETY_FACTOR), "chars/4"
-    try:
-        counted = count_tokens(text, "gpt-4.1")
-        if counted.method is TokenCountMethod.EXACT:
-            return int(counted.value), "exact"
-    except Exception:
-        pass
-    return int(approximate_token_count(text) * _APPROXIMATE_SAFETY_FACTOR), "approx"
+    """Calibrated count of the whole request as the API will see it: ``(tokens, method)``."""
+    return jev_tokens(json.dumps(payload, ensure_ascii=False, default=str)), "chars/2.2"
 
 
 class JevClient:

@@ -338,10 +338,10 @@ def test_fitting_stages_are_reported_when_the_budget_is_tight():
     big_input = {"file": "x" * 4000, "offset": 1}
     payload = build(*[("Read", big_input) for _ in range(3)])
     generous = run(payload, ScoreMap(), max_state_tokens=100_000)
-    tight = run(payload, ScoreMap(), max_state_tokens=300)
+    tight = run(payload, ScoreMap(), max_state_tokens=600)
     assert generous.report["state_fit_stage"] == "full"
     assert tight.report["state_fit_stage"] in {"inputs-200", "calls-one-line"}
-    assert tight.report["state_tokens"] <= 300
+    assert tight.report["state_tokens"] <= 600
     assert tight.report["degraded"] is False
 
 
@@ -402,3 +402,55 @@ def test_laya_without_injected_client_never_builds_a_jev_client(monkeypatch):
 
     assert result.report["provider_used"] == "laya"
     assert {entry["source"] for entry in result.decisions} == {"laya"}
+
+
+# --- request sizing against the real Jev limit -------------------------------------------
+
+#: Largest request (``json.dumps(payload, ensure_ascii=False)`` chars) the client may send:
+#: Jev's 32,768-token window at the calibrated floor of 2.2 chars per API token. Written as
+#: a literal on purpose, so loosening ``jev.JEV_CHARS_PER_TOKEN`` or the window fails here.
+JEV_REQUEST_CHAR_CAP = 32768 * 2.2
+
+
+class SizeRecorder(ScoreMap):
+    """Stub Jev that records each request's size exactly as the client would send it."""
+
+    def __init__(self):
+        super().__init__(default=(0.9, 0.9))
+        self.request_chars = []
+
+    def evaluate(self, state, questions):
+        import json as _json
+
+        payload = {"model": self.model, "state": state, "questions": questions}
+        self.request_chars.append(len(_json.dumps(payload, ensure_ascii=False, default=str)))
+        return super().evaluate(state, questions)
+
+
+def test_a_state_the_api_refused_is_never_sent():
+    # Real-context bench v0.1 ledger: the smallest refused transcript-mode state was 76,209
+    # chars (``400 max_tokens_exceeded``), while the old tiktoken count put states like it
+    # under the 25k state budget. Plain prose is where tiktoken is cheapest per char, so a
+    # state of that size scores ~20k there (vs ~34.7k calibrated) and used to be sent as-is. Refusing to
+    # build the request (TranscriptFitError) is the correct outcome; sending it is not.
+    prose = "Refactoring the configuration documentation and implementation responsibilities. "
+    payload = build(("Read", {"file": "parser.py"}), text=prose * (76_209 // len(prose) + 1))
+    client = SizeRecorder()
+    with pytest.raises(TranscriptFitError):
+        run(payload, client)
+
+    over = [chars for chars in client.request_chars if chars > JEV_REQUEST_CHAR_CAP]
+    assert not over, f"requests of {over} chars exceed the {JEV_REQUEST_CHAR_CAP:.0f}-char cap"
+
+
+def test_request_budget_never_exceeds_the_jev_window():
+    # A caller asking for more than Jev accepts must still get requests the API takes: the
+    # budget is clamped to Jev's window, so the candidates split into several batches.
+    payload = build(*[("Read", {"file": f"m{i}.py"}) for i in range(80)])
+    client = SizeRecorder()
+    result = run(payload, client, max_request_tokens=200_000, batch_calls=200)
+
+    assert len(client.request_chars) > 1, "the clamp must split the candidates"
+    over = [chars for chars in client.request_chars if chars > JEV_REQUEST_CHAR_CAP]
+    assert not over, f"requests of {over} chars exceed the {JEV_REQUEST_CHAR_CAP:.0f}-char cap"
+    assert result.report["degraded"] is False

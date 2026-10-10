@@ -34,9 +34,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
-from lcc.relevance.jev import JevClient, parse_noul_answer
+from lcc.relevance.jev import JEV_CONTEXT_LIMIT_TOKENS, JevClient, jev_tokens, parse_noul_answer
 from lcc.token_budget import count_tokens
-from lcc.token_budget.counters import approximate_token_count
 
 TRANSCRIPT_SCHEMA_VERSION = "transcript-compaction-1.0"
 
@@ -61,9 +60,8 @@ _FIT_INPUT_CHARS = 200
 #: Long non-pinned texts are abridged to this head (+ the same tail) while fitting.
 _FIT_TEXT_HEAD = 400
 _FIT_TEXT_TAIL = 200
-#: Measured undercount of the stdlib heuristic on JSON-heavy transcripts (22.9k estimated,
-#: ~31k real, HTTP 400). Used only when no real tokenizer is installed.
-_APPROXIMATE_SAFETY_FACTOR = 1.45
+#: Request keys around state + questions (``{"model": ..., "state": {"goal", "conversation"}``).
+_ENVELOPE_TOKENS = 64
 
 
 class TranscriptError(RuntimeError):
@@ -381,20 +379,12 @@ _FIT_STAGES = ("full", "inputs-200", "calls-one-line")
 def _budget_tokens(text: str) -> int:
     """Tokens a request will really cost, for budgeting — never an optimistic estimate.
 
-    The stdlib heuristic undercounts JSON-heavy transcripts by roughly a third (measured: a
-    state it scored at 22.9k tokens reached the API as ~31k and came back ``400
-    max_tokens_exceeded``), and an optimistic budget is worse than no budget: the batch is
-    built, sent, refused, and the whole pass degrades to keep-everything. So count with the
-    real tokenizer when the environment has one, and when it does not, inflate the heuristic
-    by the measured factor instead of trusting it.
+    Uses the Jev client's calibrated bound (``jev.jev_tokens``), the same count its
+    pre-flight applies: budgeting with anything smaller lets a batch be built that the API
+    refuses (real-context bench v0.1: 77 x ``400 max_tokens_exceeded`` from requests the
+    old tiktoken/heuristic count scored under 30k), and the pass degrades to keep-everything.
     """
-    from lcc.schemas import TokenCountMethod
-    from lcc.token_budget import count_tokens
-
-    counted = count_tokens(text, "gpt-4.1")
-    if counted.method is TokenCountMethod.EXACT:
-        return int(counted.value)
-    return int(approximate_token_count(text) * _APPROXIMATE_SAFETY_FACTOR)
+    return jev_tokens(text)
 
 
 def _fit_state(
@@ -436,7 +426,7 @@ def _batches(
     Every request carries the whole state (the judge sees the conversation each time), so
     the room left for questions is ``max_request_tokens - state_tokens``.
     """
-    room = max_request_tokens - state_tokens
+    room = max_request_tokens - state_tokens - _ENVELOPE_TOKENS
     if room <= 0:
         raise TranscriptFitError(
             f"state ({state_tokens} tokens) leaves no room for questions inside the "
@@ -447,7 +437,9 @@ def _batches(
     current_tokens = 0
     size = max(1, batch_calls)
     for call in candidates:
-        question_tokens = _budget_tokens(_question_text(call))
+        # What the request really carries for this call: both questions, instructions
+        # included (+1 for the separator), not just the call's id and input.
+        question_tokens = _budget_tokens(json.dumps(_questions([call]), ensure_ascii=False)) + 1
         if current and (len(current) >= size or current_tokens + question_tokens > room):
             batches.append(current)
             current, current_tokens = [], 0
@@ -461,10 +453,6 @@ def _batches(
     if current:
         batches.append(current)
     return batches
-
-
-def _question_text(call: ToolCall) -> str:
-    return json.dumps({"call": call.id, "tool": call.tool, "input": call.input}, default=str)
 
 
 def _questions(batch: list[ToolCall]) -> dict[str, Any]:
@@ -882,7 +870,10 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
             candidates,
             state_tokens,
             batch_calls=request.batch_calls,
-            max_request_tokens=request.max_request_tokens,
+            # A request over Jev's window would only be refused by the client pre-flight.
+            max_request_tokens=request.max_request_tokens
+            if judge == "laya"
+            else min(request.max_request_tokens, JEV_CONTEXT_LIMIT_TOKENS),
         )
         batch_count = len(batches)
         answers, calls, latency_ms, score_warnings, resolved_model = _score(
