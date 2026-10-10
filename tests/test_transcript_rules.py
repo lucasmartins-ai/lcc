@@ -63,6 +63,7 @@ def run(convo: Convo, goal: str = GOAL, preserve_recent: int = 2):
             payload={"messages": convo.messages},
             question=goal,
             provider="rules",
+            rules_mode="lossy",
             preserve_recent=preserve_recent,
         )
     )

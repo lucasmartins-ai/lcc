@@ -35,6 +35,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from lcc.relevance.jev import JEV_CONTEXT_LIMIT_TOKENS, JevClient, jev_tokens, parse_noul_answer
+from lcc.relevance.transcript_lossless import lossless_decisions, verify_lossless
 from lcc.relevance.transcript_rules import rules_decisions
 from lcc.token_budget import count_tokens
 
@@ -47,8 +48,13 @@ LAYA_INIT_ERROR: str | None = None
 LOGGER = logging.getLogger("lcc.transcript")
 
 #: Providers this mode accepts: a semantic judge (``auto`` prefers Jev), or ``rules`` — the
-#: offline deterministic policy in :mod:`lcc.relevance.transcript_rules`.
+#: offline deterministic policy.
 SUPPORTED_PROVIDERS = ("jev", "laya", "auto", "rules")
+#: ``rules`` modes. ``lossless`` (default, :mod:`lcc.relevance.transcript_lossless`) only
+#: replaces results whose text survives verbatim in a later kept result, and verifies it.
+#: ``lossy`` (:mod:`lcc.relevance.transcript_rules`) is EXPERIMENTAL: it trims and drops
+#: outputs an agent may still need and failed blind audits v0.4 (21/150) and v0.5 (36/132).
+RULES_MODES = ("lossless", "lossy")
 DEFAULT_THRESHOLD = 0.5
 DEFAULT_PRESERVE_RECENT = 6
 DEFAULT_TRIM_HEAD_CHARS = 300
@@ -146,6 +152,7 @@ class TranscriptCompactionRequest:
     jev_model: str = "jev-latest"
     laya_model: str | None = None
     client: Any = None
+    rules_mode: str = "lossless"
 
 
 @dataclass
@@ -691,6 +698,8 @@ def _with_chars(
     after = chars
     if decision["decision"] == "drop":
         after = 0
+    elif decision["decision"] == "dedupe" and call.result is not None:
+        after = chars - len(call.result.text) + len(decision["note"])
     elif decision["decision"] == "trim" and call.result is not None:
         trimmed = _trimmed_result_text(
             call.result.text,
@@ -782,6 +791,13 @@ def _possibly_trimmed(
     *,
     trim_head_chars: int,
 ) -> ToolResult:
+    if decision is not None and decision["decision"] == "dedupe":
+        return ToolResult(
+            id=result.id,
+            text=decision["note"],
+            message_index=result.message_index,
+            is_error=result.is_error,
+        )
     if decision is None or decision["decision"] != "trim":
         return result
     tool = decision.get("tool") or "the tool"
@@ -835,6 +851,8 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         raise TranscriptError("trim_head_chars must be >= 0")
     if request.preserve_recent < 0:
         raise TranscriptError("preserve_recent must be >= 0")
+    if request.rules_mode not in RULES_MODES:
+        raise TranscriptError(f"rules_mode must be one of {RULES_MODES}")
 
     messages = parse_transcript(request.payload)
     for message in messages:
@@ -868,6 +886,7 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
     decisions: list[dict[str, Any]] = []
 
     rules = request.provider == "rules"
+    lossless = rules and request.rules_mode == "lossless"
     if rules:
         provider_used = "rules"
     client = (
@@ -886,11 +905,14 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         degradation_reason = "no_candidates"
     elif rules:
         judge = "rules"
+        raw_decisions = (
+            lossless_decisions(messages, candidates)
+            if lossless
+            else rules_decisions(messages, candidates, request.question)
+        )
         decisions = [
             _with_chars(decision, call, trim_head_chars=request.trim_head_chars)
-            for decision, call in zip(
-                rules_decisions(messages, candidates, request.question), candidates, strict=True
-            )
+            for decision, call in zip(raw_decisions, candidates, strict=True)
         ]
     elif client is None:
         degraded = True
@@ -983,6 +1005,21 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         if decisions
         else list(messages)
     )
+    lossless_violations: list[str] = []
+    if lossless and decisions:
+        # Belt and braces: the output is re-checked from the payloads alone. A violation
+        # would be a bug in the policy, so the pass keeps everything instead of shipping it.
+        lossless_violations = verify_lossless(request.payload, messages_to_payload(rebuilt))
+        if lossless_violations:
+            degraded = True
+            degradation_reason = "lossless_verification_failed_fail_safe"
+            warnings.append("lossless_verification_failed: kept every tool call (fail-safe)")
+            decisions = [
+                dict(d, decision="keep", reason="lossless_verification_failed",
+                     chars_after=d["chars"])
+                for d in decisions
+            ]
+            rebuilt = list(messages)
 
     after_text = _text_of(rebuilt)
     before_count = count_tokens(before_text, request.model)
@@ -993,7 +1030,9 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
 
     scored = [decision for decision in decisions if decision["source"] == judge]
     judged_count = len(scored)
-    if not candidates or client is None:
+    if lossless and decisions and not lossless_violations:
+        semantic_guarantee = "lossless"
+    elif not candidates or client is None:
         semantic_guarantee = "none"
     elif decisions and judged_count == len(decisions):
         semantic_guarantee = "judged"
@@ -1014,6 +1053,8 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         "objective": request.question,
         "provider_requested": provider_requested,
         "provider_used": provider_used,
+        "rules_mode": request.rules_mode if rules else None,
+        "lossless_violations": lossless_violations,
         "degraded": degraded,
         "degradation_reason": degradation_reason,
         "semantic_guarantee": semantic_guarantee,
@@ -1050,6 +1091,9 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         ),
         "tool_calls_trimmed": sum(1 for decision in decisions if decision["decision"] == "trim"),
         "tool_calls_dropped": sum(1 for decision in decisions if decision["decision"] == "drop"),
+        "tool_calls_deduped": sum(
+            1 for decision in decisions if decision["decision"] == "dedupe"
+        ),
         "warnings": warnings,
         "decisions": pinned_decisions + decisions,
     }

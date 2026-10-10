@@ -405,6 +405,7 @@ def test_compact_transcript_runs_the_offline_rules_policy():
                     ],
                     "question": "fix it",
                     "provider": "rules",
+                    "rules_mode": "lossy",
                     "preserve_recent": 2,
                 },
             },

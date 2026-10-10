@@ -105,6 +105,7 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             min_reduction=float(args.get("min_reduction", 0.25)),
             laya_model=args.get("laya_model"),
             jev_model=str(args.get("jev_model", "jev-latest")),
+            rules_mode=str(args.get("rules_mode", "lossless")),
         )
     )
     return {
@@ -259,8 +260,18 @@ TOOLS: dict[str, dict[str, Any]] = {
                         "Semantic judge. 'laya' is local and offline (needs the [laya] "
                         "extra); 'jev' is the remote TypeSafe System 1 and needs "
                         "TYPESAFE_API_KEY. 'auto' prefers Jev. 'rules' is an offline "
-                        "deterministic policy (no key, no model): keeps the latest error, "
-                        "git state, plan and edit, drops superseded and stale outputs."
+                        "deterministic policy (no key, no model); see rules_mode."
+                    ),
+                },
+                "rules_mode": {
+                    "type": "string",
+                    "enum": ["lossless", "lossy"],
+                    "default": "lossless",
+                    "description": (
+                        "Only for provider 'rules'. 'lossless' replaces a tool result with a "
+                        "pointer only when its text is kept verbatim in a later result, and "
+                        "verifies it. 'lossy' is EXPERIMENTAL (trims and drops outputs; "
+                        "failed blind audits v0.4 and v0.5)."
                     ),
                 },
                 "threshold": {"type": "number", "default": 0.5},

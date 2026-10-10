@@ -95,8 +95,21 @@ is a semantic question, and a lexical scorer cannot answer it honestly. Use `--p
 
 ### Offline policy: `--provider rules`
 
-No key, no model, no network. A deterministic policy
-(`src/lcc/relevance/transcript_rules.py`) decides each unpinned call from the transcript's
+No key, no model, no network. Two modes (`rules_mode`, MCP argument / Python API):
+
+**`lossless` (default)** — `src/lcc/relevance/transcript_lossless.py`. A tool result is
+replaced by `[identical output kept at <id>]` or `[output contained in <id>]` only when all
+its lines appear, contiguously and in order, in a later result that is kept unchanged and has
+the same `is_error` flag. Calls, inputs, texts and messages are never touched; nothing is
+trimmed; a pointer never targets a replaced result. The only lines ignored are the Codex
+`Chunk ID:` / `Wall time:` / `Original token count:` header lines (exit codes are compared).
+`verify_lossless(original, compacted)` re-checks this from the two payloads; the pass runs it
+on its own output and keeps everything if it reports a violation. `semantic_guarantee` is
+`lossless`; decisions are `keep` or `dedupe` (with `kept_at`).
+
+**`lossy` (EXPERIMENTAL)** — failed two session-disjoint blind audits (bench v0.4: 21/150
+decisions flagged; v0.5: 36/132), because its trims and drops remove output an agent may still
+need. A deterministic policy (`src/lcc/relevance/transcript_rules.py`) decides each unpinned call from the transcript's
 structure and records the rule as the reason: it keeps the latest error result and the call
 before it, the latest `git status|diff|log`, plan/todo, edit, question to the user, the most
 recent result, and calls on files/URLs named in the goal or recent turns; it drops outputs
