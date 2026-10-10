@@ -204,3 +204,38 @@ def test_oversized_state_refused_locally_and_small_state_still_sent(tmp_path):
     small = JevClient(api_key="test-key", opener=lambda *_a, **_k: _Resp(), ledger_path=ledger)
     answer = small.evaluate({"block": "a short relevant block"}, questions)
     assert answer["answers"]["keep"]["noul"] == 0.5
+
+
+@pytest.mark.parametrize(
+    "body",
+    [b"<html>gateway hiccup</html>", b'{"answers": {"keep": "not-a-dict"}}'],
+    ids=["non_json_body", "non_dict_answer"],
+)
+def test_malformed_200_body_raises_jev_error_and_compaction_falls_back(tmp_path, body):
+    """A 200 that is not a System One payload must be a JevError, never a crash.
+
+    Regression: ``json.loads`` raised a bare ``JSONDecodeError`` and a non-dict answer
+    raised ``AttributeError``; both escaped ``_score_with_jev`` (which catches only
+    ``JevError``) and aborted the whole compaction instead of falling back.
+    """
+
+    class _Resp:
+        def read(self):
+            return body
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_exc):
+            return False
+
+    client = JevClient(
+        api_key="test-key", opener=lambda *_a, **_k: _Resp(), ledger_path=tmp_path / "l.jsonl"
+    )
+    questions = {"keep": {"type": "noul", "instructions": "x", "criteria": {"true": "y", "false": "z"}}}
+    with pytest.raises(JevMalformedResponseError):
+        client.evaluate({"block": "short"}, questions)
+
+    result = compact_context(_req(client))
+    assert result.report.provider_used == "jev+mechanical_fallback"
+    assert result.report.degraded

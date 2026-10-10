@@ -4,6 +4,13 @@
   "description": "Deterministic, local-first context optimization for LLM prompts & AI agents",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
   "scripts": {
     "test": "node test/index.test.js && node test/hook-map.test.mjs"
   },

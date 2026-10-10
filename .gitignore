@@ -72,3 +72,6 @@ lcc-decisions*.json
 
 # Opt-in request log (LCC_REQUEST_LOG=1): local, never committed
 .lcc/
+
+# Claude Code session worktrees (full repo copies; never commit or publish)
+.claude/worktrees/

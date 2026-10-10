@@ -287,3 +287,14 @@ def test_no_network_guard_missing_original_names_the_requested_attribute(monkeyp
         assert pool.submit(unguarded_call).result(timeout=2) == (
             "guarded attribute get has no original implementation"
         )
+
+
+def test_special_token_text_is_counted_by_tiktoken():
+    """Pasted chat logs contain ``<|endoftext|>``; it is text to count, not a reason to guess.
+
+    Regression: tiktoken raised ValueError on special tokens and the counter silently fell
+    back to the heuristic, so ``--require-exact-tokens`` and cache economics ran on estimates.
+    """
+    if not _fallback_encoding_available_offline():
+        pytest.skip("default tiktoken encoding assets are not cached offline")
+    assert count_tokens("hello <|endoftext|> world").counter == "tiktoken"

@@ -349,15 +349,33 @@ class JevClient:
                     time.sleep(1.5 * attempt)
                     continue
                 raise last_error from exc
-
-            if not isinstance(data, dict) or not isinstance(data.get("answers"), dict):
+            except ValueError as exc:  # 200 with a body that is not JSON (or not UTF-8)
                 self._ledger_append(
                     {
                         "ts": _iso_timestamp(),
                         "feature": self.feature,
                         "model": self.model,
                         "status": "error",
-                        "error": "malformed_response: missing 'answers' mapping",
+                        "error": f"malformed_response: {type(exc).__name__}",
+                        "attempt": attempt,
+                        "latency_ms": int((time.time() - started) * 1000),
+                        "state_chars": state_chars,
+                    }
+                )
+                raise JevMalformedResponseError(f"TypeSafe response is not JSON: {exc}") from exc
+
+            if (
+                not isinstance(data, dict)
+                or not isinstance(data.get("answers"), dict)
+                or not all(isinstance(a, dict) for a in data["answers"].values())
+            ):
+                self._ledger_append(
+                    {
+                        "ts": _iso_timestamp(),
+                        "feature": self.feature,
+                        "model": self.model,
+                        "status": "error",
+                        "error": "malformed_response: missing 'answers' mapping of objects",
                         "attempt": attempt,
                         "latency_ms": int((time.time() - started) * 1000),
                         "state_chars": state_chars,

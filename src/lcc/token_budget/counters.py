@@ -255,7 +255,8 @@ def count_tokens(text: str, model: str | None = None, *, allow_exact: bool = Tru
     try:
         with _no_network_guard():
             encoding, is_exact = _resolve_encoding(model)
-        value = len(encoding.encode(text))
+        # Special-token strings in pasted logs are content to count, not tokenizer directives.
+        value = len(encoding.encode(text, disallowed_special=()))
     except TokenizerNetworkBlocked:
         return TokenCount(
             approximate_token_count(text),
