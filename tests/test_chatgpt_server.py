@@ -284,3 +284,86 @@ def test_malformed_json_is_400(mcp_url):
     with pytest.raises(urllib.error.HTTPError) as excinfo:
         urllib.request.urlopen(request, timeout=10)
     assert excinfo.value.code == 400
+
+
+def _call(tool: str, arguments: dict, request_id: int = 30) -> dict:
+    return {"jsonrpc": "2.0", "id": request_id, "method": "tools/call",
+            "params": {"name": tool, "arguments": arguments}}
+
+
+@pytest.mark.parametrize(
+    ("tool", "arguments"),
+    [
+        ("compact", {"text": DOSSIER, "question": QUESTION, "provider": "jev"}),
+        ("compact", {"text": DOSSIER, "question": QUESTION, "provider": "laya"}),
+        # compact_transcript defaults to jev when no provider is given.
+        ("compact_transcript", {"messages": [{"role": "user", "content": "hi"}],
+                                "question": QUESTION}),
+    ],
+)
+def test_anonymous_caller_cannot_select_judge_providers(mcp_url, monkeypatch, tool, arguments):
+    """Without LCC_HTTP_TOKEN anyone reaching the server is anonymous: no paid or heavy judge.
+
+    Regression: an anonymous POST could pick ``jev`` (spending the operator's TypeSafe
+    key) or ``laya`` (loading torch weights on the host).
+    """
+    monkeypatch.delenv("LCC_HTTP_TOKEN", raising=False)
+    status, body = _post(mcp_url, _call(tool, arguments))
+    assert status == 200
+    error = _sse_payload(body)["error"]
+    assert error["code"] == -32602 and "LCC_HTTP_TOKEN" in error["message"]
+
+
+def test_token_required_when_configured(mcp_url, monkeypatch):
+    monkeypatch.setenv("LCC_HTTP_TOKEN", "s3cret")
+    initialize = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}
+    status, _ = _post(mcp_url, initialize)
+    assert status == 401
+
+    request = urllib.request.Request(
+        mcp_url,
+        data=json.dumps(initialize).encode(),
+        headers={"Content-Type": "application/json", "Authorization": "Bearer s3cret"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
+        assert response.status == 200
+
+
+def test_authenticated_caller_may_select_judge_providers(mcp_url, monkeypatch):
+    """With a token the operator vouches for callers; jev just degrades without a key."""
+    monkeypatch.setenv("LCC_HTTP_TOKEN", "s3cret")
+    monkeypatch.setattr("lcc.relevance.compactor._resolve_client", lambda: None)
+    payload = _call("compact", {"text": DOSSIER, "question": QUESTION, "provider": "jev"})
+    request = urllib.request.Request(
+        mcp_url,
+        data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json", "Authorization": "Bearer s3cret"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
+        result = _sse_payload(response.read().decode())
+    assert "error" not in result
+
+
+def test_stalled_body_times_out_instead_of_pinning_a_thread():
+    """A client that lies about Content-Length must not hold a worker forever."""
+    import socket
+
+    from lcc import chatgpt_server
+
+    assert 0 < chatgpt_server._Handler.timeout <= 60
+    server = build_server("127.0.0.1", 0)
+    server.RequestHandlerClass.timeout = 0.5  # type: ignore[attr-defined]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        with socket.create_connection(server.server_address[:2], timeout=5) as sock:
+            sock.sendall(b"POST /mcp HTTP/1.1\r\nHost: x\r\nContent-Length: 100\r\n\r\n{")
+            sock.settimeout(5)
+            assert sock.recv(1024) == b""  # server gave up and closed the socket
+    finally:
+        chatgpt_server._Handler.timeout = chatgpt_server.REQUEST_TIMEOUT_SECONDS
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)

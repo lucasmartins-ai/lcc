@@ -352,3 +352,32 @@ def test_stdio_newline_delimited_json():
     assert [r["id"] for r in responses] == [1, 2]
     assert responses[0]["result"]["serverInfo"]["name"] == "lcc"
     assert any(t["name"] == "compact_transcript" for t in responses[1]["result"]["tools"])
+
+
+def test_stdio_survives_malformed_messages():
+    """A bad line gets a JSON-RPC error and the server keeps serving.
+
+    Regression: a parse error ended the read loop, a JSON array crashed the error
+    handler (``list.get``) and non-object ``arguments`` raised AttributeError.
+    """
+    env = dict(os.environ)
+    env.pop("TYPESAFE_API_KEY", None)
+    env["PYTHONPATH"] = str(ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    lines = [
+        b"{not json",
+        b"[1, 2]",
+        json.dumps({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+                    "params": {"name": "compact", "arguments": ["x"]}}).encode(),
+        json.dumps({"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": "x"}).encode(),
+        json.dumps({"jsonrpc": "2.0", "id": 5, "method": "initialize", "params": {}}).encode(),
+    ]
+    proc = subprocess.run(
+        [sys.executable, "-m", "lcc.mcp_server"],
+        input=b"\n".join(lines) + b"\n",
+        capture_output=True, timeout=60, cwd=str(ROOT), env=env,
+    )
+    assert proc.returncode == 0, proc.stderr.decode()[-2000:]
+    responses = [json.loads(line) for line in proc.stdout.splitlines() if line.strip()]
+    assert [(r["id"], r.get("error", {}).get("code")) for r in responses] == [
+        (None, -32700), (None, -32600), (3, -32602), (4, -32602), (5, None),
+    ]

@@ -35,6 +35,7 @@ do not expose it as plain HTTP.
 
 from __future__ import annotations
 
+import hmac
 import json
 import logging
 import os
@@ -61,6 +62,19 @@ __all__ = [
 # a pasted document or transcript, not multi-megabyte uploads. Raising it means a
 # larger Content-Length body is read into memory before any handler runs.
 MAX_BODY_BYTES = 32 * 1024 * 1024
+
+# Socket timeout per request: a client that stalls mid-body (or lies about
+# Content-Length) releases its worker thread instead of pinning it forever.
+REQUEST_TIMEOUT_SECONDS = 30
+
+# Optional shared secret. When set, POST /mcp requires ``Authorization: Bearer <token>``
+# and authenticated callers may pick any provider. When unset every caller is anonymous
+# and may only use ``mechanical``: ``jev``/``auto`` spend the operator's TypeSafe key and
+# ``laya`` loads model weights on the host.
+TOKEN_ENV = "LCC_HTTP_TOKEN"
+
+# Tools that take a ``provider`` argument, with the default each applies when it is absent.
+_PROVIDER_DEFAULTS = {"compact": "mechanical", "compact_transcript": "jev"}
 
 # Where the OpenAI submission portal looks for domain-ownership proof. It must be on
 # the MCP hostname or an eligible parent domain, and must return the exact token as
@@ -138,6 +152,27 @@ def _tools_list() -> list[dict[str, Any]]:
     return tools
 
 
+def _anonymous_provider_refusal(payload: dict[str, Any]) -> dict[str, Any] | None:
+    """Refuse a judge provider for anonymous callers; ``None`` when the call may proceed."""
+    if os.environ.get(TOKEN_ENV) or payload.get("method") != "tools/call":
+        return None
+    params = payload.get("params")
+    if not isinstance(params, dict) or params.get("name") not in _PROVIDER_DEFAULTS:
+        return None
+    arguments = params.get("arguments") or {}
+    if not isinstance(arguments, dict):
+        return None  # handle_message rejects the shape itself
+    provider = arguments.get("provider", _PROVIDER_DEFAULTS[params["name"]])
+    if provider == "mechanical":
+        return None
+    return _error_response(
+        payload.get("id"),
+        -32602,
+        f"provider {provider!r} is disabled for anonymous callers; use 'mechanical' "
+        f"or have the operator set {TOKEN_ENV} and send it as a Bearer token",
+    )
+
+
 def _handle(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, bool]:
     """Dispatch one JSON-RPC message through the shared stdio handler.
 
@@ -145,7 +180,7 @@ def _handle(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, bool]:
     notification (no response body exists, only ``202 Accepted``).
     """
     is_notification = "id" not in payload
-    response = handle_message(payload)
+    response = _anonymous_provider_refusal(payload) or handle_message(payload)
     # Streamable HTTP negotiates a newer revision than the stdio server reports;
     # answering with the stdio version would make a conforming client negotiate down.
     if response is not None and payload.get("method") == "initialize":
@@ -171,6 +206,7 @@ class _Handler(BaseHTTPRequestHandler):
     """One request handler wired to a :class:`ThreadingHTTPServer`."""
 
     protocol_version = "HTTP/1.1"  # keep-alive; the body length is always explicit
+    timeout = REQUEST_TIMEOUT_SECONDS  # applied to the socket by StreamRequestHandler
     server_version = f"lcc/{__version__}"
     sys_version = ""
 
@@ -211,13 +247,36 @@ class _Handler(BaseHTTPRequestHandler):
                 _error_response(None, -32600, f"body exceeds {MAX_BODY_BYTES} bytes"),
             )
             return None
-        return self.rfile.read(length)
+        try:
+            return self.rfile.read(length)
+        except TimeoutError:
+            self.close_connection = True
+            return None
+
+    def _authorized(self) -> bool:
+        """True when no token is configured or the request carries the right one."""
+        token = os.environ.get(TOKEN_ENV, "")
+        if not token:
+            return True
+        sent = self.headers.get("Authorization", "")
+        if hmac.compare_digest(sent.encode("utf-8"), f"Bearer {token}".encode()):
+            return True
+        body = json.dumps(_error_response(None, -32001, "unauthorized")).encode("utf-8")
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", "Bearer")
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+        return False
 
     # -- verbs -------------------------------------------------------------
     def do_POST(self) -> None:  # noqa: N802 - stdlib name
         path = self.path.split("?", 1)[0].rstrip("/") or "/"
         if path not in ("/", "/mcp"):
             self._send_json(404, _error_response(None, -32601, f"no endpoint {path}"))
+            return
+        if not self._authorized():
             return
 
         raw = self._read_body()
@@ -335,6 +394,13 @@ def build_server(host: str = "127.0.0.1", port: int = 8080) -> ThreadingHTTPServ
 def serve_forever(host: str = "127.0.0.1", port: int = 8080) -> None:
     """Serve until interrupted. Raises ``OSError`` if the port is already bound."""
     server = build_server(host, port)
+    if host not in ("127.0.0.1", "localhost", "::1") and not os.environ.get(TOKEN_ENV):
+        LOGGER.warning(
+            "serving on %s without %s: callers are anonymous and limited to the "
+            "'mechanical' provider",
+            host,
+            TOKEN_ENV,
+        )
     LOGGER.info("lcc MCP streamable-http on http://%s:%s/mcp", host, server.server_port)
     try:
         server.serve_forever()

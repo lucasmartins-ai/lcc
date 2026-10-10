@@ -358,9 +358,13 @@ def _error(request_id: Any, code: int, message: str) -> dict[str, Any]:
 
 def handle_message(message: dict[str, Any]) -> dict[str, Any] | None:
     """Handle one JSON-RPC message; return the response, or None for notifications."""
+    if not isinstance(message, dict):  # batches are not supported by MCP
+        return _error(None, -32600, "invalid request: expected a JSON object")
     method = message.get("method", "")
     request_id = message.get("id")
     params = message.get("params") or {}
+    if not isinstance(params, dict):
+        return _error(request_id, -32602, "invalid params: expected an object")
 
     if method == "initialize":
         return _result(
@@ -376,6 +380,8 @@ def handle_message(message: dict[str, Any]) -> dict[str, Any] | None:
     if method == "tools/call":
         name = params.get("name", "")
         arguments = params.get("arguments") or {}
+        if not isinstance(arguments, dict):
+            return _error(request_id, -32602, "invalid params: 'arguments' must be an object")
         spec = TOOLS.get(name)
         if spec is None:
             return _error(request_id, -32602, f"unknown tool {name!r}")
@@ -424,7 +430,7 @@ def _read_message(buffer: Any) -> tuple[dict[str, Any] | None, bool]:
             if headers:
                 break
             continue
-        if not headers and line.startswith(b"{"):
+        if not headers and line.startswith((b"{", b"[")):
             return json.loads(line.decode("utf-8")), True
         name, _, value = line.decode("utf-8", "replace").partition(":")
         headers[name.strip().lower()] = value.strip()
@@ -452,17 +458,21 @@ def _write_message(buffer: Any, payload: dict[str, Any], ndjson: bool = True) ->
 def serve_forever() -> None:
     """Serve MCP over stdio until EOF."""
     stdin, stdout = sys.stdin.buffer, sys.stdout.buffer
+    ndjson = True
     while True:
         try:
             message, ndjson = _read_message(stdin)
-        except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError):
+        except OSError:
             break
-        if message is None:
-            break
-        try:
-            response = handle_message(message)
-        except Exception as exc:  # never kill the server on a bad message
-            response = _error(message.get("id"), -32603, f"internal error: {exc}")
+        except ValueError:  # JSONDecodeError / UnicodeDecodeError: answer and keep serving
+            response: dict[str, Any] | None = _error(None, -32700, "parse error")
+        else:
+            if message is None:
+                break
+            try:
+                response = handle_message(message)
+            except Exception as exc:  # never kill the server on a bad message
+                response = _error(message.get("id"), -32603, f"internal error: {exc}")
         if response is not None:
             try:
                 _write_message(stdout, response, ndjson)

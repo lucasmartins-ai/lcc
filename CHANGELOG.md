@@ -6,7 +6,33 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Security
+
+- **`lcc mcp --http` let anonymous callers choose paid or heavy providers.** Any client
+  that reached the server could send `provider: "jev"` and spend the operator's TypeSafe
+  key, or `provider: "laya"` and load model weights on the host. Without the new
+  `LCC_HTTP_TOKEN` env var, HTTP callers are now limited to `mechanical`. With it set,
+  `POST /mcp` requires `Authorization: Bearer <token>` and any provider is allowed. Each
+  request also gets a 30 s socket timeout, so a stalled body no longer holds a thread.
+- **The npm package would have published the whole checkout.** `package.json` had no
+  `files` field, so `npm pack` took 1054 files (45.8 MB), including
+  `.claude/settings.local.json` and session worktrees. It now ships `index.js`,
+  `index.d.ts`, `README.md`, `LICENSE` and `NOTICE`.
+
 ### Fixed
+
+- **Text containing `<|endoftext|>` was never counted exactly.** tiktoken rejects
+  special-token strings by default, and the counter silently fell back to the heuristic.
+  Pasted chat logs then ran `--require-exact-tokens` and cache economics on estimates.
+  These strings are now counted as plain text.
+- **A malformed `200` from TypeSafe aborted compaction instead of falling back.** A
+  non-JSON body raised `JSONDecodeError`, and a non-object answer raised `AttributeError`.
+  Both escaped the `JevError` fail-safe. They now raise `JevMalformedResponseError`, are
+  written to the ledger, and degrade to mechanical scoring.
+- **One malformed line ended the `lcc mcp` stdio session.** A parse error now gets a
+  `-32700` reply and the server keeps reading. A JSON array gets `-32600`. Non-object
+  `params` or `arguments` get `-32602` on both transports, instead of an internal error
+  (stdio) or a dropped connection (HTTP).
 
 - **`lcc mcp` never completed the MCP handshake with real clients.** The stdio server only
   read LSP-style `Content-Length` frames, while the MCP stdio transport (Claude Code, Codex,
