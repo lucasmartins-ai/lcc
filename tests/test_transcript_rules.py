@@ -451,12 +451,30 @@ def test_interactive_and_wait_outputs_are_not_trimmed(tool):
 
 
 def test_an_error_bearing_output_is_not_trimmed():
+    # No is_error flags in the transcript: error text in command output marks the error.
     c = Convo()
     cid = _old_big(c, body="ok\n" * 3000 + "FAILED tests/test_x.py::test_y\n" + "z" * 3000)
     c.call("exec_command", {"cmd": "pytest"}, "Traceback (most recent call last):\nboom")
     c.filler(4)
     d = by_id(run(c))[cid]
     assert (d["decision"], d["reason"]) == ("keep", "trim_guard_error")
+
+
+def test_a_flagged_output_is_not_trimmed_and_error_words_in_a_clean_one_are_not_errors():
+    c = Convo()
+    failed = c.call("exec_command", {"cmd": "npm test"}, BIG)
+    c.messages[-1]["toolResults"][0]["is_error"] = True
+    source = c.call(
+        "exec_command", {"cmd": "cat src/errors.py"}, "class ParseError(Exception):\n" + BIG
+    )
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("exec_command", {"cmd": "true"}, "")
+    d = by_id(run(c))
+    assert d[failed]["decision"] == "keep" and d[failed]["reason"] in (
+        "trim_guard_error",
+        "latest_error_result",
+    )
+    assert d[source]["decision"] == "trim"
 
 
 def test_an_output_whose_call_names_a_goal_reference_is_not_trimmed():
@@ -488,3 +506,13 @@ def test_guards_do_not_change_drops():
         d[first]["decision"] == "drop"
         and d[first]["reason"] == f"superseded_by_later_call:{second}"
     )
+
+
+def test_a_shared_workdir_is_not_a_named_reference():
+    c = Convo()
+    cid = c.call("exec_command", {"cmd": "npm run build", "workdir": "/r/proj"}, BIG)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    c.call("exec_command", {"cmd": "true", "workdir": "/r/proj"}, "")
+    c.say("Build is done in /r/proj.")
+    d = by_id(run(c, goal="ship /r/proj", preserve_recent=2))[cid]
+    assert d["decision"] == "trim"

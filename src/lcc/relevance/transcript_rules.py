@@ -34,7 +34,8 @@ middle of files the agent was about to edit, so a trim needs all of these to be 
     trim_guard_recent         within ``TRIM_MIN_AGE_MESSAGES`` of the end (still current work).
     trim_guard_interactive    a ``write_stdin`` poll or a ``wait``-style result (short-lived
                               process/agent state the next step reads in full).
-    trim_guard_error          flagged ``is_error`` or error text anywhere in the output.
+    trim_guard_error          an error by the same test as latest_error_result (``is_error``,
+                              or error text in command output when no result carries the flag).
     trim_guard_edited_later   the call names a file that a later edit (Edit/Write/MultiEdit,
                               Codex ``apply_patch``) changes: its body is what the edit targets.
     trim_guard_named          the call names a path/URL from the goal or the recent turns.
@@ -94,7 +95,7 @@ def _path(call: Any) -> str | None:
 
 
 def _command(call: Any) -> str:
-    value = call.input.get("command")
+    value = call.input.get("command") or call.input.get("cmd")  # Claude Bash / Codex exec_command
     return value if isinstance(value, str) else ""
 
 
@@ -201,6 +202,16 @@ def _protections(
     return protected
 
 
+#: Where a command runs, not what it names: every call in a session shares it.
+_CONTEXT_KEYS = ("workdir", "cwd")
+
+
+def _target_text(call: Any) -> str:
+    """The call's input minus its working directory."""
+    target = {k: v for k, v in call.input.items() if k not in _CONTEXT_KEYS}
+    return json.dumps(target, ensure_ascii=False, sort_keys=True, default=str)
+
+
 def _edited_paths(call: Any) -> list[str]:
     """Files a call edits: Edit/Write/MultiEdit/NotebookEdit paths, ``apply_patch`` headers."""
     if call.tool in EDIT_TOOLS:
@@ -216,15 +227,17 @@ def _names_file(text: str, path: str) -> bool:
     return bool(name) and (_mentions(text, path) or _mentions(text, name))
 
 
-def _trim_guard(call: Any, age: int, later_edits: set[str], refs: list[str]) -> str | None:
+def _trim_guard(
+    call: Any, age: int, later_edits: set[str], refs: list[str], flags_present: bool
+) -> str | None:
     """The guard that keeps this large output whole, or None when it may be trimmed."""
     if age <= TRIM_MIN_AGE_MESSAGES:
         return "trim_guard_recent"
     if call.tool in INTERACTIVE_TOOLS or _WAIT_NAME_RE.search(call.tool.split("__")[-1]):
         return "trim_guard_interactive"
-    if _flagged(call) or ERROR_RE.search(call.result.text):
+    if _is_error(call, flags_present):
         return "trim_guard_error"
-    text = _input_text(call)
+    text = _target_text(call)
     if call.tool not in EDIT_TOOLS | {"apply_patch"} and any(
         _names_file(text, p) for p in later_edits
     ):
@@ -246,7 +259,9 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
     flags_present = any(_flagged(call) for call in all_calls)
     protected = _protections(all_calls, goal, recent_text, flags_present)
     goal_refs = _refs(goal)
-    guard_refs = list(dict.fromkeys([*goal_refs, *_refs(recent_text)]))
+    # Guards match refs the goal or a recent turn's text names (not tool inputs: workdirs).
+    pinned_text = "\n".join(m.text for m in messages if m.pinned and m.message_index != 0)
+    guard_refs = list(dict.fromkeys([*goal_refs, *_refs(pinned_text)]))
     # Files edited after each call: walk backwards, accumulating every later edit.
     edited_after: dict[str, set[str]] = {}
     seen_edits: set[str] = set()
@@ -284,6 +299,7 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
                     last_index - call.message_index,
                     edited_after.get(call.id, set()),
                     guard_refs,
+                    flags_present,
                 )
                 if guard:
                     reason = guard
