@@ -101,12 +101,13 @@ structure and records the rule as the reason: it keeps the latest error result a
 before it, the latest `git status|diff|log`, plan/todo, edit, question to the user, the most
 recent result, and calls on files/URLs named in the goal or recent turns; it drops outputs
 superseded by a later successful whole-file Read/Write of the same file (a partial Read with
-`offset`/`limit` or a failed one never supersedes) or the same command run again
-(`superseded_by_later_call:<id>`)
+`offset`/`limit` or a failed one never supersedes) or the same call run again with the same
+output, ignoring Codex chunk/timing header lines (`superseded_by_later_call:<id>`; a rerun
+whose output changed, such as a poll or a test before and after a fix, is not dropped)
 and successful reads far from recent work (`stale_read_far_from_recent_work`); it trims other
 outputs over 4000 chars to a 1000-char head + 1000-char tail (`large_old_output_trimmed`),
 except outputs from the last 40 messages, `write_stdin`/wait polls, error-bearing outputs,
-reads of a file a later edit or `apply_patch` changes, and calls naming a path from the goal
+reads of a file a later edit or `apply_patch` body (sent through any tool) changes, and calls naming a path from the goal
 or recent turns (`trim_guard_*`, kept whole). `semantic_guarantee` is
 `none`. Pass `is_error: true` on a tool result when the host knows it failed: when any result
 carries the flag it alone marks errors; otherwise an error regex is applied to command output

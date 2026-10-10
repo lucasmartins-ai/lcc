@@ -121,7 +121,7 @@ def test_is_error_flag_marks_an_error_result():
 def test_latest_git_state_is_kept_and_an_older_identical_one_is_superseded():
     c = Convo()
     old = c.call("Bash", {"command": "git status --short"}, "M a.py\n" * 600)
-    new = c.call("Bash", {"command": "git status --short"}, "M b.py\n" * 600)
+    new = c.call("Bash", {"command": "git status --short"}, "M a.py\n" * 600)
     c.filler(rules.STALE_AFTER_MESSAGES + 2)
     d = by_id(run(c))
     assert (d[new]["decision"], d[new]["reason"]) == ("keep", "latest_git_state")
@@ -243,9 +243,9 @@ def test_the_most_recent_tool_result_is_kept_even_when_unpinned():
     assert (d[last]["decision"], d[last]["reason"]) == ("keep", "latest_tool_result")
 
 
-def test_a_command_run_again_supersedes_the_earlier_run():
+def test_a_command_run_again_with_the_same_output_supersedes_the_earlier_run():
     c = Convo()
-    first = c.call("Bash", {"command": "npm test"}, "1 failed")
+    first = c.call("Bash", {"command": "npm test"}, "all passed")
     second = c.call("Bash", {"command": "npm test"}, "all passed")
     c.filler(3)
     d = by_id(run(c))
@@ -516,3 +516,45 @@ def test_a_shared_workdir_is_not_a_named_reference():
     c.say("Build is done in /r/proj.")
     d = by_id(run(c, goal="ship /r/proj", preserve_recent=2))[cid]
     assert d["decision"] == "trim"
+
+
+# --- v0.5 DEV round 2 ----------------------------------------------------------------------------
+# A rerun only replaces an earlier output it repeats; patches sent through any tool are edits.
+
+
+@pytest.mark.parametrize("tool,key", [("Bash", "command"), ("exec_command", "cmd")])
+def test_a_rerun_with_a_changed_output_does_not_supersede_the_earlier_run(tool, key):
+    c = Convo()
+    first = c.call(tool, {key: "npm test"}, "1 failed")
+    c.call(tool, {key: "npm test"}, "all passed")
+    c.filler(3)
+    assert by_id(run(c))[first]["decision"] != "drop"
+
+
+def test_a_write_stdin_poll_is_not_superseded_by_a_later_poll_with_new_output():
+    c = Convo()
+    first = c.call("write_stdin", {"session_id": 7, "chars": ""}, "compiling 1/2")
+    c.call("write_stdin", {"session_id": 7, "chars": ""}, "compiling 2/2")
+    c.filler(3)
+    assert by_id(run(c))[first]["decision"] != "drop"
+
+
+def test_a_rerun_differing_only_in_codex_metadata_supersedes_the_earlier_run():
+    c = Convo()
+    meta = "Chunk ID: {}\nWall time: {} seconds\nProcess exited with code 0\nOriginal token count: 3\nOutput:\n"
+    first = c.call("exec_command", {"cmd": "ls src"}, meta.format("aa11", "0.1") + "a.py b.py")
+    second = c.call("exec_command", {"cmd": "ls src"}, meta.format("bb22", "0.3") + "a.py b.py")
+    c.filler(3)
+    assert by_id(run(c))[first]["reason"] == f"superseded_by_later_call:{second}"
+
+
+def test_a_read_of_a_file_patched_later_through_exec_is_not_trimmed():
+    c = Convo()
+    cid = c.call("exec_command", {"cmd": "sed -n '1,400p' src/app/page.tsx"}, BIG)
+    c.filler(rules.STALE_AFTER_MESSAGES + 2)
+    patch = "*** Begin Patch\n*** Update File: /r/src/app/page.tsx\n@@\n-a\n+b\n*** End Patch"
+    c.call("exec", {"code": f"await tools.apply_patch({{input: `{patch}`}})"}, "Success")
+    c.filler(4)
+    c.call("exec_command", {"cmd": "true"}, "")
+    d = by_id(run(c))[cid]
+    assert (d["decision"], d["reason"]) == ("keep", "trim_guard_edited_later")

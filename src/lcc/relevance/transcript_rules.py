@@ -22,8 +22,10 @@ Protect (keep whole)
 
 Remove
     superseded_by_later_call:<id>   a later successful whole-file Read/Write of the same file
-                                    (no offset/limit/pages), or the same command run again,
-                                    makes this output stale. Dropped with its call.
+                                    (no offset/limit/pages), or the same call run again with
+                                    the same output (Codex chunk/timing lines ignored), makes
+                                    this output stale. Dropped with its call. A rerun whose
+                                    output changed (a poll, a test before/after a fix) does not.
     stale_read_far_from_recent_work a successful read/search more than
                                     ``STALE_AFTER_MESSAGES`` messages before the end.
     large_old_output_trimmed        any other output over ``LARGE_RESULT_CHARS`` keeps its head
@@ -37,7 +39,8 @@ middle of files the agent was about to edit, so a trim needs all of these to be 
     trim_guard_error          an error by the same test as latest_error_result (``is_error``,
                               or error text in command output when no result carries the flag).
     trim_guard_edited_later   the call names a file that a later edit (Edit/Write/MultiEdit,
-                              Codex ``apply_patch``) changes: its body is what the edit targets.
+                              or an ``apply_patch`` body sent through any tool) changes: its
+                              body is what the edit targets.
     trim_guard_named          the call names a path/URL from the goal or the recent turns.
 
 Everything else is kept (``kept_default``). Text is never touched; pinned messages (the first
@@ -79,6 +82,12 @@ READ_TOOLS = {"Read", "Grep", "Glob", "LS", "WebFetch", "WebSearch", "NotebookRe
 INTERACTIVE_TOOLS = {"write_stdin"}
 _WAIT_NAME_RE = re.compile(r"(?:^|_)wait(?:_|$)", re.I)
 _PATCH_FILE_RE = re.compile(r"^\*\*\* (?:Update|Add|Delete) File: (.+?)\s*$", re.M)
+#: Codex result header lines that differ on every run of the same command.
+_RUN_META_RE = re.compile(
+    r"^(?:Chunk ID|Wall time|Original token count|Process running with session ID"
+    r"|Process exited with code)\b.*\n?",
+    re.M,
+)
 _READ_NAME_RE = re.compile(r"(?:^|_)(?:read|get|list|search|fetch|find|snapshot|query)", re.I)
 
 
@@ -213,12 +222,17 @@ def _target_text(call: Any) -> str:
 
 
 def _edited_paths(call: Any) -> list[str]:
-    """Files a call edits: Edit/Write/MultiEdit/NotebookEdit paths, ``apply_patch`` headers."""
+    """Files a call edits: Edit/Write/MultiEdit/NotebookEdit paths, or the file headers of an
+    ``apply_patch`` body in any input field (Codex also patches through ``exec``/shell)."""
     if call.tool in EDIT_TOOLS:
         return [p] if (p := _path(call)) else []
-    if call.tool == "apply_patch":
-        return _PATCH_FILE_RE.findall(str(call.input.get("input") or _input_text(call)))
-    return []
+    return _PATCH_FILE_RE.findall("\n".join(str(v) for v in call.input.values()))
+
+
+def _same_output(call: Any, later: Any) -> bool:
+    """A rerun repeats ``call``: same result text once per-run Codex metadata is removed."""
+    texts = [_RUN_META_RE.sub("", c.result.text if c.result else "").strip() for c in (call, later)]
+    return texts[0] == texts[1]
 
 
 def _names_file(text: str, path: str) -> bool:
@@ -270,13 +284,14 @@ def rules_decisions(messages: list[Any], candidates: list[Any], goal: str) -> li
         seen_edits.update(_edited_paths(call))
     # Walk backwards once: for each call, the nearest later call that supersedes it.
     superseded_by: dict[str, str] = {}
-    next_view: dict[tuple[str, str], str] = {}
+    next_view: dict[tuple[str, str], Any] = {}
     for call in reversed(all_calls):
         key = _supersede_key(call)
-        if key in next_view:
-            superseded_by[call.id] = next_view[key]
+        later = next_view.get(key)
+        if later is not None and (key[0] == "file" or _same_output(call, later)):
+            superseded_by[call.id] = later.id
         if key[0] != "file" or _whole_view(call):
-            next_view[key] = call.id
+            next_view[key] = call
     last_index = messages[-1].message_index if messages else 0
 
     decisions: list[dict[str, Any]] = []
