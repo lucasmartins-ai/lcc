@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
     - uses: actions/checkout@v4
@@ -28,10 +28,14 @@ jobs:
         pytest -q
     - name: Lint (ruff)
       run: |
-        ruff check src tests benchmarks/research/run_multiagent_ab.py benchmarks/research/run_injection_e2e.py benchmarks/usability/run.py
+        ruff check .
     - name: Typecheck (mypy)
       run: |
         mypy
+    - name: Build and check distributions
+      run: |
+        python -m build
+        twine check --strict dist/*
     - name: Answer-level regression (E0)
       run: |
         python3 benchmarks/research/run_answer_eval.py --provider mechanical

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from act2_router.fireworks_client import MockRemoteSolver, create_remote_solver_from_env
-from act2_router.schemas import TaskInput
+from lcc.router.cloud_client import MockRemoteSolver, create_remote_solver_from_env
+from lcc.router.schemas import TaskInput
 
 
 def test_missing_api_key_uses_mock_remote(monkeypatch) -> None:

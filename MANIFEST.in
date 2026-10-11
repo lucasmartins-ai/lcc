@@ -1,6 +1,4 @@
-include AGENTS.md
 include CHANGELOG.md
-include CLAUDE.md
 include CODE_OF_CONDUCT.md
 include CONTRIBUTING.md
 include LICENSE
@@ -10,7 +8,6 @@ include pyproject.toml
 
 recursive-include src *.py *.typed *.yaml
 recursive-include benchmarks *.md *.txt *.yaml
-recursive-include act2_router *.py
 recursive-include config *.yaml
 recursive-include configs *.yaml
 

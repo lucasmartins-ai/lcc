@@ -156,9 +156,6 @@ run `lcc bench` against their own case directory using the format in
   for breaking changes. A JSON-report breaking change also bumps the report
   `schema_version` per [ADR 0004](adr/0004-report-schema-versioning.md).
 
-`lcc inspect`, `lcc bench`, and deterministic `lcc prepare` are additive CLI surfaces, so the
-prepared release is `0.2.0` rather than a retroactive change to `0.1.0`.
-
 ## 5. GitHub checks
 
 - Push the release branch and open a PR.

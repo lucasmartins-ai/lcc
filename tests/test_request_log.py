@@ -269,3 +269,21 @@ def test_redaction_still_keeps_plain_pt_and_en_goals():
     # prose after a secret keyword, CamelCase / snake_case identifiers and short numbers survive
     for goal in ("rotate the token tomorrow", "refactor HttpRequestLoggerFactoryBuilder", "fix test_import_v2_requests_cases", "retry 3 times"):
         assert request_log.redact(goal) == goal, goal
+
+
+def test_log_files_are_private_to_the_owner(log_dir, monkeypatch):
+    """Goals are redacted, not anonymous: the directory and log must not be world-readable."""
+    import os
+    import stat
+
+    monkeypatch.setenv(request_log.ENV_FLAG, "1")
+    old_umask = os.umask(0o022)
+    try:
+        request_log.log_request("why does the booking funnel drop on mobile?")
+        first_id = _entries(log_dir)[0]["id"]
+        request_log.log_request("second goal to keep after deletion")
+        assert request_log.delete_entries({first_id}, log_dir) == 1
+    finally:
+        os.umask(old_umask)
+    assert stat.S_IMODE(log_dir.stat().st_mode) == 0o700
+    assert stat.S_IMODE((log_dir / request_log.LOG_FILE).stat().st_mode) == 0o600

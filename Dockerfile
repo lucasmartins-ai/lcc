@@ -4,7 +4,6 @@ WORKDIR /app
 
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
-COPY act2_router ./act2_router
 COPY configs ./configs
 COPY examples ./examples
 COPY eval ./eval

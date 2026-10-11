@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from act2_router.router import LCCRouter
-from act2_router.schemas import TaskInput
+from lcc.router.router import LCCRouter
+from lcc.router.schemas import TaskInput
 
 
 def test_end_to_end_mock_accepts_simple_local_answer(monkeypatch) -> None:

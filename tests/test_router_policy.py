@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from act2_router.config import PolicyConfig
-from act2_router.policy import choose_route
-from act2_router.schemas import RouteDecision, TaskFeatures
+from lcc.router.config import PolicyConfig
+from lcc.router.policy import choose_route
+from lcc.router.schemas import RouteDecision, TaskFeatures
 
 
 def _features(**overrides: object) -> TaskFeatures:
@@ -46,3 +46,17 @@ def test_noisy_context_routes_compress_then_local_when_small_enough() -> None:
 def test_external_knowledge_routes_remote_direct() -> None:
     plan = choose_route(_features(requires_external_knowledge=True), PolicyConfig())
     assert plan.decision == RouteDecision.REMOTE_DIRECT
+
+
+def test_builtin_policy_matches_the_shipped_yaml(tmp_path):
+    """``configs/`` is not in the wheel: a pip install must get the same risk keywords.
+
+    Regression: outside the repo checkout ``load_policy`` found no YAML and every risk
+    keyword list came back empty, silently turning risk detection off.
+    """
+    from pathlib import Path
+
+    from lcc.router.config import load_policy
+
+    shipped = load_policy(Path(__file__).resolve().parents[1] / "configs" / "router_policy.yaml")
+    assert load_policy(tmp_path / "missing.yaml") == shipped

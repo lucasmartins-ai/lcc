@@ -106,3 +106,21 @@ def test_verifier_is_signal_only_without_client(tmp_path):
     assert on.report.review_reason == "verifier_unavailable_no_client"
     assert on.compacted_text == off.compacted_text
     assert off.report.needs_review is False
+
+
+def test_neighbourhood_failure_is_reported_not_silent(monkeypatch):
+    """If the pre-graph fails, cache keys lose neighbour binding: the report must say so."""
+    from lcc.relevance import RelevanceCompactionRequest, compact_context
+
+    def boom(*_a, **_k):
+        raise RuntimeError("graph down")
+
+    monkeypatch.setattr("lcc.relevance.compactor.build_graph", boom)
+    result = compact_context(
+        RelevanceCompactionRequest(
+            text="Booking funnel loses users at step two.\n\nOffice plants need water.\n",
+            question="booking funnel",
+            provider="mechanical",
+        )
+    )
+    assert "neighbourhood_fingerprint_failed: RuntimeError" in result.report.warnings

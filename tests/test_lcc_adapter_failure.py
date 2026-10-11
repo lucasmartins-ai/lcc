@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from act2_router.lcc_adapter import prepare_context
-from act2_router.schemas import TaskInput
+from lcc.router.context_adapter import prepare_context
+from lcc.router.schemas import TaskInput
 
 
 def test_prepare_context_preserves_original_when_lcc_optimize_fails(monkeypatch) -> None:

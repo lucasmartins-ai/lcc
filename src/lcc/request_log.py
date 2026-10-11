@@ -224,8 +224,13 @@ def _salt(directory: Path) -> bytes:
     return salt
 
 
+def _private_open(path: Path, flags: int) -> Any:
+    """Open for writing as owner-only (0600): redacted goals are still someone's text."""
+    return os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | flags, 0o600), "w", encoding="utf-8")
+
+
 def _append(directory: Path, entry: dict[str, Any]) -> None:
-    with (directory / LOG_FILE).open("a", encoding="utf-8") as handle:
+    with _private_open(directory / LOG_FILE, os.O_APPEND) as handle:
         handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
@@ -245,7 +250,7 @@ def log_request(
         if not (isinstance(language, str) and re.fullmatch(r"[a-z]{2}", language)):
             language = detect_language(redacted)
         directory = log_dir()
-        directory.mkdir(parents=True, exist_ok=True)
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         key = session_key or os.environ.get(ENV_SESSION) or str(os.getppid())
         entry = {
             "id": uuid.uuid4().hex[:12],
@@ -279,7 +284,8 @@ def delete_entries(ids: set[str], directory: Path | None = None) -> int:
     kept = [e for e in entries if e.get("id") not in ids]
     if len(kept) != len(entries):
         tmp = directory / (LOG_FILE + ".tmp")
-        tmp.write_text("".join(json.dumps(e, ensure_ascii=False) + "\n" for e in kept), "utf-8")
+        with _private_open(tmp, os.O_TRUNC) as handle:
+            handle.write("".join(json.dumps(e, ensure_ascii=False) + "\n" for e in kept))
         tmp.replace(directory / LOG_FILE)
     return len(entries) - len(kept)
 

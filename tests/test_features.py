@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from act2_router.config import RiskConfig
-from act2_router.features import extract_features
-from act2_router.schemas import LCCReportSummary, TaskInput
+from lcc.router.config import RiskConfig
+from lcc.router.features import extract_features
+from lcc.router.schemas import LCCReportSummary, TaskInput
 
 
 def _summary() -> LCCReportSummary:

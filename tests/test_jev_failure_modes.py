@@ -239,3 +239,42 @@ def test_malformed_200_body_raises_jev_error_and_compaction_falls_back(tmp_path,
     result = compact_context(_req(client))
     assert result.report.provider_used == "jev+mechanical_fallback"
     assert result.report.degraded
+
+
+@pytest.mark.parametrize(
+    "endpoint",
+    ["http://api.typesafe.ai/v1/systemone", "ftp://x/y", "api.typesafe.ai/v1"],
+)
+def test_bearer_key_is_never_sent_over_a_non_https_endpoint(endpoint):
+    with pytest.raises(JevUnavailableError):
+        JevClient(api_key="test-key", endpoint=endpoint)
+
+
+def test_plain_http_is_allowed_for_a_loopback_endpoint():
+    JevClient(api_key="test-key", endpoint="http://127.0.0.1:8080/v1/systemone")
+    JevClient(api_key="test-key", endpoint="http://localhost:8080/v1/systemone")
+
+
+def test_insecure_endpoint_from_env_is_unavailable_not_a_crash(monkeypatch, capsys):
+    monkeypatch.delenv("LCC_DISABLE_NETWORK", raising=False)
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    monkeypatch.setenv("TYPESAFE_ENDPOINT", "http://evil.example/v1")
+    monkeypatch.setattr("lcc.relevance.jev.resolve_typesafe_key", lambda: "test-key")
+    assert JevClient.from_env() is None
+    assert "TYPESAFE_ENDPOINT" in capsys.readouterr().err
+
+
+def test_redirects_are_not_followed_with_the_bearer_key():
+    """urllib re-sends Authorization to whatever host a 301/302/303 names; refuse instead."""
+    import urllib.request
+
+    from lcc.relevance.jev import _NoRedirect
+
+    request = urllib.request.Request(
+        "https://api.typesafe.ai/v1/systemone",
+        data=b"{}",
+        headers={"Authorization": "Bearer test-key"},
+        method="POST",
+    )
+    handler = _NoRedirect()
+    assert handler.redirect_request(request, None, 302, "Found", {}, "https://evil.example/") is None

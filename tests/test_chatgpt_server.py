@@ -367,3 +367,19 @@ def test_stalled_body_times_out_instead_of_pinning_a_thread():
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
+
+
+def test_anonymous_caller_may_use_the_offline_rules_policy(mcp_url, monkeypatch):
+    """``rules`` is offline and deterministic: no key to spend, no model to load."""
+    monkeypatch.delenv("LCC_HTTP_TOKEN", raising=False)
+    messages = [
+        {"role": "user", "text": "fix it"},
+        {"role": "assistant", "text": "", "toolUses": [
+            {"tool_use_id": "a", "tool": "Read", "input": {"file_path": "x.py"}}]},
+        {"role": "user", "text": "", "toolResults": [{"tool_use_id": "a", "text": "body"}]},
+    ]
+    status, body = _post(mcp_url, _call("compact_transcript", {
+        "messages": messages, "question": "fix it", "provider": "rules"}))
+    assert status == 200
+    result = _sse_payload(body)
+    assert "error" not in result and result["result"].get("isError") is not True

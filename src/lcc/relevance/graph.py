@@ -106,10 +106,16 @@ REVERSAL_CUES = (
     r"scratch that|on second thought|changed (?:my|our) minds?|change of plans?"
     r"|mudei de ideia|mudamos de ideia|pensando melhor|esquece isso|em vez de|ao inv[eé]s de"
 )
+#: Restatement cues shared with the mechanical closure in ``compactor``, which keeps exactly
+#: this set (narrow on purpose: a broad set there protects half the corpus).
+SUPERSESSION_CUES = (
+    r"revised|revision|superseded|supersedes|corrected|correction|amended|amendment|"
+    r"restated|restatement|down from|up from|" + REVERSAL_CUES
+)
+#: The graph only adds SUPERSEDES edges between blocks that already share a term, so it can
+#: afford two extra cues the closure deliberately leaves out.
 _SUPERSESSION_CUE_RE = re.compile(
-    r"\b(?:revised|revision|superseded|supersedes|corrected|correction|amended|amendment|"
-    r"restated|restatement|down from|up from|deprecated|supersede|" + REVERSAL_CUES + r")\b",
-    re.IGNORECASE,
+    r"\b(?:" + SUPERSESSION_CUES + r"|deprecated|supersede)\b", re.IGNORECASE
 )
 _QUALIFIER_RE = re.compile(
     r"\b(except|exception|unless|however|but |although|though|nevertheless|"

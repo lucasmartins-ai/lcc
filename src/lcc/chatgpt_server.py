@@ -69,9 +69,10 @@ REQUEST_TIMEOUT_SECONDS = 30
 
 # Optional shared secret. When set, POST /mcp requires ``Authorization: Bearer <token>``
 # and authenticated callers may pick any provider. When unset every caller is anonymous
-# and may only use ``mechanical``: ``jev``/``auto`` spend the operator's TypeSafe key and
-# ``laya`` loads model weights on the host.
+# and may only use the offline providers: ``jev``/``auto`` spend the operator's TypeSafe
+# key and ``laya`` loads model weights on the host.
 TOKEN_ENV = "LCC_HTTP_TOKEN"
+_ANONYMOUS_PROVIDERS = frozenset({"mechanical", "rules"})
 
 # Tools that take a ``provider`` argument, with the default each applies when it is absent.
 _PROVIDER_DEFAULTS = {"compact": "mechanical", "compact_transcript": "jev"}
@@ -163,13 +164,14 @@ def _anonymous_provider_refusal(payload: dict[str, Any]) -> dict[str, Any] | Non
     if not isinstance(arguments, dict):
         return None  # handle_message rejects the shape itself
     provider = arguments.get("provider", _PROVIDER_DEFAULTS[params["name"]])
-    if provider == "mechanical":
+    if provider in _ANONYMOUS_PROVIDERS:
         return None
     return _error_response(
         payload.get("id"),
         -32602,
         f"provider {provider!r} is disabled for anonymous callers; use 'mechanical' "
-        f"or have the operator set {TOKEN_ENV} and send it as a Bearer token",
+        f"(compact) or 'rules' (compact_transcript), or have the operator set {TOKEN_ENV} "
+        "and send it as a Bearer token",
     )
 
 
@@ -397,7 +399,7 @@ def serve_forever(host: str = "127.0.0.1", port: int = 8080) -> None:
     if host not in ("127.0.0.1", "localhost", "::1") and not os.environ.get(TOKEN_ENV):
         LOGGER.warning(
             "serving on %s without %s: callers are anonymous and limited to the "
-            "'mechanical' provider",
+            "offline 'mechanical' and 'rules' providers",
             host,
             TOKEN_ENV,
         )

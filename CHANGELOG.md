@@ -8,6 +8,15 @@ All notable changes to this project are documented here. The format is based on
 
 ### Security
 
+- **The TypeSafe bearer key could leave over plain HTTP or follow a redirect.**
+  `TYPESAFE_ENDPOINT` must now be `https://` (plain `http://` is accepted only for
+  loopback). If it is not, Jev is reported as unavailable, with a note on stderr.
+  Redirects are refused, because urllib re-sends `Authorization` to whatever host a
+  `301`/`302`/`303` names.
+- **The request log was world-readable under the default umask.** The log directory is
+  now created `0700`, and `requests.jsonl` (including the rewrite done on deletion) is
+  `0600`. The goals are redacted, but they are still users' text.
+
 - **`lcc mcp --http` let anonymous callers choose paid or heavy providers.** Any client
   that reached the server could send `provider: "jev"` and spend the operator's TypeSafe
   key, or `provider: "laya"` and load model weights on the host. Without the new
@@ -20,6 +29,27 @@ All notable changes to this project are documented here. The format is based on
   `index.d.ts`, `README.md`, `LICENSE` and `NOTICE`.
 
 ### Fixed
+
+- **Anonymous HTTP callers could not use `compact_transcript` at all.** The provider gate
+  allowed only `mechanical`, and `compact_transcript` refuses that. The offline `rules`
+  provider is now allowed too.
+- **`lcc route` from a pip install ran with risk detection off.** `configs/` is not in
+  the wheel, and with no YAML in the working directory every risk keyword list was
+  empty. The built-in defaults now match `configs/router_policy.yaml`.
+- **A failed neighbourhood fingerprint was silent.** The decision cache then fell back to
+  content-only keys without saying so. It now adds a `neighbourhood_fingerprint_failed`
+  warning to the report.
+
+### Changed
+
+- Removed `act2_router/`, which held 17 star re-exports of `lcc.router` and `lcc.agents`
+  and was never in the wheel. The 7 tests that still used it now import the real modules.
+- The supersession cue list is defined once in `graph.SUPERSESSION_CUES`, and the graph
+  adds its two extra cues explicitly. Matching is unchanged.
+- `fast-jev-compaction` is a dev dependency, because only the benchmark arm uses it. CI
+  now tests Python 3.11–3.14 (the classifiers already claimed 3.13 and 3.14), runs
+  `ruff check .` on the whole repo, and builds both dists and runs `twine check --strict`
+  on every PR.
 
 - **Text containing `<|endoftext|>` was never counted exactly.** tiktoken rejects
   special-token strings by default, and the counter silently fell back to the heuristic.

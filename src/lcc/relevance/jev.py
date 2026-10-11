@@ -27,6 +27,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -188,6 +189,30 @@ def _request_tokens(payload: dict[str, Any]) -> tuple[int, str]:
     return jev_tokens(json.dumps(payload, ensure_ascii=False, default=str)), "chars/2.2"
 
 
+_LOOPBACK_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
+def _check_endpoint(endpoint: str) -> None:
+    """The bearer key only travels over HTTPS (plain HTTP is allowed to a loopback mock)."""
+    parsed = urllib.parse.urlparse(endpoint)
+    if parsed.scheme == "https" and parsed.hostname:
+        return
+    if parsed.scheme == "http" and parsed.hostname in _LOOPBACK_HOSTS:
+        return
+    raise JevUnavailableError(f"TypeSafe endpoint must be an https:// URL, got {endpoint!r}")
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """urllib re-sends ``Authorization`` to whatever host a redirect names; refuse it.
+
+    Returning ``None`` makes urllib raise the 3xx as an ``HTTPError``, which the retry
+    loop records like any other non-retryable API error.
+    """
+
+    def redirect_request(self, *_args: Any, **_kwargs: Any) -> None:
+        return None
+
+
 class JevClient:
     """Minimal System One client with retry/backoff and shared-ledger logging."""
 
@@ -205,6 +230,7 @@ class JevClient:
     ) -> None:
         if not api_key:
             raise JevUnavailableError("empty TypeSafe API key")
+        _check_endpoint(endpoint)
         self.api_key = api_key
         self.endpoint = endpoint
         self.model = model
@@ -228,7 +254,11 @@ class JevClient:
             return None
         endpoint = os.environ.get("TYPESAFE_ENDPOINT", DEFAULT_ENDPOINT)
         model = os.environ.get("TYPESAFE_MODEL", DEFAULT_MODEL)
-        return cls(key, endpoint=endpoint, model=model, **kwargs)
+        try:
+            return cls(key, endpoint=endpoint, model=model, **kwargs)
+        except JevUnavailableError as exc:
+            print(f"lcc: Jev disabled, TYPESAFE_ENDPOINT rejected: {exc}", file=sys.stderr)
+            return None
 
     # -- ledger ---------------------------------------------------------------
     def _ledger_append(self, entry: dict[str, Any]) -> None:
@@ -251,14 +281,16 @@ class JevClient:
             },
             method="POST",
         )
-        opener = self._opener or urllib.request.urlopen
         if self._opener is None:
             # uv-built interpreters ship an empty CA store: without an explicit
             # bundle urlopen raises CERTIFICATE_VERIFY_FAILED whenever SSL_CERT_FILE
             # is not exported (cron/agent shells), which took every remote pass down.
-            with opener(request, timeout=self.timeout, context=_ssl_context()) as response:  # noqa: S310
+            no_redirect = urllib.request.build_opener(
+                urllib.request.HTTPSHandler(context=_ssl_context()), _NoRedirect
+            )
+            with no_redirect.open(request, timeout=self.timeout) as response:  # noqa: S310
                 return json.loads(response.read().decode("utf-8"))
-        with opener(request, timeout=self.timeout) as response:  # noqa: S310
+        with self._opener(request, timeout=self.timeout) as response:  # noqa: S310
             return json.loads(response.read().decode("utf-8"))
 
     def evaluate(self, state: dict[str, Any], questions: dict[str, Any]) -> dict[str, Any]:

@@ -21,12 +21,23 @@ class RouterPolicyConfig:
     compress_before_remote: bool = True
 
 
+_CALCULATION = (
+    "calculate", "compute", "numeric", "percentage", "sum", "total",
+    "add", "subtract", "multiply", "divide", "average", "ratio",
+)
+_CODE = ("python", "javascript", "function", "bug", "error")
+_STRICT_FORMAT = ("json", "csv", "yaml", "exactly", "schema", "markdown table")
+_EXTERNAL = ("latest", "current", "today", "internet", "web", "outside context")
+
+
 @dataclass(frozen=True)
 class RiskConfig:
-    calculation_keywords: list[str] = field(default_factory=list)
-    code_keywords: list[str] = field(default_factory=list)
-    strict_format_markers: list[str] = field(default_factory=list)
-    external_knowledge_keywords: list[str] = field(default_factory=list)
+    # Defaults mirror configs/router_policy.yaml, which is not packaged: a pip install
+    # (no YAML in the working directory) must detect risk the same way a checkout does.
+    calculation_keywords: list[str] = field(default_factory=lambda: list(_CALCULATION))
+    code_keywords: list[str] = field(default_factory=lambda: list(_CODE))
+    strict_format_markers: list[str] = field(default_factory=lambda: list(_STRICT_FORMAT))
+    external_knowledge_keywords: list[str] = field(default_factory=lambda: list(_EXTERNAL))
 
 
 @dataclass(frozen=True)
@@ -103,13 +114,15 @@ def load_policy(path: str | Path = "configs/router_policy.yaml") -> PolicyConfig
             ),
         ),
         risk=RiskConfig(
-            calculation_keywords=[str(item) for item in risk_data.get("calculation_keywords", [])],
-            code_keywords=[str(item) for item in risk_data.get("code_keywords", [])],
+            calculation_keywords=[
+                str(item) for item in risk_data.get("calculation_keywords", _CALCULATION)
+            ],
+            code_keywords=[str(item) for item in risk_data.get("code_keywords", _CODE)],
             strict_format_markers=[
-                str(item) for item in risk_data.get("strict_format_markers", [])
+                str(item) for item in risk_data.get("strict_format_markers", _STRICT_FORMAT)
             ],
             external_knowledge_keywords=[
-                str(item) for item in risk_data.get("external_knowledge_keywords", [])
+                str(item) for item in risk_data.get("external_knowledge_keywords", _EXTERNAL)
             ],
         ),
     )

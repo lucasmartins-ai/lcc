@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from act2_router.local_verifier import RuleBasedVerifier
-from act2_router.schemas import (
+from lcc.agents.local_verifier import RuleBasedVerifier
+from lcc.router.schemas import (
     LCCReportSummary,
     LocalAnswer,
     TaskFeatures,

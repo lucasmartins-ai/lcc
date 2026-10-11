@@ -51,7 +51,7 @@ from lcc.relevance.decisions import (
     build_decision_identity,
     decision_key_v2,
 )
-from lcc.relevance.graph import REVERSAL_CUES, build_graph
+from lcc.relevance.graph import SUPERSESSION_CUES, build_graph
 from lcc.relevance.jev import JevClient, JevError, parse_noul_answer
 from lcc.relevance.laya import DEFAULT_LAYA_MODEL
 from lcc.relevance.sufficiency import verify_sufficiency
@@ -483,11 +483,7 @@ _DISTINCTIVE_MIN_TERM_CHARS = 4
 #: is the one category the deterministic scorer lost in the categorized benchmark. Kept narrow
 #: on purpose: a broad cue set here would protect half the corpus, which is the mistake the
 #: negation and literal rules already made.
-_SUPERSESSION_CUE_RE = re.compile(
-    r"\b(?:revised|revision|superseded|supersedes|corrected|correction|amended|amendment|"
-    r"restated|restatement|down from|up from|" + REVERSAL_CUES + r")\b",
-    re.IGNORECASE,
-)
+_SUPERSESSION_CUE_RE = re.compile(r"\b(?:" + SUPERSESSION_CUES + r")\b", re.IGNORECASE)
 
 
 def _distinctive_terms(
@@ -1264,8 +1260,10 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                 )
             )
             _neighbourhood[_b.id] = hashlib.sha256(_sig.encode("utf-8")).hexdigest()[:16]
-    except Exception:
+    except Exception as exc:
+        # Cache keys fall back to content-only identity; say so instead of hiding it.
         _neighbourhood = {}
+        warnings.append(f"neighbourhood_fingerprint_failed: {type(exc).__name__}")
 
     def _cache_key_for(block_text: str, block_id: str | None = None) -> str:
         cache_model = (

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from act2_router.eval_runner import run_evaluation, write_reports
+from lcc.router.eval_runner import run_evaluation, write_reports
 
 
 def test_eval_runner_writes_json_and_markdown(tmp_path: Path, monkeypatch) -> None:

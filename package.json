@@ -32,10 +32,8 @@
     "local-first",
     "typescript"
   ],
-  "dependencies": {
-    "fast-jev-compaction": "^0.4.0"
-  },
   "devDependencies": {
+    "fast-jev-compaction": "^0.4.0",
     "railway": "^3.12.0"
   }
 }

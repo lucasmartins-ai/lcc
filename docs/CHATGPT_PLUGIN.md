@@ -52,9 +52,10 @@ Do not expose this process directly to the internet as plain HTTP.
 
 ### Who may call it
 
-Without `LCC_HTTP_TOKEN` every caller is anonymous and limited to the `mechanical`
-provider: `compact` works, while `jev`, `auto` and `laya` (and `compact_transcript`, which
-needs a judge) are refused with JSON-RPC error `-32602`. This stops anyone who reaches the
+Without `LCC_HTTP_TOKEN` every caller is anonymous and limited to the offline providers:
+`mechanical` for `compact` and `rules` for `compact_transcript`. Asking for `jev`, `auto`
+or `laya` (including `compact_transcript` with no provider, which defaults to `jev`) is
+refused with JSON-RPC error `-32602`. This stops anyone who reaches the
 URL from spending your TypeSafe key or loading Laya weights on the host.
 
 Set `LCC_HTTP_TOKEN` to require `Authorization: Bearer <token>` on `POST /mcp`. Requests
