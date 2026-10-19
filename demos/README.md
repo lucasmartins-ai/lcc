@@ -1,10 +1,11 @@
 # Demo recordings
 
-The demo GIFs (`compact.gif` and `compile.gif` are embedded in the top-level README), plus the inputs
+The demo GIFs (`stash.gif` is embedded at the top of the top-level README), plus the inputs
 and the recipes that produce them.
 
 | file | what it shows |
 |---|---|
+| `stash.gif` | `lcc measure-session` on a 91-message Claude Code session, `lcc compact --rules-mode stashed`, then `lcc recall` returning a removed file read byte for byte (the README's top GIF) |
 | `compact.gif` | `lcc compact` dropping noise from a 23-block dossier, then `lcc explain` showing why each block went |
 | `compile.gif` | `lcc optimize` turning a brief dumped from three places into a structured XML prompt |
 | `audio-to-prompt.gif` | `lcc intake` cleaning a Whisper-style transcript and compiling it into a prompt |
@@ -13,7 +14,8 @@ and the recipes that produce them.
 
 ```bash
 python3 demos/make_gifs.py            # all three
-python3 demos/make_gifs.py compact    # one
+python3 demos/make_gifs.py stash      # one
+python3 demos/make_session.py         # rebuilds claude-session.jsonl, the synthetic session stash.gif uses
 ```
 
 Requires Pillow and `lcc` on PATH. The font is Menlo on macOS, else the first of Fira Code /

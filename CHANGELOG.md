@@ -6,10 +6,23 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
-## [1.2.0] - 2026-10-19
+## [1.2.0] - 2026-10-20
 
 ### Added
 
+- **`lcc measure-session <session.jsonl>`**: runs `rules:lossless`, `rules:stashed` and `auto`
+  on one Claude Code session, offline, and prints counts only (messages, tool calls, tokens
+  before/after, texts kept, time). `--markdown` is ready to paste into an issue, `--json` is
+  `lcc-session-report/1`. It never writes to the real stash.
+- **`lcc compact --mode tool-calls --rules-mode <mode>`** (with `--provider rules`): the CLI can
+  now select `stashed`, `recoverable` or `lossy`; before, only MCP and Python could.
+- **`lcc compact --mode tool-calls` reads a Claude Code session file (JSONL) directly.**
+- **`server.json`** for the official MCP registry (`io.github.lucasmartins-ai/lcc`), and a
+  `local-context-compiler` console script (same entry point as `lcc`), so
+  `uvx local-context-compiler mcp` starts the server.
+- `demos/stash.gif` and `demos/make_session.py` (a synthetic 91-message session), and
+  [docs/EVIDENCE.md](docs/EVIDENCE.md): the aggregates of the private studies behind the
+  README numbers.
 - **Claude Code plugin: idle stash (opt-in, off by default).** With `idleStash: true`, a
   session resumed after `idleTtlSeconds` of idle has its spent tool outputs stashed
   (`provider: rules`, `rulesMode: stashed`) at `session.start`, before the first request
@@ -28,6 +41,11 @@ All notable changes to this project are documented here. The format is based on
   result (`MAX_MCP_OUTPUT_TOKENS`) and hands a plugin's `$.mcp.call` an error text in place of
   a larger one; a 12-message session with four 10 KB reads already crossed it (49 KB answer).
   The idle stash uses it; the `/compact` path is unchanged.
+
+### Changed
+
+- README: leads with `/compact` vs lcc on a real session, the plugin install with
+  `rulesMode=stashed`, and how to send numbers.
 
 ### Fixed
 

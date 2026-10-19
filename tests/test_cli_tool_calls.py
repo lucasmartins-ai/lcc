@@ -247,3 +247,36 @@ def test_the_rules_policy_is_refused_in_blocks_mode(tmp_path: Path):
     result = runner.invoke(app, ["compact", str(src), "-q", "x", "--provider", "rules"])
     assert result.exit_code == 2
     assert "rules" in result.output
+
+
+MEDIUM = Path(__file__).resolve().parents[1] / "benchmarks/research/corpora/transcripts/medium.json"
+
+
+def test_rules_mode_stashed_stashes_and_recall_returns_the_bytes(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("LCC_STASH_DIR", str(tmp_path / "stash"))
+    out, rep = tmp_path / "out.json", tmp_path / "report.json"
+    result = runner.invoke(app, [
+        "compact", str(MEDIUM), "-q", "cut the retry storm", "--mode", "tool-calls",
+        "--provider", "rules", "--rules-mode", "stashed", "-o", str(out), "-r", str(rep)])
+    assert result.exit_code == 0, result.output
+    report = json.loads(rep.read_text())
+    assert report["rules_mode"] == "stashed" and report["tool_calls_stashed"] > 0
+    assert "Stashed" in result.output
+    stash = next(d["stash"] for d in report["decisions"] if "stash" in d)
+    original = {r["tool_use_id"]: r["text"] for m in json.loads(MEDIUM.read_text())["messages"]
+                for r in m.get("toolResults") or []}
+    recalled = runner.invoke(app, ["recall", stash["sha256"][:12]])
+    assert recalled.exit_code == 0
+    assert recalled.output.rstrip("\n") in {t.rstrip("\n") for t in original.values()}
+
+
+def test_rules_mode_is_refused_without_provider_rules_or_outside_tool_calls(tmp_path: Path):
+    src = write(tmp_path)
+    bad = runner.invoke(app, ["compact", str(src), "-q", "x", "--mode", "tool-calls",
+                              "--provider", "specialist-v3", "--rules-mode", "stashed"])
+    assert bad.exit_code == 2 and "--rules-mode" in bad.output
+    blocks = runner.invoke(app, ["compact", str(src), "-q", "x", "--rules-mode", "lossless"])
+    assert blocks.exit_code == 2
+    unknown = runner.invoke(app, ["compact", str(src), "-q", "x", "--mode", "tool-calls",
+                                  "--provider", "rules", "--rules-mode", "nope"])
+    assert unknown.exit_code == 2

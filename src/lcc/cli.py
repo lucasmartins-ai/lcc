@@ -1039,6 +1039,7 @@ def _compact_tool_calls(
     threshold: float,
     trim_head_chars: int,
     preserve_recent: int,
+    rules_mode: str | None,
     max_state_tokens: int,
     max_request_tokens: int,
     batch_calls: int,
@@ -1074,11 +1075,17 @@ def _compact_tool_calls(
     try:
         payload = json.loads(raw)
     except json.JSONDecodeError as exc:
-        _fail(
-            "tool-calls mode reads a JSON transcript (messages array or "
-            f"{{'messages': [...]}}): {exc}",
-            code=2,
-        )
+        first = raw.lstrip().split("\n", 1)[0]
+        if first.startswith("{") and '"type"' in first:  # a Claude Code session file (JSONL)
+            from lcc.session_report import messages_from_jsonl
+
+            payload = {"messages": messages_from_jsonl(raw.splitlines())}
+        else:
+            _fail(
+                "tool-calls mode reads a JSON transcript (messages array or "
+                f"{{'messages': [...]}}): {exc}",
+                code=2,
+            )
 
     try:
         result = compact_transcript(
@@ -1089,6 +1096,7 @@ def _compact_tool_calls(
                 threshold=threshold,
                 preserve_recent=preserve_recent,
                 trim_head_chars=trim_head_chars,
+                rules_mode=rules_mode or "lossless",
                 max_state_tokens=max_state_tokens,
                 max_request_tokens=max_request_tokens,
                 batch_calls=batch_calls,
@@ -1146,6 +1154,11 @@ def _compact_tool_calls(
         f"{report['tool_calls_kept']} kept | {report['tool_calls_trimmed']} trimmed | "
         f"{report['tool_calls_dropped']} dropped",
     )
+    if report.get("tool_calls_stashed"):
+        table.add_row(
+            "Stashed",
+            f"{report['tool_calls_stashed']} results, byte-recoverable with `lcc recall <id>`",
+        )
     table.add_row(
         "Messages",
         f"{report['messages_before']} -> {report['messages_after']}",
@@ -1241,6 +1254,15 @@ def compact_command(
         help=(
             "tool-calls mode: first and newest N messages are never scored or mutated "
             "(0 keeps only the first message pinned)."
+        ),
+    ),
+    rules_mode: str | None = typer.Option(
+        None,
+        "--rules-mode",
+        help=(
+            "tool-calls mode with --provider rules: 'lossless' (default), 'recoverable', "
+            "'lossy' or 'stashed' (removed outputs go to a local stash, `lcc recall` "
+            "returns them byte for byte). See docs/TOOL_CALLS.md."
         ),
     ),
     max_state_tokens: int = typer.Option(
@@ -1529,6 +1551,13 @@ def compact_command(
         _fail("--mode must be 'blocks' or 'tool-calls'.", code=2)
     if preserve_recent < 0:
         _fail("--preserve-recent must be >= 0.", code=2)
+    if rules_mode is not None:
+        from lcc.relevance.transcript import RULES_MODES
+
+        if mode != "tool-calls" or provider != "rules":
+            _fail("--rules-mode needs --mode tool-calls and --provider rules.", code=2)
+        if rules_mode not in RULES_MODES:
+            _fail(f"--rules-mode must be one of {', '.join(RULES_MODES)}.", code=2)
     if max_state_tokens < 64:
         _fail("--max-state-tokens must be >= 64.", code=2)
     if max_request_tokens <= max_state_tokens:
@@ -1574,6 +1603,7 @@ def compact_command(
             threshold=threshold,
             trim_head_chars=trim_head_chars,
             preserve_recent=preserve_recent,
+            rules_mode=rules_mode,
             max_state_tokens=max_state_tokens,
             max_request_tokens=max_request_tokens,
             batch_calls=batch_size,
@@ -1858,6 +1888,44 @@ def recall_cmd(
     except StashError as exc:
         _fail(str(exc), code=2)
     sys.stdout.write(text)
+
+
+@app.command(name="measure-session")
+def measure_session_cmd(
+    session: Path = typer.Argument(
+        ..., help="A Claude Code session file (~/.claude/projects/<project>/<id>.jsonl).",
+        show_default=False, exists=True, dir_okay=False,
+    ),
+    as_json: bool = typer.Option(False, "--json", help="Print the report as JSON."),
+    markdown: bool = typer.Option(
+        False, "--markdown", help="Print Markdown, ready to paste into a GitHub issue."
+    ),
+) -> None:
+    """What each compaction mode would do to one of your sessions. Offline, counts only."""
+    from lcc.session_report import measure_session, to_markdown
+
+    report = measure_session(session)
+    if as_json or markdown:
+        sys.stdout.write((json.dumps(report, indent=2) if as_json else to_markdown(report)) + "\n")
+        return
+    table = Table(
+        title=f"{report['messages']} messages · {report['tool_calls']} tool calls · "
+        f"{report['tokens_before']:,} tokens ({report['token_count_method']})",
+        box=None, pad_edge=False,
+    )
+    for column in ("mode", "tokens after", "reduction", "texts kept", "stashed", "time"):
+        table.add_column(column, justify="left" if column == "mode" else "right")
+    for row in report["modes"]:
+        if "error" in row:
+            table.add_row(row["mode"], f"did not run ({row['error']})", "", "", "", "")
+            continue
+        table.add_row(
+            row["mode"], f"{row['tokens_after']:,}", f"{row['reduction']:.1%}",
+            f"{report['texts'] - row['texts_lost']}/{report['texts']}", str(row["stashed"]),
+            f"{row['ms']} ms",
+        )
+    console.print(table)
+    console.print("[dim]Counts only. Share them: lcc measure-session FILE --markdown[/dim]")
 
 
 @app.command(name="intake")
