@@ -2009,8 +2009,26 @@ def measure_session_cmd(
     markdown: bool = typer.Option(
         False, "--markdown", help="Print Markdown, ready to paste into a GitHub issue."
     ),
+    input_map: bool = typer.Option(
+        False,
+        "--input-map",
+        help="Instead of the modes, show where the session's billed input tokens go, by "
+        "category, with the cache read/write split.",
+    ),
 ) -> None:
     """What each compaction mode would do to one of your sessions. Offline, counts only."""
+    if input_map:
+        from lcc import input_map as imap
+
+        report = imap.input_map(session)
+        rendered = json.dumps(report, indent=2) if as_json else imap.to_markdown(report)
+        if as_json or markdown:
+            sys.stdout.write(rendered + "\n")
+        else:
+            from rich.markdown import Markdown
+
+            console.print(Markdown(rendered))
+        return
     from lcc.session_report import measure_session, to_markdown
 
     report = measure_session(session, question=question)

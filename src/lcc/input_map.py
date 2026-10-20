@@ -1,0 +1,428 @@
+"""`lcc measure-session --input-map`: where a session's input tokens go.
+
+Reads a Claude Code session or Codex rollout (JSONL) locally and reports, **counts only**:
+
+- **billed input**, from the provider's own usage records in the file (exact): uncached,
+  cache-write and cache-read tokens, and their cost-weighted split;
+- **category shares**, from a replay model: each transcript item (counted with lcc's
+  tokenizer) is charged once per later request, until a compaction boundary. Claude Code
+  files hold no system prompt or tool schemas, so their per-request size is estimated as the
+  intercept of a least-squares fit of billed input on transcript size. Codex rollouts carry
+  both, so they are counted directly;
+- a **drill-down**: tokens by tool (results and inputs), by attachment type, re-reads and
+  duplicate outputs.
+
+The shares assume one tokenizer ratio across categories (the provider's tokenizer differs
+from lcc's), so they rank categories; they are not exact percentages. The report says so.
+No session text, file path or tool output is in the report. Nothing is sent anywhere.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from collections import Counter
+from collections.abc import Iterable, Iterator
+from pathlib import Path
+from typing import Any
+
+SCHEMA = "lcc-input-map/1"
+#: Cost factors relative to one uncached input token (the ones docs/CACHE_ALIGNMENT.md uses).
+#: Anthropic 1-hour cache writes cost more than 1.25, so the write share is a lower bound there.
+COST_FACTORS = {"uncached": 1.0, "cache_write": 1.25, "cache_read": 0.1}
+APPROXIMATION = (
+    "Billed input and its cache split come from the provider's usage records (exact). "
+    "Category shares replay the transcript with lcc's tokenizer and assume one tokenizer "
+    "ratio across categories: use them to rank categories, not as exact percentages."
+)
+#: Fewer requests than this and the overhead fit is not attempted.
+MIN_FIT_REQUESTS = 10
+#: A repeated tool output shorter than this is not counted as a duplicate.
+DUPLICATE_MIN_TOKENS = 50
+TOP_N = 8
+
+FIXED = "fixed overhead (system prompt, tool schemas, instructions)"
+# Attachment types Claude Code records but does not render into the model's context.
+_NOT_SENT = frozenset({
+    "auto_mode", "auto_mode_exit", "command_permissions", "compact_file_reference",
+    "credential_org", "deferred_tools_record", "hook_cancelled", "prompt_snapshot",
+    "remote_session_change", "thinking_drop",
+})
+_ATTACHMENT_FIELDS = (
+    "content", "text", "prompt", "snippet", "addedNames", "addedBlocks", "addedTypes",
+    "files", "date", "context", "snapshot",
+)
+
+
+def _tokens(text: str) -> int:
+    from lcc.token_budget import count_tokens
+
+    return count_tokens(text, "gpt-4.1").value if text else 0
+
+
+def _token_method() -> tuple[str, str | None]:
+    from lcc.token_budget import count_tokens
+
+    probe = count_tokens("lcc", "gpt-4.1")
+    return probe.method.value, probe.note
+
+
+def _text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if not isinstance(content, list):
+        return json.dumps(content, ensure_ascii=False) if content else ""
+    parts = []
+    for block in content:
+        if isinstance(block, str):
+            parts.append(block)
+        elif isinstance(block, dict) and block.get("type") in ("text", "input_text", "output_text"):
+            parts.append(str(block.get("text") or ""))
+        elif isinstance(block, dict) and block.get("type") == "tool_result":
+            parts.append(_text(block.get("content")))
+    return "\n".join(parts)
+
+
+def _dumps(value: Any) -> str:
+    return value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+
+
+def _attachment_text(attachment: dict[str, Any]) -> str:
+    if attachment.get("type") in _NOT_SENT:
+        return ""
+    parts = [_dumps(attachment[k]) for k in _ATTACHMENT_FIELDS if attachment.get(k)]
+    if attachment.get("type") == "hook_success":  # hook context arrives as JSON on stdout
+        try:
+            out = json.loads(attachment.get("stdout") or "{}")
+            extra = (out.get("hookSpecificOutput") or {}).get("additionalContext")
+        except (ValueError, AttributeError):
+            extra = None
+        if isinstance(extra, str) and extra:
+            parts.append(extra)
+    return "\n".join(parts)
+
+
+# Events: ("item", category, detail, tokens, digest, path) | ("request", usage) | ("boundary",)
+# | ("system_prompt", tokens). `detail` is the tool or attachment type for the drill-down.
+Event = tuple[Any, ...]
+
+
+def _claude_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
+    calls: dict[str, tuple[str, str]] = {}
+    seen_requests: set[str] = set()
+    for record in records:
+        kind = record.get("type")
+        if record.get("isSidechain"):
+            continue  # a subagent's own context, not this one's
+        if kind == "system" and record.get("subtype") == "compact_boundary":
+            yield ("boundary",)
+            continue
+        if kind == "attachment":
+            attachment = record.get("attachment")
+            if not isinstance(attachment, dict):
+                continue
+            if attachment.get("type") == "prompt_snapshot":
+                yield ("system_prompt", _tokens(_dumps(attachment.get("systemPrompt") or "")))
+                continue
+            text = _attachment_text(attachment)
+            if text:
+                yield ("item", "attachments", str(attachment.get("type")), _tokens(text), None, "")
+            continue
+        message = record.get("message")
+        if not isinstance(message, dict):
+            continue
+        content = message.get("content")
+        if kind == "assistant":
+            request_id = record.get("requestId")
+            usage = message.get("usage")
+            if isinstance(usage, dict) and request_id and request_id not in seen_requests:
+                seen_requests.add(request_id)
+                yield ("request", usage)
+            for block in content if isinstance(content, list) else []:
+                if not isinstance(block, dict):
+                    continue
+                if block.get("type") == "text":
+                    yield ("item", "assistant text", "", _tokens(str(block.get("text") or "")),
+                           None, "")
+                elif block.get("type") == "tool_use":
+                    tool_input = block.get("input")
+                    tool_input = tool_input if isinstance(tool_input, dict) else {}
+                    name = str(block.get("name") or "?")
+                    path = tool_input.get("file_path") if name == "Read" else None
+                    calls[str(block.get("id"))] = (name, path if isinstance(path, str) else "")
+                    yield ("item", "tool-call inputs", name, _tokens(_dumps(tool_input)), None, "")
+                # thinking: re-sent only in part and not attributable; counted from usage instead
+        elif kind == "user":
+            summary = bool(record.get("isCompactSummary"))
+            if isinstance(content, str):
+                category = "compaction summary" if summary else "user text"
+                yield ("item", category, "", _tokens(content), None, "")
+                continue
+            for block in content if isinstance(content, list) else []:
+                if not isinstance(block, dict):
+                    continue
+                if block.get("type") == "tool_result":
+                    name, path = calls.get(str(block.get("tool_use_id")), ("?", ""))
+                    body = _text(block.get("content"))
+                    digest = hashlib.sha256(body.encode("utf-8", "replace")).hexdigest()
+                    yield ("item", "tool results", name, _tokens(body), digest, path)
+                elif block.get("type") == "text":
+                    text = str(block.get("text") or "")
+                    if text.lstrip().startswith("<system-reminder"):
+                        yield ("item", "attachments", "system-reminder", _tokens(text), None, "")
+                        continue
+                    category = "compaction summary" if summary else "user text"
+                    yield ("item", category, "", _tokens(text), None, "")
+
+
+def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
+    calls: dict[str, str] = {}
+    last_total: Any = None
+    for record in records:
+        kind, payload = record.get("type"), record.get("payload")
+        if kind == "compacted":
+            yield ("boundary",)
+            continue
+        if not isinstance(payload, dict):
+            continue
+        item_type = payload.get("type")
+        if kind == "response_item":
+            if item_type == "additional_tools":
+                yield ("item", "tool schemas", "", _tokens(_dumps(payload.get("tools") or "")),
+                       None, "")
+            elif item_type == "message":
+                role = payload.get("role")
+                text = _text(payload.get("content"))
+                category = {"developer": "system prompt", "assistant": "assistant text"}.get(
+                    str(role), "user text"
+                )
+                if role == "user" and "<environment_context>" in text:
+                    category = "instructions"
+                yield ("item", category, "", _tokens(text), None, "")
+            elif item_type in ("function_call", "custom_tool_call"):
+                name = str(payload.get("name") or "?")
+                calls[str(payload.get("call_id"))] = name
+                raw = payload.get("arguments") or payload.get("input") or ""
+                yield ("item", "tool-call inputs", name, _tokens(_dumps(raw)), None, "")
+            elif item_type in ("function_call_output", "custom_tool_call_output"):
+                body = _text(payload.get("output"))
+                digest = hashlib.sha256(body.encode("utf-8", "replace")).hexdigest()
+                name = calls.get(str(payload.get("call_id")), "?")
+                yield ("item", "tool results", name, _tokens(body), digest, "")
+            elif item_type == "agent_message":
+                yield ("item", "agent messages", "", _tokens(_text(payload.get("content"))),
+                       None, "")
+        elif kind == "event_msg" and item_type == "token_count":
+            info = payload.get("info")
+            if not isinstance(info, dict):
+                continue
+            total = info.get("total_token_usage")
+            last = info.get("last_token_usage")
+            if not isinstance(last, dict) or not total or total == last_total:
+                continue  # Codex repeats a count when nothing new was billed
+            last_total = total
+            cached = int(last.get("cached_input_tokens") or 0)
+            yield ("request", {
+                "input_tokens": int(last.get("input_tokens") or 0) - cached,
+                "cache_read_input_tokens": cached,
+                "cache_creation_input_tokens": int(last.get("cache_write_input_tokens") or 0),
+            })
+
+
+def _records(path: Path) -> list[dict[str, Any]]:
+    records = []
+    with path.open(encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(record, dict):
+                records.append(record)
+    return records
+
+
+def _fit(pairs: list[tuple[int, int]]) -> dict[str, Any] | None:
+    """Least squares billed = a + b * transcript. None when it cannot be trusted."""
+    if len(pairs) < MIN_FIT_REQUESTS:
+        return None
+    mean_x = sum(x for x, _ in pairs) / len(pairs)
+    mean_y = sum(y for _, y in pairs) / len(pairs)
+    sxx = sum((x - mean_x) ** 2 for x, _ in pairs)
+    if not sxx:
+        return None
+    slope = sum((x - mean_x) * (y - mean_y) for x, y in pairs) / sxx
+    intercept = mean_y - slope * mean_x
+    if intercept < 0 or slope <= 0:
+        return None  # e.g. many compactions; the overhead is not separable
+    return {"intercept_tokens": round(intercept), "slope": round(slope, 3)}
+
+
+def _top(counter: Counter[str]) -> list[dict[str, Any]]:
+    top = [(k, v) for k, v in counter.most_common(TOP_N) if v]
+    rows: list[dict[str, Any]] = [{"name": k, "tokens": v} for k, v in top]
+    rest = sum(counter.values()) - sum(v for _, v in top)
+    if rest:
+        rows.append({"name": "(other)", "tokens": rest})
+    return rows
+
+
+def input_map(path: Path) -> dict[str, Any]:
+    from lcc import __version__
+
+    records = _records(path)
+    codex = bool(records) and records[0].get("type") == "session_meta"
+    events = _codex_events(records) if codex else _claude_events(records)
+
+    once: Counter[str] = Counter()  # tokens per category, counted once
+    active: Counter[str] = Counter()  # tokens per category in the context right now
+    replayed: Counter[str] = Counter()  # tokens per category summed over requests
+    billed: Counter[str] = Counter()
+    output: Counter[str] = Counter()
+    by_detail: dict[str, Counter[str]] = {
+        "tool results": Counter(), "tool-call inputs": Counter(), "attachments": Counter()
+    }
+    pairs: list[tuple[int, int]] = []
+    reads: dict[str, set[str]] = {}
+    seen_outputs: set[str] = set()
+    reread = reread_identical = duplicates = 0
+    system_prompt = 0
+    for event in events:
+        if event[0] == "boundary":
+            active.clear()
+        elif event[0] == "system_prompt":
+            system_prompt = max(system_prompt, event[1])
+        elif event[0] == "item":
+            _, category, detail, tokens, digest, file_path = event
+            once[category] += tokens
+            active[category] += tokens
+            if category in by_detail:
+                by_detail[category][detail] += tokens
+            if digest is not None:
+                if file_path:
+                    previous = reads.setdefault(file_path, set())
+                    if previous:
+                        reread += tokens
+                        reread_identical += tokens if digest in previous else 0
+                    previous.add(digest)
+                if tokens >= DUPLICATE_MIN_TOKENS:
+                    duplicates += tokens if digest in seen_outputs else 0
+                    seen_outputs.add(digest)
+        else:  # request
+            usage = event[1]
+            row = {
+                "uncached": int(usage.get("input_tokens") or 0),
+                "cache_write": int(usage.get("cache_creation_input_tokens") or 0),
+                "cache_read": int(usage.get("cache_read_input_tokens") or 0),
+            }
+            billed.update(row)
+            details = usage.get("output_tokens_details")
+            output["output"] += int(usage.get("output_tokens") or 0)
+            if isinstance(details, dict):
+                output["thinking"] += int(details.get("thinking_tokens") or 0)
+            replayed.update(active)
+            pairs.append((sum(active.values()), sum(row.values())))
+
+    requests = len(pairs)
+    total = sum(billed.values())
+    fit = None if codex else _fit(pairs)
+    shares: list[dict[str, Any]] = []
+    if total:
+        fixed_share = min(1.0, fit["intercept_tokens"] * requests / total) if fit else 0.0
+        replay_total = sum(replayed.values())
+        if fit:
+            shares.append({"category": FIXED, "share": round(fixed_share, 4)})
+        for category, tokens in replayed.most_common():
+            if tokens and replay_total:
+                share = (1 - fixed_share) * tokens / replay_total
+                shares.append({"category": category, "share": round(share, 4)})
+    weighted = {k: round(billed[k] * f, 1) for k, f in COST_FACTORS.items()}
+    weighted_total = sum(weighted.values())
+    method, note = _token_method()
+    return {
+        "schema": SCHEMA,
+        "lcc_version": __version__,
+        "format": "codex" if codex else "claude-code",
+        "requests": requests,
+        "billed_input": {
+            **{k: billed[k] for k in COST_FACTORS},
+            "total": total,
+            "cache_read_share": round(billed["cache_read"] / total, 4) if total else None,
+        },
+        "cost": {
+            "factors": dict(COST_FACTORS),
+            "weighted": weighted,
+            "cache_write_share": (
+                round(weighted["cache_write"] / weighted_total, 4) if weighted_total else None
+            ),
+            "uncached_share": (
+                round(weighted["uncached"] / weighted_total, 4) if weighted_total else None
+            ),
+        },
+        "fixed_overhead_fit": fit,
+        "system_prompt_tokens": system_prompt or once.get("system prompt") or None,
+        "categories": shares,
+        "transcript_tokens": dict(once.most_common()),
+        "drill_down": {
+            "tool_results_by_tool": _top(by_detail["tool results"]),
+            "tool_inputs_by_tool": _top(by_detail["tool-call inputs"]),
+            "attachments_by_type": _top(by_detail["attachments"]),
+            "re_read_tokens": reread,
+            "re_read_identical_tokens": reread_identical,
+            "duplicate_output_tokens": duplicates,
+        },
+        "provider_output_tokens": dict(output),
+        "token_count_method": method,
+        "token_count_note": note,
+        "approximation": APPROXIMATION,
+    }
+
+
+def _pct(value: float | None) -> str:
+    return "n/a" if value is None else f"{value:.1%}"
+
+
+def to_markdown(report: dict[str, Any]) -> str:
+    billed = report["billed_input"]
+    cost = report["cost"]
+    factors = cost["factors"]
+    lines = [
+        f"**lcc measure-session --input-map** · lcc {report['lcc_version']} · "
+        f"{report['format']} · tokens counted {report['token_count_method']}",
+        "",
+        f"{report['requests']} requests · billed input {billed['total']:,} tokens · "
+        f"cache read {_pct(billed['cache_read_share'])} of tokens · cache writes "
+        f"{_pct(cost['cache_write_share'])} of input cost (read {factors['cache_read']}×, "
+        f"write {factors['cache_write']}×)",
+        "",
+    ]
+    if report["categories"]:
+        lines += ["| where billed input goes | share |", "| --- | ---: |"]
+        lines += [f"| {r['category']} | {r['share']:.1%} |" for r in report["categories"]]
+    else:
+        lines.append("No usage records in this file: billed shares cannot be computed.")
+    fit = report["fixed_overhead_fit"]
+    if report["format"] == "claude-code":
+        lines += ["", (
+            f"Fixed overhead per request (fit): {fit['intercept_tokens']:,} tokens, "
+            f"slope {fit['slope']}." if fit else
+            "Fixed overhead: not separable in this session (fit skipped)."
+        )]
+    drill = report["drill_down"]
+    for title, key in (("tool results", "tool_results_by_tool"),
+                       ("tool-call inputs", "tool_inputs_by_tool"),
+                       ("attachments", "attachments_by_type")):
+        if drill[key]:
+            top = ", ".join(f"{r['name']} {r['tokens']:,}" for r in drill[key])
+            lines += ["", f"Top {title} (transcript tokens): {top}"]
+    lines += [
+        "",
+        f"Re-reads: {drill['re_read_tokens']:,} tokens ({drill['re_read_identical_tokens']:,} "
+        f"identical) · duplicate outputs: {drill['duplicate_output_tokens']:,} tokens",
+        "",
+        f"> {report['approximation']}",
+    ]
+    if report.get("token_count_note"):
+        lines.append(f"> Approximate counts: {report['token_count_note']}")
+    lines += ["", "Counts only: no session text, file path or tool output is included."]
+    return "\n".join(lines)

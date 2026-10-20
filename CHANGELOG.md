@@ -49,6 +49,19 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc measure-session --input-map`: where a session's input tokens go.** Reads the
+  provider's own usage records in a Claude Code session or Codex rollout and reports billed
+  input split into uncached, cache-write and cache-read tokens, the cost-weighted split
+  (read 0.1×, write 1.25×, as in `docs/CACHE_ALIGNMENT.md`), and each category's share of
+  billed input: fixed overhead (system prompt, tool schemas, instructions), tool results,
+  tool-call inputs, harness attachments, user and assistant text, compaction summaries. Plus
+  a drill-down by tool and attachment type, re-reads and duplicate outputs. Codex rollouts
+  carry the system prompt and tool schemas, so those are counted directly; for Claude Code the
+  fixed overhead is the intercept of a fit of billed input on transcript size. Shares assume
+  one tokenizer ratio across categories, so they rank categories rather than give exact
+  percentages, and the output says so. Counts only, offline, JSON or Markdown. On a
+  945-request Claude Code session it runs in under a second.
+
 - `lcc measure-session --question/-q` passes a specific question or objective to every
   compaction mode, retaining the previous default when omitted (#61).
 

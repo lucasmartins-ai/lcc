@@ -95,6 +95,9 @@ counts, install the `tiktoken` extra and cache its tokenizer once (lcc itself ne
 `python -c "import tiktoken; tiktoken.get_encoding('o200k_base')"`. Otherwise the report says
 `approximate` and why. Paste it in
 [Discussions → Results](https://github.com/lucasmartins-ai/lcc/discussions/categories/results).
+Add `--input-map` to see where the session's billed input goes instead: cache reads and
+writes, and the share taken by tool results, tool-call inputs, injected instructions and the
+fixed system prompt and tool schemas (counts only, from the usage records in the file).
 Already compacting with lcc? `lcc share-stats` turns your local reports into the same kind of
 counts-only summary ([SHARE_STATS.md](docs/SHARE_STATS.md)), or use the
 [results issue form](https://github.com/lucasmartins-ai/lcc/issues/new?template=results.yml).
