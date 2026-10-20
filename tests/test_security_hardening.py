@@ -220,10 +220,10 @@ def test_http_rejects_deeply_nested_json():
         server.server_close()
 
 
-def _http_tool_text(arguments):
+def _http_tool_text(arguments, tool="compact"):
     response, _ = chatgpt_server._handle(
         {"jsonrpc": "2.0", "id": 9, "method": "tools/call",
-         "params": {"name": "compact", "arguments": arguments}})
+         "params": {"name": tool, "arguments": arguments}})
     assert response is not None and response["result"]["isError"] is True
     return response["result"]["content"][0]["text"]
 
@@ -241,6 +241,13 @@ def test_http_tool_errors_never_echo_exception_text(exc, monkeypatch):
 def test_http_bad_numbers_answer_a_fixed_message(threshold):
     text = _http_tool_text({"text": "y", "question": "x", "threshold": threshold})
     assert text == "error: 'threshold' must be a number"
+
+
+def test_http_infinite_int_answers_a_fixed_message():
+    arguments = {"messages": [{"role": "user", "content": "hi"}], "question": "x",
+                 "provider": "rules", "preserve_recent": float("inf")}
+    text = _http_tool_text(arguments, tool="compact_transcript")
+    assert text == "error: 'preserve_recent' must be a number"
 
 
 def test_http_tool_input_errors_keep_their_reason():

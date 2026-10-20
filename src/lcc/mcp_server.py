@@ -45,7 +45,7 @@ def _number(args: dict[str, Any], key: str, default: float, kind: type = float) 
     """``args[key]`` as ``kind``; a fixed message, never the conversion's own text."""
     try:
         return kind(args.get(key, default))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):  # OverflowError: int(Infinity)
         raise ToolInputError(f"{key!r} must be a number") from None
 
 
