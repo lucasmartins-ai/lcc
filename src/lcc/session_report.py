@@ -267,6 +267,7 @@ def measure_session(
         "texts": len(texts),
         "tokens_before": before.value,
         "token_count_method": before.method.value,
+        "token_count_note": before.note,  # why a count is approximate; None when exact
         "modes": rows,
     }
 
@@ -279,6 +280,8 @@ def to_markdown(report: dict[str, Any]) -> str:
         f"Session: {report['messages']} messages, {report['tool_calls']} tool calls, "
         f"{report['tokens_before']:,} tokens, {report['texts']} user/assistant texts.",
         "",
+        *([f"> Approximate counts: {report['token_count_note']}", ""]
+          if report.get("token_count_note") else []),
         "| mode | tokens after | reduction | texts kept | stashed results | time |",
         "| --- | ---: | ---: | ---: | ---: | ---: |",
     ]

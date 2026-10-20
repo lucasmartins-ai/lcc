@@ -43,6 +43,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc measure-session` reads Codex CLI rollouts** (#67, thanks @dailyun). The format is
+  detected from the first `session_meta` record; messages and paired tool calls/results,
+  including native web search, map into the existing report shape.
+- **`lcc measure-session` says why a count is approximate.** The report gains
+  `token_count_note`, and the table and `--markdown` output print it, so a shared result
+  cannot pass an estimate off as exact (for example when the `o200k_base` file is not
+  cached and lcc blocks the download).
 - **Edge-case suite for the deterministic core.** These are property tests over a seeded,
   stdlib-only hostile corpus (`tests/edge_corpus.py`) and every local scorer. They cover
   determinism (also across `PYTHONHASHSEED` and locale), verbatim kept bytes, exact report

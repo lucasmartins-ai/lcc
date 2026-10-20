@@ -128,3 +128,16 @@ def test_compact_tool_calls_reads_a_claude_code_jsonl_directly(tmp_path: Path, m
     )
     assert result.exit_code == 0, result.output
     assert json.loads(out.read_text())[0]["role"] == "user"
+
+
+def test_approximate_count_says_why_in_every_output(tmp_path: Path, monkeypatch):
+    # A shared result must not pass an estimate off as exact; the note says how to fix it.
+    monkeypatch.setattr("lcc.token_budget.counters._HAS_TIKTOKEN", False)
+    path = _session(tmp_path)
+    report = measure_session(path)
+    assert report["token_count_method"] == "approximate"
+    assert "tiktoken is not installed" in report["token_count_note"]
+    for flag in ("--markdown", None):
+        out = CliRunner().invoke(app, ["measure-session", str(path), *([flag] if flag else [])])
+        assert out.exit_code == 0, out.output
+        assert "tiktoken is not installed" in " ".join(out.output.split())

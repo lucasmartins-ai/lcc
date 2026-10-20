@@ -2028,6 +2028,8 @@ def measure_session_cmd(
             f"{row['ms']} ms",
         )
     console.print(table)
+    if report.get("token_count_note"):
+        console.print(f"[yellow]Approximate counts:[/yellow] {report['token_count_note']}")
     console.print("[dim]Counts only. Share them: lcc measure-session FILE --markdown[/dim]")
 
 

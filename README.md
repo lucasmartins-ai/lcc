@@ -90,7 +90,10 @@ lcc measure-session /path/to/rollout.jsonl --markdown
 ```
 
 It runs every mode on one of your sessions, offline, and prints **counts only**: messages, tool
-calls, tokens before and after, messages kept, time. No text, path or tool output. Paste it in
+calls, tokens before and after, messages kept, time. No text, path or tool output. For exact
+counts, install the `tiktoken` extra and cache its tokenizer once (lcc itself never downloads):
+`python -c "import tiktoken; tiktoken.get_encoding('o200k_base')"`. Otherwise the report says
+`approximate` and why. Paste it in
 [Discussions → Results](https://github.com/lucasmartins-ai/lcc/discussions/categories/results).
 Already compacting with lcc? `lcc share-stats` turns your local reports into the same kind of
 counts-only summary ([SHARE_STATS.md](docs/SHARE_STATS.md)), or use the
