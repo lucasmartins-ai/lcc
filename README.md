@@ -31,9 +31,9 @@ is kept as it was.
 | **lcc** (`rules`, `stashed`) | **28,807 (−49.5%)** | **43 / 43 byte for byte** | 33, each one `recall` away |
 
 Measured with `lcc measure-session` (1.2.0, offline, exact `o200k_base` token count). That
-session is one of the best cases. **Across 40 of my long sessions** (100+ messages each, 9.1 M
-tokens) the median cut was **18.8%** (middle half 14% to 22%, best 53%), with 0 messages lost.
-These are all my sessions: [run it on yours](#send-us-your-numbers) and post the result.
+session is one of the best cases. **Across all 266 of my long sessions** (100+ messages each,
+31.6 M tokens) the median cut was **22.7%** (middle half 15% to 32%, best 65%), with 0 messages
+lost. These are all my sessions: [run it on yours](#send-us-your-numbers) and post the result.
 
 In a pre-registered test on 172 real requests ([evidence](docs/EVIDENCE.md)), an agent answering
 from the `stashed` context plus `recall` did as well as with the full context on file recall
