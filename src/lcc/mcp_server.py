@@ -598,8 +598,14 @@ def _cache_state_arg(value: Any) -> str:
     return state
 
 
-def handle_message(message: dict[str, Any]) -> dict[str, Any] | None:
-    """Handle one JSON-RPC message; return the response, or None for notifications."""
+def handle_message(
+    message: dict[str, Any], *, echo_errors: bool = True
+) -> dict[str, Any] | None:
+    """Handle one JSON-RPC message; return the response, or None for notifications.
+
+    ``echo_errors=False`` (HTTP) answers a failing tool call with the error type only:
+    an exception's text may one day carry a server path to an anonymous caller.
+    """
     if not isinstance(message, dict):  # batches are not supported by MCP
         return _error(None, -32600, "invalid request: expected a JSON object")
     method = message.get("method", "")
@@ -633,7 +639,8 @@ def handle_message(message: dict[str, Any]) -> dict[str, Any] | None:
             return _result(
                 request_id,
                 {
-                    "content": [{"type": "text", "text": f"error: {exc}"}],
+                    "content": [{"type": "text", "text": f"error: {exc}" if echo_errors
+                                 else f"error: invalid arguments ({type(exc).__name__})"}],
                     "isError": True,
                 },
             )

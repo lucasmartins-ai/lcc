@@ -220,7 +220,7 @@ def _handle(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, bool]:
         response = (
             _local_only_refusal(payload)
             or _anonymous_provider_refusal(payload)
-            or handle_message(payload)
+            or handle_message(payload, echo_errors=False)
         )
     except TranscriptError as exc:
         # Shape errors name only the caller's own fields and indices, never server paths,

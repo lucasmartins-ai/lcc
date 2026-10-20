@@ -68,7 +68,7 @@ def test_disk_check_is_an_oracle_locally_so_http_must_refuse_it(tmp_path, monkey
 
 
 def test_http_errors_never_echo_exception_text(monkeypatch):
-    def boom(_message):
+    def boom(_message, **_):
         raise RuntimeError("contents of /etc/shadow")
 
     monkeypatch.setattr(chatgpt_server, "handle_message", boom)
@@ -80,7 +80,7 @@ def test_http_errors_never_echo_exception_text(monkeypatch):
 def test_http_transcript_shape_errors_keep_their_reason(monkeypatch):
     from lcc.relevance.transcript import TranscriptError
 
-    def shape_error(_message):
+    def shape_error(_message, **_):
         raise TranscriptError("message 0 has text under 'content'")
 
     monkeypatch.setattr(chatgpt_server, "handle_message", shape_error)
@@ -218,6 +218,42 @@ def test_http_rejects_deeply_nested_json():
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_http_tool_errors_never_echo_exception_text():
+    import json
+    import threading
+    import urllib.request
+
+    server = chatgpt_server.build_server("127.0.0.1", 0)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        url = f"http://127.0.0.1:{server.server_address[1]}/mcp"
+        call = {"jsonrpc": "2.0", "id": 9, "method": "tools/call",
+                "params": {"name": "compact", "arguments": {
+                    "text": "y", "question": "x", "threshold": "abc"}}}
+        request = urllib.request.Request(
+            url, data=json.dumps(call).encode(), method="POST",
+            headers={"Content-Type": "application/json",
+                     "Accept": "application/json, text/event-stream"})
+        with urllib.request.urlopen(request, timeout=20) as reply:
+            body = reply.read().decode()
+        assert '"isError": true' in body
+        assert "invalid arguments (ValueError)" in body
+        assert "abc" not in body and "convert" not in body
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_stdio_tool_errors_keep_their_text():
+    response = mcp_server.handle_message(
+        {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+         "params": {"name": "compact", "arguments": {
+             "text": "y", "question": "x", "threshold": "abc"}}})
+    assert response is not None
+    assert "abc" in response["result"]["content"][0]["text"]
 
 
 # -- 4. regex / quadratic denial of service -------------------------------------------------
