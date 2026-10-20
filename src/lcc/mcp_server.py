@@ -23,6 +23,7 @@ Run: ``lcc mcp`` (stdio) or ``python -m lcc.mcp_server``.
 from __future__ import annotations
 
 import json
+import logging
 import sys
 from typing import Any
 
@@ -31,7 +32,13 @@ from lcc import __version__
 PROTOCOL_VERSION = "2024-11-05"
 SERVER_NAME = "lcc"
 
-__all__ = ["PROTOCOL_VERSION", "TOOLS", "handle_message", "serve_forever"]
+__all__ = ["PROTOCOL_VERSION", "TOOLS", "ToolInputError", "handle_message", "serve_forever"]
+
+LOGGER = logging.getLogger("lcc.mcp")
+
+
+class ToolInputError(ValueError):
+    """A tool argument the handler rejected on purpose; its text is safe to show any caller."""
 
 
 def _tool_compact(args: dict[str, Any]) -> dict[str, Any]:
@@ -44,15 +51,15 @@ def _tool_compact(args: dict[str, Any]) -> dict[str, Any]:
     text = args.get("text", "")
     question = args.get("question", "")
     if not isinstance(text, str) or not text.strip():
-        raise ValueError("compact requires non-empty 'text'")
+        raise ToolInputError("compact requires non-empty 'text'")
     if not isinstance(question, str) or not question.strip():
-        raise ValueError("compact requires non-empty 'question'")
+        raise ToolInputError("compact requires non-empty 'question'")
     provider = args.get("provider", "mechanical")
     if provider not in ("auto", "jev", "laya", "mechanical"):
-        raise ValueError("provider must be auto, jev, laya, or mechanical")
+        raise ToolInputError("provider must be auto, jev, laya, or mechanical")
     threshold = float(args.get("threshold", 0.4))
     if not 0.0 <= threshold <= 1.0:
-        raise ValueError("threshold must be between 0 and 1")
+        raise ToolInputError("threshold must be between 0 and 1")
     result = compact_context(
         RelevanceCompactionRequest(
             text=text,
@@ -74,13 +81,15 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
 
     payload = args.get("messages") if "messages" in args else args.get("payload")
     if not isinstance(payload, (list, dict)) or not payload:
-        raise ValueError("compact_transcript requires 'messages' (a list or {'messages': [...]})")
+        raise ToolInputError(
+            "compact_transcript requires 'messages' (a list or {'messages': [...]})"
+        )
     question = args.get("question", "")
     if not isinstance(question, str) or not question.strip():
-        raise ValueError("compact_transcript requires non-empty 'question'")
+        raise ToolInputError("compact_transcript requires non-empty 'question'")
     provider = args.get("provider", "auto")
     if provider not in ("auto", "jev", "laya", "rules", "specialist-v3"):
-        raise ValueError(
+        raise ToolInputError(
             "compact_transcript needs a semantic judge or the rules policy: use 'laya' "
             "(local, offline), 'jev', 'auto', 'rules' (offline deterministic policy) or "
             "'specialist-v3' (offline local ranker) — "
@@ -89,11 +98,11 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
         )
     threshold = float(args.get("threshold", 0.5))
     if not 0.0 <= threshold <= 1.0:
-        raise ValueError("threshold must be between 0 and 1")
+        raise ToolInputError("threshold must be between 0 and 1")
     preserve_recent = int(args.get("preserve_recent", 6))
     trim_head_chars = int(args.get("trim_head_chars", 300))
     if preserve_recent < 0 or trim_head_chars < 0:
-        raise ValueError("preserve_recent and trim_head_chars must be >= 0")
+        raise ToolInputError("preserve_recent and trim_head_chars must be >= 0")
     request_payload = payload if isinstance(payload, dict) else {"messages": payload}
     result = compact_transcript(
         TranscriptCompactionRequest(
@@ -256,7 +265,7 @@ def _tool_inspect(args: dict[str, Any]) -> dict[str, Any]:
 
     text = args.get("text", "")
     if not isinstance(text, str) or not text.strip():
-        raise ValueError("inspect requires non-empty 'text'")
+        raise ToolInputError("inspect requires non-empty 'text'")
     report = run_inspection(InspectionRequest(raw_text=text))
     return {"report": _json.loads(inspection_to_json(report))}
 
@@ -273,7 +282,7 @@ def _tool_prepare(args: dict[str, Any]) -> dict[str, Any]:
 
     text = args.get("text", "")
     if not isinstance(text, str) or not text.strip():
-        raise ValueError("prepare requires non-empty 'text'")
+        raise ToolInputError("prepare requires non-empty 'text'")
     question = args.get("question", "") or ""
     inspection_report = run_inspection(InspectionRequest(raw_text=text))
     action = inspection_report.recommendation.action
@@ -306,7 +315,7 @@ def _tool_explain(args: dict[str, Any]) -> dict[str, Any]:
     if isinstance(report, str):
         report = json.loads(report)
     if not isinstance(report, dict) or "decisions" not in report:
-        raise ValueError("explain requires a 'report' compaction-report object")
+        raise ToolInputError("explain requires a 'report' compaction-report object")
     only = args.get("only")
     limit = args.get("limit")
     if limit is not None:
@@ -326,7 +335,7 @@ def _tool_intake(args: dict[str, Any]) -> dict[str, Any]:
 
     text = args.get("text", "")
     if not isinstance(text, str) or not text.strip():
-        raise ValueError("intake requires non-empty 'text'")
+        raise ToolInputError("intake requires non-empty 'text'")
     question = args.get("question", "") or ""
     result = LccIntake().process(raw_input=text, question=question)
     return {
@@ -344,7 +353,7 @@ def _tool_recall(args: dict[str, Any]) -> dict[str, Any]:
 
     stash_id = args.get("id", "")
     if not isinstance(stash_id, str):
-        raise ValueError("recall requires 'id' (the hex id after 'lcc recall' in the pointer)")
+        raise ToolInputError("recall requires 'id' (the hex id after 'lcc recall' in the pointer)")
     lines = args.get("lines")
     span = parse_lines(lines) if isinstance(lines, str) and lines else None
     return {"sha256": recall_sha256(stash_id), "text": recall(stash_id, span)}
@@ -594,7 +603,7 @@ def _error(request_id: Any, code: int, message: str) -> dict[str, Any]:
 def _cache_state_arg(value: Any) -> str:
     state = str(value or "unknown")
     if state not in ("warm", "cold", "unknown"):
-        raise ValueError(f"cache_state must be warm, cold or unknown, got {state!r}")
+        raise ToolInputError(f"cache_state must be warm, cold or unknown, got {state!r}")
     return state
 
 
@@ -603,8 +612,8 @@ def handle_message(
 ) -> dict[str, Any] | None:
     """Handle one JSON-RPC message; return the response, or None for notifications.
 
-    ``echo_errors=False`` (HTTP) answers a failing tool call with the error type only:
-    an exception's text may one day carry a server path to an anonymous caller.
+    ``echo_errors=False`` (HTTP) shows only ``ToolInputError`` text; any other failure
+    answers with its type and is logged, since its text may carry a server path.
     """
     if not isinstance(message, dict):  # batches are not supported by MCP
         return _error(None, -32600, "invalid request: expected a JSON object")
@@ -636,14 +645,13 @@ def handle_message(
         try:
             output = spec["handler"](arguments)
         except (ValueError, KeyError, TypeError) as exc:
-            return _result(
-                request_id,
-                {
-                    "content": [{"type": "text", "text": f"error: {exc}" if echo_errors
-                                 else f"error: invalid arguments ({type(exc).__name__})"}],
-                    "isError": True,
-                },
-            )
+            if echo_errors or isinstance(exc, ToolInputError):
+                text = f"error: {exc}"
+            else:
+                LOGGER.exception("tool %s failed", name)
+                text = f"error: tool call failed ({type(exc).__name__})"
+            return _result(request_id, {"content": [{"type": "text", "text": text}],
+                                        "isError": True})
         # Opt-in (LCC_REQUEST_LOG=1): logs the redacted goal only, after the output exists.
         from lcc.request_log import log_request
 
