@@ -362,7 +362,10 @@ def parse_transcript(payload: Any) -> list[TranscriptMessage]:
                     f"message {index} tool call {call_id!r} has an 'input' that is not an "
                     f"object ({type(tool_input).__name__}); lcc would lose it"
                 )
-            _require_unicode(index, str(tool), json.dumps(tool_input, default=str))
+            # ensure_ascii=False: the default escapes a lone surrogate to ASCII and hides it.
+            _require_unicode(
+                index, str(tool), json.dumps(tool_input, default=str, ensure_ascii=False)
+            )
             calls.append(
                 ToolCall(
                     id=call_id,

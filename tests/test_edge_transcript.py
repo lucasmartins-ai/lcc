@@ -185,6 +185,8 @@ def check_all_providers(payload: list[dict[str, Any]], **extra: Any) -> list[Any
         ([{"role": "user", "toolResults": [{"tool_use_id": "a", "content": [
             {"type": "image", "source": {"data": "..."}}]}]}], "content blocks"),
         ([{"role": "user", "text": json.loads('"bad \\ud800 text"')}], "unpaired surrogate"),
+        ([{"role": "assistant", "toolUses": [{"tool_use_id": "a", "tool": "Read",
+            "input": {"path": json.loads('"bad \\ud800 path"')}}]}], "unpaired surrogate"),
         # Codex rollout items (no role on function calls) are not a supported shape.
         ([{"type": "function_call", "name": "shell", "arguments": "{}", "call_id": "c1"}],
          "has no string 'role'"),
