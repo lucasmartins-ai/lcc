@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+import lcc
 from lcc.cli import app
 from lcc.session_report import from_claude_code, measure_session, messages_from_jsonl
 
@@ -221,6 +222,8 @@ def test_measure_codex_preserves_text_and_reports_only_counts(tmp_path: Path, mo
 
 def test_cli_codex_report_does_not_expose_session_text_or_path(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    # The child must import this lcc, not another install on the same interpreter.
+    monkeypatch.setenv("PYTHONPATH", str(Path(lcc.__file__).resolve().parents[1]))
     path = _rollout(tmp_path)
     result = subprocess.run(
         [sys.executable, "-m", "lcc.cli", "measure-session", str(path), "--json"],
