@@ -321,7 +321,10 @@ def _tool_explain(args: dict[str, Any]) -> dict[str, Any]:
 
     report = args.get("report")
     if isinstance(report, str):
-        report = json.loads(report)
+        try:
+            report = json.loads(report)
+        except ValueError:
+            raise ToolInputError("'report' must be a JSON object") from None
     if not isinstance(report, dict) or "decisions" not in report:
         raise ToolInputError("explain requires a 'report' compaction-report object")
     only = args.get("only")
@@ -656,7 +659,9 @@ def handle_message(
             if echo_errors or isinstance(exc, ToolInputError):
                 text = f"error: {exc}"
             else:
-                LOGGER.exception("tool %s failed", name)
+                # Bad input is the caller's; a traceback is only worth it for a likely bug.
+                log = LOGGER.warning if isinstance(exc, ValueError) else LOGGER.exception
+                log("tool %s failed: %s", name, type(exc).__name__)
                 text = f"error: tool call failed ({type(exc).__name__})"
             return _result(request_id, {"content": [{"type": "text", "text": text}],
                                         "isError": True})

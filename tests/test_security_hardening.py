@@ -250,6 +250,11 @@ def test_http_infinite_int_answers_a_fixed_message():
     assert text == "error: 'preserve_recent' must be a number"
 
 
+def test_http_explain_bad_json_answers_a_fixed_message():
+    assert _http_tool_text({"report": "{not json"}, tool="explain") == (
+        "error: 'report' must be a JSON object")
+
+
 def test_http_tool_input_errors_keep_their_reason():
     assert _http_tool_text({"text": "", "question": "x"}) == (
         "error: compact requires non-empty 'text'")

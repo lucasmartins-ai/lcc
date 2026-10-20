@@ -11,7 +11,9 @@ All notable changes to this project are documented here. The format is based on
 - **HTTP server: tool errors no longer echo exception text** (#73). A failing tool call over
   `lcc mcp --http` shows only the handlers' own validation messages (missing `text`, a bad
   `provider`, `'threshold' must be a number`); any other error answers
-  `tool call failed (<Type>)` and is logged server-side. stdio is unchanged.
+  `tool call failed (<Type>)` and is logged server-side. Checks below the tool handlers
+  (cache-factor and compactor argument checks) are among those that now answer with the
+  type only over HTTP. stdio is unchanged.
 - **HTTP server: no host-disk access.** `lcc mcp --http` now refuses `workspace_root` and
   `laya_model` (as it already refused the stash and `recall`). With `provider: rules`,
   `rules_mode: recoverable`, an anonymous caller could send a crafted transcript naming any
