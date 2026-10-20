@@ -228,10 +228,19 @@ def _http_tool_text(arguments):
     return response["result"]["content"][0]["text"]
 
 
-@pytest.mark.parametrize(("threshold", "kind"), [("abc", "ValueError"), ([1], "TypeError")])
-def test_http_tool_errors_never_echo_exception_text(threshold, kind):
+@pytest.mark.parametrize("exc", [ValueError, KeyError, TypeError])
+def test_http_tool_errors_never_echo_exception_text(exc, monkeypatch):
+    def broken(_args):
+        raise exc("/srv/secret/path")
+
+    monkeypatch.setitem(mcp_server.TOOLS["compact"], "handler", broken)
+    assert _http_tool_text({}) == f"error: tool call failed ({exc.__name__})"
+
+
+@pytest.mark.parametrize("threshold", ["abc", [1]])
+def test_http_bad_numbers_answer_a_fixed_message(threshold):
     text = _http_tool_text({"text": "y", "question": "x", "threshold": threshold})
-    assert text == f"error: tool call failed ({kind})"
+    assert text == "error: 'threshold' must be a number"
 
 
 def test_http_tool_input_errors_keep_their_reason():
@@ -239,13 +248,16 @@ def test_http_tool_input_errors_keep_their_reason():
         "error: compact requires non-empty 'text'")
 
 
-def test_stdio_tool_errors_keep_their_text():
+def test_stdio_tool_errors_keep_their_text(monkeypatch):
+    def broken(_args):
+        raise ValueError("/srv/secret/path")
+
+    monkeypatch.setitem(mcp_server.TOOLS["compact"], "handler", broken)
     response = mcp_server.handle_message(
         {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
-         "params": {"name": "compact", "arguments": {
-             "text": "y", "question": "x", "threshold": "abc"}}})
+         "params": {"name": "compact", "arguments": {}}})
     assert response is not None
-    assert "abc" in response["result"]["content"][0]["text"]
+    assert response["result"]["content"][0]["text"] == "error: /srv/secret/path"
 
 
 # -- 4. regex / quadratic denial of service -------------------------------------------------

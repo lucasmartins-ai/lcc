@@ -41,6 +41,14 @@ class ToolInputError(ValueError):
     """A tool argument the handler rejected on purpose; its text is safe to show any caller."""
 
 
+def _number(args: dict[str, Any], key: str, default: float, kind: type = float) -> Any:
+    """``args[key]`` as ``kind``; a fixed message, never the conversion's own text."""
+    try:
+        return kind(args.get(key, default))
+    except (TypeError, ValueError):
+        raise ToolInputError(f"{key!r} must be a number") from None
+
+
 def _tool_compact(args: dict[str, Any]) -> dict[str, Any]:
     from lcc.relevance import (
         RelevanceCompactionRequest,
@@ -57,7 +65,7 @@ def _tool_compact(args: dict[str, Any]) -> dict[str, Any]:
     provider = args.get("provider", "mechanical")
     if provider not in ("auto", "jev", "laya", "mechanical"):
         raise ToolInputError("provider must be auto, jev, laya, or mechanical")
-    threshold = float(args.get("threshold", 0.4))
+    threshold = _number(args, "threshold", 0.4)
     if not 0.0 <= threshold <= 1.0:
         raise ToolInputError("threshold must be between 0 and 1")
     result = compact_context(
@@ -96,11 +104,11 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             "'mechanical' scores lexical overlap, which cannot say whether a tool's work "
             "is finished"
         )
-    threshold = float(args.get("threshold", 0.5))
+    threshold = _number(args, "threshold", 0.5)
     if not 0.0 <= threshold <= 1.0:
         raise ToolInputError("threshold must be between 0 and 1")
-    preserve_recent = int(args.get("preserve_recent", 6))
-    trim_head_chars = int(args.get("trim_head_chars", 300))
+    preserve_recent = _number(args, "preserve_recent", 6, int)
+    trim_head_chars = _number(args, "trim_head_chars", 300, int)
     if preserve_recent < 0 or trim_head_chars < 0:
         raise ToolInputError("preserve_recent and trim_head_chars must be >= 0")
     request_payload = payload if isinstance(payload, dict) else {"messages": payload}
@@ -112,10 +120,10 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             threshold=threshold,
             preserve_recent=preserve_recent,
             trim_head_chars=trim_head_chars,
-            max_state_tokens=int(args.get("max_state_tokens", 25000)),
-            max_request_tokens=int(args.get("max_request_tokens", 30000)),
-            max_workers=int(args.get("max_workers", 4)),
-            min_reduction=float(args.get("min_reduction", 0.25)),
+            max_state_tokens=_number(args, "max_state_tokens", 25000, int),
+            max_request_tokens=_number(args, "max_request_tokens", 30000, int),
+            max_workers=_number(args, "max_workers", 4, int),
+            min_reduction=_number(args, "min_reduction", 0.25),
             laya_model=args.get("laya_model"),
             jev_model=str(args.get("jev_model", "jev-latest")),
             rules_mode=str(args.get("rules_mode", "lossless")),
@@ -319,7 +327,7 @@ def _tool_explain(args: dict[str, Any]) -> dict[str, Any]:
     only = args.get("only")
     limit = args.get("limit")
     if limit is not None:
-        limit = int(limit)
+        limit = _number(args, "limit", 0, int)
     return {
         "explanation": render(
             report,
