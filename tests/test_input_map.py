@@ -464,6 +464,19 @@ def test_codex_compaction_calls_without_response_id_each_count(tmp_path: Path) -
     assert report["billed_input"]["uncached"] == 10 + 40 + 30 + 5
 
 
+def test_codex_id_less_record_is_billed_once_across_two_compactions(tmp_path: Path) -> None:
+    path = _write(tmp_path, [
+        {"type": "session_meta", "payload": {"id": "x"}},
+        _msg("user", "one"),
+        {"type": "token_usage_record", "payload": {"usage": {"input_tokens": 40}}},
+        {"type": "compacted", "payload": {"message": "s"}},
+        {"type": "compacted", "payload": {"message": "s"}},  # no new usage record
+    ], name="rollout.jsonl")
+    report = imap.input_map(path)
+    assert report["requests"] == 1
+    assert report["billed_input"]["uncached"] == 40
+
+
 def test_cli_rejects_the_default_question_text_too(tmp_path: Path) -> None:
     from lcc.session_report import DEFAULT_QUESTION
 

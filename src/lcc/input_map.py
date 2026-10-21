@@ -328,6 +328,7 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
                     counted.add(response)
                 # the compaction call was sent the whole context before it
                 yield ("request", _codex_usage(billing["usage"]), True)
+            last_record = None  # consumed: a second compaction must not bill it again
             yield ("boundary",)
             fresh_calls.clear()
             if base:
