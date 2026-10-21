@@ -38,6 +38,11 @@ _HEADER_RE = re.compile(
 _VOLATILE_RE = re.compile(r"^(?:Chunk ID|Wall time|Original token count):")
 _IDENTICAL_RE = re.compile(r"^\[identical output kept at (.+)\]$")
 _LINES_RE = re.compile(r"^\[output = lines ([1-9][0-9]*)-([1-9][0-9]*) of (.+)\]$")
+# Any one-line pointer an lcc pass emits: lossless, recoverable ("[removed: re-read …]") and
+# stashed ("[removed: N tokens · lcc recall …]").
+_ANY_POINTER_RE = re.compile(
+    r"^\[(?:identical output kept at .+|output = lines [0-9]+-[0-9]+ of .+|removed: .+)\]$"
+)
 
 
 def comparable_lines(text: str) -> list[str]:
@@ -108,12 +113,15 @@ def lossless_decisions(
     results = _flat_results(messages)
     # ponytail: O(results^2) substring scans; index outputs by line hash if transcripts grow.
     framed = [_framed(result.text) for result in results]
-    kept = [result.id not in unavailable for result in results]
+    # An earlier pass's pointer is a fixed point: never deduped again, never a target (a
+    # pointer to a pointer would rewrite early history and break a warm prompt cache).
+    pointer = [bool(_ANY_POINTER_RE.match(r.text)) for r in results]
+    kept = [result.id not in unavailable and not pointer[i] for i, result in enumerate(results)]
     found: dict[str, tuple[str, str, str]] = {}
 
     for index in range(len(results) - 1, -1, -1):
         result = results[index]
-        if result.id not in candidate_ids or framed[index] == "\n\n":
+        if result.id not in candidate_ids or framed[index] == "\n\n" or pointer[index]:
             continue
         for later in range(index + 1, len(results)):
             other = results[later]

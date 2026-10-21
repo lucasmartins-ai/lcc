@@ -108,6 +108,10 @@ def stash_note(tokens: int, digest: str) -> str:
     return f"[removed: {tokens} tokens · lcc recall {digest[:12]}]"
 
 
+def _too_short_to_stash(text: str, model: str) -> bool:
+    return len(stash_note(count_tokens(text, model).value, "0" * 12)) >= len(text)
+
+
 def stashed_decisions(
     messages: list[Any],
     candidates: list[Any],
@@ -134,6 +138,12 @@ def stashed_decisions(
             eligible[index] = rec["reason"]
         elif lo["decision"] in ("drop", "trim"):
             eligible[index] = lo["reason"]
+    # A result too short for its pointer stays whole; leave it to lossless dedupe now, or the
+    # next pass (where it is no longer eligible) dedupes it and the output is not a fixed point.
+    eligible = {
+        i: reason for i, reason in eligible.items()
+        if not _too_short_to_stash(candidates[i].result.text, model)
+    }
     unavailable = {candidates[i].result.id for i in eligible}
     lossless = lossless_decisions(messages, candidates, unavailable=unavailable)
 
@@ -153,9 +163,6 @@ def stashed_decisions(
             decisions.append(base | {"reason": "not_stash_eligible"})
             continue
         tokens = count_tokens(text, model).value
-        if len(stash_note(tokens, "0" * 12)) >= len(text):
-            decisions.append(base | {"reason": "short_result_kept_whole"})
-            continue
         try:
             digest = put(text)
         except (OSError, UnicodeEncodeError) as exc:

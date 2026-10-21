@@ -51,7 +51,8 @@ from lcc.relevance.transcript_stash import stash_dir, stashed_decisions, verify_
 from lcc.token_budget import count_tokens
 
 # Report fields that only a replaced (pointer) decision carries.
-_POINTER_FIELDS = ("note", "recover", "disk", "recoverability_check")
+# Fields that describe a replacement; a decision turned back into ``keep`` must drop them.
+_POINTER_FIELDS = ("note", "recover", "disk", "recoverability_check", "stash", "kept_at")
 
 TRANSCRIPT_SCHEMA_VERSION = "transcript-compaction-1.0"
 
@@ -878,7 +879,9 @@ def _apply(
             tool_results=results,
             pinned=message.pinned,
         )
-        if candidate.has_content:
+        # Only a message emptied by a drop disappears; one that arrived with whitespace-only
+        # text (and no calls) is the user's and stays byte for byte.
+        if candidate.has_content or not (message.tool_calls or message.tool_results):
             rebuilt.append(candidate)
     return rebuilt
 
@@ -1266,8 +1269,9 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
             degradation_reason = f"{mode}_verification_failed_fail_safe"
             warnings.append(f"{mode}_verification_failed: kept every tool call (fail-safe)")
             decisions = [
-                dict(d, decision="keep", reason=f"{mode}_verification_failed",
-                     chars_after=d["chars"])
+                {k: v for k, v in d.items() if k not in _POINTER_FIELDS}
+                | {"decision": "keep", "reason": f"{mode}_verification_failed",
+                   "chars_after": d["chars"]}
                 for d in decisions
             ]
             rebuilt = list(messages)
