@@ -1,0 +1,267 @@
+{
+ "note": "Tool output that quotes stash pointers, and a result that is exactly a pointer-shaped string.",
+ "goal": "fix the tenant import crash in jobs/tenant_import.py",
+ "payload": [
+  {
+   "role": "user",
+   "text": "fix the tenant import crash in jobs/tenant_import.py"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "q1",
+     "tool": "Read",
+     "input": {
+      "file_path": "docs/TOOL_CALLS.md"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "q1",
+     "text": "# lcc docs\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "q2",
+     "tool": "Bash",
+     "input": {
+      "command": "cat note"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "q2",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f0",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 0"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f0",
+     "text": "step 0 ok\nstep 0 ok\nstep 0 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f1",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 1"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f1",
+     "text": "step 1 ok\nstep 1 ok\nstep 1 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f2",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 2"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f2",
+     "text": "step 2 ok\nstep 2 ok\nstep 2 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f3",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 3"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f3",
+     "text": "step 3 ok\nstep 3 ok\nstep 3 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f4",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 4"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f4",
+     "text": "step 4 ok\nstep 4 ok\nstep 4 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f5",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 5"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f5",
+     "text": "step 5 ok\nstep 5 ok\nstep 5 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f6",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 6"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f6",
+     "text": "step 6 ok\nstep 6 ok\nstep 6 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f7",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 7"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f7",
+     "text": "step 7 ok\nstep 7 ok\nstep 7 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "q3",
+     "tool": "Read",
+     "input": {
+      "file_path": "docs/TOOL_CALLS.md"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "q3",
+     "text": "# lcc docs\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\nA pointer looks like [removed: 12 tokens · lcc recall 0123456789ab].\n"
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "continue"
+  }
+ ]
+}

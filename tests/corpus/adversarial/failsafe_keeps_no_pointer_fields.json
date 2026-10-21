@@ -1,0 +1,150 @@
+{
+ "note": "Found by the fuzz harness (seed 465033907): when output verification fails (here: duplicate tool ids), the fail-safe keeps every call but the decisions still named their pointers (note, kept_at, stash).",
+ "goal": "router",
+ "payload": [
+  {
+   "role": "user",
+   "text": "router"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a2",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a2",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "\r\n"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a4",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a4",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "router"
+  }
+ ]
+}

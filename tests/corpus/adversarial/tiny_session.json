@@ -1,0 +1,37 @@
+{
+ "note": "Fewer calls than the pinned window: nothing is a candidate.",
+ "goal": "fix the tenant import crash in jobs/tenant_import.py",
+ "payload": [
+  {
+   "role": "user",
+   "text": "fix the tenant import crash in jobs/tenant_import.py"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "s1",
+     "tool": "Read",
+     "input": {
+      "file_path": "a.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "s1",
+     "text": "print(1)\n"
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "ok"
+  }
+ ]
+}

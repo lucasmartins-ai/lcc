@@ -1,0 +1,287 @@
+{
+ "note": "Found by the fuzz harness (seed 3488455196): two identical outputs deduped to the same later one become identical pointer texts; a second lossless pass deduped one pointer into a pointer to the other.",
+ "goal": "router",
+ "payload": [
+  {
+   "role": "user",
+   "text": "router"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a2",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a2",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a7",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a7",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a10",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a10",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]"
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "router"
+  }
+ ]
+}

@@ -16,15 +16,14 @@ from typing import Any
 
 import pytest
 
+from invariants import assert_transcript_invariants
 from lcc.relevance.transcript import (
     TranscriptCompactionRequest,
     TranscriptError,
-    _text_of,
     compact_transcript,
     messages_to_payload,
     parse_transcript,
 )
-from lcc.token_budget import count_tokens
 from specialist_synthetic import synthetic_payload
 
 GOAL = "fix the tenant import crash in jobs/tenant_import.py"
@@ -81,67 +80,6 @@ def run(payload: Any, **options: Any):
     request = TranscriptCompactionRequest(payload=copy.deepcopy(payload), question=GOAL,
                                           **options)
     return compact_transcript(request)
-
-
-def assert_transcript_invariants(payload: list[dict[str, Any]], result: Any, options: dict):
-    before = parse_transcript(copy.deepcopy(payload))
-    after = result.messages
-    report = result.report
-    # Message order and text are untouched; only empty (call-less) messages may disappear.
-    kept_index = [m.message_index for m in after]
-    assert kept_index == sorted(kept_index)
-    by_index = {m.message_index: m for m in before}
-    for message in after:
-        assert message.text == by_index[message.message_index].text
-        assert message.role == by_index[message.message_index].role
-    for message in before:
-        if message.text.strip():
-            assert message.message_index in kept_index
-    # Pinned messages: the first and the newest preserve_recent come back unchanged.
-    recent = options.get("preserve_recent", 6)
-    pinned = {before[0].message_index} | {m.message_index for m in before[-recent:]} if recent \
-        else {before[0].message_index}
-    after_by_index = {m.message_index: m for m in after}
-    for index in pinned:
-        original = by_index[index]
-        if not original.has_content:
-            continue
-        kept = after_by_index[index]
-        assert [c.id for c in kept.tool_calls] == [c.id for c in original.tool_calls]
-        assert [(r.id, r.text) for r in kept.tool_results] == [
-            (r.id, r.text) for r in original.tool_results
-        ]
-    # Kept results are byte-identical; trims keep a byte-exact head.
-    decisions = {d["id"]: d for d in result.decisions if d["source"] != "pin"}
-    for message in after:
-        originals = {r.id: r for r in by_index[message.message_index].tool_results}
-        for res in message.tool_results:
-            decision = decisions.get(res.id)
-            if decision is None or decision["decision"] == "keep":
-                assert res.text == originals[res.id].text
-            elif decision["decision"] == "trim":
-                head = res.text.split("\n[... lcc:", 1)[0]
-                assert originals[res.id].text.startswith(head)
-    # Accounting.
-    counted = [d for d in result.decisions if d["source"] != "pin"]
-    kinds = [d["decision"] for d in counted]
-    assert report["tool_calls_kept"] == kinds.count("keep")
-    assert report["tool_calls_trimmed"] == kinds.count("trim")
-    assert report["tool_calls_dropped"] == kinds.count("drop")
-    assert report["tool_calls_deduped"] == kinds.count("dedupe")
-    assert report["tool_calls_replaced"] == kinds.count("replace")
-    assert sum(1 for d in result.decisions if d["source"] == "pin") == report["blocks_protected"]
-    assert report["chars_before"] == len(_text_of(before))
-    assert report["chars_after"] == len(_text_of(after))
-    assert report["tokens_before"] == count_tokens(_text_of(before), "gpt-4.1").value
-    assert report["tokens_after"] == count_tokens(_text_of(after), "gpt-4.1").value
-    assert report["messages_after"] == len(after)
-    for d in counted:
-        if d["decision"] == "keep":
-            assert d["chars_after"] == d["chars"]
-        if d["decision"] == "drop":
-            assert d["chars_after"] == 0
-    assert report["worth_it"] == (report["reduction_ratio"] >= report["min_reduction"])
 
 
 def check_all_providers(payload: list[dict[str, Any]], **extra: Any) -> list[Any]:

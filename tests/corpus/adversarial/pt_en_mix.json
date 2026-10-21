@@ -1,0 +1,244 @@
+{
+ "note": "Portuguese evidence, accented paths, an English goal.",
+ "goal": "why does the export function fail for free accounts?",
+ "payload": [
+  {
+   "role": "user",
+   "text": "por que a exportação falha?"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "p1",
+     "tool": "Read",
+     "input": {
+      "file_path": "docs/relatório/função.md"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "p1",
+     "text": "O limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f0",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 0"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f0",
+     "text": "step 0 ok\nstep 0 ok\nstep 0 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f1",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 1"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f1",
+     "text": "step 1 ok\nstep 1 ok\nstep 1 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f2",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 2"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f2",
+     "text": "step 2 ok\nstep 2 ok\nstep 2 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f3",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 3"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f3",
+     "text": "step 3 ok\nstep 3 ok\nstep 3 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f4",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 4"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f4",
+     "text": "step 4 ok\nstep 4 ok\nstep 4 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f5",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 5"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f5",
+     "text": "step 5 ok\nstep 5 ok\nstep 5 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f6",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 6"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f6",
+     "text": "step 6 ok\nstep 6 ok\nstep 6 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f7",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 7"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f7",
+     "text": "step 7 ok\nstep 7 ok\nstep 7 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "p2",
+     "tool": "Read",
+     "input": {
+      "file_path": "docs/relatório/função.md"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "p2",
+     "text": "O limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\nO limite de upload é 25 MB, exceto para contas gratuitas. Função de exportação não roda.\n"
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "e agora?"
+  }
+ ]
+}

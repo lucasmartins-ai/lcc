@@ -29,6 +29,12 @@ jobs:
     - name: Run Pytest Suite
       run: |
         pytest -q
+    - name: Invariant fuzz (60 s budget, tests/invariants.py)
+      if: matrix.python-version == '3.13'
+      env:
+        LCC_FUZZ_SECONDS: "60"
+      run: |
+        pytest -q tests/test_invariants_fuzz.py -k generated
     - name: Lint (ruff)
       run: |
         ruff check .

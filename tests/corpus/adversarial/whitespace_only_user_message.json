@@ -1,0 +1,70 @@
+{
+ "note": "Found by the fuzz harness (seed 1700349337): a whitespace-only user message (\"\\r\\n\") was dropped on rebuild, output verification then failed and the whole pass fell back to keeping everything.",
+ "goal": "router",
+ "payload": [
+  {
+   "role": "user",
+   "text": "router"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a1",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a1",
+     "text": "",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "\r\n"
+  },
+  {
+   "role": "user",
+   "text": "router"
+  }
+ ]
+}

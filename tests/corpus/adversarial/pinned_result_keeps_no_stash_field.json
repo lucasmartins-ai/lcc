@@ -1,0 +1,112 @@
+{
+ "note": "Found by the fuzz harness: a result forced to keep (it sits in the pinned window) still carried the 'stash' field of the replacement it lost.",
+ "goal": "router",
+ "payload": [
+  {
+   "role": "user",
+   "text": "router"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]﻿",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "﻿"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a1",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a1",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]﻿"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]﻿",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[removed: 12 tokens · lcc recall 0123456789ab]﻿"
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "router"
+  }
+ ]
+}

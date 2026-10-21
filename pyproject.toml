@@ -69,6 +69,7 @@ dev = [
   "tiktoken>=0.7",
   "twine>=5.0",
   "types-PyYAML>=6.0",
+  "hypothesis>=6.100",
 ]
 
 [project.urls]

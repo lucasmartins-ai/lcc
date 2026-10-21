@@ -1,7 +1,8 @@
 """Seeded generator of hostile-but-plausible inputs for the edge-case property tests.
 
-Stdlib only (``hypothesis`` is not a dev dependency). Every document is a pure function of its
-seed, so a failing seed reproduces exactly: ``edge_document(seed)``.
+Stdlib only. Every document is a pure function of its seed, so a failing seed reproduces
+exactly: ``edge_document(seed)``. The time-budgeted fuzz test of the transcript invariants
+(``test_invariants_fuzz.py``) reuses ``FRAGMENTS`` with hypothesis, which shrinks failures.
 
 The fragments cover what the deterministic core has to survive: BOM, CRLF/CR/mixed newlines,
 NUL and other control characters, lone surrogate-free odd Unicode (RTL, emoji, zero-width,

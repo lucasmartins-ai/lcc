@@ -1,0 +1,158 @@
+{
+ "note": "Found by the nightly-budget fuzz (seed 1728560716): an output too short to stash was held out of lossless dedupe, kept whole, then deduped by the next pass, so stashed was not a fixed point.",
+ "goal": "router",
+ "payload": [
+  {
+   "role": "user",
+   "text": "router"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a",
+     "tool": "Bash",
+     "input": {
+      "command": "pytest -q"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a1",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a1",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a2",
+     "tool": "Bash",
+     "input": {
+      "command": "pytest -q"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a2",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a3",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a3",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a4",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a4",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "a5",
+     "tool": "Read",
+     "input": {
+      "file_path": "jobs/tenant_import.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "a5",
+     "text": "[[[[{{{{(((( nested ))))}}}}]]]]",
+     "is_error": true
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "router"
+  }
+ ]
+}

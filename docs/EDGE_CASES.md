@@ -25,6 +25,28 @@ verifier).
 | Idempotence | A second mechanical pass over the output, with the same objective, never drops a block the first pass kept for an intrinsic reason: lexical overlap, any protection, quoted speech, other-language evidence or high-risk text. It never drops a marker either. It **may** drop a block kept only for a relational reason, such as a dependency link or a sufficiency restoration, because the block it was linked to can be gone and term rarity is corpus-relative. A keep-only result is a fixed point. | C `test_second_pass_never_drops_an_intrinsically_kept_block`, `test_compacting_a_keep_only_result_is_the_identity` |
 | Never-drop | These blocks are kept at every `specialist_drop_fraction` in [0, 0.99]: protected blocks (short, `keep_patterns`, protected prefix, `preserve_tail_blocks`), the latest user message when transcript segments are given, and the specialist-v3 rule floor (the best goal match and the newest error blocks). In tool-call mode the first and the newest `preserve_recent` messages are never changed. User and assistant text is never touched. | C `test_protected_blocks_survive_any_specialist_budget`, `test_latest_user_message_survives_any_specialist_budget`, `test_specialist_floor_blocks_survive_any_budget`; T `test_pins_and_latest_user_message_hold_at_every_window` |
 
+## Continuous checks (tool-call mode)
+
+[`tests/invariants.py`](../tests/invariants.py) holds seven invariants for the product modes
+(`rules` with `lossless`, `recoverable`, `stashed`): idempotence, verbatim, recall round-trip,
+no corruption, stable placeholders (also across `PYTHONHASHSEED`), accounting, and fail-closed,
+which includes falling back to the keep-everything fail-safe only for a documented reason
+(today: duplicate tool ids). Three things call them:
+
+- [`test_invariants_fuzz.py`](../tests/test_invariants_fuzz.py): hypothesis-generated
+  transcripts for `LCC_FUZZ_SECONDS` (one fixed-seed batch when unset; 60 s in PR CI; 600 s in
+  the nightly workflow, which uploads the seeds and any shrunk failing input and gates nothing).
+  `LCC_FUZZ_SEED` replays a batch;
+- the versioned [adversarial corpus](../tests/corpus/adversarial/), replayed on every run;
+- the transcript edge tests below (`assert_transcript_invariants`).
+
+The first runs found five defects, each now a corpus case: lossless re-deduped its own pointers
+(and stash pointers) on a second pass; a result forced back to `keep` still carried its `stash`
+field; the verification fail-safe kept every call but left `note`/`kept_at`/`stash` on the
+decisions; a whitespace-only user message was dropped on rebuild, which tripped the fail-safe
+and stopped the whole pass; and an output too short to stash was held out of lossless dedupe,
+so a second `stashed` pass changed it.
+
 ## Input
 
 | Edge case | Expected behaviour | Test |

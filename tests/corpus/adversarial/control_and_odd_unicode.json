@@ -1,0 +1,244 @@
+{
+ "note": "NUL, NEL, line/paragraph separators, zero-width, RTL override, ZWJ emoji, NFD vs NFC, ANSI escapes.",
+ "goal": "fix the tenant import crash in jobs/tenant_import.py",
+ "payload": [
+  {
+   "role": "user",
+   "text": "fix the tenant import crash in jobs/tenant_import.py"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "u1",
+     "tool": "Bash",
+     "input": {
+      "command": "cat weird.txt"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "u1",
+     "text": "\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f0",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 0"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f0",
+     "text": "step 0 ok\nstep 0 ok\nstep 0 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f1",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 1"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f1",
+     "text": "step 1 ok\nstep 1 ok\nstep 1 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f2",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 2"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f2",
+     "text": "step 2 ok\nstep 2 ok\nstep 2 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f3",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 3"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f3",
+     "text": "step 3 ok\nstep 3 ok\nstep 3 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f4",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 4"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f4",
+     "text": "step 4 ok\nstep 4 ok\nstep 4 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f5",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 5"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f5",
+     "text": "step 5 ok\nstep 5 ok\nstep 5 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f6",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 6"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f6",
+     "text": "step 6 ok\nstep 6 ok\nstep 6 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "f7",
+     "tool": "Bash",
+     "input": {
+      "command": "echo step 7"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "f7",
+     "text": "step 7 ok\nstep 7 ok\nstep 7 ok\n"
+    }
+   ]
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "u2",
+     "tool": "Bash",
+     "input": {
+      "command": "cat weird.txt"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "u2",
+     "text": "\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n\u0000NUL  next-line   line-sep   para ​‌‍ zero-width ‮RTL‬ שלום مرحبا 👩‍💻 🇧🇷 café café \u0007\u001b[31mred\u001b[0m\n"
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "fix it"
+  }
+ ]
+}
