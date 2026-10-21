@@ -64,7 +64,7 @@ All notable changes to this project are documented here. The format is based on
   billed input on transcript size. Shares assume one tokenizer ratio across categories, so
   they rank categories rather than give exact percentages, and the output says so. Counts
   only, offline, JSON or Markdown: tool names and attachment types appear, MCP tool names
-  (which carry server names) are grouped as `mcp`. On a 945-request Claude Code session it
+  (which carry server names) are grouped as `mcp`. On a 938-request Claude Code session it
   runs in under a second. `--input-map` runs no compaction mode, so it refuses `--question` /
   `-q` (exit code 2). Before this was fixed, unreleased builds of `main` ignored the flag
   silently.
@@ -186,6 +186,10 @@ All notable changes to this project are documented here. The format is based on
   `unattributed (opaque summary)`, sized from the next request's billed input, with a warning.
   The report also warns when Claude Code's fixed overhead cannot be separated, instead of
   silently spreading it over the other categories. `session_report.codex_message` is public.
+  Claude Code `<synthetic>` messages (local API errors, zero usage) are not requests; a split
+  response without `requestId` is keyed by `message.id`; `preservedSegment` is followed as a
+  `parentUuid` chain, so a rewound branch between head and tail is not counted; and tool
+  results a compaction keeps stay in the re-read and duplicate indexes.
 - Preserve CRLF separators when joining trimmed log lines (#71); `TRIM_POLICY_VERSION` is now `trim-1.3`, changing prompt-cache identity. Historical `trim-1.2` benchmark results are unchanged.
 - **`lcc explain` left out `replace` and `dedupe` decisions.** On a `provider: rules` report
   the outputs that were stashed, re-read pointers or deduped were not listed at all, so the
