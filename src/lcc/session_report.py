@@ -53,7 +53,7 @@ def from_claude_code(path: Path) -> list[dict[str, Any]]:
         return messages_from_jsonl(handle)
 
 
-def _codex_message(item: dict[str, Any], record_index: int) -> dict[str, Any] | None:
+def codex_message(item: dict[str, Any], record_index: int) -> dict[str, Any] | None:
     kind = item.get("type")
     if kind == "message" and item.get("role") in ("user", "assistant"):
         return {"role": item["role"], "text": _result_text(item.get("content"))}
@@ -135,7 +135,7 @@ def messages_from_jsonl(lines: Any) -> list[dict[str, Any]]:
         if codex:
             item = record.get("payload")
             if record.get("type") == "response_item" and isinstance(item, dict):
-                codex_entry = _codex_message(item, record_index)
+                codex_entry = codex_message(item, record_index)
                 if codex_entry is not None:
                     messages.append(codex_entry)
             continue

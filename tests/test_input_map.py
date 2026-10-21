@@ -352,3 +352,85 @@ def test_mcp_tool_names_are_grouped(tmp_path: Path) -> None:
     assert "acme_secret" not in json.dumps(report)
     assert report["drill_down"]["tool_results_by_tool"] == [{"name": "mcp", "tokens": 2}]
     assert "tool names" in imap.to_markdown(report)
+
+
+# Compaction (#84 follow-up): each test failed before its fix.
+
+
+@pytest.mark.parametrize("meta", [
+    {"preservedMessages": {"anchorUuid": "s", "uuids": ["u2"], "allUuids": ["u2"]}},
+    {"preservedSegment": {"headUuid": "u2", "anchorUuid": "s", "tailUuid": "u2"}},
+])
+def test_claude_code_compaction_keeps_preserved_messages(tmp_path: Path, meta: dict) -> None:
+    rows = [
+        {"type": "user", "uuid": "u0", "message": {"role": "user", "content": "a b c"}},
+        _assistant("r1", [], _usage(cache_read_input_tokens=1)),
+        {"type": "user", "uuid": "u2", "message": {"role": "user", "content": "keep this"}},
+        {"type": "system", "subtype": "compact_boundary", "compactMetadata": meta},
+        {"type": "user", "uuid": "s", "isCompactSummary": True,
+         "message": {"role": "user", "content": "sum"}},
+        _assistant("r2", [], _usage(cache_read_input_tokens=1)),
+    ]
+    report = imap.input_map(_write(tmp_path, rows))
+    # r1 is sent "a b c" (3); r2 the kept "keep this" (2) plus the summary (1)
+    assert report["categories"] == [
+        {"category": "user text", "share": round(5 / 6, 4)},
+        {"category": "compaction summary", "share": round(1 / 6, 4)},
+    ]
+
+
+def _codex_compaction(tmp_path: Path) -> Path:
+    usage = {"input_tokens": 50, "cached_input_tokens": 0}
+    return _write(tmp_path, [
+        {"type": "session_meta", "payload": {"id": "x"}},
+        _msg("user", "one two three"),
+        {"type": "token_usage_record", "payload": {"response_id": "r1",
+                                                   "usage": {"input_tokens": 10}}},
+        _count(10, input_tokens=10),
+        _msg("user", "four five"),
+        # the compaction call: a usage record with no token_count after it
+        {"type": "token_usage_record", "payload": {"response_id": "r2", "usage": usage}},
+        {"type": "compacted", "payload": {
+            "message": "",
+            "latest_token_usage_record": {"response_id": "r2", "usage": usage},
+            "replacement_history": [
+                {"type": "message", "role": "user",
+                 "content": [{"type": "input_text", "text": "one two three"}]},
+                {"type": "compaction", "encrypted_content": "gAAAA-opaque"},
+            ]}},
+        _count(30, input_tokens=20),
+    ], name="rollout.jsonl")
+
+
+def test_codex_compaction_call_is_billed_once(tmp_path: Path) -> None:
+    report = imap.input_map(_codex_compaction(tmp_path))
+    # token_count r1, the compaction call r2 (record + latest_token_usage_record: once), r3
+    assert report["requests"] == 3
+    assert report["billed_input"]["uncached"] == 10 + 50 + 20
+
+
+def test_codex_opaque_summary_is_sized_from_the_billed_gap(tmp_path: Path) -> None:
+    report = imap.input_map(_codex_compaction(tmp_path))
+    # r1 sends 3; the compaction call sends all 5 user words; r3 sends the kept 3 words and
+    # an opaque summary sized 20 - 3 = 17. Replay total 3 + 5 + 20 = 28.
+    assert report["categories"] == [
+        {"category": imap.OPAQUE, "share": round(17 / 28, 4)},
+        {"category": "user text", "share": round(11 / 28, 4)},
+    ]
+    assert any("encrypted summary" in w for w in report["warnings"])
+    assert "Warning:" in imap.to_markdown(report)
+
+
+def test_warns_when_fixed_overhead_cannot_be_separated(tmp_path: Path) -> None:
+    report = imap.input_map(_claude_session(tmp_path))  # 3 requests: no fit
+    assert report["fixed_overhead_fit"] is None
+    assert any("could not be separated" in w for w in report["warnings"])
+    assert "could not be separated" in imap.to_markdown(report)
+
+
+def test_codex_message_is_public() -> None:
+    from lcc.session_report import codex_message
+
+    entry = codex_message({"type": "function_call", "call_id": "c", "name": "exec",
+                           "arguments": "{}"}, 0)
+    assert entry is not None and entry["toolUses"][0]["tool"] == "exec"
