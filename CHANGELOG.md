@@ -65,7 +65,9 @@ All notable changes to this project are documented here. The format is based on
   they rank categories rather than give exact percentages, and the output says so. Counts
   only, offline, JSON or Markdown: tool names and attachment types appear, MCP tool names
   (which carry server names) are grouped as `mcp`. On a 945-request Claude Code session it
-  runs in under a second.
+  runs in under a second. `--input-map` runs no compaction mode, so it refuses `--question` /
+  `-q` (exit code 2). Before this was fixed, unreleased builds of `main` ignored the flag
+  silently.
 
 - `lcc measure-session --question/-q` passes a specific question or objective to every
   compaction mode, retaining the previous default when omitted (#61).

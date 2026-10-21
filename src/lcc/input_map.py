@@ -321,8 +321,11 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
             latest = payload.get("latest_token_usage_record")
             billing = latest if isinstance(latest, dict) else last_record
             response = str((billing or {}).get("response_id") or "")
-            if billing and isinstance(billing.get("usage"), dict) and response not in counted:
-                counted.add(response)
+            # without an id there is nothing to dedupe on: the record is its own request
+            if billing and isinstance(billing.get("usage"), dict) and (
+                    not response or response not in counted):
+                if response:
+                    counted.add(response)
                 # the compaction call was sent the whole context before it
                 yield ("request", _codex_usage(billing["usage"]), True)
             yield ("boundary",)
@@ -354,7 +357,8 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
             last_total = total
             fresh_calls.clear()
             if last_record is not None:
-                counted.add(str(last_record.get("response_id") or ""))
+                if last_record.get("response_id"):
+                    counted.add(str(last_record["response_id"]))
                 last_record = None
             yield ("request", _codex_usage(last))
 
