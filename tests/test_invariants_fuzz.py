@@ -4,7 +4,8 @@ Budget: ``LCC_FUZZ_SECONDS`` (PR CI 60, nightly 600). Unset, one fixed-seed batc
 plain ``pytest`` stays fast and deterministic. Each batch logs its seed; ``LCC_FUZZ_SEED``
 replays one. A failing input is shrunk by hypothesis and, when ``LCC_FUZZ_ARTIFACTS`` is set,
 written there as JSON (synthetic data only: everything is generated here). To keep a failure
-forever, copy that file into ``tests/corpus/adversarial/`` with a one-line ``note``.
+forever, copy that file into ``tests/corpus/adversarial/`` with a one-line ``note``; the corpus
+replay is ``test_invariants_corpus.py``.
 """
 
 from __future__ import annotations
@@ -12,18 +13,20 @@ from __future__ import annotations
 import json
 import os
 import random
-import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any
 
 import pytest
-from hypothesis import HealthCheck, given, seed, settings
-from hypothesis import strategies as st
 
-from edge_corpus import FRAGMENTS, PT_WORDS, WORDS
-from invariants import check_transcript, corpus_cases, corpus_digest, load_case
+pytest.importorskip("hypothesis")  # a dev dependency; the corpus replay runs without it
+
+from hypothesis import HealthCheck, given, seed, settings  # noqa: E402
+from hypothesis import strategies as st  # noqa: E402
+
+from edge_corpus import FRAGMENTS, PT_WORDS, WORDS  # noqa: E402
+from invariants import check_transcript  # noqa: E402
 
 BATCH = 25
 GOAL_WORDS = WORDS + PT_WORDS
@@ -132,23 +135,3 @@ def test_invariants_hold_on_generated_transcripts() -> None:
         if fixed or time.monotonic() - started >= budget:
             break
     sys.stderr.write(f"fuzz: {len(seeds)} batch(es) of {BATCH}, seeds {seeds[:5]}...\n")
-
-
-@pytest.mark.parametrize("path", corpus_cases(), ids=lambda p: p.stem)
-def test_invariants_hold_on_the_adversarial_corpus(path: Path) -> None:
-    check_transcript(*load_case(path))
-
-
-def test_placeholders_ignore_hash_seed(tmp_path: Path) -> None:
-    script = Path(__file__).parent / "invariants.py"
-    digests = set()
-    for hash_seed in ("0", "1", "4242"):
-        env = {**os.environ, "PYTHONHASHSEED": hash_seed,
-               "LCC_STASH_DIR": str(tmp_path / f"stash-{hash_seed}"),
-               "PYTHONPATH": os.pathsep.join([str(Path(__file__).parents[1] / "src"),
-                                              os.environ.get("PYTHONPATH", "")])}
-        done = subprocess.run([sys.executable, str(script)], env=env, capture_output=True,
-                              text=True, check=True, timeout=300)
-        digests.add(done.stdout.strip())
-    assert len(digests) == 1
-    assert digests == {corpus_digest()}
