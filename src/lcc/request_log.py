@@ -52,7 +52,8 @@ RULES: tuple[tuple[str, str], ...] = (
     # NAME_API_KEY=..., client_secret: ...: the secret word glued to a longer identifier.
     (
         "<TOKEN>",
-        r"(?i)\b[\w-]*(?:api[_-]?key|access[_-]?key|token|secret|password|passwd)[\w-]*"
+        r"(?i)(?<![\w-])(?!(?:max[_-])?tokens\s*[:=]\s*[0-9]+(?=\s|$))"
+        r"[\w-]*(?:api[_-]?key|access[_-]?key|token|secret|password|passwd)[\w-]*"
         r"\s*[:=]\s*\S+",
     ),
     (
