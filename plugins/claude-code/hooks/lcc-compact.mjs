@@ -63,16 +63,18 @@ export function sessionCwd(event) {
 }
 
 /**
- * Arguments that turn on the opt-in ledger for this pass: the server writes it (the hook
- * worker has no file system) and keeps only a hash of the session id.
+ * Ledger arguments for this pass. The session id always travels, because LCC_LEDGER=1 on the
+ * server turns the ledger on without the plugin option; the server keeps only its hash, and
+ * only when it writes. `ledger: true` is sent only when the plugin option is on. The server
+ * writes the file (the hook worker has no file system).
  */
 async function ledgerArgs($, configured) {
-  if (!configured.ledger) return {};
+  const on = configured.ledger ? { ledger: true } : {};
   try {
     const id = await $.session.id();
-    return typeof id === "string" && id ? { ledger: true, ledger_session: id } : { ledger: true };
+    return typeof id === "string" && id ? { ...on, ledger_session: id } : on;
   } catch {
-    return { ledger: true };
+    return on;
   }
 }
 

@@ -11,6 +11,7 @@ import json
 import threading
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 import pytest
 
@@ -400,3 +401,21 @@ def test_stash_is_stdio_only(mcp_url):
                                         "params": params})
         assert status == 200
         assert "only served over stdio" in _sse_payload(body)["error"]["message"]
+
+
+def test_ledger_is_never_written_over_http_even_with_the_env(mcp_url, tmp_path, monkeypatch):
+    """An inherited LCC_LEDGER=1 must not make the HTTP server write the host's ledger."""
+    ledger = tmp_path / "ledger.jsonl"
+    monkeypatch.setenv("LCC_LEDGER", "1")
+    monkeypatch.setenv("LCC_LEDGER_PATH", str(ledger))
+    medium = Path(__file__).resolve().parents[1] / "benchmarks/research/corpora/transcripts/medium.json"
+    arguments = {"messages": json.loads(medium.read_text())["messages"],
+                 "question": "cut the retry storm", "provider": "rules", "min_reduction": 0}
+    status, body = _post(mcp_url, {"jsonrpc": "2.0", "id": 10, "method": "tools/call",
+                                    "params": {"name": "compact_transcript",
+                                               "arguments": arguments}})
+    assert status == 200
+    result = _sse_payload(body)["result"]
+    assert result.get("isError") is not True
+    assert "deduped" in json.loads(result["content"][0]["text"])["receipt"]
+    assert not ledger.exists()

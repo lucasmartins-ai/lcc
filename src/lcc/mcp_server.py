@@ -142,8 +142,10 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
     # Opt-in ledger (plugin option `ledger`, or LCC_LEDGER=1): one line of counts for a pass
     # the hook will apply. ponytail: the idle stash is not recorded, because the server cannot
     # see whether Claude Code accepts its compaction; record it once the hook can confirm.
+    # An explicit `ledger: false` wins over LCC_LEDGER=1: the HTTP server sets it on every call.
     if (
-        ledger_enabled(args.get("ledger") is True)
+        args.get("ledger") is not False
+        and ledger_enabled(args.get("ledger") is True)
         and args.get("trigger") != "idle"
         and pass_stands(result.report)
     ):

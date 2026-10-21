@@ -210,6 +210,20 @@ def _local_only_refusal(payload: dict[str, Any]) -> dict[str, Any] | None:
     )
 
 
+def _no_ledger(payload: dict[str, Any]) -> None:
+    """The ledger is the host's local file: never written over HTTP, whatever the env says.
+
+    A truthy ``ledger`` argument is refused above; this pins ``ledger: false`` on every
+    ``compact_transcript`` call so an inherited ``LCC_LEDGER=1`` cannot turn it on either.
+    """
+    params = payload.get("params")
+    if payload.get("method") != "tools/call" or not isinstance(params, dict):
+        return
+    arguments = params.get("arguments")
+    if params.get("name") == "compact_transcript" and isinstance(arguments, dict):
+        arguments["ledger"] = False
+
+
 def _handle(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, bool]:
     """Dispatch one JSON-RPC message through the shared stdio handler.
 
@@ -218,11 +232,10 @@ def _handle(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, bool]:
     """
     is_notification = "id" not in payload
     try:
-        response = (
-            _local_only_refusal(payload)
-            or _anonymous_provider_refusal(payload)
-            or handle_message(payload, echo_errors=False)
-        )
+        response = _local_only_refusal(payload) or _anonymous_provider_refusal(payload)
+        if response is None:
+            _no_ledger(payload)
+            response = handle_message(payload, echo_errors=False)
     except TranscriptError as exc:
         # Shape errors name only the caller's own fields and indices, never server paths,
         # so the caller gets the reason (e.g. text under 'content') instead of a bare error.

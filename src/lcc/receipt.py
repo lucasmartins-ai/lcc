@@ -22,6 +22,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from lcc.reporting.explain import terminal_safe
+
 ENV_FLAG = "LCC_LEDGER"
 ENV_PATH = "LCC_LEDGER_PATH"
 LEDGER_VERSION = 1
@@ -97,7 +99,8 @@ def receipt_full(report: dict[str, Any], top: int = 5) -> str:
     if largest:
         lines.append(f"  largest stashed outputs ({min(top, len(largest))} of {len(largest)}):")
         for item in largest[:top]:
-            tool = f"  {item['tool']}" if item.get("tool") else ""
+            # Tool names come from the transcript: escape them before they reach a terminal.
+            tool = f"  {terminal_safe(str(item['tool']))}" if item.get("tool") else ""
             lines.append(f"    lcc recall {item['id']}  {item['tokens']:,} tokens{tool}")
     cache = report.get("cache_effect")
     if isinstance(cache, dict):
@@ -166,6 +169,9 @@ def append_ledger(record: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
         with os.fdopen(fd, "a", encoding="utf-8") as handle:
+            # O_CREAT's mode only applies to a new file; tighten one that already exists.
+            if hasattr(os, "fchmod"):
+                os.fchmod(handle.fileno(), 0o600)
             handle.write(json.dumps(record, separators=(",", ":")) + "\n")
     except OSError as exc:
         warnings.warn(f"lcc ledger not written ({path}): {exc}", RuntimeWarning, stacklevel=2)

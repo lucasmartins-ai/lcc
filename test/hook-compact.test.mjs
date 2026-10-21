@@ -82,9 +82,10 @@ assert.match(capped.toasts[0], /built-in summary \(tool result is not JSON .*MCP
 // A ref the transcript does not have never reaches the session.
 const stray = await compactWith(JSON.stringify({ report, messages: [{ ref: 9 }] }));
 assert.equal(stray.result, "builtin");
-// The ledger is opt-in: nothing is asked of the server unless the `ledger` option is on.
+// The ledger is opt-in: `ledger` is asked for only with the option on. The session id
+// always travels, so LCC_LEDGER=1 on the server alone still keys records by session.
 assert.equal("ledger" in patched.sent, false);
-assert.equal("ledger_session" in patched.sent, false);
+assert.equal(patched.sent.ledger_session, "sess-1");
 const answer = JSON.stringify({
   report,
   messages: [{ ref: 0 }, { ref: 1 }, { ref: 2 }],

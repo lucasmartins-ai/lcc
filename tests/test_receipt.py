@@ -195,3 +195,31 @@ def test_cli_refuses_receipt_outside_tool_calls(tmp_path: Path):
     src.write_text("some context\n")
     result = runner.invoke(app, ["compact", str(src), "-q", "x", "--receipt"])
     assert result.exit_code == 2 and "--receipt" in result.output
+
+
+def test_full_receipt_escapes_control_characters_in_tool_names():
+    report = STASHED | {
+        "decisions": [
+            {
+                "tool": "Evil\x1b[2J",
+                "decision": "replace",
+                "stash": {"sha256": "c" * 64, "tokens": 5},
+            }
+        ]
+    }
+    full = receipt_full(report)
+    assert "\x1b" not in full and "Evil\\x1b[2J" in full
+
+
+def test_ledger_tightens_an_existing_world_readable_file(env: Path):
+    env.parent.mkdir(parents=True)
+    env.write_text("")
+    env.chmod(0o644)
+    _call(ledger=True)
+    assert stat.S_IMODE(env.stat().st_mode) == 0o600
+
+
+def test_explicit_ledger_false_beats_the_env(env: Path, monkeypatch):
+    monkeypatch.setenv("LCC_LEDGER", "1")
+    _call(ledger=False)
+    assert not env.exists()

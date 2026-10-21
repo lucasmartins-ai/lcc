@@ -98,7 +98,7 @@ sent anywhere. The server writes it (hook modules have no file system) only for 
 meets the hook's own replacement rule (not degraded, over `minReductionRatio`, removed
 something). Idle-stash passes are not recorded: the server cannot see whether Claude Code
 accepts that compaction. The HTTP server (`lcc mcp --http`) refuses `ledger`, as it refuses
-the stash. Delete the file to reset it.
+the stash, and never writes the ledger even when it inherits `LCC_LEDGER=1`. Delete the file to reset it.
 
 **Statusline.** `scripts/statusline.mjs` reads the ledger and Claude Code's statusline JSON
 on stdin. Add it to `~/.claude/settings.json` with the plugin's path on your machine:
