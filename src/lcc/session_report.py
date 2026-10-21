@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA = "lcc-session-report/1"
+DEFAULT_QUESTION = "finish the task in this session"
 #: (label, provider, rules_mode). `recoverable` is left out: it needs the session's disk.
 MODES: tuple[tuple[str, str, str], ...] = (
     ("rules:lossless", "rules", "lossless"),
@@ -205,9 +206,7 @@ def _norm(text: str) -> str:
     return " ".join(text.split())
 
 
-def measure_session(
-    path: Path, question: str = "finish the task in this session"
-) -> dict[str, Any]:
+def measure_session(path: Path, question: str = DEFAULT_QUESTION) -> dict[str, Any]:
     from lcc import __version__
     from lcc.relevance.transcript import (
         TranscriptCompactionRequest,

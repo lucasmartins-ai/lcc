@@ -1999,11 +1999,13 @@ def measure_session_cmd(
         ..., help="A Claude Code session or Codex CLI rollout file (JSONL; format auto-detected).",
         show_default=False, exists=True, dir_okay=False,
     ),
-    question: str = typer.Option(
-        "finish the task in this session",
+    question: str | None = typer.Option(
+        None,
         "--question",
         "-q",
-        help="Question or objective used to measure the compaction modes.",
+        help="Question or objective used to measure the compaction modes "
+        "(default: finish the task in this session).",
+        show_default=False,
     ),
     as_json: bool = typer.Option(False, "--json", help="Print the report as JSON."),
     markdown: bool = typer.Option(
@@ -2020,7 +2022,7 @@ def measure_session_cmd(
     if input_map:
         from lcc import input_map as imap
 
-        if question != "finish the task in this session":
+        if question is not None:
             _fail("--question has no effect with --input-map, which runs no compaction mode.",
                   code=2)
 
@@ -2033,9 +2035,9 @@ def measure_session_cmd(
 
             console.print(Markdown(rendered))
         return
-    from lcc.session_report import measure_session, to_markdown
+    from lcc.session_report import DEFAULT_QUESTION, measure_session, to_markdown
 
-    report = measure_session(session, question=question)
+    report = measure_session(session, question=DEFAULT_QUESTION if question is None else question)
     if as_json or markdown:
         sys.stdout.write((json.dumps(report, indent=2) if as_json else to_markdown(report)) + "\n")
         return

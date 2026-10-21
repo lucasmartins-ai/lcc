@@ -442,3 +442,33 @@ def test_codex_message_is_public() -> None:
     entry = codex_message({"type": "function_call", "call_id": "c", "name": "exec",
                            "arguments": "{}"}, 0)
     assert entry is not None and entry["toolUses"][0]["tool"] == "exec"
+
+
+def test_codex_compaction_calls_without_response_id_each_count(tmp_path: Path) -> None:
+    def compaction(n: int) -> list[dict]:
+        usage = {"input_tokens": n}
+        return [{"type": "token_usage_record", "payload": {"usage": usage}},  # no response_id
+                {"type": "compacted", "payload": {"message": "s"}}]
+
+    path = _write(tmp_path, [
+        {"type": "session_meta", "payload": {"id": "x"}},
+        _msg("user", "one"),
+        {"type": "token_usage_record", "payload": {"usage": {"input_tokens": 10}}},
+        _count(10, input_tokens=10),
+        *compaction(40),
+        *compaction(30),
+        _count(15, input_tokens=5),
+    ], name="rollout.jsonl")
+    report = imap.input_map(path)
+    assert report["requests"] == 4  # two counts and two compaction calls
+    assert report["billed_input"]["uncached"] == 10 + 40 + 30 + 5
+
+
+def test_cli_rejects_the_default_question_text_too(tmp_path: Path) -> None:
+    from lcc.session_report import DEFAULT_QUESTION
+
+    path = _claude_session(tmp_path)
+    result = CliRunner().invoke(
+        app, ["measure-session", str(path), "--input-map", "-q", DEFAULT_QUESTION]
+    )
+    assert result.exit_code == 2
