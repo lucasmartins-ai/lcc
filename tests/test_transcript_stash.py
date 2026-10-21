@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import re
 import stat
 from pathlib import Path
@@ -114,8 +115,9 @@ def test_removed_output_is_stashed_verbatim_and_pointer_replaces_it(_stash: Path
 
     blob = _stash / digest
     assert blob.read_bytes() == BODY.encode()
-    assert stat.S_IMODE(blob.stat().st_mode) == 0o600
-    assert stat.S_IMODE(_stash.stat().st_mode) == 0o700
+    if os.name == "posix":
+        assert stat.S_IMODE(blob.stat().st_mode) == 0o600
+        assert stat.S_IMODE(_stash.stat().st_mode) == 0o700
 
     report = result.report
     assert report["rules_mode"] == "stashed"
