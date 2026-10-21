@@ -419,9 +419,10 @@ Why, from Claude Code's docs and the guard's source (not from a trace of this ru
 - The guard loads when the machine has managed settings or the session runs on a Team or
   Enterprise `/login`
   ([default behaviour](https://code.claude.com/docs/en/plugins/mods/admin#know-what-happens-by-default)).
-  This machine has no `/Library/Application Support/ClaudeCode/` folder, so the login is the
-  likely trigger. Why an earlier run in the same setup reached the hook was not determined; a
-  different credential for that run would explain it (INFERIDO).
+  In the observed run the machine had no managed settings
+  (`/Library/Application Support/ClaudeCode/` on macOS), so the login was the likely trigger.
+  Why an earlier run in the same setup reached the hook was not determined; a different
+  credential for that run would explain it (inferred).
 
 What still works where the guard is seated: the classic `PreCompact` and `SessionStart`
 pin hooks are settings hooks, which Claude Code runs as its own behaviour, so the built-in
