@@ -314,6 +314,14 @@ def test_malformed_usage_fields_count_as_zero(tmp_path: Path) -> None:
     assert report["billed_input"]["cache_read"] == 0
     assert report["billed_input"]["uncached"] == 0
     assert report["billed_input"]["cache_write"] == 7
+    # json.loads accepts Infinity and NaN; a count like that is 0, not a crash
+    bad = tmp_path / "nonfinite.jsonl"
+    bad.write_text('{"type": "assistant", "requestId": "r", "message": {"role": "assistant", '
+                   '"content": [], "usage": {"input_tokens": Infinity, '
+                   '"cache_read_input_tokens": NaN, "cache_creation_input_tokens": 3}}}\n',
+                   encoding="utf-8")
+    assert imap.input_map(bad)["billed_input"] == {
+        "uncached": 0, "cache_write": 3, "cache_read": 0, "total": 3, "cache_read_share": 0.0}
     codex = _write(tmp_path, [
         {"type": "session_meta", "payload": {}},
         _count(5, input_tokens="5", cached_input_tokens={"a": 1}, output_tokens="x"),

@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections import Counter
 from collections.abc import Iterable, Iterator
 from pathlib import Path
@@ -69,8 +70,10 @@ def _int(value: Any) -> int:
     """A usage count as written by the provider; anything malformed counts as 0."""
     if isinstance(value, bool):
         return 0
-    if isinstance(value, int | float):
-        return max(0, int(value))
+    if isinstance(value, int):
+        return max(0, value)
+    if isinstance(value, float):  # json.loads accepts Infinity and NaN
+        return max(0, int(value)) if math.isfinite(value) else 0
     if isinstance(value, str):
         try:
             return max(0, int(value.strip()))
