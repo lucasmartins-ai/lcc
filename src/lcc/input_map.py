@@ -260,6 +260,7 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
     last_total: Any = None
     # token_usage_record duplicates token_count, except for the compaction call itself
     last_record: dict[str, Any] | None = None
+    last_compaction: dict[str, Any] | None = None  # the record the last compaction billed
     counted: set[str] = set()  # response ids already billed through token_count
     base = ""  # base_instructions: sent as `instructions` on every request
 
@@ -321,14 +322,17 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
             latest = payload.get("latest_token_usage_record")
             billing = latest if isinstance(latest, dict) else last_record
             response = str((billing or {}).get("response_id") or "")
-            # without an id there is nothing to dedupe on: the record is its own request
-            if billing and isinstance(billing.get("usage"), dict) and (
-                    not response or response not in counted):
+            if response:
+                new = response not in counted
+            else:  # no id: new only if a usage record arrived or it differs from the last one
+                new = last_record is not None or billing != last_compaction
+            if billing and isinstance(billing.get("usage"), dict) and new:
                 if response:
                     counted.add(response)
                 # the compaction call was sent the whole context before it
                 yield ("request", _codex_usage(billing["usage"]), True)
-            last_record = None  # consumed: a second compaction must not bill it again
+            # consumed: a second compaction must not bill it again
+            last_record, last_compaction = None, billing
             yield ("boundary",)
             fresh_calls.clear()
             if base:

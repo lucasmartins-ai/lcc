@@ -485,3 +485,19 @@ def test_cli_rejects_the_default_question_text_too(tmp_path: Path) -> None:
         app, ["measure-session", str(path), "--input-map", "-q", DEFAULT_QUESTION]
     )
     assert result.exit_code == 2
+@pytest.mark.parametrize("latest", [False, True])
+def test_codex_id_less_compaction_record_is_billed_once(tmp_path: Path, latest: bool) -> None:
+    usage = {"input_tokens": 40}
+    compacted = {"type": "compacted", "payload": {
+        "message": "s", **({"latest_token_usage_record": {"usage": usage}} if latest else {})}}
+    path = _write(tmp_path, [
+        {"type": "session_meta", "payload": {"id": "x"}},
+        _msg("user", "one"),
+        {"type": "token_usage_record", "payload": {"usage": usage}},  # no response_id
+        compacted,
+        compacted,  # no new usage record in between: nothing new was billed
+        _count(5, input_tokens=5),
+    ], name="rollout.jsonl")
+    report = imap.input_map(path)
+    assert report["requests"] == 2
+    assert report["billed_input"]["uncached"] == 40 + 5
