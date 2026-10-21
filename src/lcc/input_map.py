@@ -102,8 +102,10 @@ def _attachment_text(attachment: dict[str, Any]) -> str:
     return "\n".join(parts)
 
 
-# Events: ("item", category, detail, tokens, digest, path) | ("request", usage) | ("boundary",)
-# | ("system_prompt", tokens). `detail` is the tool or attachment type for the drill-down.
+# Events: ("item" | "generated", category, detail, tokens, digest, path) | ("request", usage)
+# | ("boundary",) | ("context", category, tokens) | ("system_prompt", tokens). "generated" items
+# came from the response being billed next; "context" items are re-sent copies. `detail` is the
+# tool or attachment type for the drill-down.
 Event = tuple[Any, ...]
 
 
@@ -176,43 +178,88 @@ def _claude_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
 
 
 def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
+    """Codex rollout events.
+
+    A response's own items (reasoning, messages, tool calls) and the outputs of the calls it
+    made are written *before* its ``token_count``, so they are yielded as ``generated``: the
+    replay charges them from the next request on, not to the request that produced them.
+    """
+    from lcc.session_report import _codex_message
+
     calls: dict[str, str] = {}
+    fresh_calls: set[str] = set()  # calls made since the last billed request
     last_total: Any = None
-    for record in records:
+    base = ""  # base_instructions: sent as `instructions` on every request
+
+    def item(payload: dict[str, Any], index: int, generated: bool) -> Iterator[Event]:
+        tag = "generated" if generated else "item"
+        item_type = payload.get("type")
+        if item_type == "additional_tools":
+            tokens = _tokens(_dumps(payload.get("tools") or ""))
+            yield ("item", "tool schemas", "", tokens, None, "")
+        elif item_type == "message":
+            role = payload.get("role")
+            text = _text(payload.get("content"))
+            if role == "developer" and base and base in text:
+                # newer rollouts repeat base_instructions as the first developer message
+                yield ("item", "system prompt", "", max(0, _tokens(text) - _tokens(base)), None,
+                       "")
+                return
+            category = {"developer": "system prompt", "assistant": "assistant text"}.get(
+                str(role), "user text"
+            )
+            if role == "user" and "<environment_context>" in text:
+                category = "instructions"
+            generated = generated and role == "assistant"
+            yield ("generated" if generated else "item", category, "", _tokens(text), None, "")
+        elif item_type in ("function_call", "custom_tool_call", "local_shell_call",
+                           "web_search_call"):
+            entry = _codex_message(payload, index)
+            if entry is None:
+                return
+            use = entry["toolUses"][0]
+            calls[use["tool_use_id"]] = use["tool"]
+            if generated:
+                fresh_calls.add(use["tool_use_id"])
+            raw = payload.get("arguments") or payload.get("input") or payload.get("action") or ""
+            yield (tag, "tool-call inputs", use["tool"], _tokens(_dumps(raw)), None, "")
+        elif item_type in ("function_call_output", "custom_tool_call_output"):
+            call_id = str(payload.get("call_id"))
+            body = _text(payload.get("output"))
+            digest = hashlib.sha256(body.encode("utf-8", "replace")).hexdigest()
+            tag = "generated" if generated and call_id in fresh_calls else "item"
+            yield (tag, "tool results", calls.get(call_id, "?"), _tokens(body), digest, "")
+        elif item_type == "agent_message":
+            # messages from other agents arrive as input to this one
+            yield ("item", "agent messages", "", _tokens(_text(payload.get("content"))), None, "")
+
+    for index, record in enumerate(records):
         kind, payload = record.get("type"), record.get("payload")
-        if kind == "compacted":
-            yield ("boundary",)
-            continue
         if not isinstance(payload, dict):
             continue
-        item_type = payload.get("type")
-        if kind == "response_item":
-            if item_type == "additional_tools":
-                yield ("item", "tool schemas", "", _tokens(_dumps(payload.get("tools") or "")),
-                       None, "")
-            elif item_type == "message":
-                role = payload.get("role")
-                text = _text(payload.get("content"))
-                category = {"developer": "system prompt", "assistant": "assistant text"}.get(
-                    str(role), "user text"
-                )
-                if role == "user" and "<environment_context>" in text:
-                    category = "instructions"
-                yield ("item", category, "", _tokens(text), None, "")
-            elif item_type in ("function_call", "custom_tool_call"):
-                name = str(payload.get("name") or "?")
-                calls[str(payload.get("call_id"))] = name
-                raw = payload.get("arguments") or payload.get("input") or ""
-                yield ("item", "tool-call inputs", name, _tokens(_dumps(raw)), None, "")
-            elif item_type in ("function_call_output", "custom_tool_call_output"):
-                body = _text(payload.get("output"))
-                digest = hashlib.sha256(body.encode("utf-8", "replace")).hexdigest()
-                name = calls.get(str(payload.get("call_id")), "?")
-                yield ("item", "tool results", name, _tokens(body), digest, "")
-            elif item_type == "agent_message":
-                yield ("item", "agent messages", "", _tokens(_text(payload.get("content"))),
-                       None, "")
-        elif kind == "event_msg" and item_type == "token_count":
+        if kind == "session_meta":
+            instructions = payload.get("base_instructions")
+            text = instructions.get("text") if isinstance(instructions, dict) else instructions
+            if isinstance(text, str) and text.strip():
+                base = text
+                yield ("item", "system prompt", "", _tokens(base), None, "")
+        elif kind == "compacted":
+            # The context after compaction is what replaced it, plus the instructions.
+            yield ("boundary",)
+            fresh_calls.clear()
+            if base:
+                yield ("context", "system prompt", _tokens(base))
+            history = payload.get("replacement_history")
+            if isinstance(history, list):
+                for entry in history:
+                    if isinstance(entry, dict):
+                        for event in item(entry, index, generated=False):
+                            yield ("context", event[1], event[3])
+            elif isinstance(payload.get("message"), str):
+                yield ("context", "compaction summary", _tokens(payload["message"]))
+        elif kind == "response_item":
+            yield from item(payload, index, generated=True)
+        elif kind == "event_msg" and payload.get("type") == "token_count":
             info = payload.get("info")
             if not isinstance(info, dict):
                 continue
@@ -221,11 +268,18 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
             if not isinstance(last, dict) or not total or total == last_total:
                 continue  # Codex repeats a count when nothing new was billed
             last_total = total
+            fresh_calls.clear()
             cached = int(last.get("cached_input_tokens") or 0)
+            written = int(last.get("cache_write_input_tokens") or 0)
             yield ("request", {
-                "input_tokens": int(last.get("input_tokens") or 0) - cached,
+                # input_tokens includes the cached and written parts
+                "input_tokens": max(0, int(last.get("input_tokens") or 0) - cached - written),
                 "cache_read_input_tokens": cached,
-                "cache_creation_input_tokens": int(last.get("cache_write_input_tokens") or 0),
+                "cache_creation_input_tokens": written,
+                "output_tokens": int(last.get("output_tokens") or 0),
+                "output_tokens_details": {
+                    "thinking_tokens": int(last.get("reasoning_output_tokens") or 0)
+                },
             })
 
 
@@ -276,6 +330,7 @@ def input_map(path: Path) -> dict[str, Any]:
 
     once: Counter[str] = Counter()  # tokens per category, counted once
     active: Counter[str] = Counter()  # tokens per category in the context right now
+    pending: Counter[str] = Counter()  # generated by the response not yet billed
     replayed: Counter[str] = Counter()  # tokens per category summed over requests
     billed: Counter[str] = Counter()
     output: Counter[str] = Counter()
@@ -290,12 +345,17 @@ def input_map(path: Path) -> dict[str, Any]:
     for event in events:
         if event[0] == "boundary":
             active.clear()
+            pending.clear()
         elif event[0] == "system_prompt":
             system_prompt = max(system_prompt, event[1])
-        elif event[0] == "item":
+        elif event[0] == "context":  # re-sent after a compaction; already counted once
+            active[event[1]] += event[2]
+        elif event[0] in ("item", "generated"):
             _, category, detail, tokens, digest, file_path = event
             once[category] += tokens
             active[category] += tokens
+            if event[0] == "generated":
+                pending[category] += tokens
             if category in by_detail:
                 by_detail[category][detail] += tokens
             if digest is not None:
@@ -320,8 +380,10 @@ def input_map(path: Path) -> dict[str, Any]:
             output["output"] += int(usage.get("output_tokens") or 0)
             if isinstance(details, dict):
                 output["thinking"] += int(details.get("thinking_tokens") or 0)
-            replayed.update(active)
-            pairs.append((sum(active.values()), sum(row.values())))
+            sent = active - pending  # what this request was sent: not its own output
+            pending.clear()
+            replayed.update(sent)
+            pairs.append((sum(sent.values()), sum(row.values())))
 
     requests = len(pairs)
     total = sum(billed.values())

@@ -138,49 +138,104 @@ def test_overhead_fit_recovers_a_known_intercept(tmp_path: Path) -> None:
     assert shares["user text"] == round(1 - 100 * 12 / total, 4)
 
 
+def _item(payload: dict) -> dict:
+    return {"type": "response_item", "payload": payload}
+
+
+def _count(total: int, **last: int) -> dict:
+    return {"type": "event_msg", "payload": {"type": "token_count", "info": {
+        "last_token_usage": last, "total_token_usage": {"input_tokens": total}}}}
+
+
+def _msg(role: str, text: str) -> dict:
+    return _item({"type": "message", "role": role,
+                  "content": [{"type": "input_text", "text": text}]})
+
+
 def _codex_session(tmp_path: Path) -> Path:
-    def item(payload: dict) -> dict:
-        return {"type": "response_item", "payload": payload}
-
-    def count(last: dict, total: dict) -> dict:
-        return {"type": "event_msg", "payload": {
-            "type": "token_count", "info": {"last_token_usage": last, "total_token_usage": total}}}
-
+    # The real order: a response's calls and their outputs are written before its count.
     return _write(tmp_path, [
-        {"type": "session_meta", "payload": {"id": "x"}},
-        item({"type": "additional_tools", "tools": ["t1 t2 t3"]}),
-        item({"type": "message", "role": "developer",
-              "content": [{"type": "input_text", "text": "system words here"}]}),
-        item({"type": "message", "role": "user",
-              "content": [{"type": "input_text", "text": "<environment_context> cwd"}]}),
-        item({"type": "message", "role": "user",
-              "content": [{"type": "input_text", "text": f"do {MARKER}"}]}),
-        count({"input_tokens": 40, "cached_input_tokens": 30}, {"input_tokens": 40}),
-        count({"input_tokens": 40, "cached_input_tokens": 30}, {"input_tokens": 40}),  # repeat
-        item({"type": "function_call", "name": "exec", "call_id": "c1", "arguments": "ls -la"}),
-        item({"type": "function_call_output", "call_id": "c1", "output": f"a b {MARKER}"}),
-        count({"input_tokens": 60, "cached_input_tokens": 50}, {"input_tokens": 100}),
+        {"type": "session_meta", "payload": {"id": "x", "base_instructions": {
+            "text": "base rules here", "provenance": "default"}}},
+        _item({"type": "additional_tools", "tools": ["t1 t2 t3"]}),
+        _msg("developer", "base rules here extra"),  # repeats base: only "extra" is new
+        _msg("user", "<environment_context> cwd"),
+        _msg("user", f"do {MARKER}"),
+        _item({"type": "function_call", "name": "exec", "call_id": "c1", "arguments": "ls -la"}),
+        _item({"type": "function_call_output", "call_id": "c1", "output": f"a b {MARKER}"}),
+        _count(40, input_tokens=40, cached_input_tokens=30, cache_write_input_tokens=4,
+               output_tokens=7, reasoning_output_tokens=3),
+        _count(40, input_tokens=40, cached_input_tokens=30),  # repeated count: not a request
+        _item({"type": "local_shell_call", "call_id": "ls1", "action": {"command": ["pwd"]}}),
+        _item({"type": "web_search_call", "action": {"query": "x"}}),
+        _count(100, input_tokens=60, cached_input_tokens=50, output_tokens=2),
+        {"type": "compacted", "payload": {"message": "", "replacement_history": [
+            {"type": "message", "role": "developer",
+             "content": [{"type": "input_text", "text": "base rules here extra"}]},
+            {"type": "message", "role": "user",
+             "content": [{"type": "input_text", "text": "summary of work"}]},
+        ]}},
+        _count(120, input_tokens=20, output_tokens=1),
     ], name="rollout.jsonl")
 
 
-def test_codex_counts_system_prompt_and_schemas_directly(tmp_path: Path) -> None:
+def test_codex_charges_each_request_what_it_was_sent(tmp_path: Path) -> None:
     report = imap.input_map(_codex_session(tmp_path))
     assert report["format"] == "codex"
-    assert report["requests"] == 2  # the repeated token_count is not a new request
-    assert report["billed_input"]["uncached"] == 20
-    assert report["billed_input"]["cache_read"] == 80
-    assert report["cost"]["uncached_share"] == round(20 / (20 + 8), 4)
-    assert report["system_prompt_tokens"] == 3
-    assert report["fixed_overhead_fit"] is None
+    assert report["requests"] == 3
+    # uncached = input - cached - written: 40-30-4, 60-50-0, 20-0-0
+    assert report["billed_input"] == {"uncached": 36, "cache_write": 4, "cache_read": 80,
+                                      "total": 120, "cache_read_share": round(80 / 120, 4)}
+    assert report["cost"]["uncached_share"] == round(36 / (36 + 4 * 1.25 + 80 * 0.1), 4)
+    assert report["provider_output_tokens"] == {"output": 10, "thinking": 3}
+    # base_instructions (3) once, plus the developer message's extra word (1)
+    assert report["system_prompt_tokens"] == 4
     assert report["transcript_tokens"] == {
-        "tool schemas": 3, "system prompt": 3, "instructions": 2, "user text": 2,
-        "tool-call inputs": 2, "tool results": 3,
+        "system prompt": 4, "tool schemas": 3, "instructions": 2, "user text": 2,
+        "tool-call inputs": 6, "tool results": 3,
     }
-    # request 1 sees 3+3+2+2 = 10; request 2 sees those plus the call (2) and result (3) = 15
-    shares = {r["category"]: r["share"] for r in report["categories"]}
-    assert shares["tool results"] == round(3 / 25, 4)
-    assert shares["tool schemas"] == round(6 / 25, 4)
-    assert report["drill_down"]["tool_inputs_by_tool"] == [{"name": "exec", "tokens": 2}]
+    # Request 1 is sent 4+3+2+2 = 11: not its own call and output, written before its count.
+    # Request 2 adds that call (2) and output (3) = 16; its own two calls wait.
+    # Request 3, after compaction: base 3 + developer extra 1 + replacement user text 3 = 7.
+    assert report["categories"] == [
+        {"category": "system prompt", "share": round(12 / 34, 4)},
+        {"category": "user text", "share": round(7 / 34, 4)},
+        {"category": "tool schemas", "share": round(6 / 34, 4)},
+        {"category": "instructions", "share": round(4 / 34, 4)},
+        {"category": "tool results", "share": round(3 / 34, 4)},
+        {"category": "tool-call inputs", "share": round(2 / 34, 4)},
+    ]
+    assert report["drill_down"]["tool_inputs_by_tool"] == [
+        {"name": "exec", "tokens": 2}, {"name": "local_shell", "tokens": 2},
+        {"name": "web_search", "tokens": 2},
+    ]
+
+
+def test_codex_uncached_never_goes_negative(tmp_path: Path) -> None:
+    path = _write(tmp_path, [
+        {"type": "session_meta", "payload": {"id": "x"}},
+        _msg("user", "hi"),
+        _count(10, input_tokens=10, cached_input_tokens=8, cache_write_input_tokens=5),
+    ], name="rollout.jsonl")
+    billed = imap.input_map(path)["billed_input"]
+    assert billed["uncached"] == 0 and billed["cache_read"] == 8 and billed["cache_write"] == 5
+
+
+def test_codex_legacy_compaction_message_and_base_without_copy(tmp_path: Path) -> None:
+    path = _write(tmp_path, [
+        {"type": "session_meta", "payload": {"base_instructions": {"text": "be good"}}},
+        _msg("user", "one two three"),
+        _count(10, input_tokens=10),
+        {"type": "compacted", "payload": {"message": "short sum"}},
+        _count(20, input_tokens=10),
+    ], name="rollout.jsonl")
+    report = imap.input_map(path)
+    # request 1: base 2 + user 3; request 2: base 2 + summary 2 (the user text is gone)
+    assert report["categories"] == [
+        {"category": "system prompt", "share": round(4 / 9, 4)},
+        {"category": "user text", "share": round(3 / 9, 4)},
+        {"category": "compaction summary", "share": round(2 / 9, 4)},
+    ]
 
 
 def test_session_without_usage_records_reports_no_shares(tmp_path: Path) -> None:

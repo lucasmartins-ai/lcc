@@ -56,10 +56,12 @@ All notable changes to this project are documented here. The format is based on
   billed input: fixed overhead (system prompt, tool schemas, instructions), tool results,
   tool-call inputs, harness attachments, user and assistant text, compaction summaries. Plus
   a drill-down by tool and attachment type, re-reads and duplicate outputs. Codex rollouts
-  carry the system prompt and tool schemas, so those are counted directly; for Claude Code the
-  fixed overhead is the intercept of a fit of billed input on transcript size. Shares assume
-  one tokenizer ratio across categories, so they rank categories rather than give exact
-  percentages, and the output says so. Counts only, offline, JSON or Markdown. On a
+  carry the system prompt and tool schemas, so those are counted directly (`base_instructions`
+  once, even when a developer message repeats it); a Codex response's own calls and their
+  outputs are charged from the next request on, and a compaction rebuilds the context from its
+  `replacement_history`. For Claude Code the fixed overhead is the intercept of a fit of
+  billed input on transcript size. Shares assume one tokenizer ratio across categories, so
+  they rank categories rather than give exact percentages, and the output says so. Counts only, offline, JSON or Markdown. On a
   945-request Claude Code session it runs in under a second.
 
 - `lcc measure-session --question/-q` passes a specific question or objective to every
