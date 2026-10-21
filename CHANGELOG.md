@@ -61,8 +61,10 @@ All notable changes to this project are documented here. The format is based on
   outputs are charged from the next request on, and a compaction rebuilds the context from its
   `replacement_history`. For Claude Code the fixed overhead is the intercept of a fit of
   billed input on transcript size. Shares assume one tokenizer ratio across categories, so
-  they rank categories rather than give exact percentages, and the output says so. Counts only, offline, JSON or Markdown. On a
-  945-request Claude Code session it runs in under a second.
+  they rank categories rather than give exact percentages, and the output says so. Counts
+  only, offline, JSON or Markdown: tool names and attachment types appear, MCP tool names
+  (which carry server names) are grouped as `mcp`. On a 945-request Claude Code session it
+  runs in under a second.
 
 - `lcc measure-session --question/-q` passes a specific question or objective to every
   compaction mode, retaining the previous default when omitted (#61).

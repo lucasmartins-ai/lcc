@@ -14,7 +14,9 @@ Reads a Claude Code session or Codex rollout (JSONL) locally and reports, **coun
 
 The shares assume one tokenizer ratio across categories (the provider's tokenizer differs
 from lcc's), so they rank categories; they are not exact percentages. The report says so.
-No session text, file path or tool output is in the report. Nothing is sent anywhere.
+No session text, file path or tool output is in the report; built-in tool names and attachment
+types are, and MCP tool names (which carry server names) are grouped as `mcp`. Nothing is sent
+anywhere.
 """
 
 from __future__ import annotations
@@ -58,6 +60,25 @@ def _tokens(text: str) -> int:
     from lcc.token_budget import count_tokens
 
     return count_tokens(text, "gpt-4.1").value if text else 0
+
+
+def _int(value: Any) -> int:
+    """A usage count as written by the provider; anything malformed counts as 0."""
+    if isinstance(value, bool):
+        return 0
+    if isinstance(value, int | float):
+        return max(0, int(value))
+    if isinstance(value, str):
+        try:
+            return max(0, int(value.strip()))
+        except ValueError:
+            return 0
+    return 0
+
+
+def _tool_name(name: str) -> str:
+    """MCP tool names carry server (often project) names: group them."""
+    return "mcp" if "mcp__" in name else name
 
 
 def _token_method() -> tuple[str, str | None]:
@@ -109,10 +130,22 @@ def _attachment_text(attachment: dict[str, Any]) -> str:
 Event = tuple[Any, ...]
 
 
-def _claude_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
+def _request_key(record: dict[str, Any], index: int) -> str:
+    # One request can be written over several lines sharing a requestId; a record without
+    # one is its own request.
+    return str(record.get("requestId") or record.get("uuid") or f"#{index}")
+
+
+def _claude_events(records: list[dict[str, Any]]) -> Iterator[Event]:
     calls: dict[str, tuple[str, str]] = {}
     seen_requests: set[str] = set()
-    for record in records:
+    final_usage: dict[str, dict[str, Any]] = {}  # a split request's last usage is complete
+    for index, record in enumerate(records):
+        usage = (record.get("message") or {}).get("usage") if isinstance(
+            record.get("message"), dict) else None
+        if record.get("type") == "assistant" and isinstance(usage, dict):
+            final_usage[_request_key(record, index)] = usage
+    for index, record in enumerate(records):
         kind = record.get("type")
         if record.get("isSidechain"):
             continue  # a subagent's own context, not this one's
@@ -135,11 +168,10 @@ def _claude_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
             continue
         content = message.get("content")
         if kind == "assistant":
-            request_id = record.get("requestId")
-            usage = message.get("usage")
-            if isinstance(usage, dict) and request_id and request_id not in seen_requests:
-                seen_requests.add(request_id)
-                yield ("request", usage)
+            key = _request_key(record, index)
+            if key in final_usage and key not in seen_requests:
+                seen_requests.add(key)
+                yield ("request", final_usage[key])
             for block in content if isinstance(content, list) else []:
                 if not isinstance(block, dict):
                     continue
@@ -149,7 +181,7 @@ def _claude_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
                 elif block.get("type") == "tool_use":
                     tool_input = block.get("input")
                     tool_input = tool_input if isinstance(tool_input, dict) else {}
-                    name = str(block.get("name") or "?")
+                    name = _tool_name(str(block.get("name") or "?"))
                     path = tool_input.get("file_path") if name == "Read" else None
                     calls[str(block.get("id"))] = (name, path if isinstance(path, str) else "")
                     yield ("item", "tool-call inputs", name, _tokens(_dumps(tool_input)), None, "")
@@ -218,6 +250,7 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
             if entry is None:
                 return
             use = entry["toolUses"][0]
+            use["tool"] = _tool_name(use["tool"])
             calls[use["tool_use_id"]] = use["tool"]
             if generated:
                 fresh_calls.add(use["tool_use_id"])
@@ -269,16 +302,16 @@ def _codex_events(records: Iterable[dict[str, Any]]) -> Iterator[Event]:
                 continue  # Codex repeats a count when nothing new was billed
             last_total = total
             fresh_calls.clear()
-            cached = int(last.get("cached_input_tokens") or 0)
-            written = int(last.get("cache_write_input_tokens") or 0)
+            cached = _int(last.get("cached_input_tokens"))
+            written = _int(last.get("cache_write_input_tokens"))
             yield ("request", {
                 # input_tokens includes the cached and written parts
-                "input_tokens": max(0, int(last.get("input_tokens") or 0) - cached - written),
+                "input_tokens": max(0, _int(last.get("input_tokens")) - cached - written),
                 "cache_read_input_tokens": cached,
                 "cache_creation_input_tokens": written,
-                "output_tokens": int(last.get("output_tokens") or 0),
+                "output_tokens": _int(last.get("output_tokens")),
                 "output_tokens_details": {
-                    "thinking_tokens": int(last.get("reasoning_output_tokens") or 0)
+                    "thinking_tokens": _int(last.get("reasoning_output_tokens"))
                 },
             })
 
@@ -343,9 +376,11 @@ def input_map(path: Path) -> dict[str, Any]:
     reread = reread_identical = duplicates = 0
     system_prompt = 0
     for event in events:
-        if event[0] == "boundary":
+        if event[0] == "boundary":  # what came before is no longer in context
             active.clear()
             pending.clear()
+            reads.clear()
+            seen_outputs.clear()
         elif event[0] == "system_prompt":
             system_prompt = max(system_prompt, event[1])
         elif event[0] == "context":  # re-sent after a compaction; already counted once
@@ -371,15 +406,15 @@ def input_map(path: Path) -> dict[str, Any]:
         else:  # request
             usage = event[1]
             row = {
-                "uncached": int(usage.get("input_tokens") or 0),
-                "cache_write": int(usage.get("cache_creation_input_tokens") or 0),
-                "cache_read": int(usage.get("cache_read_input_tokens") or 0),
+                "uncached": _int(usage.get("input_tokens")),
+                "cache_write": _int(usage.get("cache_creation_input_tokens")),
+                "cache_read": _int(usage.get("cache_read_input_tokens")),
             }
             billed.update(row)
             details = usage.get("output_tokens_details")
-            output["output"] += int(usage.get("output_tokens") or 0)
+            output["output"] += _int(usage.get("output_tokens"))
             if isinstance(details, dict):
-                output["thinking"] += int(details.get("thinking_tokens") or 0)
+                output["thinking"] += _int(details.get("thinking_tokens"))
             sent = active - pending  # what this request was sent: not its own output
             pending.clear()
             replayed.update(sent)
@@ -486,5 +521,6 @@ def to_markdown(report: dict[str, Any]) -> str:
     ]
     if report.get("token_count_note"):
         lines.append(f"> Approximate counts: {report['token_count_note']}")
-    lines += ["", "Counts only: no session text, file path or tool output is included."]
+    lines += ["", "Counts only: no session text, file path or tool output is included. Built-in "
+              "tool names and attachment types are; MCP tools are grouped as `mcp`."]
     return "\n".join(lines)

@@ -265,3 +265,90 @@ def test_cli_input_map_json_and_markdown(tmp_path: Path) -> None:
     assert "not as exact percentages" in as_md.output
     plain = runner.invoke(app, ["measure-session", str(path), "--input-map"])
     assert plain.exit_code == 0, plain.output
+
+
+# Review fixes (#84): each test failed before its fix.
+
+
+def _usage(**fields: object) -> dict:
+    return {"input_tokens": 0, "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0, **fields}
+
+
+def test_assistant_records_without_request_id_still_count(tmp_path: Path) -> None:
+    rows = [
+        {"type": "user", "message": {"role": "user", "content": "hi there"}},
+        {"type": "assistant", "uuid": "u1", "message": {
+            "role": "assistant", "content": [], "usage": _usage(cache_read_input_tokens=10)}},
+        {"type": "assistant", "uuid": "u2", "message": {
+            "role": "assistant", "content": [], "usage": _usage(cache_read_input_tokens=12)}},
+    ]
+    report = imap.input_map(_write(tmp_path, rows))
+    assert report["requests"] == 2
+    assert report["billed_input"]["cache_read"] == 22
+
+
+def test_split_request_uses_its_last_usage(tmp_path: Path) -> None:
+    rows = [
+        {"type": "user", "message": {"role": "user", "content": "hi"}},
+        _assistant("r1", [{"type": "text", "text": "a"}],
+                   _usage(cache_read_input_tokens=5, output_tokens=1)),
+        _assistant("r1", [{"type": "text", "text": "b"}],
+                   _usage(cache_read_input_tokens=5, output_tokens=9,
+                          output_tokens_details={"thinking_tokens": 4})),
+    ]
+    report = imap.input_map(_write(tmp_path, rows))
+    assert report["requests"] == 1
+    assert report["billed_input"]["cache_read"] == 5
+    assert report["provider_output_tokens"] == {"output": 9, "thinking": 4}
+
+
+def test_malformed_usage_fields_count_as_zero(tmp_path: Path) -> None:
+    rows = [
+        _assistant("r1", [], _usage(cache_read_input_tokens="lots", input_tokens={"x": 1},
+                                    cache_creation_input_tokens="7", output_tokens=None,
+                                    output_tokens_details={"thinking_tokens": [1]})),
+        {"type": "session_meta"},  # not first: ignored
+    ]
+    report = imap.input_map(_write(tmp_path, rows))
+    assert report["billed_input"]["cache_read"] == 0
+    assert report["billed_input"]["uncached"] == 0
+    assert report["billed_input"]["cache_write"] == 7
+    codex = _write(tmp_path, [
+        {"type": "session_meta", "payload": {}},
+        _count(5, input_tokens="5", cached_input_tokens={"a": 1}, output_tokens="x"),
+    ], name="rollout.jsonl")
+    assert imap.input_map(codex)["billed_input"]["uncached"] == 5
+
+
+def test_a_read_after_compaction_is_not_a_re_read(tmp_path: Path) -> None:
+    rows = [
+        _assistant("r1", [_read("t1")], _usage(cache_read_input_tokens=1)),
+        _result("t1", "same bytes"),
+        {"type": "system", "subtype": "compact_boundary"},
+        _assistant("r2", [_read("t2")], _usage(cache_read_input_tokens=1)),
+        _result("t2", "same bytes"),
+    ]
+    drill = imap.input_map(_write(tmp_path, rows))["drill_down"]
+    assert drill["re_read_tokens"] == 0
+
+
+def test_cli_rejects_question_with_input_map(tmp_path: Path) -> None:
+    path = _claude_session(tmp_path)
+    result = CliRunner().invoke(
+        app, ["measure-session", str(path), "--input-map", "-q", "why did it fail"]
+    )
+    assert result.exit_code != 0
+    assert "--question" in result.output
+
+
+def test_mcp_tool_names_are_grouped(tmp_path: Path) -> None:
+    rows = [
+        _assistant("r1", [{"type": "tool_use", "id": "m1", "name": "mcp__acme_secret__query",
+                           "input": {}}], _usage(cache_read_input_tokens=1)),
+        _result("m1", "one two"),
+    ]
+    report = imap.input_map(_write(tmp_path, rows))
+    assert "acme_secret" not in json.dumps(report)
+    assert report["drill_down"]["tool_results_by_tool"] == [{"name": "mcp", "tokens": 2}]
+    assert "tool names" in imap.to_markdown(report)
