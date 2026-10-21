@@ -485,3 +485,72 @@ def test_cli_rejects_the_default_question_text_too(tmp_path: Path) -> None:
         app, ["measure-session", str(path), "--input-map", "-q", DEFAULT_QUESTION]
     )
     assert result.exit_code == 2
+
+
+# Codex review of #89, P2 findings: each test failed before its fix.
+
+
+def test_synthetic_messages_are_not_requests(tmp_path: Path) -> None:
+    rows = [
+        {"type": "user", "message": {"role": "user", "content": "hi"}},
+        {"type": "assistant", "uuid": "s1", "message": {   # a local API error, no requestId
+            "role": "assistant", "model": "<synthetic>", "id": "x",
+            "content": [{"type": "text", "text": "API Error"}], "usage": _usage()}},
+        _assistant("r1", [], _usage(cache_read_input_tokens=10)),
+    ]
+    report = imap.input_map(_write(tmp_path, rows))
+    assert report["requests"] == 1
+
+
+def test_split_response_without_request_id_is_keyed_by_message_id(tmp_path: Path) -> None:
+    def line(uuid: str, text: str) -> dict:
+        return {"type": "assistant", "uuid": uuid, "message": {
+            "role": "assistant", "id": "msg_1", "content": [{"type": "text", "text": text}],
+            "usage": _usage(cache_read_input_tokens=10)}}
+
+    rows = [{"type": "user", "message": {"role": "user", "content": "hi"}},
+            line("u1", "a"), line("u2", "b")]
+    report = imap.input_map(_write(tmp_path, rows))
+    assert report["requests"] == 1
+    assert report["billed_input"]["cache_read"] == 10
+
+
+def test_preserved_segment_follows_the_parent_chain(tmp_path: Path) -> None:
+    def user(uuid: str, parent: str | None, text: str) -> dict:
+        return {"type": "user", "uuid": uuid, "parentUuid": parent,
+                "message": {"role": "user", "content": text}}
+
+    rows = [
+        user("h", None, "keep me"),
+        # a rewound branch: it sits between head and tail in the file but is not kept
+        {"type": "assistant", "uuid": "gone", "parentUuid": "h",
+         "message": {"role": "assistant", "content": [{"type": "text", "text": "abandoned x"}]}},
+        user("t", "h", "tail kept"),
+        {"type": "system", "subtype": "compact_boundary", "compactMetadata": {
+            "preservedSegment": {"headUuid": "h", "tailUuid": "t"}}},
+        _assistant("r1", [], _usage(cache_read_input_tokens=1)),
+    ]
+    report = imap.input_map(_write(tmp_path, rows))
+    assert report["categories"] == [{"category": "user text", "share": 1.0}]
+
+
+def test_preserved_read_results_stay_in_the_re_read_index(tmp_path: Path) -> None:
+    def read(tool_id: str, path: str) -> dict:
+        return {"type": "tool_use", "id": tool_id, "name": "Read", "input": {"file_path": path}}
+
+    rows = [
+        {**_assistant("r1", [read("t0", "/gone.py")], _usage(cache_read_input_tokens=1)),
+         "uuid": "a0"},
+        {**_result("t0", "old bytes"), "uuid": "x0"},
+        {**_assistant("r2", [read("t1", "/kept.py")], _usage(cache_read_input_tokens=1)),
+         "uuid": "a1"},
+        {**_result("t1", "same bytes"), "uuid": "x1"},
+        {"type": "system", "subtype": "compact_boundary", "compactMetadata": {
+            "preservedMessages": {"allUuids": ["a1", "x1"]}}},
+        _assistant("r3", [read("t2", "/kept.py"), read("t3", "/gone.py")],
+                   _usage(cache_read_input_tokens=1)),
+        _result("t2", "same bytes"),  # still in context through the preserved result
+        _result("t3", "old bytes"),   # its first read was compacted away
+    ]
+    drill = imap.input_map(_write(tmp_path, rows))["drill_down"]
+    assert drill["re_read_tokens"] == 2 and drill["re_read_identical_tokens"] == 2

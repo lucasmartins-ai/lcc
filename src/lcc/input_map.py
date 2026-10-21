@@ -130,20 +130,26 @@ def _attachment_text(attachment: dict[str, Any]) -> str:
 
 
 # Events: ("item" | "generated", category, detail, tokens, digest, path)
-# | ("request", usage[, whole_context]) | ("boundary",) | ("context", category, tokens)
+# | ("request", usage[, whole_context]) | ("boundary",)
+# | ("context", category, tokens[, digest, path])
 # | ("system_prompt", tokens) | ("opaque",). "generated" items came from the response being
 # billed next; "context" items are re-sent copies; "opaque" marks an encrypted summary.
 # `detail` is the tool or attachment type for the drill-down.
 Event = tuple[Any, ...]
 
 
+_BILLED_KEYS = ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
+
+
 def _request_key(record: dict[str, Any], index: int) -> str:
-    # One request can be written over several lines sharing a requestId; a record without
-    # one is its own request.
-    return str(record.get("requestId") or record.get("uuid") or f"#{index}")
+    # One request can be written over several lines sharing a requestId, or, in SDK and remote
+    # sessions without one, sharing message.id. Only a record with neither is its own request.
+    message = record.get("message")
+    message_id = message.get("id") if isinstance(message, dict) else None
+    return str(record.get("requestId") or message_id or record.get("uuid") or f"#{index}")
 
 
-def _preserved_uuids(boundary: dict[str, Any], order: list[str]) -> list[str]:
+def _preserved_uuids(boundary: dict[str, Any], parents: dict[str, Any]) -> list[str]:
     """UUIDs of the messages a Claude Code compaction kept (``compactMetadata``)."""
     meta = boundary.get("compactMetadata")
     if not isinstance(meta, dict):
@@ -154,11 +160,18 @@ def _preserved_uuids(boundary: dict[str, Any], order: list[str]) -> list[str]:
         if isinstance(uuids, list):
             return [u for u in uuids if isinstance(u, str)]
     segment = meta.get("preservedSegment")
-    if isinstance(segment, dict) and segment.get("headUuid") in order:
-        head = order.index(segment["headUuid"])
-        tail = order.index(segment["tailUuid"]) if segment.get("tailUuid") in order else head
-        return order[head:tail + 1]
-    return []
+    if not isinstance(segment, dict):
+        return []
+    # The segment is a parentUuid chain, not a slice of the file: after a rewind or fork,
+    # records of the abandoned branch sit between head and tail. Walk tail -> head.
+    head, node = segment.get("headUuid"), segment.get("tailUuid") or segment.get("headUuid")
+    chain: list[str] = []
+    while isinstance(node, str) and node in parents and node not in chain:
+        chain.append(node)
+        if node == head:
+            return chain[::-1]
+        node = parents[node]
+    return []  # the chain does not reach the head: keep nothing rather than guess
 
 
 def _claude_events(records: list[dict[str, Any]]) -> Iterator[Event]:
@@ -169,6 +182,9 @@ def _claude_events(records: list[dict[str, Any]]) -> Iterator[Event]:
         usage = (record.get("message") or {}).get("usage") if isinstance(
             record.get("message"), dict) else None
         if record.get("type") == "assistant" and isinstance(usage, dict):
+            synthetic = record["message"].get("model") == "<synthetic>"
+            if synthetic and not sum(_int(usage.get(k)) for k in _BILLED_KEYS):
+                continue  # written locally (an API error, say): nothing was billed
             final_usage[_request_key(record, index)] = usage
 
     def record_events(record: dict[str, Any], index: int) -> Iterator[Event]:
@@ -229,20 +245,25 @@ def _claude_events(records: list[dict[str, Any]]) -> Iterator[Event]:
                     category = "compaction summary" if summary else "user text"
                     yield ("item", category, "", _tokens(text), None, "")
 
-    kept: dict[str, list[tuple[str, int]]] = {}  # uuid -> (category, tokens) it put in context
+    # uuid -> the items it put in context: (category, tokens, digest, path)
+    kept: dict[str, list[tuple[str, int, str | None, str]]] = {}
+    parents: dict[str, Any] = {}  # uuid -> parentUuid
     for index, record in enumerate(records):
         if record.get("isSidechain"):
             continue  # a subagent's own context, not this one's
+        uuid = record.get("uuid")
+        if isinstance(uuid, str):
+            parents[uuid] = record.get("parentUuid")
         if record.get("type") == "system" and record.get("subtype") == "compact_boundary":
             yield ("boundary",)
             # Claude Code keeps some messages through a compaction without writing them again
-            for uuid in _preserved_uuids(record, list(kept)):
-                for category, tokens in kept.get(uuid, []):
-                    yield ("context", category, tokens)
+            for preserved in _preserved_uuids(record, parents):
+                for category, tokens, digest, path in kept.get(preserved, []):
+                    yield ("context", category, tokens, digest, path)
             continue
         events = list(record_events(record, index))
-        if isinstance(record.get("uuid"), str):
-            kept[record["uuid"]] = [(e[1], e[3]) for e in events if e[0] == "item"]
+        if isinstance(uuid, str):
+            kept[uuid] = [(e[1], e[3], e[4], e[5]) for e in events if e[0] == "item"]
         yield from events
 
 
@@ -448,6 +469,12 @@ def input_map(path: Path) -> dict[str, Any]:
             system_prompt = max(system_prompt, event[1])
         elif event[0] == "context":  # re-sent after a compaction; already counted once
             active[event[1]] += event[2]
+            digest = event[3] if len(event) > 3 else None
+            if digest is not None:  # a kept tool result is still in context: re-index it
+                if event[4]:
+                    reads.setdefault(event[4], set()).add(digest)
+                if event[2] >= DUPLICATE_MIN_TOKENS:
+                    seen_outputs.add(digest)
         elif event[0] == "opaque":
             opaque_pending = True
         elif event[0] in ("item", "generated"):
