@@ -2020,6 +2020,10 @@ def measure_session_cmd(
     if input_map:
         from lcc import input_map as imap
 
+        if question != "finish the task in this session":
+            _fail("--question has no effect with --input-map, which runs no compaction mode.",
+                  code=2)
+
         report = imap.input_map(session)
         rendered = json.dumps(report, indent=2) if as_json else imap.to_markdown(report)
         if as_json or markdown:
