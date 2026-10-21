@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **Receipt after every tool-call compaction pass.** `lcc compact --mode tool-calls` prints one
+  line last: tokens before and after, what was removed, and how to recall it; `--receipt`
+  prints the five largest stashed outputs with their `recall` ids and the cache effect. The
+  MCP `compact_transcript` answer carries the line as `receipt`, and the Claude Code hook
+  toasts it.
+- **Opt-in local ledger and statusline** (Claude Code plugin). `ledger: true` (or
+  `LCC_LEDGER=1`) appends one line of counts per applied compaction to
+  `~/.cache/lcc/ledger.jsonl` (`LCC_LEDGER_PATH`): no text, no paths, a hashed session id,
+  never sent anywhere. Off by default. `plugins/claude-code/scripts/statusline.mjs` shows the
+  session's removed tokens, stashed outputs and cache-read share. See
+  `docs/CLAUDE_CODE.md#receipt-ledger-and-statusline`.
+
 ### Security
 
 - Existing Jev ledger files are tightened to `0600` before appending (#70).

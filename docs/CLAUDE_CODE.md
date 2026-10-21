@@ -68,6 +68,55 @@ Set through `/plugin` → lcc, or `claude plugin install lcc@lcc --config key=va
 | `idleTtlSeconds` (`7200`) | idle seconds after the last turn before a resumed session's cache counts as cold |
 | `idleMinRemovableTokens` (`10000`) | below this many removable tool-output tokens the idle stash does nothing |
 | `idleMaxPassesPerSession` (`8`) | cap on idle stashes per session |
+| `ledger` (`false`) | opt-in local ledger for the statusline, see [below](#receipt-ledger-and-statusline) |
+
+## Receipt, ledger and statusline
+
+**Receipt.** Every compaction this plugin applies toasts one line built by the server
+(`lcc.receipt.receipt_line`): tokens before and after, what was removed, and how to get it back.
+
+```text
+lcc: verbatim compaction via rules, no summary (48,210 -> 31,004 tokens (-17,206, -35.7%) · 2 stashed, 1 deduped · recall: lcc recall aaaaaaaaaaaa (+1 more))
+```
+
+The CLI prints the same line last after `lcc compact --mode tool-calls`; `--receipt` prints the
+full one (the five largest stashed outputs with their `recall` ids, and the cache effect).
+Dropped or trimmed outputs (a judge, or `rulesMode: lossy`) are not recallable, and the line
+says so.
+
+**Ledger (opt-in, off by default).** With `ledger: true` (or `LCC_LEDGER=1` in the MCP
+server's environment) the server appends one JSON line per compaction the hook applies to
+`~/.cache/lcc/ledger.jsonl` (`LCC_LEDGER_PATH`; directory `0700`, file `0600`):
+
+```json
+{"v":1,"ts":"2026-10-21T09:12:03Z","session":"e279159a3ffc189d","provider":"rules","tokens_before":148210,"tokens_after":121004,"stashed":14,"deduped":3,"replaced":16,"dropped":0,"trimmed":0}
+```
+
+Counts and fixed labels only: no transcript text, no paths, no tool names or inputs, and the
+session id only as a truncated SHA-256. Nothing reads it but the statusline, and nothing is
+sent anywhere. The server writes it (hook modules have no file system) only for a pass that
+meets the hook's own replacement rule (not degraded, over `minReductionRatio`, removed
+something). Idle-stash passes are not recorded: the server cannot see whether Claude Code
+accepts that compaction. The HTTP server (`lcc mcp --http`) refuses `ledger`, as it refuses
+the stash. Delete the file to reset it.
+
+**Statusline.** `scripts/statusline.mjs` reads the ledger and Claude Code's statusline JSON
+on stdin. Add it to `~/.claude/settings.json` with the plugin's path on your machine:
+
+```json
+{ "statusLine": { "type": "command", "command": "node /path/to/plugins/claude-code/scripts/statusline.mjs" } }
+```
+
+It prints the tokens this session's passes removed, the outputs stashed, and the cache-read
+share of the last request (from Claude Code's `context_window.current_usage`, when present):
+
+```text
+lcc: -40.6k tokens (2 passes) · 23 stashed · cache read 92%
+```
+
+`lcc: no pass this session` before the first applied pass; `lcc: ledger off` when there is no
+ledger file. Generated from the fixture ledger in `test/fixtures/ledger.jsonl`
+(`node test/statusline.test.mjs`).
 
 ## Idle stash (opt-in)
 

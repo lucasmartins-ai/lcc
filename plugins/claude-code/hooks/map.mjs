@@ -26,6 +26,9 @@ export const DEFAULT_OPTIONS = {
   idleTtlSeconds: 7200,
   idleMinRemovableTokens: 10000,
   idleMaxPassesPerSession: 8,
+  // Opt-in local ledger: the server appends one line of counts per pass that stands, for the
+  // statusline (scripts/statusline.mjs). Never text or paths; never sent anywhere.
+  ledger: false,
 };
 
 /** The instructions an idle-triggered `$.session.compact` carries; the compact hook keys on it. */
@@ -74,6 +77,7 @@ export function resolveOptions(options = {}) {
     Math.max(0, number(options.minReductionRatio, DEFAULT_OPTIONS.minReductionRatio)),
   );
   merged.idleStash = options.idleStash === true || options.idleStash === "true";
+  merged.ledger = options.ledger === true || options.ledger === "true";
   merged.idleTtlSeconds = Math.max(
     1,
     number(options.idleTtlSeconds, DEFAULT_OPTIONS.idleTtlSeconds),
@@ -235,6 +239,11 @@ export function toMcpMessages(messages) {
     }
     return entry;
   });
+}
+
+/** The tail of the server's one-line receipt (`lcc: ` dropped), or "" when it sent none. */
+export function receiptTail(payload) {
+  return typeof payload?.receipt === "string" ? payload.receipt.replace(/^lcc: /, "") : "";
 }
 
 /** The MCP tool answers with JSON in a text content block. */

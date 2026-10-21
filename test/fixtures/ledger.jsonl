@@ -1,0 +1,5 @@
+{"v":1,"ts":"2026-10-21T09:12:03Z","session":"e279159a3ffc189d","provider":"rules","tokens_before":148210,"tokens_after":121004,"stashed":14,"deduped":3,"replaced":16,"dropped":0,"trimmed":0}
+{"v":1,"ts":"2026-10-21T10:40:51Z","session":"de40e18aa2823d88","provider":"rules","tokens_before":90000,"tokens_after":80000,"stashed":5,"deduped":0,"replaced":5,"dropped":0,"trimmed":0}
+not json: a corrupted line is skipped
+{"v":2,"session":"e279159a3ffc189d","tokens_before":999999,"tokens_after":0,"stashed":999}
+{"v":1,"ts":"2026-10-21T11:02:17Z","session":"e279159a3ffc189d","provider":"rules","tokens_before":152330,"tokens_after":138911,"stashed":9,"deduped":1,"replaced":10,"dropped":0,"trimmed":0}

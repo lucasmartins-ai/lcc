@@ -52,13 +52,14 @@ assert.equal("workspace_root" in (await argsSent({ cwd: "/s" }, {})), false);
 
 // The /compact path asks for a ref_blocks answer and rebuilds the session from it: Claude Code
 // caps an MCP result (25,000 tokens by default), so the transcript must not travel back whole.
-async function compactWith(answer) {
+async function compactWith(answer, options = {}) {
   let handler;
-  register((name, fn) => { if (name === "session.compact") handler = fn; return { catch() {} }; }, {});
+  register((name, fn) => { if (name === "session.compact") handler = fn; return { catch() {} }; }, options);
   const toasts = [];
   let sent = null;
   const $ = {
     ui: { log() {}, toast(text) { toasts.push(text); } },
+    session: { id: async () => "sess-1" },
     mcp: { call: async (_server, _tool, args) => { sent = args; return { content: [{ type: "text", text: answer }] }; } },
   };
   const result = await handler($, { trigger: "manual", messages: TRANSCRIPT }, () => "builtin");
@@ -81,4 +82,20 @@ assert.match(capped.toasts[0], /built-in summary \(tool result is not JSON .*MCP
 // A ref the transcript does not have never reaches the session.
 const stray = await compactWith(JSON.stringify({ report, messages: [{ ref: 9 }] }));
 assert.equal(stray.result, "builtin");
+// The ledger is opt-in: nothing is asked of the server unless the `ledger` option is on.
+assert.equal("ledger" in patched.sent, false);
+assert.equal("ledger_session" in patched.sent, false);
+const answer = JSON.stringify({
+  report,
+  messages: [{ ref: 0 }, { ref: 1 }, { ref: 2 }],
+  receipt: "lcc: 1,044 -> 1,009 tokens (-35, -3.4%) · 2 stashed · recall: lcc recall a88ace3b32aa",
+});
+const ledgered = await compactWith(answer, { ledger: true });
+assert.equal(ledgered.sent.ledger, true);
+assert.equal(ledgered.sent.ledger_session, "sess-1");
+// The server's one-line receipt is the toast.
+assert.equal(
+  ledgered.toasts[0],
+  "lcc: verbatim compaction via rules, no summary (1,044 -> 1,009 tokens (-35, -3.4%) · 2 stashed · recall: lcc recall a88ace3b32aa)",
+);
 console.log("hook-compact: ok");

@@ -93,6 +93,20 @@ Removed outputs come back with `recall` (allow `mcp__plugin_lcc_lcc__recall`).
 
 Details, evidence and the disposable-session run: [`docs/CLAUDE_CODE.md`](../../../docs/CLAUDE_CODE.md#idle-stash-opt-in).
 
+## Receipt, ledger and statusline
+
+Every compaction the hook applies toasts the server's one-line receipt: tokens before and
+after, what was removed, and how to recall it. `ledger: true` (off by default) has the server
+append one line of counts per applied pass to `~/.cache/lcc/ledger.jsonl` (never text or
+paths, never sent anywhere), and `scripts/statusline.mjs` shows it in the Claude Code
+statusline:
+
+```text
+lcc: -40.6k tokens (2 passes) · 23 stashed · cache read 92%
+```
+
+Setup and the ledger format: [`docs/CLAUDE_CODE.md`](../../../docs/CLAUDE_CODE.md#receipt-ledger-and-statusline).
+
 ## Fallback is the default when anything is off
 
 The hook stands down — and Claude Code compacts the way it always did — when:
@@ -137,5 +151,6 @@ It also skips `precompute` invocations, which install nothing.
 node test/hook-map.test.mjs        # the mapping helpers, no engine needed
 node test/hook-idle.test.mjs       # the idle stash, against a fake engine
 node test/hook-pin.test.mjs        # the PreCompact / SessionStart fallback
+node test/statusline.test.mjs      # the statusline on a fixture ledger
 claude plugin validate plugins/claude-code
 ```

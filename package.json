@@ -12,7 +12,7 @@
     "NOTICE"
   ],
   "scripts": {
-    "test": "node test/index.test.js && node test/hook-map.test.mjs && node test/hook-compact.test.mjs && node test/hook-idle.test.mjs && node test/hook-cache.test.mjs && node test/hook-pin.test.mjs"
+    "test": "node test/index.test.js && node test/hook-map.test.mjs && node test/hook-compact.test.mjs && node test/hook-idle.test.mjs && node test/hook-cache.test.mjs && node test/hook-pin.test.mjs && node test/statusline.test.mjs"
   },
   "license": "MIT",
   "repository": {

@@ -89,6 +89,12 @@
       "description": "Below this many removable tool-output tokens the idle stash does nothing.",
       "default": 10000
     },
+    "ledger": {
+      "type": "boolean",
+      "title": "Local ledger (opt-in)",
+      "description": "Off by default. When on, every compaction this plugin applies appends one line of counts (tokens before/after, outputs stashed, deduped, dropped; a hash of the session id) to ~/.cache/lcc/ledger.jsonl (LCC_LEDGER_PATH). Never text, never paths, never sent anywhere. scripts/statusline.mjs reads it. LCC_LEDGER=1 in the server's environment does the same.",
+      "default": false
+    },
     "idleMaxPassesPerSession": {
       "type": "number",
       "title": "Idle stash passes per session",

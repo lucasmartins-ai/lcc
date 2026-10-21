@@ -1113,6 +1113,7 @@ def _compact_tool_calls(
     report_path: Path | None,
     dry_run: bool,
     inapplicable: list[str],
+    full_receipt: bool = False,
 ) -> None:
     """`lcc compact --mode tool-calls`: message-level compaction of a session transcript.
 
@@ -1262,6 +1263,11 @@ def _compact_tool_calls(
         err_console.print(f"Compacted transcript written to: [green]{output_path}[/green]")
     if report_path is not None:
         err_console.print(f"Compaction report written to: [green]{report_path}[/green]")
+    # The receipt is the last thing a pass prints (one line; --receipt for the full one).
+    from lcc.receipt import receipt_full, receipt_line
+
+    receipt = receipt_full(report) if full_receipt else receipt_line(report)
+    err_console.print(receipt, markup=False, highlight=False, soft_wrap=True)
 
 
 @app.command("compact")
@@ -1550,6 +1556,14 @@ def compact_command(
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Score and report without writing the compacted text."
     ),
+    full_receipt: bool = typer.Option(
+        False,
+        "--receipt",
+        help=(
+            "--mode tool-calls: print the full receipt (largest stashed outputs with their "
+            "recall ids, cache effect) instead of the one-line one."
+        ),
+    ),
     require_exact_tokens: bool = typer.Option(
         False,
         "--require-exact-tokens",
@@ -1636,6 +1650,8 @@ def compact_command(
         _fail("--laya-context-limit must be >= 64.", code=2)
     if mode not in ("blocks", "tool-calls"):
         _fail("--mode must be 'blocks' or 'tool-calls'.", code=2)
+    if full_receipt and mode != "tool-calls":
+        _fail("--receipt needs --mode tool-calls.", code=2)
     if preserve_recent < 0:
         _fail("--preserve-recent must be >= 0.", code=2)
     if rules_mode is not None:
@@ -1708,6 +1724,7 @@ def compact_command(
             report_path=report_path,
             dry_run=dry_run,
             inapplicable=inapplicable,
+            full_receipt=full_receipt,
         )
         return
 

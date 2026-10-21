@@ -195,8 +195,9 @@ def _local_only_refusal(payload: dict[str, Any]) -> dict[str, Any] | None:
     arguments = params.get("arguments")
     stashed = isinstance(arguments, dict) and arguments.get("rules_mode") == "stashed"
     # laya_model names a local path or Hub repo to load weights from: also the host's disk.
+    # ledger appends to the host's local ledger file.
     disk = isinstance(arguments, dict) and any(
-        bool(arguments.get(key)) for key in ("workspace_root", "laya_model")
+        bool(arguments.get(key)) for key in ("workspace_root", "laya_model", "ledger")
     )
     if params.get("name") not in _LOCAL_ONLY_TOOLS and not stashed and not disk:
         return None
@@ -204,7 +205,7 @@ def _local_only_refusal(payload: dict[str, Any]) -> dict[str, Any] | None:
         payload.get("id"),
         -32602,
         "the local disk (rules_mode 'stashed', tool 'recall', 'workspace_root', "
-        "'laya_model') is only "
+        "'laya_model', 'ledger') is only "
         "served over stdio (`lcc mcp`), never over HTTP",
     )
 

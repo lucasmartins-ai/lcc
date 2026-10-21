@@ -136,6 +136,18 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             cache_state=_cache_state_arg(args.get("cache_state")),
         )
     )
+    from lcc.receipt import append_ledger, ledger_enabled, ledger_record, pass_stands, receipt_line
+
+    receipt = receipt_line(result.report)
+    # Opt-in ledger (plugin option `ledger`, or LCC_LEDGER=1): one line of counts for a pass
+    # the hook will apply. ponytail: the idle stash is not recorded, because the server cannot
+    # see whether Claude Code accepts its compaction; record it once the hook can confirm.
+    if (
+        ledger_enabled(args.get("ledger") is True)
+        and args.get("trigger") != "idle"
+        and pass_stands(result.report)
+    ):
+        append_ledger(ledger_record(result.report, session_id=args.get("ledger_session")))
     if args.get("ref_unchanged") is True or args.get("ref_blocks") is True:
         # Compact answer for callers whose transport caps the result (Claude Code's
         # $.mcp.call goes through MAX_MCP_OUTPUT_TOKENS): a message that left the pass
@@ -147,11 +159,12 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             compacted = _ref_blocks(source, messages_to_payload(result.messages), indices)
         else:
             compacted = _ref_unchanged(source, messages_to_payload(result.messages))
-        return {"messages": compacted, "report": report}
+        return {"messages": compacted, "report": report, "receipt": receipt}
     return {
         "messages": messages_to_payload(result.messages),
         "decisions": result.decisions,
         "report": result.report,
+        "receipt": receipt,
     }
 
 
@@ -490,6 +503,19 @@ TOOLS: dict[str, dict[str, Any]] = {
                         "'text', 'head'?, 'tail'?}...]}, a replaced result being "
                         "original[:head] + text + original[-tail:] (UTF-16 units)."
                     ),
+                },
+                "ledger": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": (
+                        "Opt-in: append one line of counts (never text or paths) for a pass "
+                        "that stands to the local ledger (~/.cache/lcc/ledger.jsonl, "
+                        "LCC_LEDGER_PATH). LCC_LEDGER=1 turns it on for every call."
+                    ),
+                },
+                "ledger_session": {
+                    "type": "string",
+                    "description": "Session id; the ledger stores only its truncated SHA-256.",
                 },
                 "trigger": {
                     "type": "string",

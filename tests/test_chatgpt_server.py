@@ -392,6 +392,9 @@ def test_stash_is_stdio_only(mcp_url):
         {"name": "compact_transcript", "arguments": {
             "messages": [{"role": "user", "text": "x"}], "question": "q",
             "provider": "rules", "rules_mode": "stashed"}},
+        {"name": "compact_transcript", "arguments": {
+            "messages": [{"role": "user", "text": "x"}], "question": "q",
+            "provider": "rules", "ledger": True}},
     ):
         status, body = _post(mcp_url, {"jsonrpc": "2.0", "id": 9, "method": "tools/call",
                                         "params": params})

@@ -25,6 +25,7 @@ import {
   idleDecision,
   parseToolResult,
   passCount,
+  receiptTail,
   resolveOptions,
 } from "./map.mjs";
 
@@ -59,6 +60,20 @@ function message(error) {
 export function sessionCwd(event) {
   if (typeof event?.cwd === "string" && event.cwd.startsWith("/")) return event.cwd;
   return globalThis.process?.cwd?.();
+}
+
+/**
+ * Arguments that turn on the opt-in ledger for this pass: the server writes it (the hook
+ * worker has no file system) and keeps only a hash of the session id.
+ */
+async function ledgerArgs($, configured) {
+  if (!configured.ledger) return {};
+  try {
+    const id = await $.session.id();
+    return typeof id === "string" && id ? { ledger: true, ledger_session: id } : { ledger: true };
+  } catch {
+    return { ledger: true };
+  }
 }
 
 const IDLE_KEY_PREFIX = "idle:";
@@ -124,6 +139,7 @@ export async function stashIdle($, messages, configured, gap = "unknown", cwd) {
       messages: expandRefs(payload.messages, messages),
       removed,
       stashed: payload.report.tool_calls_stashed ?? 0,
+      receipt: receiptTail(payload),
     };
   } catch (error) {
     return { skip: message(error) };
@@ -131,7 +147,8 @@ export async function stashIdle($, messages, configured, gap = "unknown", cwd) {
 }
 
 const stood = (result, gap) =>
-  `lcc: idle stash (removed ${result.removed} tokens, ${result.stashed} output(s) stashed, idle ${gap}; recall brings any back)`;
+  `lcc: idle stash (removed ${result.removed} tokens, ${result.stashed} output(s) stashed, idle ${gap}; recall brings any back)` +
+  (result.receipt ? ` · ${result.receipt}` : "");
 
 /**
  * One idle check and, when due, the idle compaction. The pass is computed here, before
@@ -228,7 +245,7 @@ export const register = (on, options) => {
       instructions: event.instructions,
       options: configured,
       cwd: sessionCwd(event),
-      extra: COMPACT_ANSWER,
+      extra: { ...COMPACT_ANSWER, ...(await ledgerArgs($, configured)) },
     });
     if (!args) return next(event);
 
@@ -251,7 +268,9 @@ export const register = (on, options) => {
         return next(event);
       }
       const via = payload.report?.provider_used ?? configured.provider;
-      notify($, `lcc: verbatim compaction via ${via}, no summary (${decision.reason})`);
+      // The server's one-line receipt (tokens before -> after, what went, how to recall it).
+      const receipt = receiptTail(payload);
+      notify($, `lcc: verbatim compaction via ${via}, no summary (${receipt || decision.reason})`);
       return { messages: expandRefs(payload.messages, event.messages) };
     } catch (error) {
       notify($, `lcc: built-in summary (${message(error)})`);
