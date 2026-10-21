@@ -342,6 +342,62 @@ Note that Claude Code is a *consumer*, not a requirement: the same pass runs fro
 (`lcc compact transcript.json --mode tool-calls`) and from any MCP client through `lcc mcp`
 (`compact_transcript`), with no editor involved.
 
+## Limitations
+
+### The built-in guard skips this hook (`cc-plugin-sec-default`)
+
+Observed on Claude Code 2.1.296 (2026-10-21, real `/compact`): the plugin's `session.compact`
+hook did not run and Claude Code's own summary did. The toast reads:
+
+```
+lcc: its session.compact hook was skipped. "cc-plugin-sec-default" runs first and sent the event on past it.
+```
+
+Why, from Claude Code's docs and the guard's source (not from a trace of this run):
+
+- Function hooks on one event form a middleware chain ordered by tier: the built-in guard
+  `sec-default@builtin` (listed as `cc-plugin-sec-default`) and the organization's
+  `prependPlugins` first, then the plugins a person installs (tier `user`, where `lcc@lcc`
+  sits), then `appendPlugins`, then other built-ins, then Claude Code itself
+  ([order mods run in](https://code.claude.com/docs/en/plugins/mods/events#the-order-mods-run-in)).
+- A managed-tier mod may call `next.to(e, "append")`, which skips every `user`-tier hook
+  ([hook function](https://code.claude.com/docs/en/plugins/mods/reference#the-hook-function)).
+  It is not `next(e)`: the `user` tier never sees the event.
+- The guard does exactly that on `session.compact`, by design: "Continue past the user tier,
+  whole ... A person's own compaction hook does not run where this plugin is seated"
+  ([`mods/sec-default/README.md`](https://github.com/anthropics/claude-code/blob/main/mods/sec-default/README.md),
+  commit `5a2676e1079c`). It does the same on `session.append` for compaction rows.
+- The guard loads when the machine has managed settings or the session runs on a Team or
+  Enterprise `/login`
+  ([default behaviour](https://code.claude.com/docs/en/plugins/mods/admin#know-what-happens-by-default)).
+  This machine has no `/Library/Application Support/ClaudeCode/` folder, so the login is the
+  likely trigger. Why an earlier run in the same setup reached the hook was not determined; a
+  different credential for that run would explain it (INFERIDO).
+
+What still works where the guard is seated: the classic `PreCompact` and `SessionStart`
+pin hooks are settings hooks, which Claude Code runs as its own behaviour, so the built-in
+summary still gets the pinned facts ([above](#without-the-early-access-flag-or-a-key-pinned-facts-in-the-built-in-summary)).
+The opt-in idle stash cannot stand either: its `$.session.compact` call reaches no `lcc`
+hook, and the `PreCompact` backstop blocks the built-in summary for that call (by the hook's
+design; not observed under the guard).
+
+How to tell: the toast above; `/plugin` lists `cc-plugin-sec-default`; and a `claude --debug`
+log shows `hooks module lcc@lcc loaded (... tier user)`.
+
+Workarounds. A person cannot turn the guard off or reorder it, and no hook-side change can
+help: the `user` tier is skipped before `lcc` is called, so the `.catch` handler does not run
+either. The documented options all sit with whoever deploys managed settings:
+
+| Option | Effect | Cost |
+| :--- | :--- | :--- |
+| Install `lcc` as an organization mod: a local directory marketplace named in managed `extraKnownMarketplaces`, `"lcc@<that marketplace>": true` in managed `enabledPlugins`, and the id in managed `prependPlugins` before `sec-default@builtin` | `lcc` runs in the `prepend` tier, ahead of the guard | the plugin must be read in place from that folder; a copy from GitHub (`claude plugin marketplace add lucasmartins-ai/lcc`) always counts as the user's ([conditions](https://code.claude.com/docs/en/plugins/mods/admin#install-your-organizations-mods)) |
+| Managed `prependPlugins` without `sec-default@builtin` | the guard does not load, so user hooks run on `session.compact` | drops every hold the guard keeps for the organization |
+
+`prependPlugins` in user settings counts only on a machine with no managed settings and a
+credential that is not a Team or Enterprise `/login`, where the guard does not load anyway.
+Otherwise use the CLI (`lcc compact transcript.json --mode tool-calls`) or the MCP server,
+which no plugin chain touches.
+
 ## Early-access caveat
 
 Function hooks (`hooks/hooks.json` modules, the `session.compact` event, the `$` engine
