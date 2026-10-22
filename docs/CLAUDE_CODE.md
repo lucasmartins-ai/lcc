@@ -123,7 +123,7 @@ ledger file. Generated from the fixture ledger in `test/fixtures/ledger.jsonl`
 Off by default. With `idleStash: true`, when a session is **resumed** after `idleTtlSeconds`
 of idle, the plugin stashes spent tool outputs (`provider: rules`, `rulesMode: stashed`)
 before the first request, so that request re-writes a smaller prefix on a prompt cache that
-has already expired. Removed outputs become `[removed: N tokens · lcc recall <id>]`; allow
+has already expired. Removed outputs become `[removed: N lines, S KB · lcc recall <id>]`; allow
 `mcp__plugin_lcc_lcc__recall` so the agent can get them back.
 
 ### Why (INFERIDO)

@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Fixed
+
+- **Stash placeholder no longer depends on `tiktoken`.** The same removed bytes gave
+  `[removed: 1380 tokens ...]` with the exact counter and `[removed: 928 tokens ...]` without
+  it, so the CLI and the plugin disagreed and the count was ~33% low. The note is now
+  `[removed: N lines, S KB · lcc recall <id>]` (`N` as `recall --lines` counts). Pointers in the
+  old `N tokens` form are still recognised and stay fixed points: nothing already stashed is
+  rewritten. Invariant 5 now also replays every case with the approximate counter.
+- **Quadratic reference regexes.** The path pattern in `transcript_rules` retried from every
+  position inside a long run of word characters (80k chars: 15 s), so a pasted hex dump in
+  the goal, recent turns or pinned turns could outlast the hook timeout. Matches now start at
+  the start of a run; 200k chars take milliseconds. Differences on normal input: a ref keeps
+  leading dashes (`-a.py`), and a `~` in the middle of a token no longer starts a second ref.
+
 ### Added
 
 - **Receipt after every tool-call compaction pass.** `lcc compact --mode tool-calls` prints one

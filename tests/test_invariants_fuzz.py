@@ -32,7 +32,7 @@ BATCH = 25
 GOAL_WORDS = WORDS + PT_WORDS
 PATHS = ["jobs/tenant_import.py", "docs/TOOL_CALLS.md", "src/a.py", "src/relatório.py",
          "C:\\repo\\win.py", "dir with spaces/x.md"]
-POINTER = "[removed: 12 tokens · lcc recall 0123456789ab]"
+POINTER = "[removed: 12 lines, 1.3 KB · lcc recall 0123456789ab]"
 
 
 @pytest.fixture(autouse=True)
@@ -52,6 +52,8 @@ text_piece = st.one_of(
 def output(draw: Any, previous: list[str]) -> str:
     if previous and draw(st.integers(0, 4)) == 0:
         return draw(st.sampled_from(previous))  # an identical rerun or re-read
+    if draw(st.integers(0, 12)) == 0:  # a hex dump / minified log: one long slashless run
+        return draw(st.sampled_from("a1.-~")) * draw(st.sampled_from([3000, 20000]))
     body = "".join(draw(st.lists(text_piece, max_size=12)))
     return body * draw(st.sampled_from([1, 1, 3, 40]))  # sometimes big enough to stash
 

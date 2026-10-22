@@ -69,8 +69,11 @@ ERROR_RE = re.compile(
 GIT_RE = re.compile(r"\bgit\s+(status|diff|log)\b")
 REF_RES = (
     re.compile(r"https?://\S+"),
-    re.compile(r"[\w.~-]*/[\w.-]+(?:/[\w.-]+)*"),
-    re.compile(r"\b[\w-]+\.(?:py|ts|tsx|js|jsx|md|json|toml|ya?ml|sql|css|html|sh|go|rs)\b"),
+    # Lookbehinds: a match starts where a run of word chars starts, not at every position inside
+    # it (a long slashless run, e.g. a hex dump, was quadratic). A ref now keeps leading dashes
+    # (`-a.py`), and a `~` mid-token no longer starts a second ref.
+    re.compile(r"(?<![\w.~-])[\w.~-]*/[\w.-]+(?:/[\w.-]+)*"),
+    re.compile(r"(?<![\w-])-*\b[\w-]+\.(?:py|ts|tsx|js|jsx|md|json|toml|ya?ml|sql|css|html|sh|go|rs)\b"),
 )
 TASK_TOOLS = {"TodoWrite", "TaskCreate", "TaskUpdate", "ExitPlanMode", "update_plan"}
 EDIT_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}

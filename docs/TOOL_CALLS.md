@@ -166,8 +166,9 @@ What each mode measured on real agent sessions: [REAL_SESSION_BENCHMARKS.md](REA
 trim plus what `recoverable` would replace, but stores the exact bytes first, so nothing removed
 is lost. Each removed result's UTF-8 text is written to a local content-addressed stash
 (`~/.cache/lcc/stash/<sha256>`, or `$LCC_STASH_DIR`; directory `0700`, files `0600`, written
-atomically) and the result becomes `[removed: N tokens · lcc recall <sha12>]` (`N` counted with
-the request's `model`). The whole result is replaced, never cut: a `lossy` trim becomes a full
+atomically) and the result becomes `[removed: N lines, S KB · lcc recall <sha12>]` (`N` as `recall --lines`
+counts, `S` the UTF-8 size: no tokenizer, so the same output gives the same text with or without
+`tiktoken`; the older `N tokens` form is still recognised and left alone). The whole result is replaced, never cut: a `lossy` trim becomes a full
 stash. Lossless dedupes still win where they apply. Kept as in those modes: pinned turns, the
 latest error and the call before it, calls named in the goal or recent turns, failed results,
 duplicate ids, and results no longer than their pointer. Calls, inputs and texts never change.
