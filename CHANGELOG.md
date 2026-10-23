@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **Stash lifecycle.** `lcc stash ls`, `lcc stash verify <session.jsonl>` and `lcc stash gc`
+  (dry run unless `--apply`; deletes only blobs no transcript under `--root` references and
+  unused for `--older-than`, default 30d; fails closed; `flock` against a concurrent `put`).
+  Each blob gets a sidecar with timestamps and truncated session-id hashes, never content.
+  A recall of a missing blob now says how to recover instead of a bare "not found".
+  Nothing is deleted by default, the plugin included.
+
 ### Changed
 
 - **Efficiency baseline updated.** baseline regenerated on intake v2 (#105); cost failures under 0.15 calibration units are ignored as jitter
