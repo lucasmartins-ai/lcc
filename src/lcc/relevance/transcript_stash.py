@@ -30,6 +30,7 @@ import os
 import re
 import tempfile
 import time
+import warnings
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -84,18 +85,37 @@ def stash_dir() -> Path:
 
 
 @contextlib.contextmanager
-def stash_lock(root: Path, *, exclusive: bool = False) -> Iterator[None]:
-    """``flock`` on ``<root>/.lock``: shared for put/recall, exclusive for gc. No-op on Windows
-    (where ``lcc stash gc --apply`` refuses to run)."""
+def stash_lock(root: Path, *, exclusive: bool = False) -> Iterator[bool]:
+    """``flock`` on ``<root>/.lock`` (0600): shared for put/recall, exclusive for gc.
+
+    Yields whether the lock is held. A shared lock that cannot be taken (``ENOTSUP`` on some
+    network filesystems, a read-only stash) yields ``False`` so put and recall keep working;
+    an exclusive one raises :class:`StashError`, so gc deletes nothing unlocked. Windows has no
+    flock: yields ``False`` (``lcc stash gc --apply`` refuses to run there).
+    """
     if _is_windows():
-        yield
+        yield False
         return
     import fcntl
 
-    fd = os.open(root / ".lock", os.O_RDWR | os.O_CREAT, 0o600)
     try:
-        fcntl.flock(fd, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
-        yield
+        fd = os.open(root / ".lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    except OSError as exc:
+        if exclusive:
+            raise StashError(f"cannot open the stash lock ({exc}); nothing was deleted") from None
+        yield False
+        return
+    try:
+        with contextlib.suppress(OSError):
+            os.fchmod(fd, 0o600)  # a .lock left by an older umask
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
+        except OSError as exc:
+            if exclusive:
+                raise StashError(f"cannot lock the stash ({exc}); nothing was deleted") from None
+            yield False
+            return
+        yield True
     finally:
         os.close(fd)  # closing releases the lock
 
@@ -164,7 +184,14 @@ def put(text: str, *, session: str | None = None) -> str:
     if not _is_windows():
         os.chmod(root, 0o700)
     target = root / digest
-    with stash_lock(root):
+    with stash_lock(root) as locked:
+        if not locked and not _is_windows():
+            warnings.warn(
+                f"lcc stash: writing {digest[:12]} without the stash lock (flock unavailable); "
+                "`lcc stash gc --apply` refuses to run on this stash",
+                RuntimeWarning,
+                stacklevel=2,
+            )
         if target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == digest:
             os.utime(target)
         else:
@@ -199,7 +226,8 @@ def recall(stash_id: str, lines: tuple[int, int] | None = None) -> str:
     """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive."""
     name, data = _blob(stash_id)
     root = stash_dir()
-    with stash_lock(root):
+    # Bookkeeping only: a read-only or unlockable stash must still answer.
+    with contextlib.suppress(OSError), stash_lock(root):
         if (root / name).is_file():
             _touch_sidecar(root / name, last_recalled_at=True)
     text = data.decode("utf-8")

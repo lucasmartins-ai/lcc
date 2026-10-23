@@ -71,8 +71,16 @@ def optimize(request: OptimizationRequest) -> OptimizationResult:
         warnings.append("Input text is empty or whitespace-only; nothing to optimize.")
 
     text_to_clean = raw
+    speech_steps: list[CleaningStep] = []
     if request.clean_speech and is_speech_transcript(raw):
         text_to_clean = clean_speech_transcript(raw)
+        speech_steps.append(
+            CleaningStep(
+                name="speech_transcript_cleaning",
+                detail="Removed transcript timing, audio tags, STT credits and fillers.",
+                metrics={"removed_chars": max(0, len(raw) - len(text_to_clean))},
+            )
+        )
 
     normalized = normalize_text(text_to_clean)
     if request.remove_boilerplate:
@@ -85,7 +93,11 @@ def optimize(request: OptimizationRequest) -> OptimizationResult:
         similarity_threshold=request.similarity_threshold,
     )
     cleaned = dedup.text
-    cleaning_steps: list[CleaningStep] = [*normalized.steps, *boilerplate.actions]
+    cleaning_steps: list[CleaningStep] = [
+        *speech_steps,
+        *normalized.steps,
+        *boilerplate.actions,
+    ]
 
     original_tokens = count_tokens(raw, request.model)
     optimized_tokens = count_tokens(cleaned, request.model)

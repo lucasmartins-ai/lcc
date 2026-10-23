@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Fixed
+
+- **Stash gc hardening** (security review of the lifecycle PR). A mistyped `--root` aborts
+  instead of being skipped; symlinked project directories are scanned (loop-safe); FIFOs and
+  other special files are skipped instead of hanging; dangling symlinks no longer block gc;
+  only `put`'s own `.tmp-XXXXXXXX` files are cleaned; `--older-than` has a 1h floor; a
+  directory or symlink named like a blob is ignored. `put`/`recall` keep working where `flock`
+  fails (put warns; gc refuses); `.lock` is tightened to 0600. `~/.codex/sessions` joins the
+  default roots; `lcc stash ls` reports OS errors instead of a traceback.
+
 ### Added
 
 - **Stash lifecycle.** `lcc stash ls`, `lcc stash verify <session.jsonl>` and `lcc stash gc`
@@ -24,7 +34,8 @@ All notable changes to this project are documented here. The format is based on
   in `lcc measure-session`, 1,276 s with every core measuring other sessions. A term in more
   than 64 blocks is no longer a link (`MAX_TERM_BLOCKS`; inputs under 130 blocks are
   unchanged) and pairs come from the term postings, not a scan of every pair. Same session:
-  `auto` 30.5 s -> 6.6 s, whole run 2.2 GB -> 312 MB, texts lost still 0.
+  `auto` 30.5 s -> 6.6 s, whole run 2.2 GB -> 312 MB, texts lost still 0. `RELATIONSHIP_VERSION`
+  is now `relationships-1.2`, so cached decisions from the old graph are not reused.
 - **Efficiency baseline updated.** baseline regenerated on intake v2 (#105); cost failures under 0.15 calibration units are ignored as jitter
 
 - **Intake prompt is cache-stable.** The readiness, assumption and question comments that
@@ -47,6 +58,19 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- **Node `parseIntake` matches the Python rules it shares.** Vague markers were substrings
+  ("maybelline_sku" → "maybe" → `NEEDS_INTAKE`) and only four of them; a dead
+  `questions.append` line dropped the second clarifying question. It now uses the same
+  whole-word pt/en markers, `short_directive` / `too_short` rules and scores, and returns
+  `reasons` and non-blocking `riskFlags`. A parity test checks both runtimes on shared inputs.
+  Ask counting and dictation detection stay Python-only.
+- **`lcc optimize` speech cleaning no longer drops content or turns questions into
+  statements.** On transcripts it rewrote ", né?" and ", right?" to "." and removed "kind of",
+  "sort of", "you know", "I mean", "basically" and "literally" anywhere ("What kind of index"
+  → "What index", "Do you know the schema?" → "Do the schema?"), and "Right," anywhere ("turn
+  right, then" lost "right"). Those markers now go only when they are pure fillers: between
+  commas or opening a sentence. The pass is also reported: `cleaning_steps` gains
+  `speech_transcript_cleaning` with `removed_chars`.
 - **SRT transcripts were not detected as speech** when they opened with their sequence number
   (the usual case): the timing line was only matched at the start of the text. Portuguese audio
   tags (`[Música]`, `[Aplausos]`, `[Risos]`, `[Silêncio]`) are now recognised too.

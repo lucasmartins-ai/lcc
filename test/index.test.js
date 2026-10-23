@@ -62,6 +62,19 @@ const parsed = parseIntake("Maybe we should refactor something with the database
 assert.strictEqual(parsed.readiness, "NEEDS_INTAKE");
 assert(parsed.questions.length > 0);
 
+assert.strictEqual(parsed.questions.length, 2);
+assert.deepStrictEqual(parsed.reasons, ["vague_marker"]);
+// Whole words only, pt and en, like the Python parser.
+assert.strictEqual(parseIntake("Rename the maybelline_sku column to brand_sku in the products table.").readiness, "READY_TO_EXECUTE");
+assert.strictEqual(parseIntake("What kind of index fits a query that filters by tenant?").readiness, "READY_TO_EXECUTE");
+assert.strictEqual(parseIntake("Dar uma olhada no cache, sei lá.").readiness, "NEEDS_INTAKE");
+assert.strictEqual(parseIntake("Não sei bem o que mudar no deploy.").readiness, "NEEDS_INTAKE");
+assert.deepStrictEqual(parseIntake("fix tests").reasons, ["short_directive"]);
+assert.deepStrictEqual(parseIntake("").reasons, ["empty_input"]);
+const risky = parseIntake("Write a test proving the middleware cannot bypass security checks.");
+assert.strictEqual(risky.readiness, "READY_TO_EXECUTE");
+assert.deepStrictEqual(risky.riskFlags, ["mentions_security_bypass"]);
+
 const intakePipeline = new LccIntake({ model: "claude-sonnet-5", template: "claude_xml" });
 const intakeRes = intakePipeline.process(`
 Sent from my iPhone
