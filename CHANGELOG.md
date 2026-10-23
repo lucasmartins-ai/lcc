@@ -47,6 +47,12 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- **Node `parseIntake` matches the Python rules it shares.** Vague markers were substrings
+  ("maybelline_sku" → "maybe" → `NEEDS_INTAKE`) and only four of them; a dead
+  `questions.append` line dropped the second clarifying question. It now uses the same
+  whole-word pt/en markers, `short_directive` / `too_short` rules and scores, and returns
+  `reasons` and non-blocking `riskFlags`. A parity test checks both runtimes on shared inputs.
+  Ask counting and dictation detection stay Python-only.
 - **`lcc optimize` speech cleaning no longer drops content or turns questions into
   statements.** On transcripts it rewrote ", né?" and ", right?" to "." and removed "kind of",
   "sort of", "you know", "I mean", "basically" and "literally" anywhere ("What kind of index"

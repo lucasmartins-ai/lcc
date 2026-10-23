@@ -73,3 +73,28 @@ def test_parity_boundary_is_documented():
     assert "compact" not in exports  # no relevance compaction in Node (roadmap)
     assert "estimateTokensWithMeta" in exports
     assert "tokenizerIdentity" in exports
+
+
+INTAKE_PARITY = [
+    "Rename the maybelline_sku column to brand_sku in the products table.",
+    "Maybe do something with the cache, not sure.",
+    "Dar uma olhada no cache, sei lá.",
+    "fix tests",
+    "Write a test proving the middleware cannot bypass security checks.",
+    "",
+]
+
+
+@pytest.mark.skipif(NODE is None, reason="node is not installed")
+@pytest.mark.parametrize("text", INTAKE_PARITY)
+def test_node_and_python_intake_agree_on_shared_rules(text):
+    from lcc.intake import parse_intake
+
+    out = _node_eval(
+        "const lcc=require('./index.js');"
+        f"const p=lcc.parseIntake({json.dumps(text)});"
+        "console.log(JSON.stringify({r:p.readiness,why:p.reasons,risk:p.riskFlags}))"
+    )
+    node = json.loads(out)
+    py = parse_intake(text, dictation=False)
+    assert node == {"r": py.readiness.value, "why": py.reasons, "risk": py.risk_flags}
