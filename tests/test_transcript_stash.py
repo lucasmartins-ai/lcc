@@ -437,3 +437,84 @@ def test_mcp_stash_pointer_lean():
     )
     payload = json.loads(response["result"]["content"][0]["text"])
     assert " · exit 0 · " in result_text(payload["messages"], "c1")
+
+
+# --- recall records in the opt-in ledger -----------------------------------------------------
+
+
+@pytest.fixture
+def ledger(monkeypatch, tmp_path: Path) -> Path:
+    path = tmp_path / "ledger.jsonl"
+    monkeypatch.setenv("LCC_LEDGER_PATH", str(path))
+    monkeypatch.delenv("LCC_LEDGER", raising=False)
+    return path
+
+
+def _records(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+
+
+def test_recall_writes_no_ledger_by_default(_stash: Path, ledger: Path):
+    sha12 = put(BODY)[:12]
+    recall(sha12)
+    assert not ledger.exists()
+
+
+def test_recall_record_is_counts_only_and_keyed_to_the_putting_session(
+    _stash: Path, ledger: Path
+):
+    from lcc.receipt import session_key
+
+    sha12 = put(BODY, session="sess-1")[:12]
+    recall(sha12, ledger=True)
+    recall(sha12, lines=(2, 3), ledger=True)
+    first, second = _records(ledger)
+    assert set(first) == {"recall_v", "ts", "session", "outcome", "bytes", "partial", "age_s", "repeat"}
+    assert "v" not in first  # a pass-only reader (the statusline) skips it
+    assert first["session"] == session_key("sess-1")
+    assert (first["outcome"], first["bytes"], first["partial"], first["repeat"]) == (
+        "ok", len(BODY.encode()), False, False
+    )
+    assert 0 <= first["age_s"] < 60
+    assert (second["partial"], second["repeat"]) == (True, True)
+    text = ledger.read_text()
+    assert sha12 not in text and "sess-1" not in text and "parser" not in text
+
+
+def test_failed_recalls_are_recorded_and_still_raise(_stash: Path, ledger: Path):
+    digest = put(BODY)
+    with pytest.raises(StashError):
+        recall(digest[:12], lines=(500, 501), ledger=True)
+    (_stash / digest).write_bytes(b"tampered")
+    with pytest.raises(StashError, match="hash"):
+        recall(digest[:12], ledger=True)
+    with pytest.raises(StashError, match="not found"):
+        recall("0" * 12, ledger=True)
+    with pytest.raises(StashError):
+        recall("../x", ledger=True)
+    assert [r["outcome"] for r in _records(ledger)] == [
+        "invalid", "hash_mismatch", "missing", "invalid"
+    ]
+    assert all(r["bytes"] == 0 and r["session"] is None for r in _records(ledger))
+
+
+def test_recall_ledger_env_and_explicit_false(_stash: Path, ledger: Path, monkeypatch):
+    sha12 = put(BODY)[:12]
+    monkeypatch.setenv("LCC_LEDGER", "1")
+    recall(sha12)
+    recall(sha12, ledger=False)
+    assert len(_records(ledger)) == 1
+
+
+def test_mcp_recall_ledger_opt_in(_stash: Path, ledger: Path):
+    sha12 = put(BODY)[:12]
+    for n, extra in enumerate(({}, {"ledger": True})):
+        handle_message(
+            {
+                "jsonrpc": "2.0",
+                "id": n,
+                "method": "tools/call",
+                "params": {"name": "recall", "arguments": {"id": sha12, **extra}},
+            }
+        )
+    assert [r["outcome"] for r in _records(ledger)] == ["ok"]

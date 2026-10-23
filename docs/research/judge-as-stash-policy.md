@@ -297,6 +297,17 @@ check passed. No id, path, input or text. Leave it off by default, as the ledger
 After a few weeks of the maintainer's own use, this gives the *p* and *d* that §5 needs,
 measured in a world where the stash actually exists.
 
+*Status (2026-10-23): shipped, with three differences from the plan above (see
+[CLAUDE_CODE.md](../CLAUDE_CODE.md)):*
+
+- *age is in seconds since the blob was stashed, not in requests;*
+- *size is in bytes, not tokens;*
+- *there is no tool group label, because nothing at recall time knows which tool produced the
+  blob.*
+
+*To get* d *in requests, join `session` and `ts` with that session's pass records. Getting a
+tool group label would mean storing it in the stash sidecar at put time.*
+
 ### 6.4 Eval before any default change
 
 Pre-register it, in the same style as `stashed-recall-v1`:

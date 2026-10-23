@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **Recall records in the opt-in ledger.** With `LCC_LEDGER=1` (or `ledger: true` on the MCP
+  `recall` tool) each recall appends a counts-only line: outcome (`ok`, `missing`,
+  `hash_mismatch` or `invalid`), bytes, seconds since the blob was stashed, whether it was a
+  line range or a repeat, and the hash of the session that stashed it. It never holds the id,
+  the text or a path. These records are keyed `recall_v`, so the statusline does not count them
+  as passes. See docs/CLAUDE_CODE.md.
+
 ### Fixed
 
 - **Stash gc hardening** (security review of the lifecycle PR). A mistyped `--root` aborts

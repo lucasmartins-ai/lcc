@@ -396,7 +396,9 @@ def _tool_recall(args: dict[str, Any]) -> dict[str, Any]:
         raise ToolInputError("recall requires 'id' (the hex id after 'lcc recall' in the pointer)")
     lines = args.get("lines")
     span = parse_lines(lines) if isinstance(lines, str) and lines else None
-    return {"sha256": recall_sha256(stash_id), "text": recall(stash_id, span)}
+    ledger = args.get("ledger")
+    text = recall(stash_id, span, ledger=ledger if isinstance(ledger, bool) else None)
+    return {"sha256": recall_sha256(stash_id), "text": text}
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -625,6 +627,15 @@ TOOLS: dict[str, dict[str, Any]] = {
             "properties": {
                 "id": {"type": "string", "description": "The hex id from the pointer."},
                 "lines": {"type": "string", "description": "Optional 1-based range 'a-b'."},
+                "ledger": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": (
+                        "Opt-in: append one line of counts for this recall (outcome, bytes, "
+                        "age since stashed; never the id, text or paths) to the local ledger. "
+                        "LCC_LEDGER=1 turns it on for every call."
+                    ),
+                },
             },
             "required": ["id"],
         },

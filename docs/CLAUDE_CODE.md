@@ -100,6 +100,29 @@ something). Idle-stash passes are not recorded: the server cannot see whether Cl
 accepts that compaction. The HTTP server (`lcc mcp --http`) refuses `ledger`, as it refuses
 the stash, and never writes the ledger even when it inherits `LCC_LEDGER=1`. Delete the file to reset it.
 
+**Recall records.** With the ledger on, each `recall` (CLI or MCP) also appends one line,
+failures included:
+
+```json
+{"recall_v":1,"ts":"2026-10-21T11:02:00Z","session":"e279159a3ffc189d","outcome":"ok","bytes":5120,"partial":false,"age_s":420,"repeat":false}
+```
+
+- `outcome` is one of `ok`, `missing`, `hash_mismatch` or `invalid` (a bad id or line range).
+- `age_s` is the seconds since the blob was last stashed.
+- `partial` means a `--lines` range was asked for.
+- `repeat` means the blob was recalled before.
+- `session` is the hash of the session that stashed the blob, so it joins with that session's
+  pass records. It is `null` when several sessions stashed the same bytes.
+
+The record never holds the id, the text or any path. It has `recall_v` instead of `v`, so the
+statusline does not count it as a pass. Each record marks a stashed output that was needed
+again, which is the data a stash policy needs
+([research](research/judge-as-stash-policy.md#63-collect-the-missing-label-opt-in)).
+
+The plugin's `ledger` option reaches only the compaction calls the hook makes. The model's
+`recall` calls go to the `lcc mcp` server, so record them by setting `LCC_LEDGER=1` in that
+server's environment. A `ledger: false` argument still wins over the variable.
+
 **Statusline.** `scripts/statusline.mjs` reads the ledger and Claude Code's statusline JSON
 on stdin. Add it to `~/.claude/settings.json` with the plugin's path on your machine:
 
