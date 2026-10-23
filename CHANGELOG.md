@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- **Speech cleaning no longer re-cases text.** `clean_speech_transcript` upper-cased the first
+  letter of every cleaned line ("sim, e o npm" → "Sim, e o npm"), a silent rewrite. It now only
+  removes; letter case is kept as written.
 - **Stash gc hardening** (security review of the lifecycle PR). A mistyped `--root` aborts
   instead of being skipped; symlinked project directories are scanned (loop-safe); FIFOs and
   other special files are skipped instead of hanging; dangling symlinks no longer block gc;

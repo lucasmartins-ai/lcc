@@ -62,12 +62,12 @@ Subtitles by the Amara.org community"""
     # Sequential Speaker 1 turns merged; pure fillers go, words that can carry meaning
     # ("basically", "sort of" without commas) stay.
     assert (
-        "Speaker 1: We need to basically refactor the authentication middleware. "
-        "The token expiration is currently sort of set to 24 hours."
+        "Speaker 1: we need to basically refactor the authentication middleware. "
+        "the token expiration is currently sort of set to 24 hours."
     ) in cleaned
 
     # The tag question stays a question.
-    assert "Speaker 2: Literally it should be reduced to 1 hour, right?" in cleaned
+    assert "Speaker 2: literally it should be reduced to 1 hour, right?" in cleaned
 
 
 def test_clean_speech_portuguese_transcript() -> None:
@@ -79,12 +79,12 @@ Speaker 2: É... precisamos aumentar o limite para 2GB em um container."""
 
     # Fillers removed and speaker 1 turns combined
     assert (
-        "Speaker 1: O deploy falhou no Kubernetes, né? "
-        "O pod deu OOMKilled por causa de limite de memória."
+        "Speaker 1: o deploy falhou no Kubernetes, né? "
+        "o pod deu OOMKilled por causa de limite de memória."
     ) in cleaned
 
     # Portuguese 'um' (a/one) is preserved; 'É...' filler stripped
-    assert "Speaker 2: Precisamos aumentar o limite para 2GB em um container." in cleaned
+    assert "Speaker 2: precisamos aumentar o limite para 2GB em um container." in cleaned
 
 
 def test_clean_speech_preserves_code_and_technical_vocabulary() -> None:
@@ -177,3 +177,10 @@ def test_optimize_reports_speech_cleaning() -> None:
     result = optimize(OptimizationRequest(raw_text=raw, question="why?"))
     steps = [s for s in result.report.cleaning_steps if s.name == "speech_transcript_cleaning"]
     assert steps and steps[0].metrics["removed_chars"] > 0
+
+
+def test_cleaning_never_changes_letter_case() -> None:
+    raw = "Speaker 1: Um, okay so, we need iOS builds.\nSpeaker 2: sim, e o npm também.\n"
+    cleaned = clean_speech_transcript(raw)
+    assert "Speaker 1: we need iOS builds." in cleaned
+    assert "Speaker 2: sim, e o npm também." in cleaned
