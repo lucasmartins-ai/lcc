@@ -8,7 +8,7 @@ that was. Three layers, each removing a distinct class of false drops:
 | Layer | What it is | Budget | Off switch | Counters in the report |
 |---|---|---|---|---|
 | 1. Deterministic | Quoted-speech + cross-language keep, distinctive-term dependency closure, prefix/tail/keep-pattern protection, high-risk retention | Unbounded keep (never drops) | `--no-deterministic-protection` (also gates layer 2: raw scoring means no safety nets) | `blocks_protected` |
-| 2. Structural (dependency) | Typed graph (`relationships-1.1`) + `verify_sufficiency` + bounded restore of dropped blocks linked to kept content, one re-check, no loop | `--max-restorations` (default 8) | `--no-sufficiency` | `sufficiency_checks`, `sufficiency_failures`, `blocks_restored`, `relationship_edges` |
+| 2. Structural (dependency) | Typed graph (`relationships-1.2`) + `verify_sufficiency` + bounded restore of dropped blocks linked to kept content, one re-check, no loop | `--max-restorations` (default 8) | `--no-sufficiency` | `sufficiency_checks`, `sufficiency_failures`, `blocks_restored`, `relationship_edges` |
 | 3. Light judge (semantic verifier) | One independent Jev question over objective + candidate only; FAIL restores graph-linked drops once, never re-runs | `--verifier-max-restorations` (default 4, independent: total restored ≤ 8 + 4) | `--semantic-verify/--no-semantic-verify` (default off) | `semantic_verifier_decision`, `semantic_verifier_confidence`, `needs_review` |
 
 The verifier is single-shot by design: it judges the candidate, restores within
