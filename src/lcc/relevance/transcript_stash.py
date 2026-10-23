@@ -31,6 +31,7 @@ import re
 import tempfile
 import time
 import warnings
+from bisect import bisect_left
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -200,13 +201,30 @@ def put(text: str, *, session: str | None = None) -> str:
     return digest
 
 
-def _blob(stash_id: str) -> tuple[str, bytes]:
+def _stash_names() -> list[str]:
+    """Sorted blob names now in the stash: one listing for a batch of ``_blob`` lookups."""
+    root = stash_dir()
+    return sorted(p.name for p in root.iterdir() if _FULL.match(p.name)) if root.is_dir() else []
+
+
+def _blob(stash_id: str, names: list[str] | None = None) -> tuple[str, bytes]:
+    """The blob ``stash_id`` names. ``names`` (from ``_stash_names``) spares the directory scan
+    per lookup; a prefix it does not hold falls back to the scan, so a blob written since the
+    listing is still found."""
     if not _ID.match(stash_id):
         raise StashError(f"not a stash id: {stash_id!r} (12-64 lowercase hex chars)")
     root = stash_dir()
-    matches = (
-        sorted(p for p in root.glob(f"{stash_id}*") if _FULL.match(p.name)) if root.is_dir() else []
-    )
+    matches: list[Path] = []
+    if names:
+        at = bisect_left(names, stash_id)
+        while at < len(names) and names[at].startswith(stash_id):
+            matches.append(root / names[at])
+            at += 1
+    if not matches:
+        matches = (
+            sorted(p for p in root.glob(f"{stash_id}*") if _FULL.match(p.name))
+            if root.is_dir() else []
+        )
     if not matches:
         raise StashMissing(f"stash id {stash_id} not found in {root}. {RECOVERY_HINT}")
     if len(matches) > 1:
@@ -339,12 +357,12 @@ def stashed_decisions(
     return decisions
 
 
-def _stash_holds(old: Any, note: str) -> bool:
+def _stash_holds(old: Any, note: str, names: list[str] | None = None) -> bool:
     match = _NOTE.match(note)
     if match is None:
         return False
     try:
-        digest, data = _blob(match.group("id"))
+        digest, data = _blob(match.group("id"), names)
     except StashError:
         return False
     stash_id = match.group("id")
@@ -360,8 +378,13 @@ def verify_stashed(original_payload: Any, compacted_payload: Any) -> list[str]:
     from lcc.relevance.transcript import parse_transcript
 
     duplicated = duplicate_ids(parse_transcript(original_payload))
-    return verify_lossless(
-        original_payload,
-        compacted_payload,
-        allow=lambda old, note: old.id not in duplicated and _stash_holds(old, note),
-    )
+    names: list[str] = []  # listed once, on the first pointer: one scan for the whole check
+
+    def allow(old: Any, note: str) -> bool:
+        if old.id in duplicated:
+            return False
+        if not names:
+            names.extend(_stash_names())
+        return _stash_holds(old, note, names)
+
+    return verify_lossless(original_payload, compacted_payload, allow=allow)
