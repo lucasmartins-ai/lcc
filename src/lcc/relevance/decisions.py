@@ -47,7 +47,7 @@ DECISIONS_CACHE_SCHEMA_VERSION = "relevance-decisions-1.1"
 POLICY_VERSION = "relevance-compaction-1.2"
 BLOCK_PARSER_VERSION = "blocks-1.0"
 PROTECTION_VERSION = "protection-1.2"
-RELATIONSHIP_VERSION = "relationships-1.1"
+RELATIONSHIP_VERSION = "relationships-1.2"
 # NOTE: TRIM_POLICY_VERSION lives in lcc.relevance.trim (single source of truth) and is
 # re-exported here so identity builders do not need a second import.
 
