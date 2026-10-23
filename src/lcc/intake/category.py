@@ -33,6 +33,7 @@ LOGGER = logging.getLogger("lcc.intake.category")
 MODEL_RESOURCE = "intake_category_v1.json"
 MODEL_SHA256 = "8fc1c9b3b6d90e836c8ff6bcdf0b1e7c9d94cd6d7f5bbef0cec874fc8fee7cbf"
 NOTES_RESOURCE = "intake_categories.json"
+NOTES_SHA256 = "38f17b94234d594b8ff4ebf3ee41b37da6e789c12af7b09fa346527842cd7b5a"
 THRESHOLD = 0.45
 #: The model was trained on prompts of at most 1,000 characters (longer ones were pasted context),
 #: so only the head is classified; this also keeps the cost flat on long inputs.
@@ -70,7 +71,7 @@ def features(text: str, kinds: str) -> dict[int, float]:
 
 
 class _Model:
-    def __init__(self, data: dict, notes: dict) -> None:
+    def __init__(self, data: dict, notes: dict[str, str]) -> None:
         self.labels: list[str] = data["labels"]
         self.kinds: str = data["kinds"]
         self.bias: list[float] = data["bias"]
@@ -98,7 +99,14 @@ def _load() -> _Model | None:
         raw = pkg.joinpath(MODEL_RESOURCE).read_bytes()
         if hashlib.sha256(raw).hexdigest() != MODEL_SHA256:
             raise ValueError("sha256 mismatch")
-        notes = json.loads(pkg.joinpath(NOTES_RESOURCE).read_bytes())["categories"]
+        notes_raw = pkg.joinpath(NOTES_RESOURCE).read_bytes()
+        if hashlib.sha256(notes_raw).hexdigest() != NOTES_SHA256:
+            raise ValueError("notes sha256 mismatch")
+        # The notes reach the agent prompt: pinned above, and flattened to plain strings here.
+        notes = {
+            str(label): str(entry["context_needed"])
+            for label, entry in json.loads(notes_raw)["categories"].items()
+        }
         return _Model(json.loads(raw), notes)
     except (OSError, ValueError, KeyError, TypeError, struct.error) as exc:
         LOGGER.warning("intake category model unavailable: %s", exc)
@@ -118,4 +126,4 @@ def classify(text: str, threshold: float = THRESHOLD) -> Category | None:
     label = model.labels[i]
     if p[i] < threshold or label == "UNKNOWN":
         return None
-    return Category(label, round(p[i], 4), model.notes.get(label, {}).get("context_needed", ""))
+    return Category(label, round(p[i], 4), model.notes.get(label, ""))

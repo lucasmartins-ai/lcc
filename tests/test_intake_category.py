@@ -128,3 +128,46 @@ def test_sdist_manifest_ships_every_packaged_json():
     for name in data:
         if name.endswith(".json"):
             assert f"include src/lcc/{name}" in manifest, name
+
+
+def test_missing_model_file_disables_category():
+    cat._load.cache_clear()
+    try:
+        broken = mock.MagicMock()
+        broken.joinpath.return_value.read_bytes.side_effect = FileNotFoundError("gone")
+        with mock.patch.object(cat.resources, "files", return_value=broken):
+            assert cat._load() is None
+    finally:
+        cat._load.cache_clear()
+
+
+def test_altered_notes_disable_category():
+    cat._load.cache_clear()
+    try:
+        with mock.patch.object(cat, "NOTES_SHA256", "0" * 64):
+            assert cat._load() is None
+    finally:
+        cat._load.cache_clear()
+
+
+def test_notes_are_single_line_and_cannot_close_a_comment():
+    for note in cat._load().notes.values():
+        assert "--" not in note and "\n" not in note
+
+
+def test_context_is_sanitised_inside_the_comment():
+    from lcc.intake.parser import ParsedIntake, ReadinessState
+    from lcc.intake.pipeline import _intake_block
+
+    parsed = ParsedIntake(
+        raw_input="x",
+        intent="x",
+        readiness=ReadinessState.READY_TO_EXECUTE,
+        readiness_score=90,
+        ambiguity_score=10,
+        category="git_ship",
+        category_probability=0.9,
+        category_context="a --> b\nc",
+    )
+    line = [x for x in _intake_block(parsed, None).splitlines() if "lcc-intake:category" in x]
+    assert len(line) == 1 and line[0].count("-->") == 1 and line[0].endswith("-->")

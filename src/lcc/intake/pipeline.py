@@ -54,10 +54,12 @@ def _intake_block(parsed: ParsedIntake, cleaning: DictationClean | None) -> str:
         + " -->"
     ]
     if parsed.category:
+        # One line, and no "--" so the text can never close the comment early.
+        context = " ".join(parsed.category_context.split()).replace("--", "- -")
         lines.append(
             f'<!-- lcc-intake:category id="{parsed.category}" '
             f'p="{parsed.category_probability:.2f}" '
-            f"context_needed: {parsed.category_context} -->"
+            f"context_needed: {context} -->"
         )
     if parsed.risk_flags:
         lines.append(f"<!-- risk_flags: {', '.join(parsed.risk_flags)} -->")
