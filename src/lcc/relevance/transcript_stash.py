@@ -253,15 +253,20 @@ def _ledger_recall(ledger: bool | None, **fields: Any) -> None:
 
 
 def recall(
-    stash_id: str, lines: tuple[int, int] | None = None, *, ledger: bool | None = None
+    stash_id: str,
+    lines: tuple[int, int] | str | None = None,
+    *,
+    ledger: bool | None = None,
 ) -> str:
-    """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive.
+    """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive (or ``"a-b"``).
 
     With the ledger on (``ledger=True``, or ``LCC_LEDGER=1`` unless ``ledger=False``) each call
     appends one counts-only record, failures included: every recall is a real label of what a
     pass removed too early.
     """
     try:
+        if isinstance(lines, str):  # parsed here so a malformed range is recorded too
+            lines = parse_lines(lines)
         name, data = _blob(stash_id)
     except StashError as exc:
         outcome = (

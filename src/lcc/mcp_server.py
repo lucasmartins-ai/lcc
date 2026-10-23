@@ -389,13 +389,13 @@ def _session_arg(value: Any) -> str | None:
 
 
 def _tool_recall(args: dict[str, Any]) -> dict[str, Any]:
-    from lcc.relevance.transcript_stash import parse_lines, recall, recall_sha256
+    from lcc.relevance.transcript_stash import recall, recall_sha256
 
     stash_id = args.get("id", "")
     if not isinstance(stash_id, str):
         raise ToolInputError("recall requires 'id' (the hex id after 'lcc recall' in the pointer)")
     lines = args.get("lines")
-    span = parse_lines(lines) if isinstance(lines, str) and lines else None
+    span = lines if isinstance(lines, str) and lines else None
     ledger = args.get("ledger")
     text = recall(stash_id, span, ledger=ledger if isinstance(ledger, bool) else None)
     return {"sha256": recall_sha256(stash_id), "text": text}

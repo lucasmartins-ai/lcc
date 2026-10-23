@@ -492,8 +492,10 @@ def test_failed_recalls_are_recorded_and_still_raise(_stash: Path, ledger: Path)
         recall("0" * 12, ledger=True)
     with pytest.raises(StashError):
         recall("../x", ledger=True)
+    with pytest.raises(StashError, match="--lines"):
+        recall(digest[:12], lines="abc", ledger=True)
     assert [r["outcome"] for r in _records(ledger)] == [
-        "invalid", "hash_mismatch", "missing", "invalid"
+        "invalid", "hash_mismatch", "missing", "invalid", "invalid"
     ]
     assert all(r["bytes"] == 0 and r["session"] is None for r in _records(ledger))
 
@@ -518,3 +520,13 @@ def test_mcp_recall_ledger_opt_in(_stash: Path, ledger: Path):
             }
         )
     assert [r["outcome"] for r in _records(ledger)] == ["ok"]
+
+
+def test_cli_recall_honours_the_ledger_env(_stash: Path, ledger: Path, monkeypatch):
+    sha12 = put(BODY)[:12]
+    monkeypatch.setenv("LCC_LEDGER", "1")
+    assert CliRunner().invoke(app, ["recall", sha12, "--lines", "1-2"]).exit_code == 0
+    assert CliRunner().invoke(app, ["recall", sha12, "--lines", "abc"]).exit_code == 2
+    assert [(r["outcome"], r["partial"]) for r in _records(ledger)] == [
+        ("ok", True), ("invalid", False)
+    ]
