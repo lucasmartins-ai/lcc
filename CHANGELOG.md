@@ -47,6 +47,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- **`lcc optimize` speech cleaning no longer drops content or turns questions into
+  statements.** On transcripts it rewrote ", né?" and ", right?" to "." and removed "kind of",
+  "sort of", "you know", "I mean", "basically" and "literally" anywhere ("What kind of index"
+  → "What index", "Do you know the schema?" → "Do the schema?"), and "Right," anywhere ("turn
+  right, then" lost "right"). Those markers now go only when they are pure fillers: between
+  commas or opening a sentence. The pass is also reported: `cleaning_steps` gains
+  `speech_transcript_cleaning` with `removed_chars`.
 - **SRT transcripts were not detected as speech** when they opened with their sequence number
   (the usual case): the timing line was only matched at the start of the text. Portuguese audio
   tags (`[Música]`, `[Aplausos]`, `[Risos]`, `[Silêncio]`) are now recognised too.

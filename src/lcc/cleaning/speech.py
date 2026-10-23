@@ -56,32 +56,28 @@ _SPEAKER_PREFIX = re.compile(
     r"^((?i:speaker\s*\d+)|[A-Z][\w'’.-]*(?:\s+[A-Z][\w'’.-]*){0,3})\s*:\s*(\S.*)$"
 )
 
-# Disfluency / Speech fillers patterns (compiled regexes)
+# Disfluency / Speech fillers patterns (compiled regexes). Only content-free forms: a marker
+# between commas or opening a sentence. Bare "you know", "I mean", "kind of", "basically" can
+# carry meaning ("Do you know the schema?", "what kind of index") and stay, and a tag question
+# ("né?", "right?") is never turned into a statement.
 _FILLERS: list[tuple[re.Pattern[str], str]] = [
-    # English starter / standalone fillers
+    # English starter / standalone fillers. "Right," only opening a sentence ("turn right, then"
+    # is content); it runs first so a following ", I mean," cannot glue onto it.
+    (re.compile(r"(?:^|(?<=[.!?] ))Right\s*,\s*"), ""),
     (re.compile(r"(?i)\b(?:okay|ok)\s+so\s*,\s*"), ""),
     (re.compile(r"(?i)\b(?:okay|ok)\s+so\b\s*"), ""),
     (re.compile(r"(?i),\s*you\s+know\s*,\s*"), " "),
     (re.compile(r"(?i)\bYou\s+know\s*,\s*"), ""),
     (re.compile(r"(?i),\s*you\s+know\b"), ""),
-    (re.compile(r"(?i)\byou\s+know\b\s*"), ""),
-    (re.compile(r"(?i)\bRight\s*,\s*"), ""),
     (re.compile(r"(?i),\s*I\s+mean\s*,\s*"), " "),
     (re.compile(r"(?i)\bI\s+mean\s*,\s*"), ""),
-    (re.compile(r"(?i)\bI\s+mean\b\s*"), ""),
     (re.compile(r"(?i),\s*basically\s*,\s*"), " "),
     (re.compile(r"(?i)\bBasically\s*,\s*"), ""),
-    (re.compile(r"(?i)\bbasically\b\s*"), ""),
     (re.compile(r"(?i),\s*literally\s*,\s*"), " "),
     (re.compile(r"(?i)\bLiterally\s*,\s*"), ""),
-    (re.compile(r"(?i)\bliterally\b\s*"), ""),
     (re.compile(r"(?i),\s*(?:sort|kind)\s+of\s*,\s*"), " "),
-    (re.compile(r"(?i),\s*(?:sort|kind)\s+of\s*"), " "),
-    (re.compile(r"(?i)\b(?:sort|kind)\s+of\s*"), ""),
-    (re.compile(r"(?i)\b(?:sort|kind)\s+of\b\s*"), ""),
     (re.compile(r"(?i),\s*like\s*,\s*"), " "),
     (re.compile(r"(?i)\bLike\s*,\s*"), ""),
-    (re.compile(r"(?i),\s*right\?"), "."),
     (re.compile(r"(?i),\s*right\s*,\s*"), " "),
     # Standalone interjections (uh, er, ah) with optional surrounding commas
     (re.compile(r"(?i)(?:,\s*)?\b(?:uh+|er+|ah+|ahh+|eh+)\b\s*[,.\u2026]*\s*"), " "),
@@ -106,9 +102,7 @@ _FILLERS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"(?i),\s*pera\s+a[ií]\s*,\s*"), " "),
     (re.compile(r"(?i)\bou\s+seja\s*,\s*"), ""),
     (re.compile(r"(?i),\s*ou\s+seja\s*,\s*"), " "),
-    (re.compile(r"(?i),\s*n[eé]\?"), "."),
     (re.compile(r"(?i),\s*n[eé]\s*,\s*"), " "),
-    (re.compile(r"(?i)(?<!\s)\s+n[eé]\?"), "."),  # lookbehind: linear on long blank runs
     (re.compile(r"(?i)\b[eé]\.\.\.\s*"), ""),
     (re.compile(r"(?i)\beh\.\.\.\s*"), ""),
     (re.compile(r"(?i)\b[eé]ee+\b\s*"), ""),
