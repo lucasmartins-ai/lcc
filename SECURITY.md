@@ -71,6 +71,11 @@ feed to `lcc` and the prompts/reports it writes with the same care as the source
   a transcript you did not produce like any other untrusted input.
 - *Secrets inside the context you compact.* lcc does not scan or redact your context; kept
   text is returned verbatim and stashed text is stored verbatim (privately).
+- *Stashed secrets outliving their transcript.* The stash keeps its copy until you delete it:
+  removing a session file does not remove the blobs it pointed to, and nothing expires by
+  default. `lcc stash gc --apply` deletes blobs no transcript under `--root` references (and
+  not used within `--older-than`); it fails closed and never runs on its own. Sidecars hold
+  timestamps and truncated session-id hashes only. See `docs/TOOL_CALLS.md`, *Retention*.
 - *The remote provider's handling of data* once you opt in to `jev`.
 - *Semantic prompt injection against your model.* lcc never follows instructions in the
   text it compacts, but it does not remove them either: kept text reaches your model as is.

@@ -125,6 +125,11 @@ export async function stashIdle($, messages, configured, gap = "unknown", cwd) {
         cache_state: gap === "manual" ? "unknown" : "cold",
         ...COMPACT_ANSWER,
         ...root,
+        // Only the session id, not the ledger opt-in: the stash keeps the id's hash next to
+        // each blob (`lcc stash ls`).
+        ...(({ ledger_session }) => (ledger_session ? { ledger_session } : {}))(
+          await ledgerArgs($, configured),
+        ),
       },
     });
     if (!args) return { skip: "no objective to judge against" };
