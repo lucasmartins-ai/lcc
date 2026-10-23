@@ -59,14 +59,15 @@ Subtitles by the Amara.org community"""
     assert "-->" not in cleaned
     assert "WEBVTT" not in cleaned
 
-    # Sequential Speaker 1 turns merged cleanly
+    # Sequential Speaker 1 turns merged; pure fillers go, words that can carry meaning
+    # ("basically", "sort of" without commas) stay.
     assert (
-        "Speaker 1: We need to refactor the authentication middleware. "
-        "The token expiration is currently set to 24 hours."
+        "Speaker 1: We need to basically refactor the authentication middleware. "
+        "The token expiration is currently sort of set to 24 hours."
     ) in cleaned
 
-    # Fillers removed and Speaker 2 text cleaned
-    assert "Speaker 2: It should be reduced to 1 hour." in cleaned
+    # The tag question stays a question.
+    assert "Speaker 2: Literally it should be reduced to 1 hour, right?" in cleaned
 
 
 def test_clean_speech_portuguese_transcript() -> None:
@@ -78,7 +79,7 @@ Speaker 2: É... precisamos aumentar o limite para 2GB em um container."""
 
     # Fillers removed and speaker 1 turns combined
     assert (
-        "Speaker 1: O deploy falhou no Kubernetes. "
+        "Speaker 1: O deploy falhou no Kubernetes, né? "
         "O pod deu OOMKilled por causa de limite de memória."
     ) in cleaned
 
@@ -145,3 +146,34 @@ def test_real_transcript_labels_still_detected() -> None:
 
 def test_srt_starting_with_a_sequence_number_is_detected():
     assert is_speech_transcript("1\n00:00:01,000 --> 00:00:04,000\nOlá.\n") is True
+
+
+def test_question_tags_stay_questions() -> None:
+    for kept in ["O deploy falhou, né?", "O deploy falhou né?", "It failed, right?"]:
+        assert kept in clean_speech_transcript(f"Speaker 1: {kept}\nSpeaker 2: Sim.")
+
+
+def test_content_phrases_that_look_like_fillers_survive() -> None:
+    raw = (
+        "Speaker 1: What kind of index fits this query?\n"
+        "Speaker 2: Do you know the schema? What I mean is the tenant column.\n"
+        "Speaker 1: Turn right, then sort of by date: it literally doubles the rows.\n"
+    )
+    cleaned = clean_speech_transcript(raw)
+    for kept in [
+        "What kind of index",
+        "Do you know the schema?",
+        "What I mean is the tenant column.",
+        "Turn right, then",
+        "literally doubles",
+    ]:
+        assert kept in cleaned
+
+
+def test_optimize_reports_speech_cleaning() -> None:
+    from lcc.pipeline import OptimizationRequest, optimize
+
+    raw = "1\n00:00:01,000 --> 00:00:02,000\n[Music]\nSpeaker 1: Um, the cache, uh, is cold.\n"
+    result = optimize(OptimizationRequest(raw_text=raw, question="why?"))
+    steps = [s for s in result.report.cleaning_steps if s.name == "speech_transcript_cleaning"]
+    assert steps and steps[0].metrics["removed_chars"] > 0
