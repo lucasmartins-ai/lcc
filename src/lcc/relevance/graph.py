@@ -19,10 +19,13 @@ from __future__ import annotations
 import hashlib
 import re
 import unicodedata
+from collections import Counter
 from dataclasses import dataclass, field
 from enum import StrEnum
 
 RELATIONSHIP_VERSION = "relationships-1.1"
+#: A term in more blocks than this is session boilerplate, not a link between two of them.
+MAX_TERM_BLOCKS = 64
 
 
 class EdgeType(StrEnum):
@@ -195,63 +198,64 @@ def build_graph(
                                      reason="identical_bytes"))
         else:
             seen_text[h] = bid
-    # Distinctive terms (not question terms, not corpus-wide boilerplate).
-    ceiling = max(2, len(blocks) // 2)
+    # Distinctive terms (not question terms, not corpus-wide boilerplate). The absolute cap
+    # keeps the graph linear: a term in k blocks links k*k/2 pairs, so with only the relative
+    # ceiling a long session's SUPPORTS edges grew with the square of its blocks (4,604 blocks
+    # of a real 60 MB session -> 2.9M edges, ~15 s per build). Below 2*MAX_TERM_BLOCKS blocks
+    # the relative ceiling is the smaller one, so short inputs are unchanged.
+    ceiling = min(max(2, len(blocks) // 2), MAX_TERM_BLOCKS)
     occurrences: dict[str, set[str]] = {}
-    terms_for: dict[str, set[str]] = {}
     for bid, txt in blocks:
-        terms = {t for t in _terms(txt) if t not in question_terms}
-        terms_for[bid] = terms
-        for t in terms:
-            occurrences.setdefault(t, set()).add(bid)
+        for t in _terms(txt):
+            if t not in question_terms:
+                occurrences.setdefault(t, set()).add(bid)
     distinctive = {t: bids for t, bids in occurrences.items() if 1 < len(bids) <= ceiling}
     dterms: dict[str, set[str]] = {bid: set() for bid, _ in blocks}
     for term, bids in distinctive.items():
         for bid in bids:
             dterms[bid].add(term)
-    ordered = [bid for bid, _ in blocks]
-    for i in range(len(ordered)):
-        for j in range(i + 1, len(ordered)):
-            a, b = ordered[i], ordered[j]
-            common = dterms[a] & dterms[b]
-            if len(common) >= min_shared_terms:
-                reason = ",".join(sorted(common)[:3])
-                graph.add_edge(GraphEdge(source=b, target=a, type=EdgeType.SUPPORTS,
-                                         confidence=0.6, reason=f"link_terms:{reason}"))
+    # Shared-term counts per block pair, from the postings instead of every pair: same edges,
+    # same order as the pairwise scan, at a cost bounded by sum(df^2) <= ceiling * postings.
+    order = {bid: pos for pos, bid in enumerate(dterms)}
+    postings = {t: sorted(order[b] for b in bids) for t, bids in distinctive.items()}
+    ordered = list(dterms)
+    shared: list[Counter[int]] = []
+    for pos, bid in enumerate(ordered):
+        counts: Counter[int] = Counter()
+        for t in dterms[bid]:
+            counts.update(postings[t])
+        del counts[pos]
+        shared.append(counts)
+    for i, a in enumerate(ordered):
+        for j in sorted(j for j, n in shared[i].items() if j > i and n >= min_shared_terms):
+            b = ordered[j]
+            reason = ",".join(sorted(dterms[a] & dterms[b])[:3])
+            graph.add_edge(GraphEdge(source=b, target=a, type=EdgeType.SUPPORTS,
+                                     confidence=0.6, reason=f"link_terms:{reason}"))
+
+    def first_sharing(bid: str, at_least: int) -> tuple[str, str] | None:
+        # The earliest other block sharing >= at_least terms, as the scan in block order found.
+        hits = [j for j, n in shared[order[bid]].items() if n >= at_least]
+        if not hits:
+            return None
+        other = ordered[min(hits)]
+        return other, ",".join(sorted(dterms[bid] & dterms[other])[:3])
+
     # Supersession / qualifier / contradiction passes (one shared term suffices: a
     # restatement names the same metric in different words).
     for bid, txt in blocks:
         if _SUPERSESSION_CUE_RE.search(txt):
-            for other, oterms in dterms.items():
-                if other == bid:
-                    continue
-                common = dterms[bid] & oterms
-                if common:
-                    graph.add_edge(GraphEdge(
-                        source=bid, target=other, type=EdgeType.SUPERSEDES,
-                        confidence=0.75,
-                        reason=f"supersedes_value:{','.join(sorted(common)[:3])}"))
-                    break
+            if hit := first_sharing(bid, 1):
+                graph.add_edge(GraphEdge(
+                    source=bid, target=hit[0], type=EdgeType.SUPERSEDES,
+                    confidence=0.75, reason=f"supersedes_value:{hit[1]}"))
         elif _QUALIFIER_RE.search(txt):
-            for other, oterms in dterms.items():
-                if other == bid:
-                    continue
-                common = dterms[bid] & oterms
-                if len(common) >= 2 and len(txt) >= 80:
-                    graph.add_edge(GraphEdge(
-                        source=bid, target=other, type=EdgeType.QUALIFIES,
-                        confidence=0.7,
-                        reason=f"qualifies:{','.join(sorted(common)[:3])}"))
-                    break
-        elif _NEGATION_RE.search(txt):
-            for other, oterms in dterms.items():
-                if other == bid:
-                    continue
-                common = dterms[bid] & oterms
-                if len(common) >= min_shared_terms:
-                    graph.add_edge(GraphEdge(
-                        source=bid, target=other, type=EdgeType.CONTRADICTS,
-                        confidence=0.6,
-                        reason=f"negation_shares:{','.join(sorted(common)[:3])}"))
-                    break
+            if len(txt) >= 80 and (hit := first_sharing(bid, 2)):
+                graph.add_edge(GraphEdge(
+                    source=bid, target=hit[0], type=EdgeType.QUALIFIES,
+                    confidence=0.7, reason=f"qualifies:{hit[1]}"))
+        elif _NEGATION_RE.search(txt) and (hit := first_sharing(bid, min_shared_terms)):
+            graph.add_edge(GraphEdge(
+                source=bid, target=hit[0], type=EdgeType.CONTRADICTS,
+                confidence=0.6, reason=f"negation_shares:{hit[1]}"))
     return graph
