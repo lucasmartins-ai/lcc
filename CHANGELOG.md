@@ -30,6 +30,17 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Intake request category (advisory).** `lcc intake` and the MCP `intake` tool return
+  `category`, `category_probability` and `category_context` from a frozen local classifier
+  (`lcc.intake.category`, intake judge v1 from lcc-judge: hashed n-gram logistic regression,
+  stdlib only, 1.2 MB, ~0.3 ms per prompt). Shown only at probability >= 0.45 (chosen on dev);
+  readiness is unchanged. Held-out, owner-labelled: 0.51 accuracy vs 0.22 for keyword rules and
+  0.86 for Opus, so it is a hint, not a gate. A missing or altered model disables the field.
+  Format change: markdown intake output gains one `<!-- lcc-intake:category ... -->` comment line
+  (after the readiness line, so the static template prefix is unchanged) when a category is
+  emitted; JSON, TOON and MCP outputs gain the three keys. `UNKNOWN` is reported as no category.
+  Only the first 1,000 characters are classified (the training length), so long inputs cost the
+  same as short ones; scores are identical across `PYTHONHASHSEED` values.
 - **`lcc optimize` reports every speech-cleaning edit with its position.** The
   `speech_transcript_cleaning` step now carries `spans`: `{start, end, removed, inserted}` with
   offsets in the input; applying them in order reproduces the cleaned text exactly.

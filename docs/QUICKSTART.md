@@ -128,6 +128,13 @@ lcc intake voice-note.txt --report intake.json > prompt.md
 - **Readiness** comes with named `reasons`: `vague_marker` (whole words, pt and en),
   `voice_dump` (3+ asks in one dictation → `NEEDS_INTAKE`), `multiple_asks` (3+ typed asks →
   `NEEDS_LIGHT_REFINEMENT`), `short_directive`, `too_short`. Only empty input is `BLOCKED`.
+- **`category`** (advisory): one of the 13 request-taxonomy categories (`git_ship`,
+  `failure_report`, `approve_or_pick`, ...) with `category_probability` and `category_context`
+  (what the agent needs in context for that kind of request). A local classifier, about 0.3 ms
+  per prompt, no network. It is shown only at probability >= 0.45 and never changes readiness.
+  On an owner-labelled held-out set it was right on 0.51 of prompts (keyword rules 0.22, Opus
+  0.86); at that threshold dev accuracy is 0.83 on 34% of prompts. Source and receipts:
+  lcc-judge `research/goal-engine-2026-10-04/intake-judge-v1/RESULTS.md`.
 - **`risk_flags`** note security or injection phrasing ("bypass security", "ignore all
   previous instructions") without blocking: a test about a bypass is a normal request.
 - **Cache-stable layout:** the template comes first and the intake comment lines last, so two

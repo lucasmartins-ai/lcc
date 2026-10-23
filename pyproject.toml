@@ -90,7 +90,12 @@ local-context-compiler = "lcc.cli:cli_main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-lcc = ["py.typed", "relevance/specialist_v3.json"]
+lcc = [
+    "py.typed",
+    "relevance/specialist_v3.json",
+    "intake/intake_category_v1.json",
+    "intake/intake_categories.json",
+]
 
 [tool.ruff]
 line-length = 100
