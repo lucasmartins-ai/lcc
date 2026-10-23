@@ -106,3 +106,49 @@ process that only imports `lcc` peaks at 45.4 MB.
   hosted models were used there as an offline reference point only; they are not part of LCC.
 - `--check` gates on: no crash, v3 ranker recall at or above 0.6 / 0.5 / 0.4 at the three
   cuts, and `rules-lossless` keeping every must-keep string. Latency is not gated.
+
+## Efficiency gate (PR CI)
+
+`benchmarks/efficiency_gate.py` is the regression gate for token efficiency, cache stability and
+cost. It runs offline on fixed synthetic inputs (about 30 s) and compares each path with
+[`benchmarks/results/efficiency_baseline.json`](../benchmarks/results/efficiency_baseline.json).
+
+| path | input |
+| --- | --- |
+| `rules-lossless`, `rules-recoverable` | 60 turns of files re-read unchanged and `git status` |
+| `rules-stashed` | 60 turns of `tests/specialist_synthetic.py` |
+| `specialist-v3-auto-2500` | 400 synthetic turns (2,500 messages), `provider="auto"` |
+| `blocks-mechanical` | the 60-turn transcript rendered with block metadata, `compact_context` |
+| `intake` | a brief plus 60 notes through `LccIntake.process` |
+| `mcp-compact-transcript` | a `tools/call` round trip through `handle_message` |
+
+Per path it records `tokens_in` / `tokens_out` (the approximate counter, so a machine without a
+`tiktoken` cache gets the same numbers), `prefix_share` (the share of the output for a session
+that survives byte-identical at the head of the output for the same session plus 6 turns: what a
+prompt cache can reuse) and `cost`.
+
+`cost` is wall time divided by a calibration loop timed in the same process (best of 3 runs,
+calibration measured around each run), so a slower or busier machine moves both sides. It is a
+proxy. It catches a path going from O(n) to O(n²), not a 10% change.
+
+`--check` fails, naming the path and the delta, when:
+
+| metric | fails when | flag |
+| --- | --- | --- |
+| `tokens_out` | grows more than 1% | `--token-tolerance` |
+| `prefix_share` | drops more than 0.02 | `--prefix-tolerance` |
+| `cost` | grows more than 50% | `--cost-tolerance` |
+
+`tests/test_efficiency_gate.py` plants an O(n²) loop in a path and checks the gate fails it.
+
+### Updating the baseline
+
+When a change moves a number on purpose (a better compaction, a new fixture), run
+
+```sh
+python benchmarks/efficiency_gate.py --update-baseline --note "why the numbers moved"
+```
+
+It measures every path, rewrites the baseline and adds the note to `CHANGELOG.md` under
+Unreleased. Commit both files. `--note` is required, and `--only` is refused, so a baseline is
+never half updated. Do not update it to make a slow path pass: fix the path.

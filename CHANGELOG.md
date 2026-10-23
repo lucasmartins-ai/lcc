@@ -172,6 +172,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **Efficiency regression gate.** `benchmarks/efficiency_gate.py` runs rules lossless /
+  recoverable / stashed, specialist-v3 `auto` on a 2,500-message transcript, mechanical block
+  compaction, intake and an MCP `compact_transcript` round trip on fixed synthetic inputs, and CI
+  fails when a path's tokens out grow, its stable-prefix share drops or its machine-normalised cost
+  grows past a tolerance. Baseline: `benchmarks/results/efficiency_baseline.json`; see
+  `docs/BENCHMARKS.md`. `--update-baseline --note` rewrites it and adds a line here.
+
 - **`auto` stays local for plain text.** `compact` / `lcc compact` / intake relevance with
   `provider: auto` used to send context blocks to the TypeSafe API whenever a key resolved
   (environment, `~/.config/lcc/typesafe.key`, a sibling `.env`, or the macOS Keychain), with
