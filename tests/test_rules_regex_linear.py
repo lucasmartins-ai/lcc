@@ -40,7 +40,8 @@ def test_refs_and_error_scan_are_linear(name: str) -> None:
         ("~/notes/x.txt, ../up/y", ["~/notes/x.txt", "../up/y"]),
         ("go to https://x.io/a/b now", ["https://x.io/a/b", "/x.io/a/b"]),
         ("edit my-module.test.ts", ["test.ts"]),
-        ("flag -a.py", ["-a.py"]),
+        ("flag -a.py", ["a.py"]),
+        ("--x-y.py", ["x-y.py"]),
         ("a/b", ["a/b"]),
     ],
 )
@@ -50,3 +51,7 @@ def test_refs_on_normal_input(text: str, refs: list[str]) -> None:
 
 def test_every_pattern_still_exposed() -> None:
     assert len(REF_RES) == 3
+
+
+def test_leading_dashes_stay_out_of_the_ref() -> None:
+    assert "-a.py" not in _refs("flag -a.py")

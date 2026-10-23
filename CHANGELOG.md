@@ -17,8 +17,8 @@ All notable changes to this project are documented here. The format is based on
 - **Quadratic reference regexes.** The path pattern in `transcript_rules` retried from every
   position inside a long run of word characters (80k chars: 15 s), so a pasted hex dump in
   the goal, recent turns or pinned turns could outlast the hook timeout. Matches now start at
-  the start of a run; 200k chars take milliseconds. Differences on normal input: a ref keeps
-  leading dashes (`-a.py`), and a `~` in the middle of a token no longer starts a second ref.
+  the start of a run; 200k chars take milliseconds. The one difference on normal input: a `~`
+  in the middle of a token no longer starts a second ref (`-a.py` still names `a.py`).
 
 ### Added
 

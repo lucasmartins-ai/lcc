@@ -70,10 +70,12 @@ GIT_RE = re.compile(r"\bgit\s+(status|diff|log)\b")
 REF_RES = (
     re.compile(r"https?://\S+"),
     # Lookbehinds: a match starts where a run of word chars starts, not at every position inside
-    # it (a long slashless run, e.g. a hex dump, was quadratic). A ref now keeps leading dashes
-    # (`-a.py`), and a `~` mid-token no longer starts a second ref.
+    # it (a long slashless run, e.g. a hex dump, was quadratic). Leading dashes are consumed but
+    # left out of the `ref` group (`-a.py` names `a.py`); a `~` mid-token no longer starts a ref.
     re.compile(r"(?<![\w.~-])[\w.~-]*/[\w.-]+(?:/[\w.-]+)*"),
-    re.compile(r"(?<![\w-])-*\b[\w-]+\.(?:py|ts|tsx|js|jsx|md|json|toml|ya?ml|sql|css|html|sh|go|rs)\b"),
+    re.compile(
+        r"(?<![\w-])-*\b(?P<ref>[\w-]+\.(?:py|ts|tsx|js|jsx|md|json|toml|ya?ml|sql|css|html|sh|go|rs))\b"
+    ),
 )
 TASK_TOOLS = {"TodoWrite", "TaskCreate", "TaskUpdate", "ExitPlanMode", "update_plan"}
 EDIT_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
@@ -95,7 +97,8 @@ _READ_NAME_RE = re.compile(r"(?:^|_)(?:read|get|list|search|fetch|find|snapshot|
 
 
 def _refs(text: str) -> list[str]:
-    return list(dict.fromkeys(m.group(0) for rx in REF_RES for m in rx.finditer(text)))
+    found = (m.group(m.lastindex or 0) for rx in REF_RES for m in rx.finditer(text))
+    return list(dict.fromkeys(found))
 
 
 def _path(call: Any) -> str | None:
