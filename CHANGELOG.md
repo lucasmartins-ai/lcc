@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Fixed
+
+- **Stash gc hardening** (security review of the lifecycle PR). A mistyped `--root` aborts
+  instead of being skipped; symlinked project directories are scanned (loop-safe); FIFOs and
+  other special files are skipped instead of hanging; dangling symlinks no longer block gc;
+  only `put`'s own `.tmp-XXXXXXXX` files are cleaned; `--older-than` has a 1h floor; a
+  directory or symlink named like a blob is ignored. `put`/`recall` keep working where `flock`
+  fails (put warns; gc refuses); `.lock` is tightened to 0600. `~/.codex/sessions` joins the
+  default roots; `lcc stash ls` reports OS errors instead of a traceback.
+
 ### Added
 
 - **Stash lifecycle.** `lcc stash ls`, `lcc stash verify <session.jsonl>` and `lcc stash gc`
