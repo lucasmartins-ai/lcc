@@ -2124,7 +2124,10 @@ def intake_cmd(
         "claude_xml",
         "--template",
         "-t",
-        help="Prompt template to apply (claude_xml, code_agent, structured_markdown, default).",
+        help=(
+            "Prompt template to apply (claude_xml, code_agent, structured_markdown, default, "
+            "llama, llama_3_3, llama3, deepseek_r1, deepseek_v3)."
+        ),
     ),
     output_format: str = typer.Option(
         "markdown",

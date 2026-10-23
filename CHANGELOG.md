@@ -335,6 +335,7 @@ All notable changes to this project are documented here. The format is based on
   result (`MAX_MCP_OUTPUT_TOKENS`) and hands a plugin's `$.mcp.call` an error text in place of
   a larger one; a 12-message session with four 10 KB reads already crossed it (49 KB answer).
   The idle stash uses it; the `/compact` path is unchanged.
+- Add Llama 3.3 and DeepSeek-R1/V3 prompt templates with special-token neutralization.
 
 ### Changed
 
