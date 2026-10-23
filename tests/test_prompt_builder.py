@@ -167,3 +167,20 @@ def test_deepseek_v3_neutralizes_injected_turn_tokens():
     assert prompt.count("<｜User｜>") == 1
     assert prompt.count("<｜Assistant｜>") == 1
     assert "[special-token-removed]" in prompt
+
+
+@pytest.mark.parametrize("template", available_templates())
+def test_static_sections_come_before_per_request_content(template):
+    """Prompt caches reuse a byte-identical prefix: question and context must come last."""
+    common = {
+        "task_type": "summary",
+        "constraints": ["Answer in English."],
+        "max_output_tokens": 300,
+    }
+    a = build_prompt(PromptSpec(question="QA-question", context="CA-context", **common), template)
+    b = build_prompt(PromptSpec(question="QB-question", context="CB-context", **common), template)
+    first_dynamic = min(a.index("QA-question"), a.index("CA-context"))
+    shared = next((i for i, (x, y) in enumerate(zip(a, b, strict=False)) if x != y), len(a))
+    assert shared >= first_dynamic
+    for static in ("Answer in English.", "300"):
+        assert a.index(static) < first_dynamic, f"{static!r} renders after per-request content"

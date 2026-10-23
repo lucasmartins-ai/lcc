@@ -35,6 +35,14 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **Every prompt template puts per-request content last.** `default` put the user question
+  before its constraints; `code_agent`, `structured_markdown`, `deepseek_r1` and `deepseek_v3`
+  put the definition of done or the length guidance after the context. Static sections
+  (role, task type, constraints, response requirements, length guidance) now come first and
+  the context and question last, so a prompt cache can reuse the prefix. Static prefix shared
+  by two intake requests: `default` 245 → 689 chars, `code_agent` 676 → 908,
+  `structured_markdown` 464 → 630. `tests/test_prompt_builder.py` checks every template. Same
+  reorder in the Node `default` template. Section text is unchanged; only the order moved.
 - **The relationship graph is linear in session length.** `build_graph` (provider `auto`)
   compared every pair of blocks and linked any two sharing two terms found in up to half the
   blocks, so a long session's SUPPORTS edges grew with the square of its blocks: one 60 MB
