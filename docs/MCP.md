@@ -13,7 +13,7 @@ framing of its request). It exposes seven tools:
 | `inspect` | Read-only diagnostic inspection; returns the inspection report | Yes |
 | `prepare` | Inspect-first deterministic preparation; returns `action` + `prompt` (or skip note) | Yes |
 | `explain` | Audits a `compact` report object (`report`, optional `source_text`/`only`/`limit`) | Yes |
-| `intake` | Intake triage: readiness, intent, questions, assumptions, compiled prompt | Yes (default; no relevance pass) |
+| `intake` | Intake triage: readiness with named `reasons`, non-blocking `risk_flags`, `ask_count`, questions, assumptions, a `speech` receipt (every removed filler span), and a compiled prompt with the static template first | Yes (default; no relevance pass) |
 | `recall` | Returns an output `compact_transcript` (`rules_mode: "stashed"`) removed (`id`, optional `lines` `a-b`); hash-verified on read. See [`docs/TOOL_CALLS.md`](TOOL_CALLS.md) | Yes (stdio only; refused by `--http`) |
 
 Stdlib only — no new dependencies, and the base install is untouched. The

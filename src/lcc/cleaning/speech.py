@@ -13,7 +13,7 @@ _AUDIO_TAGS = re.compile(
     r"\[(?:music|applause|silence|laughter|cheering|cough|coughing|sigh|sighing|gasp"
     r"|background\s+noise|inaudible|unintelligible|snort|screaming|bell|audio|screams"
     r"|groan|chuckle|applause\s+and\s+cheering|music\s+playing|upbeat\s+music|ambient\s+noise"
-    r"|end\s+of\s+recording)\]|\((?:music|applause|cheering|laughter|silence|ambient\s+music"
+    r"|end\s+of\s+recording|m[uú]sica|aplausos|risos|sil[eê]ncio)\]|\((?:music|applause|cheering|laughter|silence|ambient\s+music"
     r"|upbeat\s+music|background\s+noise|inaudible|cough|sigh|chuckle)\)|[♪♫🎵♩♬]+",
     re.IGNORECASE,
 )
@@ -136,7 +136,8 @@ def is_speech_transcript(text: str) -> bool:
         return False
 
     # Check SRT/VTT timing lines
-    if "-->" in text and _TIMING_LINE.search(text):
+    # Per line: an SRT file opens with its sequence number, so the first line is not the cue.
+    if "-->" in text and any(_TIMING_LINE.match(line.strip()) for line in text.splitlines()):
         return True
 
     # Check audio tag annotations

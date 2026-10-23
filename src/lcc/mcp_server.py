@@ -361,6 +361,7 @@ def _tool_explain(args: dict[str, Any]) -> dict[str, Any]:
 
 def _tool_intake(args: dict[str, Any]) -> dict[str, Any]:
     from lcc.intake import LccIntake
+    from lcc.intake.pipeline import speech_receipt
 
     text = args.get("text", "")
     if not isinstance(text, str) or not text.strip():
@@ -370,9 +371,13 @@ def _tool_intake(args: dict[str, Any]) -> dict[str, Any]:
     return {
         "readiness": result.parsed.readiness.value,
         "readiness_score": result.parsed.readiness_score,
+        "reasons": list(result.parsed.reasons),
+        "risk_flags": list(result.parsed.risk_flags),
+        "ask_count": result.parsed.ask_count,
         "intent": result.parsed.intent,
         "questions": list(result.parsed.questions),
         "assumptions": list(result.parsed.assumptions),
+        "speech": speech_receipt(result),
         "formatted_prompt": result.formatted_prompt,
     }
 
@@ -608,8 +613,9 @@ TOOLS: dict[str, dict[str, Any]] = {
     "intake": {
         "handler": _tool_intake,
         "description": (
-            "Intake triage for raw prompt input: readiness, intent, clarifying "
-            "questions, assumptions, and a compiled prompt. Offline by default."
+            "Intake triage for raw prompt input: readiness with named reasons, "
+            "non-blocking risk_flags, clarifying questions, a receipt of every filler "
+            "removed from dictation, and a cache-stable compiled prompt. Offline."
         ),
         "schema": {
             "type": "object",

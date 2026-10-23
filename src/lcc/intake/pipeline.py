@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from lcc.compressor import CompressionResult, LccCompressor
 from lcc.intake.parser import ParsedIntake, ReadinessState, parse_intake
+from lcc.intake.speech import DictationClean, DictationDetection, clean_dictation, detect_dictation
 from lcc.prompt_builder import PromptSpec, build_prompt
 from lcc.toon import encode_toon
 
@@ -25,6 +26,45 @@ class IntakeResult:
     formatted_prompt: str
     output_format: str
     relevance: RelevanceCompactionResult | None = None
+    dictation: DictationDetection | None = None
+    #: Filler/transcript removals with exact spans in ``raw_input``; ``None`` when not dictation.
+    speech_cleaning: DictationClean | None = None
+
+
+def speech_receipt(result: IntakeResult) -> dict[str, Any]:
+    """JSON-ready receipt of the dictation detection and every removed span."""
+    detection = result.dictation
+    cleaning = result.speech_cleaning
+    return {
+        "detected": bool(detection and detection.detected),
+        "reasons": list(detection.reasons) if detection else [],
+        "removed_spans": len(cleaning.removals) if cleaning else 0,
+        "removed_chars": cleaning.removed_chars if cleaning else 0,
+        "counts": cleaning.counts() if cleaning else {},
+        "removals": [asdict(r) for r in cleaning.removals] if cleaning else [],
+    }
+
+
+def _intake_block(parsed: ParsedIntake, cleaning: DictationClean | None) -> str:
+    """Per-request intake metadata, rendered after the prompt so the template prefix is static."""
+    lines = [
+        "<!-- lcc-intake:readiness "
+        f'status="{parsed.readiness.value}" score="{parsed.readiness_score}"'
+        + (f' reasons="{",".join(parsed.reasons)}"' if parsed.reasons else "")
+        + " -->"
+    ]
+    if parsed.risk_flags:
+        lines.append(f"<!-- risk_flags: {', '.join(parsed.risk_flags)} -->")
+    if cleaning is not None and cleaning.removals:
+        lines.append(
+            f"<!-- speech_cleaning: removed {len(cleaning.removals)} span(s), "
+            f"{cleaning.removed_chars} chars; spans in the intake report -->"
+        )
+    if parsed.assumptions:
+        lines.append(f"<!-- assumptions: {'; '.join(parsed.assumptions)} -->")
+    if parsed.questions:
+        lines.append(f"<!-- clarifying_questions: {'; '.join(parsed.questions)} -->")
+    return "\n".join(lines)
 
 
 class LccIntake:
@@ -56,6 +96,8 @@ class LccIntake:
             strategy=strategy,
             max_tokens=max_tokens,
             template_name=template_name,
+            # Intake cleans speech itself and reports every span; the shared cleaner does not.
+            clean_speech=False,
         )
 
     def parse(self, raw_input: str) -> ParsedIntake:
@@ -70,12 +112,10 @@ class LccIntake:
         extra_constraints: list[str] | None = None,
     ) -> IntakeResult:
         """Execute full intake & LCC compilation pipeline."""
-        from lcc.cleaning import clean_speech_transcript, is_speech_transcript
-
-        input_text = (
-            clean_speech_transcript(raw_input) if is_speech_transcript(raw_input) else raw_input
-        )
-        parsed = parse_intake(input_text)
+        detection = detect_dictation(raw_input)
+        cleaning = clean_dictation(raw_input) if detection.detected else None
+        input_text = cleaning.text if cleaning else raw_input
+        parsed = parse_intake(input_text, dictation=detection.detected)
         relevance_result: RelevanceCompactionResult | None = None
         if self.enable_relevance and parsed.readiness != ReadinessState.BLOCKED:
             from lcc.relevance import RelevanceCompactionRequest, compact_context
@@ -98,7 +138,7 @@ class LccIntake:
                 raw_text=source_text,
                 question=question or parsed.brief.objective,
                 task_type="intake-refinement",
-                constraints=extra_constraints or parsed.brief.constraints,
+                constraints=extra_constraints or [],
             )
             cleaned_text = compression_result.compressed_text
 
@@ -118,6 +158,8 @@ class LccIntake:
             toon_data: dict[str, Any] = {
                 "readiness": parsed.readiness.value,
                 "readiness_score": parsed.readiness_score,
+                "reasons": parsed.reasons,
+                "risk_flags": parsed.risk_flags,
                 "assumptions": parsed.assumptions,
                 "questions": parsed.questions,
                 "payload": cleaned_text,
@@ -128,6 +170,9 @@ class LccIntake:
                 "readiness": parsed.readiness.value,
                 "readiness_score": parsed.readiness_score,
                 "intent": parsed.intent,
+                "reasons": parsed.reasons,
+                "risk_flags": parsed.risk_flags,
+                "ask_count": parsed.ask_count,
                 "assumptions": parsed.assumptions,
                 "questions": parsed.questions,
                 "brief": asdict(parsed.brief),
@@ -135,19 +180,10 @@ class LccIntake:
             }
             formatted_prompt = json.dumps(json_data, indent=2)
         else:
-            # Build using registered prompt template
+            # Static template first, per-request intake metadata last: a cache can only reuse
+            # a byte-identical prefix (docs/CACHE_ALIGNMENT.md).
             rendered = build_prompt(spec, template_name=self.template_name)
-            header_comments = [
-                "<!-- lcc-intake:readiness "
-                f'status="{parsed.readiness.value}" score="{parsed.readiness_score}" -->'
-            ]
-            if parsed.assumptions:
-                header_comments.append(f"<!-- assumptions: {'; '.join(parsed.assumptions)} -->")
-            if parsed.questions:
-                header_comments.append(
-                    f"<!-- clarifying_questions: {'; '.join(parsed.questions)} -->"
-                )
-            formatted_prompt = "\n".join(header_comments) + "\n\n" + rendered
+            formatted_prompt = rendered + "\n" + _intake_block(parsed, cleaning)
 
         return IntakeResult(
             raw_input=raw_input,
@@ -156,6 +192,8 @@ class LccIntake:
             formatted_prompt=formatted_prompt,
             output_format=output_format,
             relevance=relevance_result,
+            dictation=detection,
+            speech_cleaning=cleaning,
         )
 
 
