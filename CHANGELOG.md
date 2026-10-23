@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **Efficiency baseline updated.** baseline regenerated on intake v2 (#105); cost failures under 0.15 calibration units are ignored as jitter
+
 - **Intake prompt is cache-stable.** The readiness, assumption and question comments that
   embedded the user's text used to come before the template, so two requests shared 34 to
   1,188 prefix chars depending on readiness (claude_xml, corpus pairs). The template now comes
@@ -204,6 +206,15 @@ All notable changes to this project are documented here. The format is based on
   See `docs/SHARE_STATS.md`.
 
 ### Changed
+
+- **Efficiency baseline updated.** intake, rules and MCP fixtures enlarged: their cost was sub-millisecond and too noisy for the cost gate
+
+- **Efficiency regression gate.** `benchmarks/efficiency_gate.py` runs rules lossless /
+  recoverable / stashed, specialist-v3 `auto` on a 2,500-message transcript, mechanical block
+  compaction, intake and an MCP `compact_transcript` round trip on fixed synthetic inputs, and CI
+  fails when a path's tokens out grow, its stable-prefix share drops or its machine-normalised cost
+  grows past a tolerance. Baseline: `benchmarks/results/efficiency_baseline.json`; see
+  `docs/BENCHMARKS.md`. `--update-baseline --note` rewrites it and adds a line here.
 
 - **`auto` stays local for plain text.** `compact` / `lcc compact` / intake relevance with
   `provider: auto` used to send context blocks to the TypeSafe API whenever a key resolved

@@ -48,14 +48,30 @@ class GraphEdge:
 class ContextGraph:
     nodes: set[str] = field(default_factory=set)
     edges: list[GraphEdge] = field(default_factory=list)
+    #: Block id -> positions in ``edges``. Kept in step by ``add_edge``; mutating ``edges``
+    #: directly bypasses it, so every writer goes through ``add_edge``.
+    _touching: dict[str, list[int]] = field(
+        default_factory=dict, init=False, repr=False, compare=False
+    )
+
+    def __post_init__(self) -> None:
+        for pos, edge in enumerate(self.edges):
+            self._index(pos, edge)
+
+    def _index(self, pos: int, edge: GraphEdge) -> None:
+        self._touching.setdefault(edge.source, []).append(pos)
+        if edge.target != edge.source:  # a self-loop is listed once
+            self._touching.setdefault(edge.target, []).append(pos)
 
     def add_edge(self, edge: GraphEdge) -> None:
         self.nodes.add(edge.source)
         self.nodes.add(edge.target)
         self.edges.append(edge)
+        self._index(len(self.edges) - 1, edge)
 
     def edges_touching(self, block_id: str) -> list[GraphEdge]:
-        return [e for e in self.edges if e.source == block_id or e.target == block_id]
+        # Insertion order, same as the linear scan it replaced.
+        return [self.edges[pos] for pos in self._touching.get(block_id, ())]
 
     def neighbours_of(self, kept_ids: set[str]) -> dict[str, GraphEdge]:
         """Blocks linked to any kept block, mapped to their strongest edge."""
