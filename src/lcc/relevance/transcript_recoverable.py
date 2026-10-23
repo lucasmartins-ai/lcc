@@ -66,6 +66,7 @@ import stat
 from typing import Any
 
 from lcc.relevance.transcript_lossless import (
+    _ANY_POINTER_RE,
     duplicate_ids,
     lossless_decisions,
     verify_lossless,
@@ -142,9 +143,14 @@ def shell_command(call: Any) -> str | None:
     return value if isinstance(value, str) and value.strip() else None
 
 
+#: Commands longer than this are never parsed (and so never allowlisted): ``shlex`` is quadratic
+#: in the length of one token, and no real command a pointer can name comes close.
+MAX_PARSED_COMMAND_CHARS = 4096
+
+
 def _argv(cmd: str) -> list[str] | None:
     """Tokens of a simple command (no pipes, redirects, substitutions, chains), else None."""
-    if _SHELL_META.search(cmd):
+    if len(cmd) > MAX_PARSED_COMMAND_CHARS or _SHELL_META.search(cmd):
         return None
     try:
         argv = shlex.split(cmd)
@@ -570,6 +576,8 @@ def recoverable_decisions(
     for call in candidates:
         result = call.result
         reason = "duplicate_tool_use_id" if call.id in duplicated else protected.get(call.id)
+        if reason is None and _ANY_POINTER_RE.match(result.text):
+            reason = "already_pointer"  # an earlier pass's pointer is a fixed point
         if reason is None and result.message_index in pinned:
             reason = "pinned_recent_result"
         if reason is None and (_flagged(call) or "<tool_use_error>" in result.text):

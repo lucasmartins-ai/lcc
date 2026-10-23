@@ -819,3 +819,9 @@ def test_ranges_beyond_the_returned_lines_are_kept(call):
     _r, compacted, d = run(convo(call, *filler()))
     assert d["c1"]["decision"] == "keep"
     assert text_of(compacted, "c1") == call[2]
+
+
+def test_a_very_long_command_is_never_parsed_or_allowlisted() -> None:
+    # shlex is quadratic in one token's length; the cap keeps the pass linear (PR: semantic coverage)
+    assert is_read_only_command("ls " + "a" * 100)
+    assert not is_read_only_command("ls " + "a" * (recoverable_module.MAX_PARSED_COMMAND_CHARS + 1))

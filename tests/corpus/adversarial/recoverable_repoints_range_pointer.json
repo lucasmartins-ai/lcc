@@ -1,0 +1,61 @@
+{
+ "note": "recoverable re-pointed its own '(lines 2-2)' pointer on a whole-file Read whose output starts at line 2: a second pass rewrote it as a bare 're-read' pointer (widened fuzz, offset/limit reads)",
+ "goal": "router",
+ "payload": [
+  {
+   "role": "user",
+   "text": "router"
+  },
+  {
+   "role": "assistant",
+   "text": "",
+   "toolUses": [
+    {
+     "tool_use_id": "r1",
+     "tool": "Read",
+     "input": {
+      "file_path": "/work/src/a.py"
+     }
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "",
+   "toolResults": [
+    {
+     "tool_use_id": "r1",
+     "text": "     2\txxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+   ]
+  },
+  {
+   "role": "user",
+   "text": "next 0"
+  },
+  {
+   "role": "user",
+   "text": "next 1"
+  },
+  {
+   "role": "user",
+   "text": "next 2"
+  },
+  {
+   "role": "user",
+   "text": "next 3"
+  },
+  {
+   "role": "user",
+   "text": "next 4"
+  },
+  {
+   "role": "user",
+   "text": "next 5"
+  },
+  {
+   "role": "user",
+   "text": "next 6"
+  }
+ ]
+}
