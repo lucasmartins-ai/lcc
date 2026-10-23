@@ -44,6 +44,10 @@ text that is not valid Unicode. Each error names the field. A call without a res
 result without a call, are left alone; there is nothing to judge. Calls whose id repeats are
 always kept (`duplicate_tool_use_id`). Every case and its test: [EDGE_CASES.md](EDGE_CASES.md).
 
+**Aider.** `.aider.chat.history.md` maps to user/assistant `text` messages through
+`lcc.aider_history.from_aider_chat_history`, but it has no `toolUses`/`toolResults` ids, so
+tool-calls mode has nothing to score. Details and a sample: [AIDER.md](AIDER.md).
+
 ## 2. Decisions
 
 For every non-pinned pair the judge answers two typed `noul` questions: does the **call**

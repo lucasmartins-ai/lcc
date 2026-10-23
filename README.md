@@ -187,6 +187,7 @@ pass as not worth it, and the Claude Code plugin keeps the built-in summary.
 | Claude Code plugin | [CLAUDE_CODE.md](docs/CLAUDE_CODE.md) |
 | MCP server | [MCP.md](docs/MCP.md) |
 | Tool-call compaction and rules modes | [TOOL_CALLS.md](docs/TOOL_CALLS.md) |
+| Aider chat history as input | [AIDER.md](docs/AIDER.md) |
 | The local ranker | [SPECIALIST.md](docs/SPECIALIST.md) |
 | Benchmarks | [BENCHMARKS.md](docs/BENCHMARKS.md), [REAL_SESSION_BENCHMARKS.md](docs/REAL_SESSION_BENCHMARKS.md), [benchmarks/](benchmarks/README.md) |
 | Python API (`lcc.msi.compile`) | [msi-api.md](docs/lcc/msi-api.md) |
