@@ -191,6 +191,19 @@ re-checks every pointer against its blob (present, hash matches, bytes equal the
 violation keeps everything. A blob that cannot be written keeps its result
 (`stash_write_failed:<error>`).
 
+**Lean pointer (opt-in).** `--stash-pointer lean` (CLI) or `stash_pointer: "lean"` (MCP) writes
+`[removed: N lines, S KB · exit X · <failing test or error type> · "<first line>" · lcc recall
+<sha12>]`. Each extra field appears only when the output has it. The exit status comes from the
+first four or last three lines. Up to two identifiers come from `FAILED path::test` lines and
+`…Error`/`…Exception` names, each capped at 60 chars. The first line is the first non-empty
+line after any Codex header, with only printable characters, capped at 60 chars. Everything is
+read from the stashed bytes, so the pointer is still a fixed point. Both forms are recognised on
+later passes, whichever pointer setting wrote them. On 3,273 real stashed outputs it cost +13
+tokens per pointer (0.9% of the stashed tokens). It does not tell same-call outputs apart any
+better than `plain`: line and byte counts already do that for 99.5% of them. Its only possible
+gain is saying what an output contains, and whether that changes recall accuracy is not measured
+([research](research/judge-as-stash-policy.md)). The default stays `plain`.
+
 From the CLI. Getting a result back re-hashes the blob and refuses one that fails:
 
 ```bash

@@ -18,6 +18,14 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Lean stash pointer, opt-in.** `--stash-pointer lean` (CLI) and `stash_pointer: "lean"`
+  (MCP), with `--rules-mode stashed`, add the exit status, a failing test or error type, and the
+  first line to each pointer: about +13 tokens each. Default stays `plain`. Both forms are fixed
+  points for later passes. Whether it improves recall accuracy is not measured. See
+  docs/TOOL_CALLS.md.
+- **Correction to docs/research/judge-as-stash-policy.md.** The claim that a richer pointer cuts
+  same-call ambiguity from 12.5% to 0.9% is withdrawn. Measured against the current
+  `N lines, S KB` note, the share is 0.5% with either pointer.
 - **Stash lifecycle.** `lcc stash ls`, `lcc stash verify <session.jsonl>` and `lcc stash gc`
   (dry run unless `--apply`; deletes only blobs no transcript under `--root` references and
   unused for `--older-than`, default 30d; fails closed; `flock` against a concurrent `put`).

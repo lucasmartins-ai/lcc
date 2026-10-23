@@ -1101,6 +1101,7 @@ def _compact_tool_calls(
     trim_head_chars: int,
     preserve_recent: int,
     rules_mode: str | None,
+    stash_pointer: str,
     max_state_tokens: int,
     max_request_tokens: int,
     batch_calls: int,
@@ -1160,6 +1161,7 @@ def _compact_tool_calls(
                 preserve_recent=preserve_recent,
                 trim_head_chars=trim_head_chars,
                 rules_mode=rules_mode or "lossless",
+                stash_pointer=stash_pointer,
                 max_state_tokens=max_state_tokens,
                 max_request_tokens=max_request_tokens,
                 batch_calls=batch_calls,
@@ -1331,6 +1333,15 @@ def compact_command(
             "tool-calls mode with --provider rules: 'lossless' (default), 'recoverable', "
             "'lossy' or 'stashed' (removed outputs go to a local stash, `lcc recall` "
             "returns them byte for byte). See docs/TOOL_CALLS.md."
+        ),
+    ),
+    stash_pointer: str = typer.Option(
+        "plain",
+        "--stash-pointer",
+        help=(
+            "--rules-mode stashed only: 'plain' (default) or 'lean', which adds the exit "
+            "status, error type or failing test and the first line to each pointer "
+            "(about +13 tokens each; see docs/TOOL_CALLS.md)."
         ),
     ),
     max_state_tokens: int = typer.Option(
@@ -1661,6 +1672,13 @@ def compact_command(
             _fail("--rules-mode needs --mode tool-calls and --provider rules.", code=2)
         if rules_mode not in RULES_MODES:
             _fail(f"--rules-mode must be one of {', '.join(RULES_MODES)}.", code=2)
+    if stash_pointer != "plain":
+        from lcc.relevance.transcript_stash import POINTERS
+
+        if stash_pointer not in POINTERS:
+            _fail(f"--stash-pointer must be one of {', '.join(POINTERS)}.", code=2)
+        if rules_mode != "stashed":
+            _fail("--stash-pointer needs --rules-mode stashed.", code=2)
     if max_state_tokens < 64:
         _fail("--max-state-tokens must be >= 64.", code=2)
     if max_request_tokens <= max_state_tokens:
@@ -1712,6 +1730,7 @@ def compact_command(
             trim_head_chars=trim_head_chars,
             preserve_recent=preserve_recent,
             rules_mode=rules_mode,
+            stash_pointer=stash_pointer,
             max_state_tokens=max_state_tokens,
             max_request_tokens=max_request_tokens,
             batch_calls=batch_size,
