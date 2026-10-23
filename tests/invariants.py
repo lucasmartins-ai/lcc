@@ -101,14 +101,20 @@ def assert_transcript_invariants(payload: list[dict[str, Any]], result: Any, opt
     # Kept results are byte-identical; trims keep a byte-exact head.
     decisions = {d["id"]: d for d in result.decisions if d["source"] != "pin"}
     for message in after:
-        originals = {r.id: r for r in by_index[message.message_index].tool_results}
+        # ids may repeat inside one message: the n-th result with an id pairs with its n-th original
+        originals: dict[str, list[str]] = {}
+        for r in by_index[message.message_index].tool_results:
+            originals.setdefault(r.id, []).append(r.text)
+        seen: dict[str, int] = {}
         for res in message.tool_results:
+            original = originals[res.id][seen.get(res.id, 0)]
+            seen[res.id] = seen.get(res.id, 0) + 1
             decision = decisions.get(res.id)
             if decision is None or decision["decision"] == "keep":
-                assert res.text == originals[res.id].text
+                assert res.text == original
             elif decision["decision"] == "trim":
                 head = res.text.split("\n[... lcc:", 1)[0]
-                assert originals[res.id].text.startswith(head)
+                assert original.startswith(head)
     # Accounting.
     counted = [d for d in result.decisions if d["source"] != "pin"]
     kinds = [d["decision"] for d in counted]

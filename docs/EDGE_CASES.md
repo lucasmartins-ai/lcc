@@ -49,6 +49,39 @@ so a second `stashed` pass changed it. Later: the stash note counted tokens, so 
 gave `1380 tokens` with `tiktoken` and `928` without; it now states lines and size. A long
 run of path characters with no slash made the reference regexes quadratic (`long_slashless_run`).
 
+### Semantic coverage of the rules modes
+
+The seven invariants say the output is well formed, not that the rules decided correctly (a
+quadratic regex passed them for a release). [`test_rules_metamorphic.py`](../tests/test_rules_metamorphic.py)
+changes a transcript in a way whose effect is known and checks the decisions of `lossy`,
+`recoverable` and `stashed`. Hypothesis properties over the fuzz generator, unique tool ids;
+a fixed-seed batch in plain `pytest`, random seeds and a bigger batch under `LCC_FUZZ_SECONDS`.
+
+| Property | Statement |
+| --- | --- |
+| Path renaming | Renaming every path, bare file name and the workdir consistently (same length and shape) changes no decision. |
+| Unrelated call | Inserting a read-only call away from the end changes no other call's decision, except a call that crosses `STALE_AFTER_MESSAGES` / `TRIM_MIN_AGE_MESSAGES` (it ages by two messages) and the `call_before_latest_error` rule (positional by design). |
+| Read then Edit | A Read followed by an Edit of the same file is never `recoverable_file_read` / `replace_disk_verified`. A control test pins that the same Read without the Edit is. |
+| Goal names a file | Adding a file name or path to the goal never turns a keep into a drop, trim or replace. |
+| Later whole-file Read | Inserting a later whole-file Read of X never turns another call's removal back into a keep. |
+
+The generator behind the fuzz test also covers Codex rollout shapes (`exec_command` with
+`workdir` and result headers, `write_stdin`, `apply_patch` bodies, alone or through the shell),
+Claude `MultiEdit`, `offset`/`limit` reads with numbered output, parallel calls in one message
+(results in one message or split), compaction boundaries (a summary message, sometimes a
+`system` marker), absolute paths (the only ones recoverable pointers accept), paths named in the
+goal, and long runs of word characters with no separator in results, the goal and commands.
+
+[`test_rules_linear_time.py`](../tests/test_rules_linear_time.py) runs nightly only
+(`LCC_TIMING=1`): doubling a fixed hostile shape (a long run in a result, in the goal, in a
+command; many calls on the same files) must take at most 2.5x the time, best of three. Known
+gap: `recoverable` (so `stashed`) is quadratic in the number of calls, because `file_written`
+checks every read against the text of every later call (about 3x per doubling at 800 calls,
+0.6 s at 1,600); the shape is `xfail` until an index replaces the scan. Defects the new
+generator found: a second `recoverable` pass rewrote its own `(lines a-b)` pointer
+(`recoverable_repoints_range_pointer`), and `shlex` made a very long command quadratic (commands
+over 4,096 characters are no longer parsed, so never allowlisted).
+
 ## Input
 
 | Edge case | Expected behaviour | Test |
