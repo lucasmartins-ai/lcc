@@ -399,11 +399,13 @@ class LccIntake {
       taskType: "intake-refinement"
     }, this.template);
 
+    // Static template first, per-request intake metadata last, so a prompt cache can reuse
+    // the template prefix across requests (docs/CACHE_ALIGNMENT.md).
     const formattedPrompt = [
+      prompt,
       `<!-- lcc-intake:readiness status="${parsed.readiness}" score="${parsed.readinessScore}" -->`,
-      parsed.assumptions.length ? `<!-- assumptions: ${parsed.assumptions.join("; ")} -->` : "",
-      prompt
-    ].filter(Boolean).join("\n\n");
+      parsed.assumptions.length ? `<!-- assumptions: ${parsed.assumptions.join("; ")} -->` : ""
+    ].filter(Boolean).join("\n");
 
     return {
       rawInput,

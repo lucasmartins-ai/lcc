@@ -2168,6 +2168,7 @@ def intake_cmd(
 ) -> None:
     """Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC."""
     from lcc.intake import LccIntake, ReadinessState
+    from lcc.intake.pipeline import speech_receipt
 
     # Determine if input_source is a file or direct string
     if input_source == "-":
@@ -2206,10 +2207,14 @@ def intake_cmd(
             "readiness": result.parsed.readiness.value,
             "readiness_score": result.parsed.readiness_score,
             "ambiguity_score": result.parsed.ambiguity_score,
+            "reasons": result.parsed.reasons,
+            "risk_flags": result.parsed.risk_flags,
+            "ask_count": result.parsed.ask_count,
             "intent": result.parsed.intent,
             "questions": result.parsed.questions,
             "assumptions": result.parsed.assumptions,
             "brief": asdict(result.parsed.brief),
+            "speech": speech_receipt(result),
             "compression": asdict(result.compression) if result.compression else None,
             "relevance": relevance_report_to_dict(result.relevance.report)
             if result.relevance
@@ -2244,6 +2249,17 @@ def intake_cmd(
     table.add_row("Readiness Status", f"[{badge_style}]{readiness.value}[/{badge_style}]")
     table.add_row("Readiness Score", f"{result.parsed.readiness_score}/100")
     table.add_row("Ambiguity Score", f"{result.parsed.ambiguity_score}/100")
+    if result.parsed.reasons:
+        table.add_row("Reasons", ", ".join(result.parsed.reasons))
+    if result.parsed.risk_flags:
+        table.add_row("Risk Flags", f"[yellow]{', '.join(result.parsed.risk_flags)}[/yellow]")
+    if result.speech_cleaning is not None:
+        cleaning = result.speech_cleaning
+        table.add_row(
+            "Speech Cleaning",
+            f"{len(cleaning.removals)} span(s), {cleaning.removed_chars} chars removed"
+            + (" (spans in --report)" if cleaning.removals else ""),
+        )
     table.add_row("Target Model", model)
     table.add_row("Template", template)
 

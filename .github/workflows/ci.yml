@@ -58,6 +58,7 @@ jobs:
     - name: Prefix stability smoke (cache contract invariants, synthetic, no network)
       run: |
         python3 benchmarks/cache/run_prefix_stability.py --check --out "$RUNNER_TEMP/prefix-stability"
+        python3 benchmarks/cache/run_intake_prefix.py --check
 
   test-node:
     runs-on: ubuntu-latest
