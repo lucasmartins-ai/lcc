@@ -16,9 +16,23 @@ All notable changes to this project are documented here. The format is based on
 - **Correction to docs/research/judge-as-stash-policy.md.** The claim that a richer pointer cuts
   same-call ambiguity from 12.5% to 0.9% is withdrawn. Measured against the current
   `N lines, S KB` note, the share is 0.5% with either pointer.
+- **Stash lifecycle.** `lcc stash ls`, `lcc stash verify <session.jsonl>` and `lcc stash gc`
+  (dry run unless `--apply`; deletes only blobs no transcript under `--root` references and
+  unused for `--older-than`, default 30d; fails closed; `flock` against a concurrent `put`).
+  Each blob gets a sidecar with timestamps and truncated session-id hashes, never content.
+  A recall of a missing blob now says how to recover instead of a bare "not found".
+  Nothing is deleted by default, the plugin included.
 
 ### Changed
 
+- **The relationship graph is linear in session length.** `build_graph` (provider `auto`)
+  compared every pair of blocks and linked any two sharing two terms found in up to half the
+  blocks, so a long session's SUPPORTS edges grew with the square of its blocks: one 60 MB
+  Claude Code session (4,604 blocks) built 2.9M edges twice per compaction, 30 s and 2.2 GB
+  in `lcc measure-session`, 1,276 s with every core measuring other sessions. A term in more
+  than 64 blocks is no longer a link (`MAX_TERM_BLOCKS`; inputs under 130 blocks are
+  unchanged) and pairs come from the term postings, not a scan of every pair. Same session:
+  `auto` 30.5 s -> 6.6 s, whole run 2.2 GB -> 312 MB, texts lost still 0.
 - **Efficiency baseline updated.** baseline regenerated on intake v2 (#105); cost failures under 0.15 calibration units are ignored as jitter
 
 - **Intake prompt is cache-stable.** The readiness, assumption and question comments that
@@ -41,6 +55,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- **`lcc optimize` speech cleaning no longer drops content or turns questions into
+  statements.** On transcripts it rewrote ", né?" and ", right?" to "." and removed "kind of",
+  "sort of", "you know", "I mean", "basically" and "literally" anywhere ("What kind of index"
+  → "What index", "Do you know the schema?" → "Do the schema?"), and "Right," anywhere ("turn
+  right, then" lost "right"). Those markers now go only when they are pure fillers: between
+  commas or opening a sentence. The pass is also reported: `cleaning_steps` gains
+  `speech_transcript_cleaning` with `removed_chars`.
 - **SRT transcripts were not detected as speech** when they opened with their sequence number
   (the usual case): the timing line was only matched at the start of the text. Portuguese audio
   tags (`[Música]`, `[Aplausos]`, `[Risos]`, `[Silêncio]`) are now recognised too.

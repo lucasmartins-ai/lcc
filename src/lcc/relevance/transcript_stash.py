@@ -19,14 +19,23 @@ Eligible: every result ``lossy`` would drop or trim, plus every result ``recover
 lossless dedupes win where they apply. Everything else is kept verbatim, as in those modes:
 pinned turns, the latest error and the call before it, calls named in the goal, duplicate ids.
 Calls, inputs and texts never change; a stashed result is replaced whole, never cut.
+
+Lifecycle (:mod:`lcc.relevance.stash_lifecycle`): each blob has a ``<sha256>.json`` sidecar
+with timestamps and truncated session-id hashes, never content. ``put`` and ``recall`` hold a
+shared ``flock`` on ``<stash>/.lock`` and ``lcc stash gc --apply`` an exclusive one, so a blob
+``put`` refreshes while gc runs is never deleted under it.
 """
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import json
 import os
 import re
 import tempfile
+import time
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -61,6 +70,18 @@ class StashError(ValueError):
     """A recall that cannot return verified bytes (bad id, missing blob, hash mismatch)."""
 
 
+class StashMissing(StashError):
+    """No blob for the id: the stash was cleared, gc'd, or this is another machine."""
+
+
+# The pointer is gone for good once its blob is: say what the user can still do.
+RECOVERY_HINT = (
+    "The removed output is not in this machine's stash (cache cleared, `lcc stash gc`, or the "
+    "session was resumed elsewhere) and lcc cannot rebuild it: re-read the file or re-run the "
+    "command that produced it."
+)
+
+
 def _is_windows() -> bool:
     return os.name == "nt"
 
@@ -80,8 +101,79 @@ def stash_dir() -> Path:
     return Path.home() / ".cache" / "lcc" / "stash"
 
 
-def put(text: str) -> str:
-    """Store ``text``'s UTF-8 bytes; return their sha256. Idempotent; atomic per blob."""
+@contextlib.contextmanager
+def stash_lock(root: Path, *, exclusive: bool = False) -> Iterator[None]:
+    """``flock`` on ``<root>/.lock``: shared for put/recall, exclusive for gc. No-op on Windows
+    (where ``lcc stash gc --apply`` refuses to run)."""
+    if _is_windows():
+        yield
+        return
+    import fcntl
+
+    fd = os.open(root / ".lock", os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
+        yield
+    finally:
+        os.close(fd)  # closing releases the lock
+
+
+def _write_private(path: Path, data: bytes) -> None:
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".tmp-")  # mkstemp creates 0600 on POSIX
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+        os.replace(tmp, path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
+
+
+def sidecar_path(blob: Path) -> Path:
+    return blob.with_name(blob.name + ".json")
+
+
+def read_sidecar(blob: Path) -> dict[str, Any]:
+    """Provenance for ``blob``; ``{}`` when absent or unreadable (it is advisory only)."""
+    try:
+        meta = json.loads(sidecar_path(blob).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return meta if isinstance(meta, dict) else {}
+
+
+def _touch_sidecar(blob: Path, **fields: Any) -> None:
+    """Merge ``fields`` into the sidecar. Counts and times only, never content or paths.
+
+    ponytail: read-modify-write under a shared lock, so two concurrent puts of one blob can
+    lose a session hash; gc never trusts the sidecar for references, only for display.
+    """
+    meta = read_sidecar(blob)
+    now = time.time()
+    meta.setdefault("created_at", now)
+    session = fields.pop("session", None)
+    if session:
+        meta["sessions"] = sorted({*meta.get("sessions", []), session})
+    meta.update({key: now for key, on in fields.items() if on})
+    # Provenance is best effort; the blob and the pointer are what recall needs.
+    with contextlib.suppress(OSError):
+        _write_private(sidecar_path(blob), json.dumps(meta, sort_keys=True).encode("utf-8"))
+
+
+def session_hash(session_id: Any) -> str | None:
+    """Truncated SHA-256 of a session id, as the ledger stores it."""
+    from lcc.receipt import session_key
+
+    return session_key(session_id)
+
+
+def put(text: str, *, session: str | None = None) -> str:
+    """Store ``text``'s UTF-8 bytes; return their sha256. Idempotent; atomic per blob.
+
+    ``session`` (a raw session id) is stored only as :func:`session_hash`. A blob that already
+    exists gets its mtime refreshed: gc measures age from it, so a pointer written right after
+    this call is never older than the blob it names.
+    """
     data = text.encode("utf-8")
     digest = hashlib.sha256(data).hexdigest()
     root = stash_dir()
@@ -90,16 +182,12 @@ def put(text: str) -> str:
     if not _is_windows():
         os.chmod(root, 0o700)
     target = root / digest
-    if target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == digest:
-        return digest
-    fd, tmp = tempfile.mkstemp(dir=root, prefix=".tmp-")  # mkstemp creates 0600 on POSIX
-    try:
-        with os.fdopen(fd, "wb") as handle:
-            handle.write(data)
-        os.replace(tmp, target)
-    except BaseException:
-        Path(tmp).unlink(missing_ok=True)
-        raise
+    with stash_lock(root):
+        if target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == digest:
+            os.utime(target)
+        else:
+            _write_private(target, data)
+        _touch_sidecar(target, session=session_hash(session), last_put_at=True)
     return digest
 
 
@@ -111,18 +199,28 @@ def _blob(stash_id: str) -> tuple[str, bytes]:
         sorted(p for p in root.glob(f"{stash_id}*") if _FULL.match(p.name)) if root.is_dir() else []
     )
     if not matches:
-        raise StashError(f"stash id {stash_id} not found in {root}")
+        raise StashMissing(f"stash id {stash_id} not found in {root}. {RECOVERY_HINT}")
     if len(matches) > 1:
         raise StashError(f"stash id {stash_id} is ambiguous; pass more of the sha256")
-    data = matches[0].read_bytes()
+    try:
+        data = matches[0].read_bytes()
+    except FileNotFoundError:  # removed between glob and read
+        raise StashMissing(f"stash id {stash_id} not found in {root}. {RECOVERY_HINT}") from None
     if hashlib.sha256(data).hexdigest() != matches[0].name:
-        raise StashError(f"stash blob {matches[0].name} fails its hash check; not returned")
+        raise StashError(
+            f"stash blob {matches[0].name} fails its hash check; not returned. {RECOVERY_HINT}"
+        )
     return matches[0].name, data
 
 
 def recall(stash_id: str, lines: tuple[int, int] | None = None) -> str:
     """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive."""
-    text = _blob(stash_id)[1].decode("utf-8")
+    name, data = _blob(stash_id)
+    root = stash_dir()
+    with stash_lock(root):
+        if (root / name).is_file():
+            _touch_sidecar(root / name, last_recalled_at=True)
+    text = data.decode("utf-8")
     if lines is None:
         return text
     first, last = lines
@@ -211,6 +309,7 @@ def stashed_decisions(
     root: str | None = None,
     disk_check: bool = True,
     pointer: str = "plain",
+    session: str | None = None,
 ) -> list[dict[str, Any]]:
     """One decision per candidate: ``replace`` (``note`` + ``stash``), ``dedupe`` or ``keep``.
 
@@ -256,7 +355,7 @@ def stashed_decisions(
             continue
         tokens = count_tokens(text, model).value
         try:
-            digest = put(text)
+            digest = put(text, session=session)
         except (OSError, UnicodeEncodeError) as exc:
             decisions.append(base | {"reason": f"stash_write_failed:{type(exc).__name__}"})
             continue

@@ -52,6 +52,14 @@ The server's operational log records the request method, path, and status code o
 (for example `POST /mcp 200`). It does **not** record request bodies, tool arguments, or
 response contents.
 
+The open-source CLI and local (stdio) MCP server can also keep a stash on **your own
+machine**: with `rules_mode: "stashed"`, removed tool outputs are stored verbatim in
+`~/.cache/lcc/stash` (owner-only), with a sidecar of timestamps and truncated session-id
+hashes, so `lcc recall` can return them. Nothing in it expires automatically and it can hold
+secrets the outputs contained, even after the transcript is deleted; `lcc stash gc --apply`
+or deleting the directory removes it. The hosted deployment refuses `stashed` and `recall`
+and keeps no stash.
+
 The open-source CLI and MCP server have an opt-in request log (`LCC_REQUEST_LOG=1`) that
 stores redacted goal strings locally, never the context. It is off by default and **not
 enabled on the hosted deployment**. If that ever changes, this policy must be updated first.
