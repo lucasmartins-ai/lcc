@@ -5,13 +5,12 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import threading
 import time
 from pathlib import Path
 
 import pytest
-from hypothesis import HealthCheck, given, settings
-from hypothesis import strategies as st
 from typer.testing import CliRunner
 
 from lcc.cli import app
@@ -54,27 +53,26 @@ def transcript(path: Path, digests: list[str]) -> Path:
     return path
 
 
-@settings(max_examples=60, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
-@given(
-    texts=st.lists(st.text(min_size=1, max_size=40), min_size=1, max_size=12, unique=True),
-    data=st.data(),
-)
-def test_gc_never_deletes_a_referenced_blob(texts: list[str], data, tmp_path: Path) -> None:
-    run = tmp_path / f"run-{time.monotonic_ns()}"
-    os.environ["LCC_STASH_DIR"] = str(run / "stash")
+@pytest.mark.parametrize("seed", range(40))
+def test_gc_never_deletes_a_referenced_blob(seed: int, tmp_path: Path, monkeypatch) -> None:
+    """Random blob sets, random referenced subsets spread over random files: gc --apply with
+    every blob past the threshold removes exactly the unreferenced ones."""
+    rng = random.Random(seed)
+    monkeypatch.setenv("LCC_STASH_DIR", str(tmp_path / "stash"))
+    texts = list({f"out {rng.random()}\n" * rng.randint(1, 30) for _ in range(rng.randint(1, 12))})
     digests = [put(t) for t in texts]
     for d in digests:
-        age(run / "stash", d)
-    referenced = data.draw(st.sets(st.sampled_from(digests)))
-    files = data.draw(st.integers(min_value=1, max_value=3))
+        age(tmp_path / "stash", d)
+    referenced = {d for d in digests if rng.random() < 0.5}
+    files = rng.randint(1, 3)
     refs = sorted(referenced)
     for i in range(files):
-        transcript(run / "projects" / f"p{i}" / "s.jsonl", refs[i::files])
+        transcript(tmp_path / "projects" / f"p{i}" / "s.jsonl", refs[i::files])
 
-    report = gc([run / "projects"], parse_age("1d"), apply=True)
+    report = gc([tmp_path / "projects"], parse_age("1d"), apply=True)
 
     for d in digests:
-        assert (run / "stash" / d).exists() == (d in referenced)
+        assert (tmp_path / "stash" / d).exists() == (d in referenced)
     assert sorted(report["removed"]) == sorted(set(digests) - referenced)
     for d in referenced:
         assert recall(d[:12]) == texts[digests.index(d)]
