@@ -164,18 +164,27 @@ What each mode measured on real agent sessions: [REAL_SESSION_BENCHMARKS.md](REA
 
 **`stashed`** — `src/lcc/relevance/transcript_stash.py`. Removes what `lossy` would drop or
 trim plus what `recoverable` would replace, but stores the exact bytes first, so nothing removed
-is lost. Each removed result's UTF-8 text is written to a local content-addressed stash
-(`~/.cache/lcc/stash/<sha256>`, or `$LCC_STASH_DIR`; directory `0700`, files `0600`, written
-atomically) and the result becomes `[removed: N tokens · lcc recall <sha12>]` (`N` counted with
-the request's `model`). The whole result is replaced, never cut: a `lossy` trim becomes a full
-stash. Lossless dedupes still win where they apply. Kept as in those modes: pinned turns, the
-latest error and the call before it, calls named in the goal or recent turns, failed results,
-duplicate ids, and results no longer than their pointer. Calls, inputs and texts never change.
-Each decision is `replace` with reason `stashed:<rule that made it eligible>` and
-`stash: {sha256, tokens, bytes}`; the report adds `tool_calls_stashed` and `stash_dir`, and
-`semantic_guarantee` is `stashed`. `verify_stashed` re-checks every pointer against its blob
-(present, hash matches, bytes equal the original); a violation keeps everything. A blob that
-cannot be written keeps its result (`stash_write_failed:<error>`).
+is lost. Each removed result's UTF-8 text is written to a local content-addressed stash and the
+result becomes `[removed: N tokens · lcc recall <sha12>]` (`N` counted with the request's
+`model`). Default stash location by OS (file is `<stash>/<sha256>`):
+
+| OS | Default stash directory |
+| :--- | :--- |
+| POSIX (Linux, macOS, …) | `~/.cache/lcc/stash` |
+| Windows | `%LOCALAPPDATA%\lcc\stash` (usually `C:\Users\<you>\AppData\Local\lcc\stash`) |
+
+`$LCC_STASH_DIR` overrides both defaults. On POSIX the directory is `0700` and files are `0600`,
+written atomically. On Windows those permission bits are not applied (`os.chmod` only toggles
+read-only there), so the stash does not depend on `0700`/`0600`. The whole result is replaced,
+never cut: a `lossy` trim becomes a full stash. Lossless dedupes still win where they apply.
+Kept as in those modes: pinned turns, the latest error and the call before it, calls named in
+the goal or recent turns, failed results, duplicate ids, and results no longer than their
+pointer. Calls, inputs and texts never change. Each decision is `replace` with reason
+`stashed:<rule that made it eligible>` and `stash: {sha256, tokens, bytes}`; the report adds
+`tool_calls_stashed` and `stash_dir`, and `semantic_guarantee` is `stashed`. `verify_stashed`
+re-checks every pointer against its blob (present, hash matches, bytes equal the original); a
+violation keeps everything. A blob that cannot be written keeps its result
+(`stash_write_failed:<error>`).
 
 From the CLI. Getting a result back re-hashes the blob and refuses one that fails:
 
@@ -190,8 +199,8 @@ lcc recall 3f9a1c0b2d4e --lines 40-80 # 1-based, inclusive
 MCP: tool `recall` with `{"id": "...", "lines": "a-b"}` returns `{sha256, text}`. The stash
 is local to the machine running `lcc mcp` over stdio; `lcc mcp --http` refuses both `recall`
 and `rules_mode: "stashed"`, since one disk would be shared by every caller. No TTL or GC yet:
-the stash grows until you delete it (`rm -r ~/.cache/lcc/stash` is safe; pointers to deleted
-blobs just stop resolving).
+the stash grows until you delete it (`rm -r ~/.cache/lcc/stash` on POSIX, or remove
+`%LOCALAPPDATA%\lcc\stash` on Windows; pointers to deleted blobs just stop resolving).
 
 Measured once (2026-10-18, label INFERIDO: one run, one owner's sessions, one answerer model),
 on 172 real Claude Code contexts with task probes, in
