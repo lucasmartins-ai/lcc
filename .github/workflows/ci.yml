@@ -58,6 +58,12 @@ jobs:
     - name: Prefix stability smoke (cache contract invariants, synthetic, no network)
       run: |
         python3 benchmarks/cache/run_prefix_stability.py --check --out "$RUNNER_TEMP/prefix-stability"
+        python3 benchmarks/cache/run_intake_prefix.py --check
+
+    - name: Efficiency gate (tokens out, prefix share, normalised cost vs committed baseline)
+      if: matrix.python-version == '3.13'
+      run: |
+        python3 benchmarks/efficiency_gate.py --check
 
   test-node:
     runs-on: ubuntu-latest

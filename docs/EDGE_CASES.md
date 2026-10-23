@@ -99,6 +99,24 @@ over 4,096 characters are no longer parsed, so never allowlisted).
 | Tables, deep nesting, indentation | Table spacing and leading indentation are kept. Dedup no longer strips the first line's indentation. | I `test_tables_keep_their_spacing_through_cleaning`, `test_deep_nesting_is_preserved`, `test_dedup_keeps_leading_indentation_of_a_paragraph` |
 | More than 9,999 blocks | Ids grow to `blk_10000_…` and match `BLOCK_ID_RE`. Ties still sort in source order. | I `test_block_ids_match_the_published_pattern_past_9999_blocks`; C `test_restoration_rank_orders_numerically_past_9999_blocks` |
 
+## Intake
+
+Corpus: [`tests/corpus/intake/v1.json`](../tests/corpus/intake/v1.json) (synthetic, pt and
+en); tests in [`test_intake_corpus.py`](../tests/test_intake_corpus.py) (K).
+
+| Input | Behaviour | Test |
+| :--- | :--- | :--- |
+| Empty or whitespace-only | `BLOCKED`, reason `empty_input`. The only blocking rule. | `test_intake.py::test_parse_intake_empty_is_blocked` |
+| Security or injection words ("bypass security", "ignore all previous instructions") | Readiness unchanged; `risk_flags` names the pattern. | K `test_security_words_flag_but_never_block` |
+| Identifier containing a hedge word (`maybelline_sku`) | Not vague: markers match whole words only. | K `test_vague_markers_match_whole_words_only` |
+| Plain whisper/dictation text, no SRT/VTT | Detected (`filler_density`, `run_on_with_fillers`); fillers removed with spans. | K `test_dictation_detection` |
+| SRT that opens with its sequence number | Detected (the timing line is checked per line). | `test_speech_cleaning.py::test_srt_starting_with_a_sequence_number_is_detected` |
+| Question tags ("né?", "right?") | Never removed; no removed span contains `?`. | K `test_question_tags_survive`, `test_cleaning_never_drops_a_question_mark` |
+| Filler look-alikes that are content ("tipo de", "kind of", "I'd like to", "não entendeu", "Um container") | Kept. | K `test_content_words_that_look_like_fillers_survive` |
+| Fillers inside code fences or inline code | Kept. | K corpus case `en_code_fence_fillers` |
+| Removal receipt | Deleting the reported spans from the raw input gives the cleaned text exactly. | K `test_receipt_reconstructs_the_input_exactly` |
+| Two different requests, any template | Share every byte before the first per-request byte. | K `test_two_requests_share_the_whole_static_prefix`, `benchmarks/cache/run_intake_prefix.py --check` |
+
 ## Transcripts (tool-call mode)
 
 | Edge case | Expected behaviour | Test |

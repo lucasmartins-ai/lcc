@@ -141,3 +141,7 @@ def test_one_repeated_label_is_not_a_conversation() -> None:
 def test_real_transcript_labels_still_detected() -> None:
     assert is_speech_transcript("Speaker 1: hello.\nSpeaker 2: hi.\n") is True
     assert is_speech_transcript("Dr. Smith: we should retry.\nHost: agreed.\n") is True
+
+
+def test_srt_starting_with_a_sequence_number_is_detected():
+    assert is_speech_transcript("1\n00:00:01,000 --> 00:00:04,000\nOlá.\n") is True

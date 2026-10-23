@@ -1,0 +1,48 @@
+{
+  "paths": {
+    "blocks-mechanical": {
+      "cost": 15.315,
+      "prefix_share": 1.0,
+      "tokens_in": 63220,
+      "tokens_out": 62882
+    },
+    "intake": {
+      "cost": 1.317,
+      "prefix_share": 0.952935,
+      "tokens_in": 17511,
+      "tokens_out": 17737
+    },
+    "mcp-compact-transcript": {
+      "cost": 2.712,
+      "prefix_share": 0.007836,
+      "tokens_in": 156625,
+      "tokens_out": 33475
+    },
+    "rules-lossless": {
+      "cost": 2.737,
+      "prefix_share": 0.007836,
+      "tokens_in": 156625,
+      "tokens_out": 33475
+    },
+    "rules-recoverable": {
+      "cost": 2.756,
+      "prefix_share": 0.932841,
+      "tokens_in": 156625,
+      "tokens_out": 32366
+    },
+    "rules-stashed": {
+      "cost": 1.84,
+      "prefix_share": 0.704425,
+      "tokens_in": 64615,
+      "tokens_out": 30708
+    },
+    "specialist-v3-auto-2500": {
+      "cost": 560.558,
+      "prefix_share": 0.230291,
+      "tokens_in": 468188,
+      "tokens_out": 452035
+    }
+  },
+  "schema_version": "efficiency-gate-1.0",
+  "token_counter": "approximate (heuristic), same on every machine"
+}
