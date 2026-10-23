@@ -115,12 +115,12 @@ cost. It runs offline on fixed synthetic inputs (about 30 s) and compares each p
 
 | path | input |
 | --- | --- |
-| `rules-lossless`, `rules-recoverable` | 60 turns of files re-read unchanged and `git status` |
+| `rules-lossless`, `rules-recoverable` | 300 turns of files re-read unchanged and `git status` |
 | `rules-stashed` | 60 turns of `tests/specialist_synthetic.py` |
 | `specialist-v3-auto-2500` | 400 synthetic turns (2,500 messages), `provider="auto"` |
 | `blocks-mechanical` | the 60-turn transcript rendered with block metadata, `compact_context` |
-| `intake` | a brief plus 60 notes through `LccIntake.process` |
-| `mcp-compact-transcript` | a `tools/call` round trip through `handle_message` |
+| `intake` | a brief plus 1,500 notes through `LccIntake.process` |
+| `mcp-compact-transcript` | a 300-turn `tools/call` round trip through `handle_message` |
 
 Per path it records `tokens_in` / `tokens_out` (the approximate counter, so a machine without a
 `tiktoken` cache gets the same numbers), `prefix_share` (the share of the output for a session

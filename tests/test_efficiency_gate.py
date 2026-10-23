@@ -37,8 +37,8 @@ def test_planted_quadratic_loop_fails_the_gate(monkeypatch) -> None:  # type: ig
     real = gate.compact_transcript
 
     def quadratic(request):  # type: ignore[no-untyped-def]
-        items = list(range(1000))
-        assert sum(1 for a in items for b in items if a == b) == 1000  # the planted O(n^2)
+        items = list(range(3000))
+        assert sum(1 for a in items for b in items if a == b) == 3000  # the planted O(n^2)
         return real(request)
 
     monkeypatch.setattr(gate, "compact_transcript", quadratic)

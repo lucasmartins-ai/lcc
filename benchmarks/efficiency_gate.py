@@ -153,13 +153,13 @@ def _mcp(turns: int) -> tuple[str, str]:
 
 #: name -> (runner, turns for tokens/cost, turns for the prefix pair, timing repeats)
 PATHS: dict[str, tuple[Callable[[int], tuple[str, str]], int, int, int]] = {
-    "rules-lossless": (_transcript_path("rules", "lossless", _rereads), 60, 60, 3),
-    "rules-recoverable": (_transcript_path("rules", "recoverable", _rereads), 60, 60, 3),
+    "rules-lossless": (_transcript_path("rules", "lossless", _rereads), 300, 60, 3),
+    "rules-recoverable": (_transcript_path("rules", "recoverable", _rereads), 300, 60, 3),
     "rules-stashed": (_transcript_path("rules", "stashed"), 60, 60, 3),
     "specialist-v3-auto-2500": (_transcript_path("auto", "lossless"), V3_TURNS, 60, 1),
     "blocks-mechanical": (_blocks_mechanical, 60, 60, 3),
-    "intake": (_intake, 60, 60, 3),
-    "mcp-compact-transcript": (_mcp, 60, 60, 3),
+    "intake": (_intake, 1500, 60, 5),
+    "mcp-compact-transcript": (_mcp, 300, 60, 3),
 }
 
 

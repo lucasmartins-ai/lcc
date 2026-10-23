@@ -1,43 +1,43 @@
 {
   "paths": {
     "blocks-mechanical": {
-      "cost": 16.394,
+      "cost": 16.979,
       "prefix_share": 1.0,
       "tokens_in": 63220,
       "tokens_out": 62882
     },
     "intake": {
-      "cost": 0.04,
+      "cost": 0.714,
       "prefix_share": 0.970644,
-      "tokens_in": 750,
-      "tokens_out": 1003
+      "tokens_in": 17511,
+      "tokens_out": 17765
     },
     "mcp-compact-transcript": {
-      "cost": 0.281,
+      "cost": 3.06,
       "prefix_share": 0.007836,
-      "tokens_in": 31305,
-      "tokens_out": 8338
+      "tokens_in": 156625,
+      "tokens_out": 33475
     },
     "rules-lossless": {
-      "cost": 0.234,
+      "cost": 3.921,
       "prefix_share": 0.007836,
-      "tokens_in": 31305,
-      "tokens_out": 8338
+      "tokens_in": 156625,
+      "tokens_out": 33475
     },
     "rules-recoverable": {
-      "cost": 0.366,
+      "cost": 3.128,
       "prefix_share": 0.932841,
-      "tokens_in": 31305,
-      "tokens_out": 6786
+      "tokens_in": 156625,
+      "tokens_out": 32366
     },
     "rules-stashed": {
-      "cost": 1.538,
+      "cost": 1.991,
       "prefix_share": 0.704425,
       "tokens_in": 64615,
       "tokens_out": 30708
     },
     "specialist-v3-auto-2500": {
-      "cost": 602.19,
+      "cost": 658.741,
       "prefix_share": 0.230291,
       "tokens_in": 468188,
       "tokens_out": 452035

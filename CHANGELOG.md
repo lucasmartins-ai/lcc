@@ -205,6 +205,8 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **Efficiency baseline updated.** intake, rules and MCP fixtures enlarged: their cost was sub-millisecond and too noisy for the cost gate
+
 - **Efficiency regression gate.** `benchmarks/efficiency_gate.py` runs rules lossless /
   recoverable / stashed, specialist-v3 `auto` on a 2,500-message transcript, mechanical block
   compaction, intake and an MCP `compact_transcript` round trip on fixed synthetic inputs, and CI
