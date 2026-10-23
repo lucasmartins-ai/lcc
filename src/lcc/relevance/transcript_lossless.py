@@ -27,8 +27,11 @@ everything if it ever reports a violation.
 
 from __future__ import annotations
 
+import heapq
 import re
-from collections.abc import Callable
+from bisect import bisect_right
+from collections.abc import Callable, Iterator
+from itertools import islice
 from typing import Any
 
 _HEADER_RE = re.compile(
@@ -96,6 +99,16 @@ def duplicate_ids(messages: list[Any]) -> set[str]:
     return dupes
 
 
+def _ascending_after(after: int, *lists: list[int]) -> Iterator[int]:
+    """The distinct values above ``after`` in the sorted ``lists``, ascending."""
+    tails = (islice(lst, bisect_right(lst, after), None) for lst in lists)
+    previous = after
+    for value in heapq.merge(*tails):
+        if value != previous:
+            previous = value
+            yield value
+
+
 def lossless_decisions(
     messages: list[Any], candidates: list[Any], *, unavailable: set[str] | None = None
 ) -> list[dict[str, Any]]:
@@ -111,19 +124,31 @@ def lossless_decisions(
         if call.result is not None and call.result.id not in unavailable
     }
     results = _flat_results(messages)
-    # ponytail: O(results^2) substring scans; index outputs by line hash if transcripts grow.
     framed = [_framed(result.text) for result in results]
     # An earlier pass's pointer is a fixed point: never deduped again, never a target (a
     # pointer to a pointer would rewrite early history and break a warm prompt cache).
     pointer = [bool(_ANY_POINTER_RE.match(r.text)) for r in results]
     kept = [result.id not in unavailable and not pointer[i] for i, result in enumerate(results)]
     found: dict[str, tuple[str, str, str]] = {}
+    # A later result can supersede ``results[i]`` only when it equals it (same framed lines) or
+    # holds its first raw line as a whole line: index both, so only those are scanned.
+    same: dict[str, list[int]] = {}
+    with_line: dict[str, list[int]] = {}
+    for i, result in enumerate(results):
+        same.setdefault(framed[i], []).append(i)
+        for line in result.text.split("\n"):
+            indexes = with_line.setdefault(line, [])
+            if not indexes or indexes[-1] != i:
+                indexes.append(i)
 
     for index in range(len(results) - 1, -1, -1):
         result = results[index]
         if result.id not in candidate_ids or framed[index] == "\n\n" or pointer[index]:
             continue
-        for later in range(index + 1, len(results)):
+        first_line = result.text.split("\n", 1)[0]
+        for later in _ascending_after(
+            index, same[framed[index]], with_line.get(first_line, [])
+        ):
             other = results[later]
             if not kept[later] or other.is_error != result.is_error:
                 continue
