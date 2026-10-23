@@ -22,6 +22,7 @@ from lcc.cli import app
 from lcc.mcp_server import handle_message
 from lcc.relevance.transcript import (
     TranscriptCompactionRequest,
+    TranscriptError,
     compact_transcript,
     messages_to_payload,
 )
@@ -254,3 +255,16 @@ def test_old_token_pointer_is_still_a_fixed_point():
     _, compacted, by_id = run(messages)
     assert result_text(compacted, "c1") == old
     assert by_id["c1"]["decision"] != "replace"
+
+
+def test_lone_surrogate_in_a_result_is_rejected_before_anything_is_stashed(_stash: Path):
+    """stash_note and put encode strictly; parsing must reject a lone surrogate first."""
+    body = BODY + "\n\ud800 dangling surrogate"
+    messages = convo(
+        ("Read", {"file_path": "/repo/src/old.py"}, body),
+        ("Read", {"file_path": "/repo/src/other.py"}, BODY.replace("old", "other")),
+        ("Bash", {"command": "ls"}, "ok"),
+    )
+    with pytest.raises(TranscriptError, match="unpaired surrogate"):
+        run(messages)
+    assert not _stash.exists() or not any(_stash.iterdir())
