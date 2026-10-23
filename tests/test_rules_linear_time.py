@@ -83,15 +83,7 @@ def best_of(payload: list[dict[str, Any]], goal: str, mode: str) -> float:
     return min(times)
 
 
-# Known: `stashed` verifies every pointer with `_blob`, which globs the whole stash directory, so
-# it is quadratic in the number of stashed results (not in the rules scans). See docs/EDGE_CASES.md.
-KNOWN = pytest.mark.xfail(reason="stash _blob globs the stash dir per pointer", strict=False)
-
-
-@pytest.mark.parametrize("shape, mode", [
-    pytest.param(shape, mode, marks=KNOWN if (shape, mode) == ("calls", "stashed") else ())
-    for shape in SHAPES for mode in MODES
-])
+@pytest.mark.parametrize("shape, mode", [(shape, mode) for shape in SHAPES for mode in MODES])
 def test_doubling_the_input_at_most_doubles_the_time(shape: str, mode: str) -> None:
     build, size = SHAPES[shape]
     small, large = best_of(*build(size), mode), best_of(*build(size * 2), mode)
