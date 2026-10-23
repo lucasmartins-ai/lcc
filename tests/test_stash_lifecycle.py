@@ -103,8 +103,8 @@ def test_recall_counts_as_use(_stash: Path, tmp_path: Path) -> None:
 def test_gc_fails_closed(_stash: Path, tmp_path: Path) -> None:
     digest = put("secret\n" * 20)
     age(_stash, digest)
-    with pytest.raises(StashError, match="none of the transcript roots exist"):
-        gc([tmp_path / "nowhere"], 0, apply=True)
+    with pytest.raises(StashError, match="does not exist"):
+        gc([tmp_path / "nowhere"], 3600, apply=True)
     projects = tmp_path / "projects"
     locked = transcript(projects / "s.jsonl", [])
     locked.chmod(0)
@@ -112,7 +112,7 @@ def test_gc_fails_closed(_stash: Path, tmp_path: Path) -> None:
         if os.access(locked, os.R_OK):
             pytest.skip("running as root: chmod 0 does not block reads")
         with pytest.raises(StashError, match="deletes nothing"):
-            gc([projects], 0, apply=True)
+            gc([projects], 3600, apply=True)
     finally:
         locked.chmod(0o600)
     assert (_stash / digest).exists()
@@ -122,7 +122,7 @@ def test_gc_apply_refuses_without_posix_locks(monkeypatch, tmp_path: Path) -> No
     monkeypatch.setattr(stash_lifecycle, "_is_windows", lambda: True)
     (tmp_path / "projects").mkdir()
     with pytest.raises(StashError, match="POSIX"):
-        gc([tmp_path / "projects"], 0, apply=True)
+        gc([tmp_path / "projects"], 3600, apply=True)
 
 
 def test_concurrent_put_survives_gc(_stash: Path, tmp_path: Path, monkeypatch) -> None:
@@ -217,3 +217,142 @@ def test_cli_gc_dry_run_deletes_nothing(_stash: Path, tmp_path: Path) -> None:
     result = CliRunner().invoke(app, ["stash", "gc", "--root", str(tmp_path / "projects")])
     assert result.exit_code == 0, result.output
     assert f"would remove {digest[:12]}" in result.stdout and (_stash / digest).exists()
+
+
+# --- hardening (security review of #112): each test failed before its fix ---------------
+
+
+def old_blob(stash: Path, text: str) -> str:
+    digest = put(text)
+    age(stash, digest)
+    return digest
+
+
+def test_a_missing_explicit_root_aborts_gc(_stash: Path, tmp_path: Path) -> None:
+    real = tmp_path / "real"
+    real.mkdir()
+    digest = old_blob(_stash, "referenced from the root the user mistyped\n" * 9)
+    with pytest.raises(StashError, match="does not exist"):
+        gc([real, tmp_path / "codx"], parse_age("1d"), apply=True)
+    assert (_stash / digest).exists()
+
+
+def test_only_default_roots_may_be_absent(tmp_path: Path, monkeypatch) -> None:
+    assert Path.home() / ".codex" / "sessions" in stash_lifecycle.DEFAULT_ROOTS
+    here, gone = tmp_path / "claude", tmp_path / "codex"
+    here.mkdir()
+    monkeypatch.setattr(stash_lifecycle, "DEFAULT_ROOTS", (here, gone))
+    assert stash_lifecycle.resolve_roots(None) == [here]
+    assert stash_lifecycle.resolve_roots([gone]) == [gone]  # explicit: kept, gc then refuses
+
+
+def test_symlinked_subdirectories_are_scanned_without_looping(_stash: Path, tmp_path: Path) -> None:
+    root, elsewhere = tmp_path / "root", tmp_path / "elsewhere"
+    root.mkdir()
+    elsewhere.mkdir()
+    digest = old_blob(_stash, "referenced through a symlinked project dir\n" * 9)
+    transcript(elsewhere / "s.jsonl", [digest])
+    (root / "proj").symlink_to(elsewhere)
+    (elsewhere / "loop").symlink_to(root)
+    assert gc([root], parse_age("1d"), apply=True)["removed"] == []
+    assert (_stash / digest).exists()
+
+
+def test_special_files_under_a_root_are_skipped(tmp_path: Path) -> None:
+    root = tmp_path / "root"
+    root.mkdir()
+    os.mkfifo(root / "pipe")
+    done = threading.Event()
+    threading.Thread(target=lambda: (stash_lifecycle.referenced_ids([root]), done.set()), daemon=True).start()
+    assert done.wait(3), "reading a FIFO blocks gc and ls forever"
+
+
+def test_dangling_symlink_does_not_block_gc(_stash: Path, tmp_path: Path) -> None:
+    root = tmp_path / "root"
+    root.mkdir()
+    (root / "gone.jsonl").symlink_to(tmp_path / "nowhere")
+    digest = old_blob(_stash, "nobody points here\n" * 9)
+    assert gc([root], parse_age("1d"), apply=True)["removed"] == [digest]
+
+
+def test_gc_deletes_only_its_own_temp_files(_stash: Path, tmp_path: Path) -> None:
+    put("make the stash dir\n" * 9)
+    (tmp_path / "root").mkdir()
+    foreign, ours = _stash / ".tmp-not-lcc.swp", _stash / ".tmp-ab12_x9z"
+    for path in (foreign, ours):
+        path.write_text("data")
+        os.utime(path, (time.time() - OLD, time.time() - OLD))
+    gc([tmp_path / "root"], parse_age("1d"), apply=True)
+    assert foreign.exists() and not ours.exists()
+
+
+def test_older_than_has_a_floor() -> None:
+    for spec in ("0", "0d", "59m"):
+        with pytest.raises(StashError, match="at least 1h"):
+            parse_age(spec)
+    assert parse_age("1h") == 3600
+    with pytest.raises(StashError, match="at least 1h"):
+        gc([Path("/")], 0)
+
+
+def test_non_file_entries_in_the_stash_are_ignored(_stash: Path, tmp_path: Path) -> None:
+    put("make the stash dir\n" * 9)
+    (_stash / ("a" * 64)).mkdir()
+    outside = tmp_path / "outside.txt"
+    outside.write_text("keep me\n")
+    (_stash / ("b" * 64)).symlink_to(outside)
+    os.utime(_stash / ("b" * 64), (0, 0), follow_symlinks=False)
+    (tmp_path / "root").mkdir()
+    assert len(ls(None)) == 1
+    gc([tmp_path / "root"], parse_age("1d"), apply=True)
+    assert outside.exists() and (_stash / ("b" * 64)).is_symlink()
+
+
+def test_recall_and_put_survive_an_unsupported_lock(_stash: Path, monkeypatch) -> None:
+    import fcntl
+
+    digest = put("before the lock broke\n" * 9)
+
+    def unsupported(*_args):
+        raise OSError(45, "Operation not supported")
+
+    monkeypatch.setattr(fcntl, "flock", unsupported)
+    assert recall(digest[:12]).startswith("before")
+    with pytest.warns(RuntimeWarning, match="without the stash lock"):
+        put("after the lock broke\n" * 9)
+    (_stash.parent / "root").mkdir()
+    with pytest.raises(StashError, match="lock"):
+        gc([_stash.parent / "root"], parse_age("1d"), apply=True)
+
+
+def test_recall_works_on_a_read_only_stash(_stash: Path) -> None:
+    digest = put("read only\n" * 9)
+    (_stash / ".lock").unlink()
+    _stash.chmod(0o500)
+    try:
+        if os.access(_stash, os.W_OK):
+            pytest.skip("running as root")
+        assert recall(digest[:12]).startswith("read only")
+    finally:
+        _stash.chmod(0o700)
+
+
+def test_lock_file_is_owner_only(_stash: Path) -> None:
+    _stash.mkdir(parents=True)
+    (_stash / ".lock").write_text("")
+    (_stash / ".lock").chmod(0o644)
+    put("tighten\n" * 9)
+    assert (_stash / ".lock").stat().st_mode & 0o777 == 0o600
+
+
+def test_cli_ls_reports_os_errors(_stash: Path) -> None:
+    digest = put("unreadable\n" * 9)
+    (_stash / digest).chmod(0)
+    try:
+        if os.access(_stash / digest, os.R_OK):
+            pytest.skip("running as root")
+        result = CliRunner().invoke(app, ["stash", "ls", "--no-scan"])
+        assert result.exit_code == 2, result.output
+        assert not isinstance(result.exception, OSError)
+    finally:
+        (_stash / digest).chmod(0o600)

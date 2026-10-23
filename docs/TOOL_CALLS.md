@@ -230,14 +230,20 @@ lcc stash gc                         # dry run: what --apply would delete
 lcc stash gc --apply --older-than 30d --root ~/.claude/projects --root ~/other/transcripts
 ```
 
-`gc` treats the transcripts as the only source of truth. It scans every file under each `--root`
-(default `~/.claude/projects`) for `recall <sha12>` and deletes a blob only when no file names it
-**and** it was not put or recalled within `--older-than` (default `30d`). It fails closed: if no
-root exists or any file under a root cannot be read, it deletes nothing. `put` refreshes a blob's
-mtime under a shared `flock` before any pointer to it exists, and `gc --apply` re-checks each
-blob's age under an exclusive lock just before deleting it, so a concurrent compaction cannot lose
-a blob. `--apply` needs POSIX locks and refuses on Windows. A transcript stored outside every
-`--root` does not protect its blobs: pass its directory too.
+`gc` treats the transcripts as the only source of truth. It scans every regular file under each
+`--root` for `recall <sha12>`, following directory symlinks (each directory once, so a loop ends)
+and skipping FIFOs, sockets, devices and dangling symlinks. Without `--root` it scans
+`~/.claude/projects` and `~/.codex/sessions`, whichever exist; every `--root` you pass must exist.
+It deletes a blob only when no file names it **and** it was not put or recalled within
+`--older-than` (default `30d`, at least `1h`). It fails closed: a missing `--root`, an unreadable
+file or directory, or a stash lock it cannot take aborts it before anything is deleted. Only
+regular files are touched in the stash: a directory or symlink named like a blob is left alone,
+and of the temp files only those `put` creates (`.tmp-` plus 8 characters) are cleaned. `put`
+refreshes a blob's mtime under a shared `flock` before any pointer to it exists, and `gc --apply`
+re-checks each blob's age under an exclusive lock just before deleting it, so a concurrent
+compaction cannot lose a blob. Where `flock` is unavailable (some network filesystems) `put` warns
+and writes unlocked, `recall` still answers, and `gc --apply` refuses; it also refuses on Windows.
+A transcript stored outside every `--root` does not protect its blobs: pass its directory too.
 
 A pointer whose blob is gone (cache wiped, `gc`, the session resumed on another machine) cannot be
 rebuilt. `recall` (CLI and MCP) says so and points to the way back: re-read the file or re-run the

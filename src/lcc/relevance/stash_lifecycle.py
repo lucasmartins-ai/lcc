@@ -15,8 +15,10 @@ from __future__ import annotations
 
 import os
 import re
+import stat
 import time
 from collections import Counter
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -35,8 +37,11 @@ from lcc.relevance.transcript_stash import (
 # Matches the pointer in plain text and inside JSON strings alike ("lcc recall" is ASCII).
 _REF = re.compile(rb"recall ([0-9a-f]{12})")
 _AGE = re.compile(r"^(\d+)([dhm]?)$")
-DEFAULT_ROOTS = (Path.home() / ".claude" / "projects",)
+# What ``tempfile.mkstemp(prefix=".tmp-")`` names: 8 chars of its alphabet, no suffix.
+_TMP = re.compile(r"^\.tmp-[a-z0-9_]{8}$")
+DEFAULT_ROOTS = (Path.home() / ".claude" / "projects", Path.home() / ".codex" / "sessions")
 DEFAULT_OLDER_THAN = "30d"
+MIN_AGE = 3600  # a younger threshold races a compaction whose pointer is not on disk yet
 
 
 def parse_age(spec: str) -> float:
@@ -45,44 +50,92 @@ def parse_age(spec: str) -> float:
     if match is None:
         raise StashError(f"--older-than must look like 30d, 12h or 90m, got {spec!r}")
     unit = {"": 86400, "d": 86400, "h": 3600, "m": 60}[match.group(2)]
-    return int(match.group(1)) * unit
+    return _floor(int(match.group(1)) * unit)
 
 
-def referenced_ids(roots: list[Path]) -> Counter[str]:
-    """``sha12 -> number of files`` naming it under ``roots``. Raises on anything unreadable.
+def _floor(seconds: float) -> float:
+    if seconds < MIN_AGE:
+        raise StashError("--older-than must be at least 1h")
+    return seconds
 
-    ponytail: reads each file whole; stream in chunks if transcripts outgrow memory.
+
+def resolve_roots(explicit: list[Path] | None) -> list[Path]:
+    """``explicit`` as given (each must then exist), or the default roots that exist."""
+    if explicit:
+        return list(explicit)
+    return [root for root in DEFAULT_ROOTS if root.exists()] or list(DEFAULT_ROOTS)
+
+
+def _is_plain_file(path: Path) -> bool:
+    return path.is_file() and not path.is_symlink()
+
+
+def _files(root: Path) -> Iterator[Path]:
+    """Regular files under ``root``, following directory symlinks once each (no loops).
+
+    FIFOs, sockets and devices are skipped (reading one blocks or means nothing); so are
+    dangling symlinks, which cannot hold a pointer. An unlistable directory raises.
     """
-    existing = [root for root in roots if root.exists()]
-    if not existing:
-        raise StashError(
-            f"none of the transcript roots exist ({', '.join(map(str, roots))}); "
-            "pass --root where your transcripts live. Nothing was deleted."
-        )
+    if not root.is_dir():
+        yield root
+        return
 
     def fail(exc: OSError) -> None:
         raise exc
 
+    seen: set[tuple[int, int]] = set()
+    for here, dirs, names in os.walk(root, onerror=fail, followlinks=True):
+        info = os.stat(here)
+        if (info.st_dev, info.st_ino) in seen:
+            dirs[:] = []
+            continue
+        seen.add((info.st_dev, info.st_ino))
+        for name in names:
+            yield Path(here) / name
+
+
+def referenced_ids(roots: list[Path]) -> Counter[str]:
+    """``sha12 -> number of files`` naming it under ``roots``. Raises on anything unreadable
+    and on a root that does not exist: a mistyped ``--root`` must not unprotect its blobs.
+
+    ponytail: reads each file whole; stream in chunks if transcripts outgrow memory.
+    """
+    if not roots:
+        raise StashError("no transcript roots to scan; pass --root. Nothing was deleted.")
+    for root in roots:
+        if not root.exists():
+            raise StashError(
+                f"transcript root {root} does not exist; fix or drop that --root. "
+                "Nothing was deleted."
+            )
+
     counts: Counter[str] = Counter()
-    for root in existing:
-        files = (
-            [root] if root.is_file()
-            else (Path(d) / f for d, _, names in os.walk(root, onerror=fail) for f in names)
-        )
-        for path in files:
-            try:
+    for root in roots:
+        try:
+            for path in _files(root):
+                try:
+                    info = path.stat()
+                except FileNotFoundError:
+                    if path.is_symlink():
+                        continue  # dangling
+                    raise
+                if not stat.S_ISREG(info.st_mode):
+                    continue
                 data = path.read_bytes()
-            except OSError as exc:
-                raise StashError(
-                    f"cannot read {path} ({exc.strerror or exc}); gc deletes nothing while a "
-                    "transcript is unreadable"
-                ) from None
-            counts.update({m.group(1).decode() for m in _REF.finditer(data)})
+                counts.update({m.group(1).decode() for m in _REF.finditer(data)})
+        except OSError as exc:
+            raise StashError(
+                f"cannot read {exc.filename or root} ({exc.strerror or exc}); gc deletes "
+                "nothing while a transcript is unreadable"
+            ) from None
     return counts
 
 
 def _blobs(root: Path) -> list[Path]:
-    return sorted(p for p in root.iterdir() if _FULL.match(p.name)) if root.is_dir() else []
+    """Blob files; a directory or symlink named like one is not lcc's and is left alone."""
+    if not root.is_dir():
+        return []
+    return sorted(p for p in root.iterdir() if _FULL.match(p.name) and _is_plain_file(p))
 
 
 def last_used(blob: Path) -> float:
@@ -114,6 +167,7 @@ def gc(
     roots: list[Path], older_than: float, *, apply: bool = False, now: float | None = None
 ) -> dict[str, Any]:
     """Unreferenced blobs unused for ``older_than`` seconds; removed only with ``apply``."""
+    _floor(older_than)
     if apply and _is_windows():
         raise StashError("lcc stash gc --apply needs POSIX file locks; nothing was deleted")
     refs = referenced_ids(roots)  # before the lock: may be slow, and may raise
@@ -132,8 +186,11 @@ def gc(
     # Leftovers of a crashed put (.tmp-*) or a removed blob (<sha>.json) can hold a secret too.
     leftovers = [
         p for p in (root.iterdir() if root.is_dir() else [])
-        if p.name.startswith(".tmp-")
-        or (p.name.endswith(".json") and _FULL.match(p.name[:-5]) and p.name[:-5] not in names)
+        if _is_plain_file(p)
+        and (
+            _TMP.match(p.name)
+            or (p.name.endswith(".json") and _FULL.match(p.name[:-5]) and p.name[:-5] not in names)
+        )
     ]
     report: dict[str, Any] = {
         "blobs": len(blobs),
