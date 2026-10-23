@@ -17,7 +17,7 @@ const ledger = readFileSync(FIXTURE, "utf8");
 assert.equal(sessionKey("fixture-session-a"), "e279159a3ffc189d");
 assert.equal(sessionKey(""), null);
 
-// Session A: two v1 passes; the corrupted line and the v2 line are skipped.
+// Session A: two v1 passes; the corrupted line, the v2 line and the recall record are skipped.
 assert.deepEqual(summarize(ledger, sessionKey("fixture-session-a")), {
   passes: 2,
   saved: (148210 - 121004) + (152330 - 138911),

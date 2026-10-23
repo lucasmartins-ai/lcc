@@ -68,8 +68,11 @@ only), awesome-python (bar too high for the project's age).
 | pleasedodisturb/awesome-llm-token-optimization | [PR #68](https://github.com/pleasedodisturb/awesome-llm-token-optimization/pull/68) | open, CI checks the inclusion bar |
 | ai-for-developers/awesome-ai-coding-tools | [PR #1073](https://github.com/ai-for-developers/awesome-ai-coding-tools/pull/1073) | open |
 | Jenqyang/Awesome-AI-Agents | [PR #656](https://github.com/Jenqyang/Awesome-AI-Agents/pull/656) | open |
+| Show HN | [item 50213585](https://news.ycombinator.com/item?id=50213585) | live; the author's first comment was auto-killed (new account, karma 1), moderators emailed |
+| r/ClaudeAI | [showcase megathread comment](https://www.reddit.com/r/ClaudeAI/comments/1sly3jm/built_with_claude_project_showcase_megathread/19rjqaqf7sc02/) | live; feed posts need 50-100 karma, the account has 19 |
+| r/LocalLLaMA | not posted | lcc was already posted there on 2026-09-04, and the account's history is mostly self-promotion (rule 4: about 1 in 10); the rules also ban primarily LLM-written posts. Wait until the account has real participation, then the maintainer writes the post himself |
 
-Venues 2, 3, 4, 5, 8, 9, 10 and Show HN need the maintainer: they post under his name or
+Venues 2, 4, 8, 9 and 10 need the maintainer: they post under his name or
 go through a web form.
 
 ## Order

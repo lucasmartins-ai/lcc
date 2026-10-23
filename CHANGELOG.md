@@ -6,8 +6,20 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **Recall records in the opt-in ledger.** With `LCC_LEDGER=1` (or `ledger: true` on the MCP
+  `recall` tool) each recall appends a counts-only line: outcome (`ok`, `missing`,
+  `hash_mismatch` or `invalid`), bytes, seconds since the blob was stashed, whether it was a
+  line range or a repeat, and the hash of the session that stashed it. It never holds the id,
+  the text or a path. These records are keyed `recall_v`, so the statusline does not count them
+  as passes. See docs/CLAUDE_CODE.md.
+
 ### Fixed
 
+- **Speech cleaning no longer re-cases text.** `clean_speech_transcript` upper-cased the first
+  letter of every cleaned line ("sim, e o npm" → "Sim, e o npm"), a silent rewrite. It now only
+  removes; letter case is kept as written.
 - **Stash gc hardening** (security review of the lifecycle PR). A mistyped `--root` aborts
   instead of being skipped; symlinked project directories are scanned (loop-safe); FIFOs and
   other special files are skipped instead of hanging; dangling symlinks no longer block gc;
@@ -29,6 +41,11 @@ All notable changes to this project are documented here. The format is based on
   emitted; JSON, TOON and MCP outputs gain the three keys. `UNKNOWN` is reported as no category.
   Only the first 1,000 characters are classified (the training length), so long inputs cost the
   same as short ones; scores are identical across `PYTHONHASHSEED` values.
+- **`lcc optimize` reports every speech-cleaning edit with its position.** The
+  `speech_transcript_cleaning` step now carries `spans`: `{start, end, removed, inserted}` with
+  offsets in the input; applying them in order reproduces the cleaned text exactly.
+  `CleaningStep` gains a `spans` field (empty for other steps). Recovered by a linear alignment
+  (`lcc.cleaning.speech.speech_edits`): 2.2 MB SRT in 0.3 s locally.
 - **Lean stash pointer, opt-in.** `--stash-pointer lean` (CLI) and `stash_pointer: "lean"`
   (MCP), with `--rules-mode stashed`, add the exit status, a failing test or error type, and the
   first line to each pointer: about +13 tokens each. Default stays `plain`. Both forms are fixed
@@ -46,6 +63,14 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **Every prompt template puts per-request content last.** `default` put the user question
+  before its constraints; `code_agent`, `structured_markdown`, `deepseek_r1` and `deepseek_v3`
+  put the definition of done or the length guidance after the context. Static sections
+  (role, task type, constraints, response requirements, length guidance) now come first and
+  the context and question last, so a prompt cache can reuse the prefix. Static prefix shared
+  by two intake requests: `default` 245 → 689 chars, `code_agent` 676 → 908,
+  `structured_markdown` 464 → 630. `tests/test_prompt_builder.py` checks every template. Same
+  reorder in the Node `default` template. Section text is unchanged; only the order moved.
 - **The relationship graph is linear in session length.** `build_graph` (provider `auto`)
   compared every pair of blocks and linked any two sharing two terms found in up to half the
   blocks, so a long session's SUPPORTS edges grew with the square of its blocks: one 60 MB

@@ -36,6 +36,7 @@ import re
 import tempfile
 import time
 import warnings
+from bisect import bisect_left
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -69,6 +70,10 @@ _LEAN_ID = 60
 
 class StashError(ValueError):
     """A recall that cannot return verified bytes (bad id, missing blob, hash mismatch)."""
+
+
+class StashCorrupt(StashError):
+    """A blob whose bytes no longer match its sha256: never returned."""
 
 
 class StashMissing(StashError):
@@ -218,13 +223,30 @@ def put(text: str, *, session: str | None = None) -> str:
     return digest
 
 
-def _blob(stash_id: str) -> tuple[str, bytes]:
+def _stash_names() -> list[str]:
+    """Sorted blob names now in the stash: one listing for a batch of ``_blob`` lookups."""
+    root = stash_dir()
+    return sorted(p.name for p in root.iterdir() if _FULL.match(p.name)) if root.is_dir() else []
+
+
+def _blob(stash_id: str, names: list[str] | None = None) -> tuple[str, bytes]:
+    """The blob ``stash_id`` names. ``names`` (from ``_stash_names``) spares the directory scan
+    per lookup; a prefix it does not hold falls back to the scan, so a blob written since the
+    listing is still found."""
     if not _ID.match(stash_id):
         raise StashError(f"not a stash id: {stash_id!r} (12-64 lowercase hex chars)")
     root = stash_dir()
-    matches = (
-        sorted(p for p in root.glob(f"{stash_id}*") if _FULL.match(p.name)) if root.is_dir() else []
-    )
+    matches: list[Path] = []
+    if names:
+        at = bisect_left(names, stash_id)
+        while at < len(names) and names[at].startswith(stash_id):
+            matches.append(root / names[at])
+            at += 1
+    if not matches:
+        matches = (
+            sorted(p for p in root.glob(f"{stash_id}*") if _FULL.match(p.name))
+            if root.is_dir() else []
+        )
     if not matches:
         raise StashMissing(f"stash id {stash_id} not found in {root}. {RECOVERY_HINT}")
     if len(matches) > 1:
@@ -234,28 +256,72 @@ def _blob(stash_id: str) -> tuple[str, bytes]:
     except FileNotFoundError:  # removed between glob and read
         raise StashMissing(f"stash id {stash_id} not found in {root}. {RECOVERY_HINT}") from None
     if hashlib.sha256(data).hexdigest() != matches[0].name:
-        raise StashError(
+        raise StashCorrupt(
             f"stash blob {matches[0].name} fails its hash check; not returned. {RECOVERY_HINT}"
         )
     return matches[0].name, data
 
 
-def recall(stash_id: str, lines: tuple[int, int] | None = None) -> str:
-    """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive."""
-    name, data = _blob(stash_id)
+def _ledger_recall(ledger: bool | None, **fields: Any) -> None:
+    from lcc.receipt import append_ledger, ledger_enabled, recall_record
+
+    # An explicit False beats LCC_LEDGER=1, as for passes.
+    if ledger is not False and ledger_enabled(ledger is True):
+        append_ledger(recall_record(**fields))
+
+
+def recall(
+    stash_id: str,
+    lines: tuple[int, int] | str | None = None,
+    *,
+    ledger: bool | None = None,
+) -> str:
+    """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive (or ``"a-b"``).
+
+    With the ledger on (``ledger=True``, or ``LCC_LEDGER=1`` unless ``ledger=False``) each call
+    appends one counts-only record, failures included: every recall is a real label of what a
+    pass removed too early.
+    """
+    try:
+        if isinstance(lines, str):  # parsed here so a malformed range is recorded too
+            lines = parse_lines(lines)
+        name, data = _blob(stash_id)
+    except StashError as exc:
+        outcome = (
+            "missing" if isinstance(exc, StashMissing)
+            else "hash_mismatch" if isinstance(exc, StashCorrupt)
+            else "invalid"
+        )
+        _ledger_recall(ledger, outcome=outcome)
+        raise
+    text = data.decode("utf-8")
+    if lines is not None:
+        first, last = lines
+        rows = text.splitlines(keepends=True)
+        if first < 1 or last < first or first > len(rows):
+            _ledger_recall(ledger, outcome="invalid")
+            raise StashError(f"line range {first}-{last} outside 1-{len(rows)}")
+        text = "".join(rows[first - 1 : last])
     root = stash_dir()
-    # Bookkeeping only: a read-only or unlockable stash must still answer.
+    meta = read_sidecar(root / name)  # before the touch below: was it recalled already?
+    # Only a recall that returns text counts as one. Bookkeeping only: a read-only or
+    # unlockable stash must still answer.
     with contextlib.suppress(OSError), stash_lock(root):
         if (root / name).is_file():
             _touch_sidecar(root / name, last_recalled_at=True)
-    text = data.decode("utf-8")
-    if lines is None:
-        return text
-    first, last = lines
-    rows = text.splitlines(keepends=True)
-    if first < 1 or last < first or first > len(rows):
-        raise StashError(f"line range {first}-{last} outside 1-{len(rows)}")
-    return "".join(rows[first - 1 : last])
+    sessions = meta.get("sessions") or []
+    put_at = meta.get("last_put_at") or meta.get("created_at")
+    _ledger_recall(
+        ledger,
+        outcome="ok",
+        # One session wrote it: join with that session's pass records. Shared blobs stay unkeyed.
+        session=sessions[0] if len(sessions) == 1 else None,
+        nbytes=len(data),
+        partial=lines is not None,
+        age_seconds=time.time() - put_at if isinstance(put_at, (int, float)) else None,
+        repeat="last_recalled_at" in meta,
+    )
+    return text
 
 
 def recall_sha256(stash_id: str) -> str:
@@ -404,12 +470,12 @@ def stashed_decisions(
     return decisions
 
 
-def _stash_holds(old: Any, note: str) -> bool:
+def _stash_holds(old: Any, note: str, names: list[str] | None = None) -> bool:
     match = _NOTE.match(note)
     if match is None:
         return False
     try:
-        digest, data = _blob(match.group("id"))
+        digest, data = _blob(match.group("id"), names)
     except StashError:
         return False
     stash_id = match.group("id")
@@ -425,8 +491,13 @@ def verify_stashed(original_payload: Any, compacted_payload: Any) -> list[str]:
     from lcc.relevance.transcript import parse_transcript
 
     duplicated = duplicate_ids(parse_transcript(original_payload))
-    return verify_lossless(
-        original_payload,
-        compacted_payload,
-        allow=lambda old, note: old.id not in duplicated and _stash_holds(old, note),
-    )
+    names: list[str] = []  # listed once, on the first pointer: one scan for the whole check
+
+    def allow(old: Any, note: str) -> bool:
+        if old.id in duplicated:
+            return False
+        if not names:
+            names.extend(_stash_names())
+        return _stash_holds(old, note, names)
+
+    return verify_lossless(original_payload, compacted_payload, allow=allow)

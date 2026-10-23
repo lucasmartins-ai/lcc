@@ -196,9 +196,7 @@ def _clean_line_text(line: str) -> str:
     cleaned = _MULTIPLE_SPACES.sub(" ", cleaned).strip()
     cleaned = _LEADING_PUNCT.sub("", cleaned).strip()
 
-    # Capitalize first letter if needed
-    if cleaned and cleaned[0].islower():
-        cleaned = cleaned[0].upper() + cleaned[1:]
+    # No re-casing: cleaning only removes, it never rewrites what the user wrote.
 
     return cleaned
 
@@ -307,3 +305,70 @@ def clean_speech_transcript(text: str) -> str:
         joined = joined.replace(f"{prefix}{block_idx}__\x00", block)
 
     return joined
+
+
+#: How far ahead in the raw text an anchor is searched. ponytail: a removal longer than this
+#: is reported as a valid but non-minimal edit; raise it if real transcripts need more.
+SPEECH_DIFF_WINDOW = 4_000
+_ANCHOR_LENGTHS = (32, 16, 8, 4, 2, 1)
+
+
+def _common_prefix(a: str, i: int, b: str, j: int) -> int:
+    n = 0
+    step = 4096
+    while i + n < len(a) and j + n < len(b):
+        chunk_a, chunk_b = a[i + n : i + n + step], b[j + n : j + n + step]
+        if chunk_a == chunk_b:
+            n += min(len(chunk_a), len(chunk_b))
+            continue
+        for x, y in zip(chunk_a, chunk_b, strict=False):
+            if x != y:
+                return n
+            n += 1
+        return n
+    return n
+
+
+def speech_edits(raw: str, cleaned: str) -> list[dict[str, int | str]]:
+    """Edits that turn ``raw`` into ``cleaned``, with positions in ``raw``.
+
+    ``clean_speech_transcript`` rewrites line by line (merging speaker turns, fixing commas), so
+    its edits are recovered by alignment. The cleaned text is nearly a subsequence of the raw
+    one: at each divergence the next cleaned characters are found ahead in ``raw`` (longest
+    anchor first) and the skipped raw text is a removal; a character found nowhere ahead is an
+    insertion. Linear in practice. Applying every ``{start, end, removed, inserted}`` in order
+    to ``raw`` gives ``cleaned`` exactly.
+    """
+    edits: list[list[int]] = []  # [raw_start, raw_end, clean_start, clean_end]
+
+    def add(a1: int, a2: int, b1: int, b2: int) -> None:
+        if edits and edits[-1][1] == a1 and edits[-1][3] == b1:
+            edits[-1][1], edits[-1][3] = a2, b2
+        else:
+            edits.append([a1, a2, b1, b2])
+
+    i = j = 0
+    while True:
+        k = _common_prefix(raw, i, cleaned, j)
+        i, j = i + k, j + k
+        if j >= len(cleaned):
+            if i < len(raw):
+                add(i, len(raw), j, j)
+            break
+        if i >= len(raw):
+            add(i, i, j, len(cleaned))
+            break
+        limit = i + SPEECH_DIFF_WINDOW
+        for length in _ANCHOR_LENGTHS:
+            pos = raw.find(cleaned[j : j + length], i, limit + length)
+            if pos > i:
+                add(i, pos, j, j)
+                i = pos
+                break
+        else:
+            add(i, i, j, j + 1)
+            j += 1
+    return [
+        {"start": a1, "end": a2, "removed": raw[a1:a2], "inserted": cleaned[b1:b2]}
+        for a1, a2, b1, b2 in edits
+    ]

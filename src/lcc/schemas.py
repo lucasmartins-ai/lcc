@@ -43,6 +43,8 @@ class CleaningStep:
     name: str
     detail: str
     metrics: dict[str, int] = field(default_factory=dict)
+    #: Exact edits with positions in the input, for steps that rewrite in place.
+    spans: list[dict[str, int | str]] = field(default_factory=list)
 
 
 @dataclass

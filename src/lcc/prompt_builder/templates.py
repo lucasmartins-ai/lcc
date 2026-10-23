@@ -75,12 +75,12 @@ def render_default(spec: PromptSpec) -> str:
     """Render the default, evidence-aware prompt template."""
     role, constraints, response_requirements = _contract_sections(spec)
 
+    # Static sections first, per-request context and question last, so a prompt cache can
+    # reuse the prefix across requests (docs/CACHE_ALIGNMENT.md).
     sections = [
         role,
         f"Task type: {spec.task_type}",
-        "User question:\n" + (spec.question.strip() or "(no question provided)"),
         "Constraints:\n" + _render_bullets(constraints),
-        "Context:\n" + (spec.context.strip() or "(no context provided)"),
         "Response requirements:\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
     ]
@@ -89,6 +89,8 @@ def render_default(spec: PromptSpec) -> str:
             "Length guidance: keep the response within approximately "
             f"{spec.max_output_tokens} tokens."
         )
+    sections.append("Context:\n" + (spec.context.strip() or "(no context provided)"))
+    sections.append("User question:\n" + (spec.question.strip() or "(no question provided)"))
     return "\n\n".join(sections) + "\n"
 
 
@@ -175,15 +177,20 @@ def render_code_agent(spec: PromptSpec) -> str:
         "# System: AI Coding Agent Instructions & Operational Contract",
         f"**Task Type:** `{spec.task_type}`",
         "### Operational Boundaries & Negative Constraints:\n" + _render_bullets(constraints),
-        "### Reference Context & Codebase Memory:\n```\n"
-        + (spec.context.strip() or "(no context provided)")
-        + "\n```",
-        "### User Task / Objective:\n" + (spec.question.strip() or "(no question provided)"),
         "### Definition of Done:\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
     ]
     if spec.max_output_tokens is not None:
         sections.append(f"**Length Guidance:** Limit response to ~{spec.max_output_tokens} tokens.")
+    # Per-request content last: the sections above are a cacheable prefix.
+    sections.append(
+        "### Reference Context & Codebase Memory:\n```\n"
+        + (spec.context.strip() or "(no context provided)")
+        + "\n```"
+    )
+    sections.append(
+        "### User Task / Objective:\n" + (spec.question.strip() or "(no question provided)")
+    )
 
     return "\n\n".join(sections) + "\n"
 
@@ -218,21 +225,22 @@ def render_structured_markdown(spec: PromptSpec) -> str:
     sections = [
         f"## Role & Instructions\n{role}\n\n**Task Type:** {spec.task_type}",
         "## Constraints\n" + _render_bullets(constraints),
-        "## Context\n" + (spec.context.strip() or "(no context provided)"),
-        "## Task\n" + (spec.question.strip() or "(no question provided)"),
         "## Response Requirements\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
     ]
     if spec.max_output_tokens is not None:
         sections.append(f"**Length Guidance:** Keep within ~{spec.max_output_tokens} tokens.")
+    # Per-request content last: the sections above are a cacheable prefix.
+    sections.append("## Context\n" + (spec.context.strip() or "(no context provided)"))
+    sections.append("## Task\n" + (spec.question.strip() or "(no question provided)"))
 
     return "\n\n".join(sections) + "\n"
 
 
 def render_llama_3_3(spec: PromptSpec) -> str:
     """Render a Llama 3.3 Instruct conversation using its message tokens.
-       Note: these special tokens only act as tokens on raw-completion endpoints.
-       Through a chat API they are sent as plain text."""
+    Note: these special tokens only act as tokens on raw-completion endpoints.
+    Through a chat API they are sent as plain text."""
 
     role, constraints, response_requirements = _contract_sections(spec)
 
@@ -269,8 +277,8 @@ def render_llama_3_3(spec: PromptSpec) -> str:
 
 def render_deepseek_r1(spec: PromptSpec) -> str:
     """Render DeepSeek-R1 using its user/assistant message markers.
-       Note: these special tokens only act as tokens on raw-completion endpoints.
-       Through a chat API they are sent as plain text."""
+    Note: these special tokens only act as tokens on raw-completion endpoints.
+    Through a chat API they are sent as plain text."""
 
     role, constraints, response_requirements = _contract_sections(spec)
 
@@ -283,22 +291,23 @@ def render_deepseek_r1(spec: PromptSpec) -> str:
         "Constraints:\n" + _render_bullets(constraints),
         "Response requirements:\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
-        "Context:\n" + (context or "(no context provided)"),
-        "User question:\n" + (question or "(no question provided)"),
     ]
     if spec.max_output_tokens is not None:
         sections.append(
             "Length guidance: keep the response within approximately "
             f"{spec.max_output_tokens} tokens."
         )
+    # Per-request content last: the sections above are a cacheable prefix.
+    sections.append("Context:\n" + (context or "(no context provided)"))
+    sections.append("User question:\n" + (question or "(no question provided)"))
     content = "\n\n".join(sections)
     return "<｜begin▁of▁sentence｜><｜User｜>" + content + "<｜Assistant｜><think>\n"
 
 
 def render_deepseek_v3(spec: PromptSpec) -> str:
     """Render DeepSeek-V3 using its user/assistant message markers.
-       Note: these special tokens only act as tokens on raw-completion endpoints.
-       Through a chat API they are sent as plain text."""
+    Note: these special tokens only act as tokens on raw-completion endpoints.
+    Through a chat API they are sent as plain text."""
 
     role, constraints, response_requirements = _contract_sections(spec)
 
@@ -311,14 +320,15 @@ def render_deepseek_v3(spec: PromptSpec) -> str:
         "Constraints:\n" + _render_bullets(constraints),
         "Response requirements:\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
-        "Context:\n" + (context or "(no context provided)"),
-        "User question:\n" + (question or "(no question provided)"),
     ]
     if spec.max_output_tokens is not None:
         sections.append(
             "Length guidance: keep the response within approximately "
             f"{spec.max_output_tokens} tokens."
         )
+    # Per-request content last: the sections above are a cacheable prefix.
+    sections.append("Context:\n" + (context or "(no context provided)"))
+    sections.append("User question:\n" + (question or "(no question provided)"))
     content = "\n\n".join(sections)
     return "<｜begin▁of▁sentence｜><｜User｜>" + content + "<｜Assistant｜>"
 
