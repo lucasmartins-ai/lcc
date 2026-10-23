@@ -12,12 +12,14 @@ from __future__ import annotations
 import json
 import os
 import platform
+import statistics
 import tempfile
 import time
 from pathlib import Path
 from typing import Any
 
 SCHEMA = "lcc-session-report/1"
+DIRECTORY_SCHEMA = "lcc-session-directory-report/1"
 DEFAULT_QUESTION = "finish the task in this session"
 #: (label, provider, rules_mode). `recoverable` is left out: it needs the session's disk.
 MODES: tuple[tuple[str, str, str], ...] = (
@@ -292,6 +294,71 @@ def to_markdown(report: dict[str, Any]) -> str:
         lines.append(
             f"| {row['mode']} | {row['tokens_after']:,} | {row['reduction']:.1%} | "
             f"{kept}/{report['texts']} | {row['stashed']} | {row['ms']} ms |"
+        )
+    lines += ["", "Counts only: no session text, file path or tool output is included."]
+    return "\n".join(lines)
+
+
+def _p90(values: list[float]) -> float:
+    if len(values) < 2:
+        return values[0]
+    # inclusive: never above the largest observed value (exclusive extrapolates for small n)
+    return statistics.quantiles(values, n=10, method="inclusive")[-1]
+
+
+def measure_directory(path: Path, question: str = DEFAULT_QUESTION) -> dict[str, Any]:
+    """Measure every ``*.jsonl`` session directly in ``path`` and aggregate per mode.
+
+    Reports the session count and, per mode, the median and p90 reduction over the sessions
+    where that mode ran. Counts only, like :func:`measure_session`.
+    """
+    from lcc import __version__
+
+    sessions = sorted(p for p in path.glob("*.jsonl") if p.is_file())
+    if not sessions:
+        raise ValueError(f"no *.jsonl session files in {path.name or path}")
+    reports = [measure_session(session, question=question) for session in sessions]
+    rows: list[dict[str, Any]] = []
+    for label, _provider, _rules_mode in MODES:
+        values = [
+            row["reduction"]
+            for report in reports
+            for row in report["modes"]
+            if row["mode"] == label and "error" not in row
+        ]
+        rows.append(
+            {
+                "mode": label,
+                "n": len(values),
+                "median_reduction": round(statistics.median(values), 4) if values else None,
+                "p90_reduction": round(_p90(values), 4) if values else None,
+            }
+        )
+    return {
+        "schema": DIRECTORY_SCHEMA,
+        "lcc_version": __version__,
+        "platform": f"{platform.system()} {platform.machine()}",
+        "sessions": len(reports),
+        "modes": rows,
+    }
+
+
+def directory_to_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        f"**lcc measure-session** · lcc {report['lcc_version']} · {report['platform']}",
+        "",
+        f"Directory: {report['sessions']} sessions.",
+        "",
+        "| mode | n | median reduction | p90 reduction |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    for row in report["modes"]:
+        if not row["n"]:
+            lines.append(f"| {row['mode']} | 0 | did not run | |")
+            continue
+        lines.append(
+            f"| {row['mode']} | {row['n']} | {row['median_reduction']:.1%} | "
+            f"{row['p90_reduction']:.1%} |"
         )
     lines += ["", "Counts only: no session text, file path or tool output is included."]
     return "\n".join(lines)

@@ -10,7 +10,7 @@ from rich.text import Text
 from typer.testing import CliRunner
 
 from lcc.cli import app
-from lcc.session_report import from_claude_code, measure_session
+from lcc.session_report import from_claude_code, measure_directory, measure_session
 
 MARKER = "PRIVATE-4242"
 
@@ -189,3 +189,64 @@ def test_measure_cli_help_documents_question_option(monkeypatch, force_color):
     help_text = Text.from_ansi(result.output).plain
     assert "--question" in help_text
     assert "-q" in help_text
+
+
+def test_measure_directory_aggregates_median_and_p90_per_mode(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    project = tmp_path / "project"
+    project.mkdir()
+    for i, n in enumerate((4, 8, 12)):
+        folder = tmp_path / f"s{i}"
+        folder.mkdir()
+        _session(folder, n).rename(project / f"s{i}.jsonl")
+    (project / "notes.txt").write_text("not a session", encoding="utf-8")
+    report = measure_directory(project)
+    assert report["sessions"] == 3
+    modes = {row["mode"]: row for row in report["modes"]}
+    assert set(modes) == {"rules:lossless", "rules:stashed", "auto"}
+    singles = [measure_session(project / f"s{i}.jsonl") for i in range(3)]
+    stashed = sorted(
+        row["reduction"] for r in singles for row in r["modes"] if row["mode"] == "rules:stashed"
+    )
+    assert modes["rules:stashed"]["n"] == 3
+    assert modes["rules:stashed"]["median_reduction"] == stashed[1]
+    assert stashed[1] <= modes["rules:stashed"]["p90_reduction"] <= stashed[-1]
+    assert MARKER not in json.dumps(report) and "parser" not in json.dumps(report)
+
+
+def test_measure_directory_single_session_p90_is_its_value(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    _session(tmp_path)
+    report = measure_directory(tmp_path)
+    for row in report["modes"]:
+        assert row["n"] == 1 and row["median_reduction"] == row["p90_reduction"]
+
+
+def test_cli_measure_session_directory_prints_one_markdown_table(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    project = tmp_path / "project"
+    project.mkdir()
+    for i in range(2):
+        folder = tmp_path / f"s{i}"
+        folder.mkdir()
+        _session(folder, 4 + i).rename(project / f"s{i}.jsonl")
+    result = CliRunner().invoke(app, ["measure-session", str(project), "--markdown"])
+    assert result.exit_code == 0, result.output
+    assert result.output.count("| mode | n | median reduction | p90 reduction |") == 1
+    assert "| rules:stashed | 2 |" in result.output and "2 sessions" in result.output
+    assert MARKER not in result.output and str(project) not in result.output
+    as_json = CliRunner().invoke(app, ["measure-session", str(project), "--json"])
+    assert json.loads(as_json.output)["sessions"] == 2
+
+
+def test_cli_measure_session_empty_directory_fails_cleanly(tmp_path: Path):
+    result = CliRunner().invoke(app, ["measure-session", str(tmp_path), "--markdown"])
+    assert result.exit_code == 2
+    assert "no *.jsonl session files" in result.output
+
+
+def test_p90_never_exceeds_the_largest_value():
+    from lcc.session_report import _p90
+
+    assert _p90([0.2, 0.3, 0.4]) <= 0.4
+    assert _p90([0.5]) == 0.5
