@@ -5,7 +5,9 @@ that is little. This mode stores the removed bytes at removal time instead: the 
 text goes to a local content-addressed store (``<stash>/<sha256>``; on POSIX dir 0700 and
 files 0600; on Windows ``%LOCALAPPDATA%\\lcc\\stash`` with no chmod dependency;
 ``LCC_STASH_DIR`` overrides both defaults) and is replaced by
-``[removed: N tokens · lcc recall <sha12>]``. :func:`recall` (``lcc recall``, MCP ``recall``)
+``[removed: N lines, S KB · lcc recall <sha12>]`` (lines as ``recall --lines`` counts them, S the
+UTF-8 size; neither depends on a tokenizer, so one output gives one placeholder on every machine).
+:func:`recall` (``lcc recall``, MCP ``recall``)
 re-hashes on read, so what comes back is provably what was removed.
 
 Eligible: every result ``lossy`` would drop or trim, plus every result ``recoverable`` replaces;
@@ -31,7 +33,10 @@ from lcc.token_budget import count_tokens
 ENV_DIR = "LCC_STASH_DIR"
 _ID = re.compile(r"^[0-9a-f]{12,64}$")
 _FULL = re.compile(r"^[0-9a-f]{64}$")
-_NOTE = re.compile(r"^\[removed: (\d+) tokens · lcc recall ([0-9a-f]{12})\]$")
+# Also accepts the earlier "N tokens" form: pointers already in a transcript stay fixed points.
+_NOTE = re.compile(
+    r"^\[removed: (?:\d+ tokens|\d+ lines?, \d+(?:\.\d)? K?B) · lcc recall (?P<id>[0-9a-f]{12})\]$"
+)
 
 
 class StashError(ValueError):
@@ -122,12 +127,20 @@ def parse_lines(spec: str) -> tuple[int, int]:
         raise StashError(f"--lines must look like a-b, got {spec!r}") from None
 
 
-def stash_note(tokens: int, digest: str) -> str:
-    return f"[removed: {tokens} tokens · lcc recall {digest[:12]}]"
+def _size(nbytes: int) -> str:
+    return f"{nbytes} B" if nbytes < 1024 else f"{nbytes / 1024:.1f} KB"
 
 
-def _too_short_to_stash(text: str, model: str) -> bool:
-    return len(stash_note(count_tokens(text, model).value, "0" * 12)) >= len(text)
+def stash_note(text: str, digest: str) -> str:
+    """The placeholder for ``text``: line and byte counts, never a tokenizer's."""
+    count = len(text.splitlines())
+    unit = "line" if count == 1 else "lines"
+    size = _size(len(text.encode("utf-8")))
+    return f"[removed: {count} {unit}, {size} · lcc recall {digest[:12]}]"
+
+
+def _too_short_to_stash(text: str) -> bool:
+    return len(stash_note(text, "0" * 12)) >= len(text)
 
 
 def stashed_decisions(
@@ -161,7 +174,7 @@ def stashed_decisions(
     eligible = {
         i: reason
         for i, reason in eligible.items()
-        if not _too_short_to_stash(candidates[i].result.text, model)
+        if not _too_short_to_stash(candidates[i].result.text)
     }
     unavailable = {candidates[i].result.id for i in eligible}
     lossless = lossless_decisions(messages, candidates, unavailable=unavailable)
@@ -192,7 +205,7 @@ def stashed_decisions(
             | {
                 "decision": "replace",
                 "reason": f"stashed:{eligible[index]}",
-                "note": stash_note(tokens, digest),
+                "note": stash_note(text, digest),
                 "stash": {"sha256": digest, "tokens": tokens, "bytes": len(text.encode("utf-8"))},
             }
         )
@@ -204,10 +217,11 @@ def _stash_holds(old: Any, note: str) -> bool:
     if match is None:
         return False
     try:
-        digest, data = _blob(match.group(2))
+        digest, data = _blob(match.group("id"))
     except StashError:
         return False
-    return data == old.text.encode("utf-8", "surrogatepass") and digest.startswith(match.group(2))
+    stash_id = match.group("id")
+    return data == old.text.encode("utf-8", "surrogatepass") and digest.startswith(stash_id)
 
 
 def verify_stashed(original_payload: Any, compacted_payload: Any) -> list[str]:

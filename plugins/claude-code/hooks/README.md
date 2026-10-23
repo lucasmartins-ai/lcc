@@ -62,7 +62,7 @@ plugin's config (`/plugin` → lcc, or `claude plugin install --config key=value
 
 `rulesMode` (with `provider: rules`) picks `lossless`, `recoverable`, `stashed` or `lossy`; empty
 keeps the server default. With `stashed`, each removed tool output is written to the local stash
-(`~/.cache/lcc/stash`, or `LCC_STASH_DIR`) and replaced by `[removed: N tokens · lcc recall <id>]`;
+(`~/.cache/lcc/stash`, or `LCC_STASH_DIR`) and replaced by `[removed: N lines, S KB · lcc recall <id>]`;
 the agent gets the exact bytes back with the plugin's `recall` tool, so allow
 `mcp__plugin_lcc_lcc__recall` as well. With `recoverable` the hook sends the session's working directory as
 `workspace_root`, so every removed file read is checked against the file on disk. The

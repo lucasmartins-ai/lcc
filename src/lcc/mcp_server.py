@@ -593,7 +593,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "handler": _tool_recall,
         "description": (
             "Return a tool output that compact_transcript (rules_mode 'stashed') replaced "
-            "with '[removed: N tokens · lcc recall <id>]'. The bytes are re-hashed on read, "
+            "with '[removed: N lines, S KB · lcc recall <id>]'. The bytes are re-hashed on read, "
             "so the text is exactly what was removed. Offline, local stash only."
         ),
         "schema": {

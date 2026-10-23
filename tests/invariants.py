@@ -209,6 +209,18 @@ def check_stable_placeholders(payload: Any, result: Any, mode: str, goal: str) -
     assert messages_to_payload(again.messages) == messages_to_payload(result.messages), (
         f"stable placeholder: {mode} output differs in another stash directory"
     )
+    # ... and on a machine without tiktoken (the plugin without the extra): same bytes out.
+    from lcc.token_budget import counters
+
+    exact = counters._HAS_TIKTOKEN
+    counters._HAS_TIKTOKEN = False
+    try:
+        approx = compact(payload, mode, goal)
+    finally:
+        counters._HAS_TIKTOKEN = exact
+    assert messages_to_payload(approx.messages) == messages_to_payload(result.messages), (
+        f"stable placeholder: {mode} output differs with the approximate token counter"
+    )
 
 
 def check_transcript(payload: Any, goal: str) -> None:

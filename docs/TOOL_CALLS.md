@@ -169,8 +169,9 @@ What each mode measured on real agent sessions: [REAL_SESSION_BENCHMARKS.md](REA
 **`stashed`** — `src/lcc/relevance/transcript_stash.py`. Removes what `lossy` would drop or
 trim plus what `recoverable` would replace, but stores the exact bytes first, so nothing removed
 is lost. Each removed result's UTF-8 text is written to a local content-addressed stash and the
-result becomes `[removed: N tokens · lcc recall <sha12>]` (`N` counted with the request's
-`model`). Default stash location by OS (file is `<stash>/<sha256>`):
+result becomes `[removed: N lines, S KB · lcc recall <sha12>]` (`N` as `recall --lines` counts,
+`S` the UTF-8 size: no tokenizer, so the same output gives the same text with or without
+`tiktoken`; the older `N tokens` form is still recognised and left alone). Default stash location by OS (file is `<stash>/<sha256>`):
 
 | OS | Default stash directory |
 | :--- | :--- |

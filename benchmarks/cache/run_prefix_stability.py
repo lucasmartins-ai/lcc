@@ -54,7 +54,7 @@ OBJECTIVE = "Why did checkout conversion fall after the mobile release?"
 _RELEVANT = ["conversion", "checkout", "mobile", "release", "funnel", "cohort", "regression"]
 _NOISE = ["plants", "coffee", "weather", "parking", "lunch", "holiday", "printer", "music"]
 _FILES = ["src/app/router.py", "src/app/cache.py", "src/lib/parser.ts", "docs/SETUP.md"]
-_STASH_NOTE = re.compile(r"^\[removed: \d+ tokens · lcc recall [0-9a-f]{12}\]$")
+_STASH_NOTE = re.compile(r"^\[removed: (?:\d+ tokens|\d+ lines?, \d+(?:\.\d)? K?B) · lcc recall [0-9a-f]{12}\]$")
 
 #: --check floors. Unreported breaks, idempotence violations and placeholder rewrites must be
 #: zero; the append-only rate floor guards against a regression that reports every pass as an

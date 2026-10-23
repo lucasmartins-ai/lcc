@@ -45,7 +45,9 @@ The first runs found five defects, each now a corpus case: lossless re-deduped i
 field; the verification fail-safe kept every call but left `note`/`kept_at`/`stash` on the
 decisions; a whitespace-only user message was dropped on rebuild, which tripped the fail-safe
 and stopped the whole pass; and an output too short to stash was held out of lossless dedupe,
-so a second `stashed` pass changed it.
+so a second `stashed` pass changed it. Later: the stash note counted tokens, so the same bytes
+gave `1380 tokens` with `tiktoken` and `928` without; it now states lines and size. A long
+run of path characters with no slash made the reference regexes quadratic (`long_slashless_run`).
 
 ## Input
 

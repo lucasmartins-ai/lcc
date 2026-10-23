@@ -39,7 +39,7 @@ _VOLATILE_RE = re.compile(r"^(?:Chunk ID|Wall time|Original token count):")
 _IDENTICAL_RE = re.compile(r"^\[identical output kept at (.+)\]$")
 _LINES_RE = re.compile(r"^\[output = lines ([1-9][0-9]*)-([1-9][0-9]*) of (.+)\]$")
 # Any one-line pointer an lcc pass emits: lossless, recoverable ("[removed: re-read …]") and
-# stashed ("[removed: N tokens · lcc recall …]").
+# stashed ("[removed: N lines, S KB · lcc recall …]").
 _ANY_POINTER_RE = re.compile(
     r"^\[(?:identical output kept at .+|output = lines [0-9]+-[0-9]+ of .+|removed: .+)\]$"
 )

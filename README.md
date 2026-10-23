@@ -110,6 +110,8 @@ Every number from someone other than me makes the claims above less mine and mor
 - **Verbatim.** Kept spans are byte-identical to the source. Nothing is summarized or rewritten.
 - **Recoverable.** `stashed` moves removed outputs to a local content-addressed store
   (`~/.cache/lcc/stash`); `recall` re-hashes on read.
+  The placeholder, `[removed: 120 lines, 4.3 KB · lcc recall <id>]`, states lines and size, not
+  tokens, so it is identical on every machine.
 - **Auditable.** Every pass writes a JSON report; `lcc explain` gives the reason for every drop.
 - **Local.** The default judges run on your CPU in plain Python. No API key, no network.
 

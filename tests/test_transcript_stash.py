@@ -1,7 +1,7 @@
 """provider="rules", rules_mode="stashed": removed outputs go to a local content-addressed stash.
 
 The exact bytes of every removed result are written to ``<stash>/<sha256>`` and the result is
-replaced by ``[removed: N tokens · lcc recall <sha12>]``. ``recall`` re-hashes on read, so what
+replaced by ``[removed: N lines, S KB · lcc recall <sha12>]``. ``recall`` re-hashes on read, so what
 comes back is provably what was removed.
 """
 
@@ -23,12 +23,13 @@ from lcc.cli import app
 from lcc.mcp_server import handle_message
 from lcc.relevance.transcript import (
     TranscriptCompactionRequest,
+    TranscriptError,
     compact_transcript,
     messages_to_payload,
 )
 from lcc.relevance.transcript_stash import StashError, put, recall, stash_dir, verify_stashed
 
-NOTE = re.compile(r"^\[removed: (\d+) tokens · lcc recall ([0-9a-f]{12})\]$")
+NOTE = re.compile(r"^\[removed: (\d+) lines?, (\d+(?:\.\d)? K?B) · lcc recall ([0-9a-f]{12})\]$")
 BODY = "\n".join(f"line {n} of the old parser module" for n in range(1, 80))
 
 
@@ -110,8 +111,9 @@ def test_removed_output_is_stashed_verbatim_and_pointer_replaces_it(_stash: Path
     assert match, note
     digest = hashlib.sha256(BODY.encode()).hexdigest()
     assert decision["stash"]["sha256"] == digest
-    assert match.group(2) == digest[:12]
-    assert int(match.group(1)) == decision["stash"]["tokens"] > 0
+    assert match.group(3) == digest[:12]
+    assert int(match.group(1)) == len(BODY.splitlines())
+    assert match.group(2) == f"{len(BODY) / 1024:.1f} KB"
 
     blob = _stash / digest
     assert blob.read_bytes() == BODY.encode()
@@ -133,7 +135,7 @@ def test_removed_output_is_stashed_verbatim_and_pointer_replaces_it(_stash: Path
 def test_recall_returns_exact_bytes_and_line_ranges():
     messages = stale_read_session()
     _result, compacted, _ = run(messages)
-    sha12 = NOTE.match(result_text(compacted, "c1")).group(2)
+    sha12 = NOTE.match(result_text(compacted, "c1")).group(3)
 
     assert recall(sha12) == BODY
     assert (
@@ -180,7 +182,7 @@ def test_existing_modes_do_not_stash(_stash: Path):
 
 def test_cli_recall(tmp_path: Path):
     _result, compacted, _ = run(stale_read_session())
-    sha12 = NOTE.match(result_text(compacted, "c1")).group(2)
+    sha12 = NOTE.match(result_text(compacted, "c1")).group(3)
     out = CliRunner().invoke(app, ["recall", sha12, "--lines", "1-2"])
     assert out.exit_code == 0, out.output
     assert out.stdout == "line 1 of the old parser module\nline 2 of the old parser module\n"
@@ -208,7 +210,7 @@ def test_mcp_recall_and_stashed_mode():
         }
     )
     payload = json.loads(response["result"]["content"][0]["text"])
-    sha12 = NOTE.match(result_text(payload["messages"], "c1")).group(2)
+    sha12 = NOTE.match(result_text(payload["messages"], "c1")).group(3)
 
     response = handle_message(
         {
@@ -231,8 +233,43 @@ def test_lossy_only_removal_is_stashed_not_trimmed(_stash: Path):
     result, compacted, by_id = run(messages)
 
     assert by_id["c1"]["reason"] == "stashed:large_old_output_trimmed"
-    assert recall(NOTE.match(result_text(compacted, "c1")).group(2)) == log
+    assert recall(NOTE.match(result_text(compacted, "c1")).group(3)) == log
     assert result.report["lossless_violations"] == []
+
+
+def test_note_does_not_depend_on_the_token_counter(monkeypatch: pytest.MonkeyPatch):
+    """Invariant 5 across machines: with tiktoken or without it, one output, one placeholder."""
+    from lcc.token_budget import counters
+
+    def notes() -> str:
+        _, compacted, _ = run(stale_read_session())
+        return result_text(compacted, "c1")
+
+    exact = notes()
+    monkeypatch.setattr(counters, "_HAS_TIKTOKEN", False)
+    assert notes() == exact
+    assert NOTE.match(exact)
+
+
+def test_old_token_pointer_is_still_a_fixed_point():
+    old = "[removed: 1380 tokens · lcc recall 0123456789ab]"
+    messages = convo(("Read", {"file_path": "/repo/a.py"}, old), ("Bash", {"command": "ls"}, "ok"))
+    _, compacted, by_id = run(messages)
+    assert result_text(compacted, "c1") == old
+    assert by_id["c1"]["decision"] != "replace"
+
+
+def test_lone_surrogate_in_a_result_is_rejected_before_anything_is_stashed(_stash: Path):
+    """stash_note and put encode strictly; parsing must reject a lone surrogate first."""
+    body = BODY + "\n\ud800 dangling surrogate"
+    messages = convo(
+        ("Read", {"file_path": "/repo/src/old.py"}, body),
+        ("Read", {"file_path": "/repo/src/other.py"}, BODY.replace("old", "other")),
+        ("Bash", {"command": "ls"}, "ok"),
+    )
+    with pytest.raises(TranscriptError, match="unpaired surrogate"):
+        run(messages)
+    assert not _stash.exists() or not any(_stash.iterdir())
 
 
 def test_stash_dir_windows_uses_localappdata(monkeypatch, tmp_path: Path):
