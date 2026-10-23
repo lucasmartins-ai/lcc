@@ -19,6 +19,7 @@ from lcc.cleaning import (
 )
 from lcc.cleaning.boilerplate import BoilerplateResult
 from lcc.cleaning.normalize import require_valid_unicode
+from lcc.cleaning.speech import speech_edits
 from lcc.prompt_builder import PromptSpec, build_prompt
 from lcc.reporting.report import build_report
 from lcc.schemas import CleaningStep, CostEstimate, OptimizationReport, TokenCountMethod
@@ -74,11 +75,17 @@ def optimize(request: OptimizationRequest) -> OptimizationResult:
     speech_steps: list[CleaningStep] = []
     if request.clean_speech and is_speech_transcript(raw):
         text_to_clean = clean_speech_transcript(raw)
+        edits = speech_edits(raw, text_to_clean)
         speech_steps.append(
             CleaningStep(
                 name="speech_transcript_cleaning",
-                detail="Removed transcript timing, audio tags, STT credits and fillers.",
-                metrics={"removed_chars": max(0, len(raw) - len(text_to_clean))},
+                detail="Removed transcript timing, audio tags, STT credits and fillers; "
+                "spans list every edit with its position in the input.",
+                metrics={
+                    "removed_chars": max(0, len(raw) - len(text_to_clean)),
+                    "spans": len(edits),
+                },
+                spans=edits,
             )
         )
 

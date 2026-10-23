@@ -17,12 +17,18 @@ def test_is_speech_transcript_detection() -> None:
     assert is_speech_transcript("Speaker 1: Hello.\nSpeaker 2: Hi there.") is True
 
     # High filler density
-    assert is_speech_transcript("Tipo assim, o banco caiu, né? Então assim, precisamos reiniciar.") is True
+    assert (
+        is_speech_transcript("Tipo assim, o banco caiu, né? Então assim, precisamos reiniciar.")
+        is True
+    )
     assert is_speech_transcript("Basically, you know, we should fix the bug.") is True
 
     # Normal code or prose is not a transcript
     assert is_speech_transcript("def add(a: int, b: int) -> int:\n    return a + b") is False
-    assert is_speech_transcript("The quarterly revenue increased by 15% due to enterprise growth.") is False
+    assert (
+        is_speech_transcript("The quarterly revenue increased by 15% due to enterprise growth.")
+        is False
+    )
 
 
 def test_clean_speech_english_whisper_transcript() -> None:
@@ -184,3 +190,53 @@ def test_cleaning_never_changes_letter_case() -> None:
     cleaned = clean_speech_transcript(raw)
     assert "Speaker 1: we need iOS builds." in cleaned
     assert "Speaker 2: sim, e o npm também." in cleaned
+
+
+def _apply(raw: str, spans: list[dict]) -> str:
+    out, cursor = [], 0
+    for span in spans:
+        assert raw[span["start"] : span["end"]] == span["removed"]
+        out += [raw[cursor : span["start"]], span["inserted"]]
+        cursor = span["end"]
+    return "".join(out) + raw[cursor:]
+
+
+def test_optimize_report_lists_every_speech_edit_with_positions() -> None:
+    from lcc.pipeline import OptimizationRequest, optimize
+    from lcc.reporting.report import report_to_dict
+
+    raw = (
+        "1\n00:00:01,000 --> 00:00:02,000\n[Music]\nSpeaker 1: Um, the cache, you know, is cold.\n"
+        "Speaker 1: o deploy falhou, né?\n"
+    )
+    result = optimize(OptimizationRequest(raw_text=raw, question="why?"))
+    step = next(s for s in result.report.cleaning_steps if s.name == "speech_transcript_cleaning")
+    from lcc.cleaning.speech import clean_speech_transcript
+
+    assert _apply(raw, step.spans) == clean_speech_transcript(raw)
+    assert any("[Music]" in s["removed"] for s in step.spans)
+    assert step.metrics["spans"] == len(step.spans)
+    as_json = report_to_dict(result.report)
+    assert any(s["spans"] for s in as_json["cleaning_steps"])
+
+
+def test_speech_edits_stay_exact_on_multi_line_merges() -> None:
+    from lcc.cleaning.speech import speech_edits
+
+    raw = "Speaker 1: a, you know, b\nSpeaker 1: c\r\nSpeaker 2: Uh, d\n" * 50
+    cleaned = clean_speech_transcript(raw)
+    assert _apply(raw, speech_edits(raw, cleaned)) == cleaned
+
+
+def test_speech_edits_reconstruct_any_pair() -> None:
+    import random
+
+    from lcc.cleaning.speech import speech_edits
+
+    rng = random.Random(7)
+    for _ in range(200):
+        a = "".join(rng.choice("ab \n,.") for _ in range(rng.randint(0, 3000)))
+        b = "".join(
+            ch if rng.random() > 0.05 else rng.choice("x ") for ch in a if rng.random() > 0.2
+        )
+        assert _apply(a, speech_edits(a, b)) == b
