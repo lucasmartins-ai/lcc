@@ -507,6 +507,50 @@ def _ancestors(path: str) -> list[str]:
     return [a for a in ("/".join(parts[:i]) for i in range(1, len(parts))) if a.strip("./~")]
 
 
+def _refs_asked(candidates: list[Any]) -> set[str]:
+    """Every path and file name the later-write checks will ask about (see ``_names_file``)."""
+    refs: set[str] = set()
+    for call in candidates:
+        read = _file_read(call)
+        cmd = shell_command(call)
+        paths = ([read[0]] if read else []) + ((_command_paths(cmd) or []) if cmd else [])
+        for path in paths:
+            for ref in (path, *_ancestors(path)):
+                refs.update((ref, ref.rstrip("/").rsplit("/", 1)[-1]))
+    refs.discard("")
+    return refs
+
+
+def _ref_trie(refs: set[str]) -> dict[str, Any]:
+    root: dict[str, Any] = {}
+    for ref in refs:
+        node = root
+        for ch in ref:
+            node = node.setdefault(ch, {})
+        node[""] = ref
+    return root
+
+
+_WORD_START = re.compile(r"(?<![\w.-])")
+_WORD_END = re.compile(r"[\w-]")
+
+
+def _refs_named(text: str, trie: dict[str, Any]) -> set[str]:
+    """The refs ``text`` mentions as whole words: ``_mentions`` for every ref at once."""
+    found: set[str] = set()
+    for start in _WORD_START.finditer(text):
+        node = trie
+        for end in range(start.start(), len(text)):
+            child = node.get(text[end])
+            if child is None:
+                break
+            node = child
+            ref = node.get("")
+            if ref is not None and not _WORD_END.match(text, end + 1):
+                found.add(ref)
+    return found
+
+
 def recoverable_decisions(
     messages: list[Any],
     candidates: list[Any],
@@ -530,19 +574,31 @@ def recoverable_decisions(
         [goal]
         + [m.text for m in messages if m.pinned and m.message_index != 0 and m.role == "user"]
     )
-    # Walk backwards: for each call, what later calls might have written.
-    # Keyed by position: ids can repeat (see ``duplicate_ids``).
-    later: dict[int, tuple[list[str], bool, bool, list[str | None]]] = {}
-    texts: list[str] = []
-    dirs: list[str | None] = []  # where later opaque calls may have written (None: anywhere)
+    # What later calls might have written, as indexes by call position (linear in calls):
+    # ``named[ref]`` is the last position whose write text names ``ref`` as a whole word,
+    # ``named_destructive`` the same over destructive texts, ``opaque_dirs`` where an opaque
+    # write may land (None: anywhere). A call at position ``i`` sees what sits after ``i``.
+    position = {id(call): i for i, call in enumerate(all_calls)}
+    trie = _ref_trie(_refs_asked(candidates))
+    named: dict[str, int] = {}
+    named_destructive: dict[str, int] = {}
+    opaque_dirs: dict[str | None, int] = {}
+    last_text = -1
+    later: dict[int, tuple[bool, bool]] = {}  # id(call) -> (worktree, opaque) of later calls
     worktree = opaque = False
-    for call in reversed(all_calls):
-        later[id(call)] = (list(texts), worktree, opaque, list(dirs))
+    for i in range(len(all_calls) - 1, -1, -1):
+        call = all_calls[i]
+        later[id(call)] = (worktree, opaque)
         text, wholesale, unknown = _possible_writes(call)
         if text:
-            texts.append(text)
+            last_text = max(last_text, i)
+            destructive = bool(_DESTRUCTIVE.search(text))
+            for ref in _refs_named(text, trie):
+                named.setdefault(ref, i)
+                if destructive:
+                    named_destructive.setdefault(ref, i)
             if unknown:
-                dirs.append(_opaque_dir(call, text))
+                opaque_dirs.setdefault(_opaque_dir(call, text), i)
         worktree = worktree or wholesale
         opaque = opaque or (bool(text) and unknown)
     duplicated = duplicate_ids(messages)
@@ -552,25 +608,32 @@ def recoverable_decisions(
 
     replaced: dict[str, dict[str, Any]] = {}
     reasons: dict[str, str] = {}
+    def names_later(path: str, i: int, index: dict[str, int]) -> bool:
+        name = path.rstrip("/").rsplit("/", 1)[-1]  # as ``_names_file``
+        return bool(name) and (index.get(path, -1) > i or index.get(name, -1) > i)
+
     def command_changed(cmd: str, call: Any) -> bool:
         """A later call may have changed ``cmd``'s output. When in doubt, it did."""
-        texts, wholesale, unknown, _dirs = later[id(call)]
+        i = position[id(call)]
+        wholesale, unknown = later[id(call)]
         if wholesale or unknown:
             return True
         paths = _command_paths(cmd)
         if paths is None:
-            return bool(texts)
-        return any(_names_file(t, p) for t in texts for p in paths)
+            return last_text > i
+        return any(names_later(p, i, named) for p in paths)
 
     def file_written(path: str, call: Any) -> bool:
-        texts, wholesale, _unknown, dirs = later[id(call)]
+        i = position[id(call)]
+        wholesale, _unknown = later[id(call)]
         target = _resolved(path, _cwd(call))
-        if any(d is None or target is None or _under(target, d) for d in dirs):
+        if any(
+            at > i and (d is None or target is None or _under(target, d))
+            for d, at in opaque_dirs.items()
+        ):
             return True  # H1: a later opaque call may have written it
-        return wholesale or any(
-            _names_file(t, path)
-            or (_DESTRUCTIVE.search(t) and any(_names_file(t, a) for a in _ancestors(path)))
-            for t in texts
+        return wholesale or names_later(path, i, named) or any(
+            names_later(a, i, named_destructive) for a in _ancestors(path)
         )
 
     for call in candidates:

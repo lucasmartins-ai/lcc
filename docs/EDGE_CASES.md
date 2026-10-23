@@ -74,10 +74,9 @@ goal, and long runs of word characters with no separator in results, the goal an
 
 [`test_rules_linear_time.py`](../tests/test_rules_linear_time.py) runs nightly only
 (`LCC_TIMING=1`): doubling a fixed hostile shape (a long run in a result, in the goal, in a
-command; many calls on the same files) must take at most 2.5x the time, best of three. Known
-gap: `recoverable` (so `stashed`) is quadratic in the number of calls, because `file_written`
-checks every read against the text of every later call (about 3x per doubling at 800 calls,
-0.6 s at 1,600); the shape is `xfail` until an index replaces the scan. Defects the new
+command; many calls on the same files) must take at most 2.5x the time, best of three. Known gap: `stashed` is still quadratic in the number of stashed results,
+because verifying each pointer globs the whole stash directory (`_blob`); the shape is `xfail`.
+Defects the new
 generator found: a second `recoverable` pass rewrote its own `(lines a-b)` pointer
 (`recoverable_repoints_range_pointer`), and `shlex` made a very long command quadratic (commands
 over 4,096 characters are no longer parsed, so never allowlisted).

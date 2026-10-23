@@ -72,9 +72,6 @@ def many_calls(size: int) -> tuple[list[dict[str, Any]], str]:
 
 SHAPES = {"result": (run_in_result, 20_000), "goal": (run_in_goal, 20_000),
           "command": (run_in_command, 20_000), "calls": (many_calls, 80_000)}
-# Known: recoverable's `file_written` checks every read against every later call's text, so it is
-# quadratic in the number of calls (about 3x per doubling at 800 calls). See docs/EDGE_CASES.md.
-QUADRATIC_IN_CALLS = {("calls", "recoverable"), ("calls", "stashed")}
 
 
 def best_of(payload: list[dict[str, Any]], goal: str, mode: str) -> float:
@@ -86,11 +83,13 @@ def best_of(payload: list[dict[str, Any]], goal: str, mode: str) -> float:
     return min(times)
 
 
-KNOWN = pytest.mark.xfail(reason="recoverable file_written is quadratic in calls", strict=False)
+# Known: `stashed` verifies every pointer with `_blob`, which globs the whole stash directory, so
+# it is quadratic in the number of stashed results (not in the rules scans). See docs/EDGE_CASES.md.
+KNOWN = pytest.mark.xfail(reason="stash _blob globs the stash dir per pointer", strict=False)
 
 
 @pytest.mark.parametrize("shape, mode", [
-    pytest.param(shape, mode, marks=KNOWN if (shape, mode) in QUADRATIC_IN_CALLS else ())
+    pytest.param(shape, mode, marks=KNOWN if (shape, mode) == ("calls", "stashed") else ())
     for shape in SHAPES for mode in MODES
 ])
 def test_doubling_the_input_at_most_doubles_the_time(shape: str, mode: str) -> None:
