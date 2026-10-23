@@ -15,7 +15,8 @@ All notable changes to this project are documented here. The format is based on
   in `lcc measure-session`, 1,276 s with every core measuring other sessions. A term in more
   than 64 blocks is no longer a link (`MAX_TERM_BLOCKS`; inputs under 130 blocks are
   unchanged) and pairs come from the term postings, not a scan of every pair. Same session:
-  `auto` 30.5 s -> 6.6 s, whole run 2.2 GB -> 312 MB, texts lost still 0.
+  `auto` 30.5 s -> 6.6 s, whole run 2.2 GB -> 312 MB, texts lost still 0. `RELATIONSHIP_VERSION`
+  is now `relationships-1.2`, so cached decisions from the old graph are not reused.
 - **Efficiency baseline updated.** baseline regenerated on intake v2 (#105); cost failures under 0.15 calibration units are ignored as jitter
 
 - **Intake prompt is cache-stable.** The readiness, assumption and question comments that
