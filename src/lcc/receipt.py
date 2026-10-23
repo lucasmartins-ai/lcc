@@ -162,6 +162,35 @@ def ledger_record(report: dict[str, Any], *, session_id: Any = None) -> dict[str
     }
 
 
+RECALL_VERSION = 1
+
+
+def recall_record(
+    *,
+    outcome: str,
+    session: str | None = None,
+    nbytes: int = 0,
+    partial: bool = False,
+    age_seconds: float | None = None,
+    repeat: bool = False,
+) -> dict[str, Any]:
+    """One ``recall``: counts and fixed labels only, never the id, text or paths.
+
+    Keyed ``recall_v`` (no ``v``), so a reader that only knows pass records skips it.
+    ``session`` is already the truncated hash the stash sidecar stores.
+    """
+    return {
+        "recall_v": RECALL_VERSION,
+        "ts": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "session": session,
+        "outcome": outcome,  # ok | missing | hash_mismatch | invalid
+        "bytes": max(0, int(nbytes)),
+        "partial": partial,  # a --lines range, not the whole output
+        "age_s": None if age_seconds is None else max(0, int(age_seconds)),  # since last put
+        "repeat": repeat,  # this blob was recalled before
+    }
+
+
 def append_ledger(record: dict[str, Any]) -> None:
     """Append one line (dir ``0700``, file ``0600``). A failure warns and never fails the pass."""
     path = ledger_path()

@@ -3,3 +3,4 @@
 not json: a corrupted line is skipped
 {"v":2,"session":"e279159a3ffc189d","tokens_before":999999,"tokens_after":0,"stashed":999}
 {"v":1,"ts":"2026-10-21T11:02:17Z","session":"e279159a3ffc189d","provider":"rules","tokens_before":152330,"tokens_after":138911,"stashed":9,"deduped":1,"replaced":10,"dropped":0,"trimmed":0}
+{"recall_v":1,"ts":"2026-10-21T11:02:00Z","session":"e279159a3ffc189d","outcome":"ok","bytes":5120,"partial":false,"age_s":420,"repeat":false}

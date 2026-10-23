@@ -72,6 +72,10 @@ class StashError(ValueError):
     """A recall that cannot return verified bytes (bad id, missing blob, hash mismatch)."""
 
 
+class StashCorrupt(StashError):
+    """A blob whose bytes no longer match its sha256: never returned."""
+
+
 class StashMissing(StashError):
     """No blob for the id: the stash was cleared, gc'd, or this is another machine."""
 
@@ -252,28 +256,72 @@ def _blob(stash_id: str, names: list[str] | None = None) -> tuple[str, bytes]:
     except FileNotFoundError:  # removed between glob and read
         raise StashMissing(f"stash id {stash_id} not found in {root}. {RECOVERY_HINT}") from None
     if hashlib.sha256(data).hexdigest() != matches[0].name:
-        raise StashError(
+        raise StashCorrupt(
             f"stash blob {matches[0].name} fails its hash check; not returned. {RECOVERY_HINT}"
         )
     return matches[0].name, data
 
 
-def recall(stash_id: str, lines: tuple[int, int] | None = None) -> str:
-    """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive."""
-    name, data = _blob(stash_id)
+def _ledger_recall(ledger: bool | None, **fields: Any) -> None:
+    from lcc.receipt import append_ledger, ledger_enabled, recall_record
+
+    # An explicit False beats LCC_LEDGER=1, as for passes.
+    if ledger is not False and ledger_enabled(ledger is True):
+        append_ledger(recall_record(**fields))
+
+
+def recall(
+    stash_id: str,
+    lines: tuple[int, int] | str | None = None,
+    *,
+    ledger: bool | None = None,
+) -> str:
+    """The verified text behind ``stash_id``; ``lines`` is 1-based and inclusive (or ``"a-b"``).
+
+    With the ledger on (``ledger=True``, or ``LCC_LEDGER=1`` unless ``ledger=False``) each call
+    appends one counts-only record, failures included: every recall is a real label of what a
+    pass removed too early.
+    """
+    try:
+        if isinstance(lines, str):  # parsed here so a malformed range is recorded too
+            lines = parse_lines(lines)
+        name, data = _blob(stash_id)
+    except StashError as exc:
+        outcome = (
+            "missing" if isinstance(exc, StashMissing)
+            else "hash_mismatch" if isinstance(exc, StashCorrupt)
+            else "invalid"
+        )
+        _ledger_recall(ledger, outcome=outcome)
+        raise
+    text = data.decode("utf-8")
+    if lines is not None:
+        first, last = lines
+        rows = text.splitlines(keepends=True)
+        if first < 1 or last < first or first > len(rows):
+            _ledger_recall(ledger, outcome="invalid")
+            raise StashError(f"line range {first}-{last} outside 1-{len(rows)}")
+        text = "".join(rows[first - 1 : last])
     root = stash_dir()
-    # Bookkeeping only: a read-only or unlockable stash must still answer.
+    meta = read_sidecar(root / name)  # before the touch below: was it recalled already?
+    # Only a recall that returns text counts as one. Bookkeeping only: a read-only or
+    # unlockable stash must still answer.
     with contextlib.suppress(OSError), stash_lock(root):
         if (root / name).is_file():
             _touch_sidecar(root / name, last_recalled_at=True)
-    text = data.decode("utf-8")
-    if lines is None:
-        return text
-    first, last = lines
-    rows = text.splitlines(keepends=True)
-    if first < 1 or last < first or first > len(rows):
-        raise StashError(f"line range {first}-{last} outside 1-{len(rows)}")
-    return "".join(rows[first - 1 : last])
+    sessions = meta.get("sessions") or []
+    put_at = meta.get("last_put_at") or meta.get("created_at")
+    _ledger_recall(
+        ledger,
+        outcome="ok",
+        # One session wrote it: join with that session's pass records. Shared blobs stay unkeyed.
+        session=sessions[0] if len(sessions) == 1 else None,
+        nbytes=len(data),
+        partial=lines is not None,
+        age_seconds=time.time() - put_at if isinstance(put_at, (int, float)) else None,
+        repeat="last_recalled_at" in meta,
+    )
+    return text
 
 
 def recall_sha256(stash_id: str) -> str:
