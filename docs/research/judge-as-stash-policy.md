@@ -15,8 +15,9 @@ recalls hit the right blob?
 
 1. **Outputs that `stashed` removes are almost never fetched again.** 6 of 6,004 (0.1%) were
    re-fetched with identical bytes, 68 (1.1%) re-fetched in any form. Outputs the rules keep
-   inline are re-fetched at about the same rate (0.5% / 0.12%), so the rules are not stashing
-   what the agent comes back for.
+   inline are re-fetched at a similar or lower rate (0.5% in any form, about half the stashed
+   1.1%; 0.12% with identical bytes, against 0.1%, a strict count that rests on 6 positives), so
+   the rules are not stashing what the agent comes back for.
 2. **No ranker earns a keep-inline decision.** Keeping an output inline only pays when its
    chance of being needed is above about 0.6 with a warm cache (0.08 even in the worst
    cache case). The best ranker (a 17-feature logistic
