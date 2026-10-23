@@ -8,6 +8,8 @@ include pyproject.toml
 
 recursive-include src *.py *.typed *.yaml
 include src/lcc/relevance/specialist_v3.json
+include src/lcc/intake/intake_category_v1.json
+include src/lcc/intake/intake_categories.json
 recursive-include benchmarks *.md *.txt *.yaml
 recursive-include config *.yaml
 recursive-include configs *.yaml

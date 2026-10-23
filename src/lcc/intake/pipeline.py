@@ -166,6 +166,8 @@ class LccIntake:
                 "readiness_score": parsed.readiness_score,
                 "reasons": parsed.reasons,
                 "category": parsed.category,
+                "category_probability": parsed.category_probability,
+                "category_context": parsed.category_context,
                 "risk_flags": parsed.risk_flags,
                 "assumptions": parsed.assumptions,
                 "questions": parsed.questions,

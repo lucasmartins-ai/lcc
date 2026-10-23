@@ -24,6 +24,11 @@ All notable changes to this project are documented here. The format is based on
   stdlib only, 1.2 MB, ~0.3 ms per prompt). Shown only at probability >= 0.45 (chosen on dev);
   readiness is unchanged. Held-out, owner-labelled: 0.51 accuracy vs 0.22 for keyword rules and
   0.86 for Opus, so it is a hint, not a gate. A missing or altered model disables the field.
+  Format change: markdown intake output gains one `<!-- lcc-intake:category ... -->` comment line
+  (after the readiness line, so the static template prefix is unchanged) when a category is
+  emitted; JSON, TOON and MCP outputs gain the three keys. `UNKNOWN` is reported as no category.
+  Only the first 1,000 characters are classified (the training length), so long inputs cost the
+  same as short ones; scores are identical across `PYTHONHASHSEED` values.
 - **Lean stash pointer, opt-in.** `--stash-pointer lean` (CLI) and `stash_pointer: "lean"`
   (MCP), with `--rules-mode stashed`, add the exit status, a failing test or error type, and the
   first line to each pointer: about +13 tokens each. Default stays `plain`. Both forms are fixed

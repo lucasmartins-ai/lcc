@@ -34,6 +34,9 @@ MODEL_RESOURCE = "intake_category_v1.json"
 MODEL_SHA256 = "8fc1c9b3b6d90e836c8ff6bcdf0b1e7c9d94cd6d7f5bbef0cec874fc8fee7cbf"
 NOTES_RESOURCE = "intake_categories.json"
 THRESHOLD = 0.45
+#: The model was trained on prompts of at most 1,000 characters (longer ones were pasted context),
+#: so only the head is classified; this also keeps the cost flat on long inputs.
+MAX_CHARS = 1000
 BUCKETS = 1 << 15
 _WORD = re.compile(r"\w+")
 
@@ -60,7 +63,8 @@ def features(text: str, kinds: str) -> dict[int, float]:
         grams.update("b" + a + " " + b for a, b in zip(words, words[1:], strict=False))
     if not grams:
         grams = {"<empty>"}
-    buckets = {zlib.crc32(g.encode()) % BUCKETS for g in grams}
+    # Sorted so float sums run in one order whatever PYTHONHASHSEED is: bit-stable output.
+    buckets = sorted({zlib.crc32(g.encode()) % BUCKETS for g in grams})
     v = 1 / math.sqrt(len(buckets))
     return dict.fromkeys(buckets, v)
 
@@ -77,10 +81,10 @@ class _Model:
     def proba(self, text: str) -> list[float]:
         k = len(self.labels)
         z = list(self.bias)
-        for idx, v in features(text, self.kinds).items():
+        w = self.w
+        for idx, v in features(text[:MAX_CHARS], self.kinds).items():
             base = idx * k
-            for c in range(k):
-                z[c] += self.w[base + c] * v
+            z = [a + b * v for a, b in zip(z, w[base : base + k], strict=True)]
         m = max(z)
         e = [math.exp(x - m) for x in z]
         s = sum(e)
@@ -102,13 +106,16 @@ def _load() -> _Model | None:
 
 
 def classify(text: str, threshold: float = THRESHOLD) -> Category | None:
-    """Most likely category when its probability reaches ``threshold``; else ``None``."""
+    """Most likely category when its probability reaches ``threshold``; else ``None``.
+
+    ``UNKNOWN`` means "cannot tell from the text", so it is reported as no category.
+    """
     model = _load()
     if model is None or not (text or "").strip():
         return None
     p = model.proba(text)
     i = max(range(len(p)), key=p.__getitem__)
-    if p[i] < threshold:
-        return None
     label = model.labels[i]
+    if p[i] < threshold or label == "UNKNOWN":
+        return None
     return Category(label, round(p[i], 4), model.notes.get(label, {}).get("context_needed", ""))
