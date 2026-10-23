@@ -255,6 +255,11 @@ def stash_note(text: str, digest: str) -> str:
     return f"[removed: {count} {unit}, {size} · lcc recall {digest[:12]}]"
 
 
+def _printable(value: str) -> str:
+    """No escapes, no control bytes: the pointer is pinned into every later request."""
+    return "".join(ch for ch in value if ch.isprintable())
+
+
 def _lean_fields(text: str) -> list[str]:
     """Exit status, up to two identifiers and the first line, by fixed rules over ``text``."""
     lines = text.splitlines()
@@ -268,8 +273,8 @@ def _lean_fields(text: str) -> list[str]:
             break
     found: list[str] = []
     for value in [*_FAILED_TEST.findall(text), *_ERROR_TYPE.findall(text)]:
-        value = value[:_LEAN_ID]
-        if value not in found:
+        value = _printable(value)[:_LEAN_ID]
+        if value and value not in found:
             found.append(value)
         if len(found) == 2:
             break
@@ -278,7 +283,7 @@ def _lean_fields(text: str) -> list[str]:
     # The first line of the output itself: Codex's header lines say nothing the fields above don't.
     body = (line.strip() for line in lines if not _HEADER_RE.match(line) and line != "Output:")
     first = next((line for line in body if line), "")
-    first = "".join(ch for ch in first if ch.isprintable())  # no escapes, no control bytes
+    first = _printable(first)
     if first:
         cut = len(first) > _LEAN_FIRST
         fields.append('"' + first[:_LEAN_FIRST] + ("…" if cut else "") + '"')

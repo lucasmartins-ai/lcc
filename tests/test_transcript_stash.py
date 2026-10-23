@@ -384,9 +384,29 @@ def test_lean_first_line_is_capped_printable_and_cannot_spoof_the_id(_stash: Pat
     assert recall(LEAN.match(note).group(4)) == body
 
 
+def test_lean_identifiers_are_printable(_stash: Path):
+    log = "\n".join(
+        [f"compiling unit {n}" for n in range(600)]
+        + ["FAILED tests/x.py::t\x1b[0m - AssertionError", "Exit code 0"]
+    )
+    filler = [("Read", {"file_path": f"/repo/f{n}.py"}, f"body {n}") for n in range(25)]
+    # The transcript carries is_error flags and only the newer call is flagged, so the old log
+    # is not an error to the rules and is stash-eligible.
+    newer = ("Bash", {"command": "ruff check"}, "E501 line too long")
+    messages = convo(("Bash", {"command": "make"}, log), *filler, newer)
+    messages[-2]["toolResults"][0]["is_error"] = True
+    _, compacted, by_id = run(messages, pointer="lean")
+    assert by_id["c1"]["decision"] == "replace"
+    note = result_text(compacted, "c1")
+    assert "\x1b" not in note
+    assert " · tests/x.py::t[0m, AssertionError · " in note
+
+
 def test_stash_pointer_is_validated():
     with pytest.raises(TranscriptError, match="stash_pointer"):
         run(build_session(), pointer="rich")
+    with pytest.raises(TranscriptError, match="rules_mode 'stashed'"):
+        run(build_session(), mode="lossless", pointer="lean")
     out = CliRunner().invoke(
         app, ["compact", "-", "--mode", "tool-calls", "--provider", "rules",
               "--question", "q", "--stash-pointer", "lean"],

@@ -1040,6 +1040,13 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         raise TranscriptError(f"cache_state must be one of {CACHE_STATES}")
     if request.stash_pointer not in STASH_POINTERS:
         raise TranscriptError(f"stash_pointer must be one of {STASH_POINTERS}")
+    if request.stash_pointer != "plain" and (
+        request.provider != "rules" or request.rules_mode != "stashed"
+    ):
+        # Refused, not ignored: same as the CLI's --stash-pointer check, for every caller.
+        raise TranscriptError(
+            "stash_pointer 'lean' needs provider 'rules' and rules_mode 'stashed'"
+        )
 
     messages = parse_transcript(request.payload)
     for message in messages:
