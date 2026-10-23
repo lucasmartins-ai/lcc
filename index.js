@@ -316,8 +316,27 @@ class LccCompressor {
   }
 }
 
+// Mirrors src/lcc/intake/parser.py for the rules both runtimes share: whole-word vague markers
+// (pt and en), short directives, non-blocking risk flags. Ask counting and dictation detection
+// are Python-only.
+const WORD_EDGE_L = "(?<![\\p{L}\\p{N}_])";
+const WORD_EDGE_R = "(?![\\p{L}\\p{N}_])";
+const VAGUE_MARKERS = new RegExp(
+  WORD_EDGE_L +
+    "(?:maybe|perhaps|not sure|i guess|something with|or something|somehow" +
+    "|talvez|não sei bem|não sei se|sei lá|alguma coisa|algo assim|de algum jeito)" +
+    WORD_EDGE_R,
+  "giu"
+);
+const RISK_PATTERNS = [
+  ["mentions_security_bypass", /\b(?:bypass\s+security|exploit\s+(?:a\s+)?vulnerabilit(?:y|ies)|steal\s+credentials|dump\s+passwords)\b/i],
+  ["mentions_prompt_injection", /\b(?:ignore\s+all\s+previous\s+instructions|jailbreak)\b/i]
+];
+const SHORT_DIRECTIVE = /\b(?:test|tests|check|fix)\b/i;
+const SCORES = { READY_TO_EXECUTE: 90, NEEDS_LIGHT_REFINEMENT: 70, NEEDS_INTAKE: 40, BLOCKED: 0 };
+
 /**
- * Classifies raw intake prompt into protocol readiness state.
+ * Classifies raw intake prompt into protocol readiness state with named reasons.
  */
 function parseIntake(rawInput) {
   const text = (rawInput || "").trim();
@@ -328,41 +347,46 @@ function parseIntake(rawInput) {
       readinessScore: 0,
       ambiguityScore: 100,
       questions: ["Please provide a valid prompt or context."],
-      assumptions: []
+      assumptions: [],
+      reasons: ["empty_input"],
+      riskFlags: []
     };
   }
 
-  const words = text.split(/\s+/);
-  const wordCount = words.length;
+  const wordCount = text.split(/\s+/).length;
   const hasQuestion = text.includes("?");
-  const lowered = text.toLowerCase();
+  const riskFlags = RISK_PATTERNS.filter(([, pattern]) => pattern.test(text)).map(([name]) => name);
+  const vagueHits = text.match(VAGUE_MARKERS) || [];
 
   let readiness = "READY_TO_EXECUTE";
-  let questions = [];
-  let assumptions = [];
-  let readinessScore = 90;
-  let ambiguityScore = 10;
+  const questions = [];
+  const assumptions = [];
+  const reasons = [];
 
-  if (lowered.includes("maybe") || lowered.includes("something with") || lowered.includes("not sure") || lowered.includes("talvez")) {
+  if (vagueHits.length) {
     readiness = "NEEDS_INTAKE";
-    readinessScore = 40;
-    ambiguityScore = 60;
-    questions.push("What is the primary objective and required deliverable format?");
-    questions.append ? questions.push("Are there specific architectural constraints?") : null;
-  } else if (wordCount < 5 && !hasQuestion) {
+    reasons.push("vague_marker");
+    questions.push("What is the exact deliverable and primary success criterion?");
+    questions.push("Are there specific architectural or runtime constraints?");
+  } else if (wordCount < 6 && !hasQuestion && SHORT_DIRECTIVE.test(text)) {
     readiness = "NEEDS_LIGHT_REFINEMENT";
-    readinessScore = 70;
-    ambiguityScore = 30;
-    assumptions.push(`Interpreted '${text}' as a request to process or implement.`);
+    reasons.push("short_directive");
+    assumptions.push(`Interpreted '${text}' as an operational technical directive.`);
+  } else if (wordCount < 4 && !hasQuestion) {
+    readiness = "NEEDS_LIGHT_REFINEMENT";
+    reasons.push("too_short");
+    assumptions.push(`Executing '${text}' with default technical guidelines.`);
   }
 
   return {
     intent: text.slice(0, 80) + (text.length > 80 ? "..." : ""),
     readiness,
-    readinessScore,
-    ambiguityScore,
+    readinessScore: SCORES[readiness],
+    ambiguityScore: 100 - SCORES[readiness],
     questions,
-    assumptions
+    assumptions,
+    reasons,
+    riskFlags
   };
 }
 

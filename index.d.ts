@@ -60,6 +60,10 @@ export interface ParsedIntake {
   ambiguityScore: number;
   questions: string[];
   assumptions: string[];
+  /** Named rules that set the readiness: empty_input, vague_marker, short_directive, too_short. */
+  reasons: string[];
+  /** Non-blocking notes (mentions_security_bypass, mentions_prompt_injection). */
+  riskFlags: string[];
 }
 
 export interface IntakeResult {

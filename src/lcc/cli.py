@@ -2036,8 +2036,8 @@ stash_app = typer.Typer(
 app.add_typer(stash_app, name="stash")
 
 _ROOT_HELP = (
-    "A transcript file or directory to scan for `lcc recall` pointers (repeatable; default "
-    "~/.claude/projects)."
+    "A transcript file or directory to scan for `lcc recall` pointers (repeatable; each "
+    "must exist). Default: ~/.claude/projects and ~/.codex/sessions, whichever exist."
 )
 
 
@@ -2056,12 +2056,12 @@ def stash_ls_cmd(
     as_json: bool = typer.Option(False, "--json", help="Print rows as JSON."),
 ) -> None:
     """List stashed blobs: id, size, lines, dates, sessions and the files that reference each."""
-    from lcc.relevance.stash_lifecycle import DEFAULT_ROOTS, ls
+    from lcc.relevance.stash_lifecycle import ls, resolve_roots
     from lcc.relevance.transcript_stash import StashError
 
     try:
-        rows = ls(None if no_scan else list(root or DEFAULT_ROOTS))
-    except StashError as exc:
+        rows = ls(None if no_scan else resolve_roots(root))
+    except (StashError, OSError) as exc:
         _fail(str(exc), code=2)
     if as_json:
         sys.stdout.write(json.dumps(rows, indent=2) + "\n")
@@ -2079,18 +2079,19 @@ def stash_ls_cmd(
 def stash_gc_cmd(
     root: list[Path] | None = typer.Option(None, "--root", help=_ROOT_HELP),
     older_than: str = typer.Option(
-        "30d", "--older-than", help="Only blobs not put or recalled for this long (30d, 12h)."
+        "30d", "--older-than",
+        help="Only blobs not put or recalled for this long (30d, 12h; at least 1h).",
     ),
     apply: bool = typer.Option(
         False, "--apply", help="Delete. Without it gc only lists what it would delete."
     ),
 ) -> None:
     """Remove blobs no transcript under the roots references and older than --older-than."""
-    from lcc.relevance.stash_lifecycle import DEFAULT_ROOTS, gc, parse_age
+    from lcc.relevance.stash_lifecycle import gc, parse_age, resolve_roots
     from lcc.relevance.transcript_stash import StashError
 
     try:
-        report = gc(list(root or DEFAULT_ROOTS), parse_age(older_than), apply=apply)
+        report = gc(resolve_roots(root), parse_age(older_than), apply=apply)
     except (StashError, OSError) as exc:
         _fail(str(exc), code=2)
     names = report["removed"] if apply else report["candidates"]
