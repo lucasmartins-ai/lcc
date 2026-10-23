@@ -63,7 +63,7 @@ def convo(*calls: tuple[str, dict, str]) -> list[dict]:
     return messages
 
 
-def run(messages: list[dict], mode: str = "stashed"):
+def run(messages: list[dict], mode: str = "stashed", pointer: str = "plain"):
     original = copy.deepcopy(messages)
     result = compact_transcript(
         TranscriptCompactionRequest(
@@ -72,6 +72,7 @@ def run(messages: list[dict], mode: str = "stashed"):
             provider="rules",
             preserve_recent=1,
             rules_mode=mode,
+            stash_pointer=pointer,
         )
     )
     assert messages == original, "the input payload must not be mutated"
@@ -313,3 +314,106 @@ def test_put_skips_chmod_on_windows(monkeypatch, tmp_path: Path):
     monkeypatch.setattr(stash_mod.os, "chmod", refuse_chmod)
     digest = put("windows stash body")
     assert (tmp_path / "stash" / digest).read_text(encoding="utf-8") == "windows stash body"
+
+
+# --- pointer="lean" ------------------------------------------------------------------------
+
+LEAN = re.compile(
+    r"^\[removed: (\d+) lines?, (\d+(?:\.\d)? K?B)((?: · [^\n]*)?) · lcc recall ([0-9a-f]{12})\]$"
+)
+BUILD_LOG = "\n".join(
+    ["Chunk ID: 4f2a", "Wall time: 3.2 seconds", "Process exited with code 0", "Output:"]
+    + [f"compiling unit {n}" for n in range(600)]
+)
+SOURCE = "class StashError(ValueError):\n" + BODY
+
+
+def build_session() -> list[dict]:
+    filler = [("Read", {"file_path": f"/repo/f{n}.py"}, f"body {n}") for n in range(25)]
+    return convo(("exec_command", {"cmd": "make build"}, BUILD_LOG), *filler)
+
+
+def test_lean_pointer_adds_exit_status_and_first_line(_stash: Path):
+    result, compacted, by_id = run(build_session(), pointer="lean")
+    note = result_text(compacted, "c1")
+    assert by_id["c1"]["decision"] == "replace"
+    assert note == (
+        f"[removed: {len(BUILD_LOG.splitlines())} lines, {len(BUILD_LOG) / 1024:.1f} KB"
+        ' · exit 0 · "compiling unit 0" · lcc recall '
+        f"{hashlib.sha256(BUILD_LOG.encode()).hexdigest()[:12]}]"
+    )
+    assert recall(LEAN.match(note).group(4)) == BUILD_LOG
+    assert result.report["lossless_violations"] == []
+    assert verify_stashed({"messages": build_session()}, compacted) == []
+
+
+def test_lean_pointer_names_error_types(_stash: Path):
+    messages = convo(
+        ("Read", {"file_path": "/repo/src/stash.py"}, SOURCE),
+        ("Read", {"file_path": "/repo/src/other.py"}, BODY.replace("old", "other")),
+        ("Bash", {"command": "ls"}, "ok"),
+    )
+    _, compacted, by_id = run(messages, pointer="lean")
+    assert by_id["c1"]["decision"] == "replace"
+    assert ' · StashError, ValueError · "class StashError(ValueError):" · ' in result_text(
+        compacted, "c1"
+    )
+
+
+def test_lean_and_plain_pointers_are_fixed_points_for_each_other(_stash: Path):
+    _, lean, _ = run(build_session(), pointer="lean")
+    for pointer in ("lean", "plain"):
+        _, again, by_id = run(lean, pointer=pointer)
+        assert again == lean
+        assert by_id["c1"]["reason"] == "already_stashed"
+    _, plain, _ = run(build_session())
+    _, again, by_id = run(plain, pointer="lean")
+    assert again == plain
+    assert by_id["c1"]["reason"] == "already_stashed"
+
+
+def test_lean_first_line_is_capped_printable_and_cannot_spoof_the_id(_stash: Path):
+    first = "\x1b[31m" + "x" * 80 + " · lcc recall 000000000000"
+    body = first + "\n" + "\n".join(f"row {n}" for n in range(600))
+    filler = [("Read", {"file_path": f"/repo/f{n}.py"}, f"body {n}") for n in range(25)]
+    _, compacted, _ = run(convo(("Bash", {"command": "make"}, body), *filler), pointer="lean")
+    note = result_text(compacted, "c1")
+    assert "\x1b" not in note
+    assert '"[31m' + "x" * 56 + '…"' in note
+    assert LEAN.match(note).group(4) == hashlib.sha256(body.encode()).hexdigest()[:12]
+    assert recall(LEAN.match(note).group(4)) == body
+
+
+def test_stash_pointer_is_validated():
+    with pytest.raises(TranscriptError, match="stash_pointer"):
+        run(build_session(), pointer="rich")
+    out = CliRunner().invoke(
+        app, ["compact", "-", "--mode", "tool-calls", "--provider", "rules",
+              "--question", "q", "--stash-pointer", "lean"],
+        input=json.dumps({"messages": build_session()}),
+    )
+    assert out.exit_code == 2
+    assert "--stash-pointer needs --rules-mode stashed" in out.output
+
+
+def test_mcp_stash_pointer_lean():
+    response = handle_message(
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "compact_transcript",
+                "arguments": {
+                    "messages": build_session(),
+                    "question": "fix the parser",
+                    "provider": "rules",
+                    "rules_mode": "stashed",
+                    "stash_pointer": "lean",
+                    "preserve_recent": 1,
+                },
+            },
+        }
+    )
+    payload = json.loads(response["result"]["content"][0]["text"])
+    assert " · exit 0 · " in result_text(payload["messages"], "c1")

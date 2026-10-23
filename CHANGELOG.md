@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **Lean stash pointer, opt-in.** `--stash-pointer lean` (CLI) and `stash_pointer: "lean"`
+  (MCP), with `--rules-mode stashed`, add the exit status, a failing test or error type, and the
+  first line to each pointer: about +13 tokens each. Default stays `plain`. Both forms are fixed
+  points for later passes. Whether it improves recall accuracy is not measured. See
+  docs/TOOL_CALLS.md.
+- **Correction to docs/research/judge-as-stash-policy.md.** The claim that a richer pointer cuts
+  same-call ambiguity from 12.5% to 0.9% is withdrawn. Measured against the current
+  `N lines, S KB` note, the share is 0.5% with either pointer.
+
 ### Changed
 
 - **Efficiency baseline updated.** baseline regenerated on intake v2 (#105); cost failures under 0.15 calibration units are ignored as jitter

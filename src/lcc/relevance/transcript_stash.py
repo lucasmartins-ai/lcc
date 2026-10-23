@@ -10,6 +10,11 @@ UTF-8 size; neither depends on a tokenizer, so one output gives one placeholder 
 :func:`recall` (``lcc recall``, MCP ``recall``)
 re-hashes on read, so what comes back is provably what was removed.
 
+``pointer="lean"`` (opt-in, ``--stash-pointer lean``) adds what the inline call does not say:
+``[removed: N lines, S KB · exit X · <error type or failing test> · "<first line>" · lcc recall
+<sha12>]``. Every field comes from the stashed bytes alone, so the note is still one fixed point
+per output. The id stays last, so both forms parse the same way.
+
 Eligible: every result ``lossy`` would drop or trim, plus every result ``recoverable`` replaces;
 lossless dedupes win where they apply. Everything else is kept verbatim, as in those modes:
 pinned turns, the latest error and the call before it, calls named in the goal, duplicate ids.
@@ -25,7 +30,12 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from lcc.relevance.transcript_lossless import duplicate_ids, lossless_decisions, verify_lossless
+from lcc.relevance.transcript_lossless import (
+    _HEADER_RE,
+    duplicate_ids,
+    lossless_decisions,
+    verify_lossless,
+)
 from lcc.relevance.transcript_recoverable import recoverable_decisions
 from lcc.relevance.transcript_rules import rules_decisions
 from lcc.token_budget import count_tokens
@@ -33,10 +43,18 @@ from lcc.token_budget import count_tokens
 ENV_DIR = "LCC_STASH_DIR"
 _ID = re.compile(r"^[0-9a-f]{12,64}$")
 _FULL = re.compile(r"^[0-9a-f]{64}$")
-# Also accepts the earlier "N tokens" form: pointers already in a transcript stay fixed points.
+# Also accepts the earlier "N tokens" form and the lean fields: pointers already in a transcript
+# stay fixed points whichever form wrote them.
 _NOTE = re.compile(
-    r"^\[removed: (?:\d+ tokens|\d+ lines?, \d+(?:\.\d)? K?B) · lcc recall (?P<id>[0-9a-f]{12})\]$"
+    r"^\[removed: (?:\d+ tokens|\d+ lines?, \d+(?:\.\d)? K?B)(?: · [^\n]*)?"
+    r" · lcc recall (?P<id>[0-9a-f]{12})\]$"
 )
+POINTERS = ("plain", "lean")
+_EXIT = re.compile(r"^(?:Process exited with code|Exit code:?|exit code:?)\s*(-?\d+)\b")
+_ERROR_TYPE = re.compile(r"\b[A-Z][A-Za-z0-9_]*(?:Error|Exception)\b")
+_FAILED_TEST = re.compile(r"^(?:FAILED|ERROR) (\S+::\S+)", re.M)
+_LEAN_FIRST = 60
+_LEAN_ID = 60
 
 
 class StashError(ValueError):
@@ -139,8 +157,49 @@ def stash_note(text: str, digest: str) -> str:
     return f"[removed: {count} {unit}, {size} · lcc recall {digest[:12]}]"
 
 
-def _too_short_to_stash(text: str) -> bool:
-    return len(stash_note(text, "0" * 12)) >= len(text)
+def _lean_fields(text: str) -> list[str]:
+    """Exit status, up to two identifiers and the first line, by fixed rules over ``text``."""
+    lines = text.splitlines()
+    fields: list[str] = []
+    # Codex prints the status in its header, Claude Code's Bash at the end: look only there,
+    # never mid-log where a test might print "exit code" itself.
+    for line in lines[:4] + lines[-3:]:
+        match = _EXIT.match(line.strip())
+        if match:
+            fields.append(f"exit {match.group(1)}")
+            break
+    found: list[str] = []
+    for value in [*_FAILED_TEST.findall(text), *_ERROR_TYPE.findall(text)]:
+        value = value[:_LEAN_ID]
+        if value not in found:
+            found.append(value)
+        if len(found) == 2:
+            break
+    if found:
+        fields.append(", ".join(found))
+    # The first line of the output itself: Codex's header lines say nothing the fields above don't.
+    body = (line.strip() for line in lines if not _HEADER_RE.match(line) and line != "Output:")
+    first = next((line for line in body if line), "")
+    first = "".join(ch for ch in first if ch.isprintable())  # no escapes, no control bytes
+    if first:
+        cut = len(first) > _LEAN_FIRST
+        fields.append('"' + first[:_LEAN_FIRST] + ("…" if cut else "") + '"')
+    return fields
+
+
+def stash_note_lean(text: str, digest: str) -> str:
+    """:func:`stash_note` plus exit status, identifiers and the first line (``pointer="lean"``)."""
+    base = stash_note(text, digest)
+    head, _, tail = base.rpartition(" · lcc recall ")
+    return " · ".join([head, *_lean_fields(text)]) + " · lcc recall " + tail
+
+
+def _note(text: str, digest: str, pointer: str) -> str:
+    return stash_note_lean(text, digest) if pointer == "lean" else stash_note(text, digest)
+
+
+def _too_short_to_stash(text: str, pointer: str = "plain") -> bool:
+    return len(_note(text, "0" * 12, pointer)) >= len(text)
 
 
 def stashed_decisions(
@@ -151,6 +210,7 @@ def stashed_decisions(
     model: str,
     root: str | None = None,
     disk_check: bool = True,
+    pointer: str = "plain",
 ) -> list[dict[str, Any]]:
     """One decision per candidate: ``replace`` (``note`` + ``stash``), ``dedupe`` or ``keep``.
 
@@ -174,7 +234,7 @@ def stashed_decisions(
     eligible = {
         i: reason
         for i, reason in eligible.items()
-        if not _too_short_to_stash(candidates[i].result.text)
+        if not _too_short_to_stash(candidates[i].result.text, pointer)
     }
     unavailable = {candidates[i].result.id for i in eligible}
     lossless = lossless_decisions(messages, candidates, unavailable=unavailable)
@@ -205,7 +265,7 @@ def stashed_decisions(
             | {
                 "decision": "replace",
                 "reason": f"stashed:{eligible[index]}",
-                "note": stash_note(text, digest),
+                "note": _note(text, digest, pointer),
                 "stash": {"sha256": digest, "tokens": tokens, "bytes": len(text.encode("utf-8"))},
             }
         )

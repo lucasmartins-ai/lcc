@@ -47,6 +47,7 @@ from lcc.relevance.transcript_recoverable import (
     verify_recoverable,
 )
 from lcc.relevance.transcript_rules import rules_decisions
+from lcc.relevance.transcript_stash import POINTERS as STASH_POINTERS
 from lcc.relevance.transcript_stash import stash_dir, stashed_decisions, verify_stashed
 from lcc.token_budget import count_tokens
 
@@ -180,6 +181,9 @@ class TranscriptCompactionRequest:
     #: holds exactly the removed content, even after later writes (disk-authoritative).
     workspace_root: str | None = None
     disk_check: bool = True
+    #: ``stashed`` only: ``plain`` (default) or ``lean`` (adds exit status, error/test ids and the
+    #: first line; see :mod:`lcc.relevance.transcript_stash`).
+    stash_pointer: str = "plain"
     #: ``recoverable`` only: also allow re-run command pointers (off since the v0.7 review).
     allow_command_pointers: bool = False
     #: Provider cache state for the report's ``cache_effect``: warm | cold | unknown
@@ -1032,6 +1036,8 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         raise TranscriptError(f"rules_mode must be one of {RULES_MODES}")
     if request.cache_state not in CACHE_STATES:
         raise TranscriptError(f"cache_state must be one of {CACHE_STATES}")
+    if request.stash_pointer not in STASH_POINTERS:
+        raise TranscriptError(f"stash_pointer must be one of {STASH_POINTERS}")
 
     messages = parse_transcript(request.payload)
     for message in messages:
@@ -1097,6 +1103,7 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
             raw_decisions = stashed_decisions(
                 messages, candidates, request.question, model=request.model,
                 root=request.workspace_root, disk_check=request.disk_check,
+                pointer=request.stash_pointer,
             )
         elif recoverable:
             raw_decisions = recoverable_decisions(

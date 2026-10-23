@@ -130,6 +130,7 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             laya_model=args.get("laya_model"),
             jev_model=str(args.get("jev_model", "jev-latest")),
             rules_mode=str(args.get("rules_mode", "lossless")),
+            stash_pointer=str(args.get("stash_pointer", "plain")),
             workspace_root=args.get("workspace_root") or None,
             disk_check=bool(args.get("disk_check", True)),
             allow_command_pointers=args.get("allow_command_pointers") is True,
@@ -465,6 +466,16 @@ TOOLS: dict[str, dict[str, Any]] = {
                         "exact bytes to a local stash; the pointer names a 'recall' id. "
                         "'lossy' is EXPERIMENTAL (trims and drops outputs; failed blind "
                         "audits v0.4 and v0.5)."
+                    ),
+                },
+                "stash_pointer": {
+                    "type": "string",
+                    "enum": ["plain", "lean"],
+                    "default": "plain",
+                    "description": (
+                        "rules_mode 'stashed' only. 'lean' adds the exit status, error type "
+                        "or failing test and the first line to each pointer (about +13 "
+                        "tokens each)."
                     ),
                 },
                 "workspace_root": {
