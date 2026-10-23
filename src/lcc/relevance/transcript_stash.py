@@ -2,8 +2,9 @@
 
 ``recoverable`` only removes what a re-read of an unchanged file gives back; on real sessions
 that is little. This mode stores the removed bytes at removal time instead: the result's UTF-8
-text goes to a local content-addressed store (``<stash>/<sha256>``, dir 0700, files 0600;
-``LCC_STASH_DIR`` overrides ``~/.cache/lcc/stash``) and is replaced by
+text goes to a local content-addressed store (``<stash>/<sha256>``; on POSIX dir 0700 and
+files 0600; on Windows ``%LOCALAPPDATA%\\lcc\\stash`` with no chmod dependency;
+``LCC_STASH_DIR`` overrides both defaults) and is replaced by
 ``[removed: N lines, S KB · lcc recall <sha12>]`` (lines as ``recall --lines`` counts them, S the
 UTF-8 size; neither depends on a tokenizer, so one output gives one placeholder on every machine).
 :func:`recall` (``lcc recall``, MCP ``recall``)
@@ -42,8 +43,23 @@ class StashError(ValueError):
     """A recall that cannot return verified bytes (bad id, missing blob, hash mismatch)."""
 
 
+def _is_windows() -> bool:
+    return os.name == "nt"
+
+
 def stash_dir() -> Path:
-    return Path(os.environ.get(ENV_DIR) or Path.home() / ".cache" / "lcc" / "stash")
+    """Default stash root; ``LCC_STASH_DIR`` always wins when set.
+
+    POSIX: ``~/.cache/lcc/stash``. Windows: ``%LOCALAPPDATA%/lcc/stash`` (falls back to
+    ``~/AppData/Local/lcc/stash`` when ``LOCALAPPDATA`` is unset).
+    """
+    override = os.environ.get(ENV_DIR)
+    if override:
+        return Path(override)
+    if _is_windows():
+        base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+        return Path(base) / "lcc" / "stash"
+    return Path.home() / ".cache" / "lcc" / "stash"
 
 
 def put(text: str) -> str:
@@ -52,11 +68,13 @@ def put(text: str) -> str:
     digest = hashlib.sha256(data).hexdigest()
     root = stash_dir()
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
-    os.chmod(root, 0o700)
+    # On Windows os.chmod only toggles the read-only bit; owner-only modes are a POSIX claim.
+    if not _is_windows():
+        os.chmod(root, 0o700)
     target = root / digest
     if target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == digest:
         return digest
-    fd, tmp = tempfile.mkstemp(dir=root, prefix=".tmp-")  # mkstemp creates 0600
+    fd, tmp = tempfile.mkstemp(dir=root, prefix=".tmp-")  # mkstemp creates 0600 on POSIX
     try:
         with os.fdopen(fd, "wb") as handle:
             handle.write(data)
@@ -154,7 +172,8 @@ def stashed_decisions(
     # A result too short for its pointer stays whole; leave it to lossless dedupe now, or the
     # next pass (where it is no longer eligible) dedupes it and the output is not a fixed point.
     eligible = {
-        i: reason for i, reason in eligible.items()
+        i: reason
+        for i, reason in eligible.items()
         if not _too_short_to_stash(candidates[i].result.text)
     }
     unavailable = {candidates[i].result.id for i in eligible}

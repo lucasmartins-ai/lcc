@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import re
 import stat
 from pathlib import Path
@@ -26,7 +27,7 @@ from lcc.relevance.transcript import (
     compact_transcript,
     messages_to_payload,
 )
-from lcc.relevance.transcript_stash import StashError, recall, verify_stashed
+from lcc.relevance.transcript_stash import StashError, put, recall, stash_dir, verify_stashed
 
 NOTE = re.compile(r"^\[removed: (\d+) lines?, (\d+(?:\.\d)? K?B) · lcc recall ([0-9a-f]{12})\]$")
 BODY = "\n".join(f"line {n} of the old parser module" for n in range(1, 80))
@@ -116,8 +117,9 @@ def test_removed_output_is_stashed_verbatim_and_pointer_replaces_it(_stash: Path
 
     blob = _stash / digest
     assert blob.read_bytes() == BODY.encode()
-    assert stat.S_IMODE(blob.stat().st_mode) == 0o600
-    assert stat.S_IMODE(_stash.stat().st_mode) == 0o700
+    if os.name != "nt":
+        assert stat.S_IMODE(blob.stat().st_mode) == 0o600
+        assert stat.S_IMODE(_stash.stat().st_mode) == 0o700
 
     report = result.report
     assert report["rules_mode"] == "stashed"
@@ -268,3 +270,46 @@ def test_lone_surrogate_in_a_result_is_rejected_before_anything_is_stashed(_stas
     with pytest.raises(TranscriptError, match="unpaired surrogate"):
         run(messages)
     assert not _stash.exists() or not any(_stash.iterdir())
+
+
+def test_stash_dir_windows_uses_localappdata(monkeypatch, tmp_path: Path):
+    """Windows default is %LOCALAPPDATA%/lcc/stash; LCC_STASH_DIR still wins."""
+    import lcc.relevance.transcript_stash as stash_mod
+
+    monkeypatch.delenv("LCC_STASH_DIR", raising=False)
+    monkeypatch.setattr(stash_mod, "_is_windows", lambda: True)
+    local = tmp_path / "Local"
+    monkeypatch.setenv("LOCALAPPDATA", str(local))
+
+    assert stash_dir() == local / "lcc" / "stash"
+
+    monkeypatch.delenv("LOCALAPPDATA", raising=False)
+    monkeypatch.setattr(stash_mod.Path, "home", classmethod(lambda cls: tmp_path / "home"))
+    assert stash_dir() == tmp_path / "home" / "AppData" / "Local" / "lcc" / "stash"
+
+    override = tmp_path / "custom-stash"
+    monkeypatch.setenv("LCC_STASH_DIR", str(override))
+    assert stash_dir() == override
+
+
+def test_stash_dir_posix_uses_xdg_cache(monkeypatch, tmp_path: Path):
+    import lcc.relevance.transcript_stash as stash_mod
+
+    monkeypatch.delenv("LCC_STASH_DIR", raising=False)
+    monkeypatch.setattr(stash_mod, "_is_windows", lambda: False)
+    monkeypatch.setattr(stash_mod.Path, "home", classmethod(lambda cls: tmp_path))
+    assert stash_dir() == tmp_path / ".cache" / "lcc" / "stash"
+
+
+def test_put_skips_chmod_on_windows(monkeypatch, tmp_path: Path):
+    import lcc.relevance.transcript_stash as stash_mod
+
+    monkeypatch.setenv("LCC_STASH_DIR", str(tmp_path / "stash"))
+    monkeypatch.setattr(stash_mod, "_is_windows", lambda: True)
+
+    def refuse_chmod(*_args, **_kwargs):
+        raise AssertionError("put must not call os.chmod on Windows")
+
+    monkeypatch.setattr(stash_mod.os, "chmod", refuse_chmod)
+    digest = put("windows stash body")
+    assert (tmp_path / "stash" / digest).read_text(encoding="utf-8") == "windows stash body"

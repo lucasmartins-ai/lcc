@@ -22,6 +22,10 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Aider chat history reader** (#63). `lcc.aider_history.from_aider_chat_history` turns
+  `.aider.chat.history.md` into the JSON transcript shape for `lcc compact --mode tool-calls`
+  (user/assistant text only; no invented tool-call ids). Mapping note and sample:
+  [docs/AIDER.md](docs/AIDER.md).
 - **Receipt after every tool-call compaction pass.** `lcc compact --mode tool-calls` prints one
   line last: tokens before and after, what was removed, and how to recall it; `--receipt`
   prints the five largest stashed outputs with their `recall` ids and the cache effect. The
@@ -35,6 +39,9 @@ All notable changes to this project are documented here. The format is based on
   `docs/CLAUDE_CODE.md#receipt-ledger-and-statusline`.
 
 ### Security
+
+- Request-log redaction avoids repeated scans of long secret names, email addresses,
+  paths and hostnames; goals and fields remain bounded before redaction (#88).
 
 - Existing Jev ledger files are tightened to `0600` before appending (#70).
 - **HTTP server: tool errors no longer echo exception text** (#73). A failing tool call over

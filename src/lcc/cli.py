@@ -2013,8 +2013,10 @@ def recall_cmd(
 @app.command(name="measure-session")
 def measure_session_cmd(
     session: Path = typer.Argument(
-        ..., help="A Claude Code session or Codex CLI rollout file (JSONL; format auto-detected).",
-        show_default=False, exists=True, dir_okay=False,
+        ...,
+        help="A Claude Code session or Codex CLI rollout file (JSONL; format auto-detected), "
+        "or a directory of them (aggregated per mode).",
+        show_default=False, exists=True,
     ),
     question: str | None = typer.Option(
         None,
@@ -2036,6 +2038,25 @@ def measure_session_cmd(
     ),
 ) -> None:
     """What each compaction mode would do to one of your sessions. Offline, counts only."""
+    if session.is_dir():
+        from lcc.session_report import DEFAULT_QUESTION, directory_to_markdown, measure_directory
+
+        if input_map:
+            _fail("--input-map takes one session file, not a directory.", code=2)
+        try:
+            report = measure_directory(
+                session, question=DEFAULT_QUESTION if question is None else question
+            )
+        except ValueError as exc:
+            _fail(str(exc), code=2)
+        rendered = json.dumps(report, indent=2) if as_json else directory_to_markdown(report)
+        if as_json or markdown:
+            sys.stdout.write(rendered + "\n")
+        else:
+            from rich.markdown import Markdown
+
+            console.print(Markdown(rendered))
+        return
     if input_map:
         from lcc import input_map as imap
 
