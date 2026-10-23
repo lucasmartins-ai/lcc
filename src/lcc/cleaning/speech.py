@@ -196,9 +196,7 @@ def _clean_line_text(line: str) -> str:
     cleaned = _MULTIPLE_SPACES.sub(" ", cleaned).strip()
     cleaned = _LEADING_PUNCT.sub("", cleaned).strip()
 
-    # Capitalize first letter if needed
-    if cleaned and cleaned[0].islower():
-        cleaned = cleaned[0].upper() + cleaned[1:]
+    # No re-casing: cleaning only removes, it never rewrites what the user wrote.
 
     return cleaned
 
