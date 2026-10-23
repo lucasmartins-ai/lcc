@@ -25,9 +25,12 @@ recalls hit the right blob?
    recency (AUC 0.60 vs 0.57, difference +0.03 [−0.09, +0.15]). Keeping even the top 5%
    inline costs 2–4× more token-requests than stashing everything.
 3. **A richer pointer is cheap and useful in one way.** A lean pointer (size, lines, exit
-   code, error/test identifiers, first line) costs +15 tokens per pointer, or 1.0% of the
-   stashed tokens. It cuts the share of stashed outputs that cannot be told apart from
-   another stashed output of the same call from 12.5% to 0.9%.
+   code, error/test identifiers, first line) costs +13 tokens per pointer, or 0.9% of the
+   stashed tokens. *Correction (2026-10-23):* the spike's claim that it cuts same-call
+   ambiguity from 12.5% to 0.9% was a measurement error, and the claim is withdrawn. On the
+   shipped note (`N lines, S KB`), only 0.5% of outputs are indistinguishable with either
+   pointer. The lean pointer's only possible gain is content hints, and that is not
+   measured (§3).
 4. **specialist-v3 is slow because of the dependency graph, not the model.** 90% of an
    `auto` pass is `ContextGraph.edges_touching`, a linear scan over every edge on each call.
    Featurizing and scoring every block takes 3–6 s. Scoring only the stash-eligible blocks
@@ -171,9 +174,21 @@ Measured on the 3,152 stashed outputs at the 50% cut (o200k tokens):
 | lean | 34.3 | 34 | 42 | 70 | +15.0 | 1.03% | 0.9% |
 | rich | 54.5 | 53 | 68 | 101 | +35.2 | 2.41% | 0.4% |
 
-This is a proxy, not a recall-accuracy result. It shows the pointer can tell same-call
-outputs apart. It does not show that the 24% of wrong-output recalls in `stashed-recall-v1`
-came from that ambiguity. Two cautions for shipping:
+**Correction (2026-10-23).** The ambiguity column above is wrong for the current note. The
+spike compared the current note by call input alone and treated its token count as carrying
+no information. The note on `main` since then is `[removed: N lines, S KB · lcc recall …]`.
+Re-measured with the shipped functions on 3,273 stashed outputs (50% cut):
+
+| pointer | mean tokens | extra vs note | share of stashed tokens | same-call outputs not distinguishable |
+| --- | ---: | ---: | ---: | ---: |
+| plain (`N lines, S KB`) | 24.2 | — | — | 0.5% |
+| lean (shipped, `--stash-pointer lean`) | 37.3 | +13.0 | 0.88% | 0.5% |
+
+Line and byte counts already tell same-call outputs apart. The lean pointer can only help by
+saying what an output contains (exit status, failing test, first line), so the agent picks the
+right one without recalling it. That has not been measured. It also does not show that the 24%
+of wrong-output recalls in `stashed-recall-v1` came from pointer ambiguity at all. Two
+cautions for shipping:
 
 - the first line is copied verbatim from tool output. It was already in context, but it is
   now pinned into every later request, so it should go through the same
@@ -267,7 +282,8 @@ output.
    future role.
 2. **Lean pointer**, `--stash-pointer=lean` (default `plain`). Accept both note formats in
    `_NOTE` and `verify_stashed`. Filter the first line for printable, terminal-safe text.
-   Cost: +15 tokens per pointer (~1% of stashed tokens).
+   Cost: +13 tokens per pointer (0.9% of stashed tokens). Shipped opt-in; its benefit is
+   unmeasured (see the §3 correction).
 3. **No judge in the stash path.** `rules` stays the decision maker for `stashed`.
    specialist-v3 stays a research arm (or `auto` for block mode) until it beats recency on a
    label that matters.
