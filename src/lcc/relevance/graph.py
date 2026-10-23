@@ -23,7 +23,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-RELATIONSHIP_VERSION = "relationships-1.1"
+RELATIONSHIP_VERSION = "relationships-1.2"
 #: A term in more blocks than this is session boilerplate, not a link between two of them.
 MAX_TERM_BLOCKS = 64
 
@@ -185,6 +185,8 @@ def build_graph(
     - negation cue + shared terms with another block -> CONTRADICTS (conservative:
       a negation sharing vocabulary with kept content must be reviewed, not dropped)
     """
+    if min_shared_terms < 1:  # pairs come from shared-term postings: zero shared is no link
+        raise ValueError("min_shared_terms must be >= 1")
     graph = ContextGraph()
     for block_id, _ in blocks:
         graph.nodes.add(block_id)
