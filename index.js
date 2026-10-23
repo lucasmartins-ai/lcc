@@ -214,9 +214,10 @@ function renderDefault(spec = {}) {
   const sections = [
     "You are a careful technical assistant.",
     `Task type: ${spec.taskType || "general"}`,
-    "User question:\n" + ((spec.question || "").trim() || "(no question provided)"),
     "Constraints:\n" + (spec.constraints && spec.constraints.length ? spec.constraints.map(c => `- ${c}`).join("\n") : "- None"),
-    "Context:\n" + ((spec.context || "").trim() || "(no context provided)")
+    // Per-request content last, so a prompt cache can reuse the static prefix.
+    "Context:\n" + ((spec.context || "").trim() || "(no context provided)"),
+    "User question:\n" + ((spec.question || "").trim() || "(no question provided)")
   ];
 
   return sections.join("\n\n") + "\n";
