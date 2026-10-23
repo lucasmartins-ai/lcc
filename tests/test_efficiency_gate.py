@@ -27,6 +27,7 @@ def test_compare_names_path_and_delta() -> None:
     assert prefix.startswith("p: prefix_share")
     (cost,) = gate.compare(base, _one(cost=1.6))
     assert cost.startswith("p: cost 1.0 -> 1.6")
+    assert gate.compare(_one(cost=0.04), _one(cost=0.09)) == []  # +125% but inside the floor
     assert gate.compare(base, {"paths": {"new": GOOD}}) != []
 
 

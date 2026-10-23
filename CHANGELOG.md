@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **Efficiency baseline updated.** baseline regenerated on intake v2 (#105); cost failures under 0.15 calibration units are ignored as jitter
+
 - **Intake prompt is cache-stable.** The readiness, assumption and question comments that
   embedded the user's text used to come before the template, so two requests shared 34 to
   1,188 prefix chars depending on readiness (claude_xml, corpus pairs). The template now comes

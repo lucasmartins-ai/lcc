@@ -137,7 +137,7 @@ proxy. It catches a path going from O(n) to O(n²), not a 10% change.
 | --- | --- | --- |
 | `tokens_out` | grows more than 1% | `--token-tolerance` |
 | `prefix_share` | drops more than 0.02 | `--prefix-tolerance` |
-| `cost` | grows more than 50% | `--cost-tolerance` |
+| `cost` | grows more than 50% and by more than 0.15 calibration-loop units (jitter floor) | `--cost-tolerance` |
 
 `tests/test_efficiency_gate.py` plants an O(n²) loop in a path and checks the gate fails it.
 

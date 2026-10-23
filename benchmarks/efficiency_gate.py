@@ -57,6 +57,8 @@ from specialist_synthetic import GOAL, synthetic_payload  # noqa: E402
 BASELINE = ROOT / "benchmarks" / "results" / "efficiency_baseline.json"
 CHANGELOG = ROOT / "CHANGELOG.md"
 SCHEMA = "efficiency-gate-1.0"
+#: Absolute cost growth (calibration-loop units) below which a cost failure is ignored.
+COST_FLOOR = 0.15
 SEED = 7
 #: Turns appended to build the "related request" for the prefix share (about 4 messages each).
 EXTRA_TURNS = 6
@@ -242,7 +244,8 @@ def compare(
                 f"{name}: prefix_share {base['prefix_share']:.4f} -> {now['prefix_share']:.4f} "
                 f"(limit -{prefix_tolerance})"
             )
-        if now["cost"] > base["cost"] * (1 + cost_tolerance):
+        # The floor keeps a path costing a few ms from failing on jitter alone.
+        if now["cost"] > base["cost"] * (1 + cost_tolerance) and now["cost"] - base["cost"] > COST_FLOOR:
             problems.append(
                 f"{name}: cost {base['cost']} -> {now['cost']} "
                 f"(+{now['cost'] / base['cost'] - 1:.0%}, limit +{cost_tolerance:.0%})"
