@@ -114,6 +114,26 @@ lcc diff dossier.md compacted.md
 Sizes, token deltas, and a unified diff. Exit code is 0 whether the files
 match or not; the summary tells you. Never touches the network.
 
+## 8. Voice note or rambling request to a prompt (offline)
+
+```bash
+lcc intake voice-note.txt --report intake.json > prompt.md
+```
+
+- **Dictation** is detected on plain whisper or phone text too (filler density, a long line
+  with no punctuation), not only SRT/VTT. Only content-free fillers go (", né,", ", you know,",
+  "uh", a bare "tipo" after a connector); "né?" and "right?" stay, so a question stays a
+  question. Every removed span is in `intake.json` under `speech.removals` with its position
+  in the raw input; the prompt carries one line with the span and char counts.
+- **Readiness** comes with named `reasons`: `vague_marker` (whole words, pt and en),
+  `voice_dump` (3+ asks in one dictation → `NEEDS_INTAKE`), `multiple_asks` (3+ typed asks →
+  `NEEDS_LIGHT_REFINEMENT`), `short_directive`, `too_short`. Only empty input is `BLOCKED`.
+- **`risk_flags`** note security or injection phrasing ("bypass security", "ignore all
+  previous instructions") without blocking: a test about a bypass is a normal request.
+- **Cache-stable layout:** the template comes first and the intake comment lines last, so two
+  different requests share the whole static prefix
+  (`python benchmarks/cache/run_intake_prefix.py --check`).
+
 ## Offline × command matrix (all rows verified without key or network)
 
 | Command | Offline, no key | Needs key/network | Notes |

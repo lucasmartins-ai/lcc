@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "about": "Synthetic intake corpus, written by hand for tests (no real user data). Each case states the expected dictation detection, the expected readiness, substrings the filler cleaner must keep, and substrings it must remove. Bump the version on any change to an expectation.",
+  "cases": [
+    {
+      "id": "pt_whisper_multi_ask",
+      "lang": "pt",
+      "text": "então tipo eu queria que você desse uma olhada no lcc né porque o intake tá meio quebrado e aí tipo primeiro arruma a ordem do prompt pro cache funcionar entendeu e também quero que você crie um corpus de teste em português e inglês e aí outra coisa precisa medir quanto token a gente economiza e tipo atualiza a documentação também e ah sim corrige aquele bloqueio de segurança que tá barrando teste legítimo e no final abre um PR",
+      "dictation": true,
+      "readiness": "NEEDS_INTAKE",
+      "keep": ["arruma a ordem do prompt", "corrige aquele bloqueio", "abre um PR"],
+      "remove": [" né porque", " tipo primeiro"]
+    },
+    {
+      "id": "pt_whisper_single_ask",
+      "lang": "pt",
+      "text": "então tipo eu preciso que você corrija o teste de integração do checkout, né, que tá quebrando desde ontem, tipo, toda vez que roda no CI, sabe, aí dá timeout no banco",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["corrija o teste de integração do checkout", "dá timeout no banco"],
+      "remove": [", né,", ", tipo,", ", sabe,"]
+    },
+    {
+      "id": "pt_whisper_question_tag",
+      "lang": "pt",
+      "text": "cara, tipo, o cache do prompt só funciona se o prefixo for idêntico, né? e aí, tipo, se a gente muda o cabeçalho toda vez ele nunca acerta, né? então assim, isso explica a conta alta, né?",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["for idêntico, né?", "nunca acerta, né?", "a conta alta, né?"],
+      "remove": [", tipo,"]
+    },
+    {
+      "id": "pt_whisper_run_on",
+      "lang": "pt",
+      "text": "bom então o que eu preciso é o seguinte a gente tem aquele script de migração que roda toda noite e ele tá demorando tipo duas horas né e eu queria que ele rodasse em menos de meia hora e também que mandasse um alerta no slack quando falhar porque hoje ninguém fica sabendo",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["menos de meia hora", "alerta no slack"],
+      "remove": []
+    },
+    {
+      "id": "pt_srt_transcript",
+      "lang": "pt",
+      "text": "1\n00:00:01,000 --> 00:00:04,000\n[Música]\nEntão, a fila de pedidos tá travando no pico.\n\n2\n00:00:04,100 --> 00:00:08,000\nPrecisamos aumentar os workers do consumidor de 4 para 12.\n\n3\n00:00:08,100 --> 00:00:09,000\nObrigado por assistir\n",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["a fila de pedidos tá travando no pico", "de 4 para 12"],
+      "remove": ["00:00:01,000 --> 00:00:04,000", "Obrigado por assistir", "[Música]"]
+    },
+    {
+      "id": "pt_typed_clear",
+      "lang": "pt",
+      "text": "Refatore o middleware de autenticação para usar JWT com expiração de 1 hora e assinatura RS256.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["Refatore o middleware"],
+      "remove": []
+    },
+    {
+      "id": "pt_typed_vague",
+      "lang": "pt",
+      "text": "Talvez dar uma olhada no cache, não sei bem o que está acontecendo com ele.",
+      "dictation": false,
+      "readiness": "NEEDS_INTAKE",
+      "keep": [],
+      "remove": []
+    },
+    {
+      "id": "pt_typed_task_list",
+      "lang": "pt",
+      "text": "Para o release de sexta:\n1. Atualize o CHANGELOG com as mudanças do intake.\n2. Rode a suíte completa de testes.\n3. Crie a tag v1.3.0 e abra o PR de release.",
+      "dictation": false,
+      "readiness": "NEEDS_LIGHT_REFINEMENT",
+      "keep": [],
+      "remove": []
+    },
+    {
+      "id": "pt_tipo_is_content",
+      "lang": "pt",
+      "text": "Qual tipo de banco de dados usar para séries temporais com retenção de 90 dias? Compare TimescaleDB e ClickHouse.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["Qual tipo de banco"],
+      "remove": []
+    },
+    {
+      "id": "pt_typed_connectors",
+      "lang": "pt",
+      "text": "Se o deploy falhar, então reverte para a versão anterior e aí abre um incidente com o log do pod.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["então reverte", "e aí abre"],
+      "remove": []
+    },
+    {
+      "id": "en_whisper_multi_ask",
+      "lang": "en",
+      "text": "okay so uh I need you to fix the flaky login test, you know, the one that times out, and also, like, add a retry to the webhook client and then update the README for the new flags and uh also can you bump the node version in CI and then open a PR when it's green",
+      "dictation": true,
+      "readiness": "NEEDS_INTAKE",
+      "keep": ["fix the flaky login test", "open a PR when it's green"],
+      "remove": [", you know,", ", like,"]
+    },
+    {
+      "id": "en_whisper_single_ask",
+      "lang": "en",
+      "text": "So, um, basically the export job is, like, really slow, you know, and I mean, I need it to stream rows instead of loading the whole table, uh, into memory first.",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["stream rows instead of loading the whole table"],
+      "remove": [", like,", ", you know,"]
+    },
+    {
+      "id": "en_whisper_question_tag",
+      "lang": "en",
+      "text": "So the cache only hits when the prefix is identical, right? And, you know, if the header changes every request it never hits, right? Like, that explains the bill, doesn't it?",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["identical, right?", "never hits, right?", "doesn't it?"],
+      "remove": [", you know,"]
+    },
+    {
+      "id": "en_vtt_speakers",
+      "lang": "en",
+      "text": "WEBVTT\n\n00:00:01.000 --> 00:00:03.500\nAlice: The nightly backup failed again.\n\n00:00:03.600 --> 00:00:07.000\nBob: Uh, I think the disk is full. [laughter]\n\n00:00:07.100 --> 00:00:10.000\nAlice: Then rotate the old snapshots and rerun it.\n",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["The nightly backup failed again.", "rotate the old snapshots"],
+      "remove": ["[laughter]", "00:00:01.000 --> 00:00:03.500"]
+    },
+    {
+      "id": "en_typed_clear",
+      "lang": "en",
+      "text": "Refactor the authentication middleware to use JWT tokens with 1-hour expiration and RS256 signing.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": [],
+      "remove": []
+    },
+    {
+      "id": "en_maybelline_identifier",
+      "lang": "en",
+      "text": "Rename the maybelline_sku column to brand_sku in the products table and update the two queries that read it.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["maybelline_sku"],
+      "remove": []
+    },
+    {
+      "id": "en_security_test_request",
+      "lang": "en",
+      "text": "Write a test proving the middleware cannot bypass security checks when the session cookie is missing.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": [],
+      "remove": []
+    },
+    {
+      "id": "en_injection_doc",
+      "lang": "en",
+      "text": "Summarize this internal doc about prompt injection, which explains why 'ignore all previous instructions' attacks work on agents that read web pages.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["'ignore all previous instructions'"],
+      "remove": []
+    },
+    {
+      "id": "en_typed_vague",
+      "lang": "en",
+      "text": "Maybe do something with the cache, not sure what exactly.",
+      "dictation": false,
+      "readiness": "NEEDS_INTAKE",
+      "keep": [],
+      "remove": []
+    },
+    {
+      "id": "en_short_directive",
+      "lang": "en",
+      "text": "fix tests",
+      "dictation": false,
+      "readiness": "NEEDS_LIGHT_REFINEMENT",
+      "keep": [],
+      "remove": []
+    },
+    {
+      "id": "en_kind_of_is_content",
+      "lang": "en",
+      "text": "What kind of index fits a query that filters by tenant and sorts by created_at? You know the schema from the migration above, so explain the trade-offs.",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["What kind of index", "You know the schema"],
+      "remove": []
+    },
+    {
+      "id": "en_deploy_log",
+      "lang": "en",
+      "text": "2026-10-22T09:14:03Z deploy started sha=4f1c2e\n2026-10-22T09:14:41Z health check failed: /readyz returned 503\n2026-10-22T09:15:02Z rollback to sha=9a0b7d complete\nWhy did the readiness probe fail?",
+      "dictation": false,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": [],
+      "remove": []
+    },
+    {
+      "id": "en_code_fence_fillers",
+      "lang": "en",
+      "text": "Uh, so this regex, you know, is too slow:\n```python\nFILLER = re.compile(r\", you know,\")\n```\nCan you make it linear, like, without backtracking?",
+      "dictation": true,
+      "readiness": "READY_TO_EXECUTE",
+      "keep": ["FILLER = re.compile(r\", you know,\")", "without backtracking?"],
+      "remove": []
+    }
+  ]
+}

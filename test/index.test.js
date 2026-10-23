@@ -69,6 +69,7 @@ This is the database migration guide.
 This is the database migration guide.
 `, "Optimize query");
 assert(intakeRes.formattedPrompt.includes("lcc-intake:readiness"));
+assert(intakeRes.formattedPrompt.startsWith("<system_instructions>"), "static template must lead the prompt");
 assert(!intakeRes.formattedPrompt.includes("Sent from my iPhone"));
 assert(intakeRes.formattedPrompt.includes("<system_instructions>"));
 assert(intakeRes.compression !== null);

@@ -6,7 +6,31 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+
+- **Intake prompt is cache-stable.** The readiness, assumption and question comments that
+  embedded the user's text used to come before the template, so two requests shared 34 to
+  1,188 prefix chars depending on readiness (claude_xml, corpus pairs). The template now comes
+  first and the intake lines last: every pair shares the whole static template (968 chars for
+  claude_xml), checked by `benchmarks/cache/run_intake_prefix.py --check` in CI. Same change in
+  the Node `LccIntake`.
+- **Intake no longer blocks on security words.** "Write a test proving the middleware cannot
+  bypass security checks" and a doc about "ignore all previous instructions" were `BLOCKED`.
+  They now get a non-blocking `risk_flags` entry; only empty input is `BLOCKED`.
+- **Intake readiness has named reasons** (`vague_marker`, `voice_dump`, `multiple_asks`,
+  `short_directive`, `too_short`, `empty_input`) and counts distinct asks: a dictation with 3+
+  asks is `NEEDS_INTAKE`, a typed list of 3+ is `NEEDS_LIGHT_REFINEMENT`. Vague markers match
+  whole words (`maybelline_sku` is no longer "maybe"); "kind of" is no longer vague.
+- **Intake brief carries only what the input states.** `deliverable`, `audience`, `context`,
+  `constraints` and `format_requirements` were the same boilerplate for every input ("Code /
+  Refactored Context", "Maintain codebase stability"); they are now empty unless derived, and
+  the boilerplate constraints are gone from the compiled prompt.
+
 ### Fixed
+
+- **SRT transcripts were not detected as speech** when they opened with their sequence number
+  (the usual case): the timing line was only matched at the start of the text. Portuguese audio
+  tags (`[Música]`, `[Aplausos]`, `[Risos]`, `[Silêncio]`) are now recognised too.
 
 - **Stash placeholder no longer depends on `tiktoken`.** The same removed bytes gave
   `[removed: 1380 tokens ...]` with the exact counter and `[removed: 928 tokens ...]` without
@@ -21,6 +45,15 @@ All notable changes to this project are documented here. The format is based on
   in the middle of a token no longer starts a second ref (`-a.py` still names `a.py`).
 
 ### Added
+
+- **Dictation detection and reported filler removal in intake** (`lcc.intake.speech`). Plain
+  whisper or phone dictation in pt and en is detected by filler density and run-on lines, not
+  only SRT/VTT. Only content-free fillers are removed; question tags stay. Every removed span
+  (position, text, rule) is in the MCP/CLI report under `speech`. Corpus
+  `tests/corpus/intake/v1.json` (23 synthetic cases): detection 65% → 100%, readiness 70% →
+  100% (in-sample: the rules were tuned on this corpus), speech-cleaning token savings on the
+  dictation cases 5.7% → 16.2% (plain dictation without SRT/VTT: 2.2% → 9.2%; approximate
+  counts). `benchmarks/intake/run_intake_corpus.py` prints the table.
 
 - **Aider chat history reader** (#63). `lcc.aider_history.from_aider_chat_history` turns
   `.aider.chat.history.md` into the JSON transcript shape for `lcc compact --mode tool-calls`

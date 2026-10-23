@@ -41,6 +41,7 @@ class LccCompressor:
         similarity_threshold: float = 0.95,
         template_name: str = "default",
         pricing: dict[str, Any] | None = None,
+        clean_speech: bool = True,
     ) -> None:
         self.model = model
         self.strategy = strategy
@@ -50,6 +51,7 @@ class LccCompressor:
         self.similarity_threshold = similarity_threshold
         self.template_name = template_name
         self.pricing = pricing
+        self.clean_speech = clean_speech
 
     def compress(
         self,
@@ -71,6 +73,7 @@ class LccCompressor:
             similarity_threshold=self.similarity_threshold,
             template_name=self.template_name,
             pricing=self.pricing,
+            clean_speech=self.clean_speech,
         )
         res = optimize(req)
 
