@@ -530,3 +530,13 @@ def test_cli_recall_honours_the_ledger_env(_stash: Path, ledger: Path, monkeypat
     assert [(r["outcome"], r["partial"]) for r in _records(ledger)] == [
         ("ok", True), ("invalid", False)
     ]
+
+
+def test_failed_range_recall_does_not_count_as_a_recall(_stash: Path, ledger: Path):
+    sha12 = put(BODY)[:12]
+    with pytest.raises(StashError):
+        recall(sha12, lines=(500, 501), ledger=True)
+    recall(sha12, ledger=True)
+    assert [(r["outcome"], r["repeat"]) for r in _records(ledger)] == [
+        ("invalid", False), ("ok", False)
+    ]

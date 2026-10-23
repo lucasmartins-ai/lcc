@@ -276,14 +276,6 @@ def recall(
         )
         _ledger_recall(ledger, outcome=outcome)
         raise
-    root = stash_dir()
-    meta = read_sidecar(root / name)  # before the touch below: was it recalled already?
-    # Bookkeeping only: a read-only or unlockable stash must still answer.
-    with contextlib.suppress(OSError), stash_lock(root):
-        if (root / name).is_file():
-            _touch_sidecar(root / name, last_recalled_at=True)
-    sessions = meta.get("sessions") or []
-    put_at = meta.get("last_put_at") or meta.get("created_at")
     text = data.decode("utf-8")
     if lines is not None:
         first, last = lines
@@ -292,6 +284,15 @@ def recall(
             _ledger_recall(ledger, outcome="invalid")
             raise StashError(f"line range {first}-{last} outside 1-{len(rows)}")
         text = "".join(rows[first - 1 : last])
+    root = stash_dir()
+    meta = read_sidecar(root / name)  # before the touch below: was it recalled already?
+    # Only a recall that returns text counts as one. Bookkeeping only: a read-only or
+    # unlockable stash must still answer.
+    with contextlib.suppress(OSError), stash_lock(root):
+        if (root / name).is_file():
+            _touch_sidecar(root / name, last_recalled_at=True)
+    sessions = meta.get("sessions") or []
+    put_at = meta.get("last_put_at") or meta.get("created_at")
     _ledger_recall(
         ledger,
         outcome="ok",
