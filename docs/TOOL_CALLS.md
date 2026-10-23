@@ -203,9 +203,37 @@ lcc recall 3f9a1c0b2d4e --lines 40-80 # 1-based, inclusive
 
 MCP: tool `recall` with `{"id": "...", "lines": "a-b"}` returns `{sha256, text}`. The stash
 is local to the machine running `lcc mcp` over stdio; `lcc mcp --http` refuses both `recall`
-and `rules_mode: "stashed"`, since one disk would be shared by every caller. No TTL or GC yet:
-the stash grows until you delete it (`rm -r ~/.cache/lcc/stash` on POSIX, or remove
-`%LOCALAPPDATA%\lcc\stash` on Windows; pointers to deleted blobs just stop resolving).
+and `rules_mode: "stashed"`, since one disk would be shared by every caller.
+
+**Retention.** Nothing in the stash expires on its own and nothing deletes it by default,
+the Claude Code plugin included. Each blob has a `<sha256>.json` sidecar (`0600`) with
+`created_at`, `last_put_at`, `last_recalled_at` and the truncated SHA-256 of the session ids
+that stashed it; never content, paths or raw ids.
+
+```bash
+lcc stash ls                         # id, bytes, lines, dates, sessions, files referencing it
+lcc stash verify session.jsonl       # pointers whose blob is missing or fails its hash; exit 1 if any
+lcc stash gc                         # dry run: what --apply would delete
+lcc stash gc --apply --older-than 30d --root ~/.claude/projects --root ~/other/transcripts
+```
+
+`gc` treats the transcripts as the only source of truth. It scans every file under each `--root`
+(default `~/.claude/projects`) for `recall <sha12>` and deletes a blob only when no file names it
+**and** it was not put or recalled within `--older-than` (default `30d`). It fails closed: if no
+root exists or any file under a root cannot be read, it deletes nothing. `put` refreshes a blob's
+mtime under a shared `flock` before any pointer to it exists, and `gc --apply` re-checks each
+blob's age under an exclusive lock just before deleting it, so a concurrent compaction cannot lose
+a blob. `--apply` needs POSIX locks and refuses on Windows. A transcript stored outside every
+`--root` does not protect its blobs: pass its directory too.
+
+A pointer whose blob is gone (cache wiped, `gc`, the session resumed on another machine) cannot be
+rebuilt. `recall` (CLI and MCP) says so and points to the way back: re-read the file or re-run the
+command. `lcc stash verify` finds such pointers before the model needs them.
+
+**Secrets.** The stash holds a verbatim copy of what it removed, `.env` reads included, and that
+copy outlives the transcript: deleting a session does not delete its blobs. Run
+`lcc stash gc --apply` after deleting transcripts, or remove the stash directory
+(`rm -r ~/.cache/lcc/stash` on POSIX, `%LOCALAPPDATA%\lcc\stash` on Windows) to drop all of it.
 
 Measured once (2026-10-18, label INFERIDO: one run, one owner's sessions, one answerer model),
 on 172 real Claude Code contexts with task probes, in

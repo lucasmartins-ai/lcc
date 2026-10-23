@@ -134,6 +134,7 @@ def _tool_compact_transcript(args: dict[str, Any]) -> dict[str, Any]:
             disk_check=bool(args.get("disk_check", True)),
             allow_command_pointers=args.get("allow_command_pointers") is True,
             cache_state=_cache_state_arg(args.get("cache_state")),
+            session_id=_session_arg(args.get("ledger_session")),
         )
     )
     from lcc.receipt import append_ledger, ledger_enabled, ledger_record, pass_stands, receipt_line
@@ -382,6 +383,10 @@ def _tool_intake(args: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _session_arg(value: Any) -> str | None:
+    return value if isinstance(value, str) and value else None
+
+
 def _tool_recall(args: dict[str, Any]) -> dict[str, Any]:
     from lcc.relevance.transcript_stash import parse_lines, recall, recall_sha256
 
@@ -522,7 +527,10 @@ TOOLS: dict[str, dict[str, Any]] = {
                 },
                 "ledger_session": {
                     "type": "string",
-                    "description": "Session id; the ledger stores only its truncated SHA-256.",
+                    "description": (
+                        "Session id; the ledger and the stash sidecars store only its "
+                        "truncated SHA-256."
+                    ),
                 },
                 "trigger": {
                     "type": "string",

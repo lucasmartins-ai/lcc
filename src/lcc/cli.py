@@ -2010,6 +2010,101 @@ def recall_cmd(
     sys.stdout.write(text)
 
 
+stash_app = typer.Typer(
+    help="Inspect, verify and clean the local stash behind `lcc recall` pointers. Nothing is "
+    "deleted without `lcc stash gc --apply`."
+)
+app.add_typer(stash_app, name="stash")
+
+_ROOT_HELP = (
+    "A transcript file or directory to scan for `lcc recall` pointers (repeatable; default "
+    "~/.claude/projects)."
+)
+
+
+def _when(epoch: Any) -> str:
+    from datetime import UTC, datetime
+
+    if not isinstance(epoch, (int, float)):
+        return "-"
+    return datetime.fromtimestamp(epoch, UTC).strftime("%Y-%m-%d")
+
+
+@stash_app.command("ls")
+def stash_ls_cmd(
+    root: list[Path] | None = typer.Option(None, "--root", help=_ROOT_HELP),
+    no_scan: bool = typer.Option(False, "--no-scan", help="Skip counting references."),
+    as_json: bool = typer.Option(False, "--json", help="Print rows as JSON."),
+) -> None:
+    """List stashed blobs: id, size, lines, dates, sessions and the files that reference each."""
+    from lcc.relevance.stash_lifecycle import DEFAULT_ROOTS, ls
+    from lcc.relevance.transcript_stash import StashError
+
+    try:
+        rows = ls(None if no_scan else list(root or DEFAULT_ROOTS))
+    except StashError as exc:
+        _fail(str(exc), code=2)
+    if as_json:
+        sys.stdout.write(json.dumps(rows, indent=2) + "\n")
+        return
+    sys.stdout.write("id            bytes   lines  created     recalled    sessions  refs\n")
+    for row in rows:
+        refs = "-" if row["refs"] is None else str(row["refs"])
+        sys.stdout.write(
+            f"{row['id']}  {row['bytes']:>6}  {row['lines']:>6}  {_when(row['created_at'])}  "
+            f"{_when(row['last_recalled_at']):<10}  {row['sessions']:>8}  {refs:>4}\n"
+        )
+
+
+@stash_app.command("gc")
+def stash_gc_cmd(
+    root: list[Path] | None = typer.Option(None, "--root", help=_ROOT_HELP),
+    older_than: str = typer.Option(
+        "30d", "--older-than", help="Only blobs not put or recalled for this long (30d, 12h)."
+    ),
+    apply: bool = typer.Option(
+        False, "--apply", help="Delete. Without it gc only lists what it would delete."
+    ),
+) -> None:
+    """Remove blobs no transcript under the roots references and older than --older-than."""
+    from lcc.relevance.stash_lifecycle import DEFAULT_ROOTS, gc, parse_age
+    from lcc.relevance.transcript_stash import StashError
+
+    try:
+        report = gc(list(root or DEFAULT_ROOTS), parse_age(older_than), apply=apply)
+    except (StashError, OSError) as exc:
+        _fail(str(exc), code=2)
+    names = report["removed"] if apply else report["candidates"]
+    verb = "removed" if apply else "would remove"
+    for name in names:
+        sys.stdout.write(f"{verb} {name[:12]}\n")
+    sys.stdout.write(
+        f"{report['blobs']} blobs, {report['referenced']} referenced; {verb} {len(names)} "
+        f"unreferenced and older than {older_than}, plus {len(report['leftovers'])} "
+        "leftover file(s)" + ("" if apply else ". Re-run with --apply to delete.") + "\n"
+    )
+
+
+@stash_app.command("verify")
+def stash_verify_cmd(
+    session: Path = typer.Argument(..., help="A transcript (JSONL) with stash pointers."),
+) -> None:
+    """List pointers whose blob is missing or fails its hash. Exit 1 when there are any."""
+    from lcc.relevance.stash_lifecycle import verify
+    from lcc.relevance.transcript_stash import RECOVERY_HINT, StashError
+
+    try:
+        problems = verify(session)
+    except StashError as exc:
+        _fail(str(exc), code=2)
+    for item in problems:
+        sys.stdout.write(f"{item['id']}  {item['problem']}\n")
+    if problems:
+        err_console.print(f"{len(problems)} dangling pointer(s). {RECOVERY_HINT}")
+        raise typer.Exit(code=1)
+    sys.stdout.write("every stash pointer resolves and passes its hash\n")
+
+
 @app.command(name="measure-session")
 def measure_session_cmd(
     session: Path = typer.Argument(

@@ -30,10 +30,11 @@ is kept as it was.
 | `/compact` | one summary | rewritten into the summary | gone |
 | **lcc** (`rules`, `stashed`) | **28,807 (−49.5%)** | **43 / 43 byte for byte** | 33, each one `recall` away |
 
-Measured with `lcc measure-session` (1.2.0, offline, exact `o200k_base` token count). That
-session is one of the best cases. **Across all 266 of my long sessions** (100+ messages each,
-31.6 M tokens) the median cut was **22.7%** (middle half 15% to 32%, best 65%), with 0 messages
-lost. These are all my sessions: [run it on yours](#send-us-your-numbers) and post the result.
+Measured with `lcc measure-session` (PyPI 1.2.0, offline, exact `o200k_base` token count;
+re-run 2026-10-23). On `main`, whose stash note now states lines and size, the same session
+gives 28,983 (−49.2%). That session is one of the best cases. **Across all 299 of my long sessions** (100+ messages each,
+36.3 M tokens) the median cut was **21.8%** (middle half 15% to 31%, best 65%), with 0 messages
+lost (`python benchmarks/research/long_sessions.py`, 2026-10-23, `main`). These are all my sessions: [run it on yours](#send-us-your-numbers) and post the result.
 
 In a pre-registered test on 172 real requests ([evidence](docs/EVIDENCE.md)), an agent answering
 from the `stashed` context plus `recall` did as well as with the full context on file recall
@@ -45,7 +46,11 @@ right (our reimplementation of `/compact`, written by Opus); full and verbatim c
 
 ```sh
 pip install "local-context-compiler[tiktoken]"   # the CLI is `lcc`
+lcc measure-session "$(ls -t ~/.claude/projects/*/*.jsonl | head -1)"   # your latest session
 ```
+
+The second line reads your most recent Claude Code session, runs every mode offline and prints
+counts only. Nothing is changed and nothing leaves the machine.
 
 **Claude Code plugin** (replaces the `/compact` summary). Function hooks are early access, so
 this needs **Claude Code 2.1.274+ and the flag below**:

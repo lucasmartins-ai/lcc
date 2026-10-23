@@ -187,6 +187,8 @@ class TranscriptCompactionRequest:
     cache_state: str = "unknown"
     #: Requests expected to reuse the compacted history, the next one included.
     expected_reuses: int = 1
+    #: ``stashed`` only: the session the pass runs for; each blob's sidecar keeps its hash.
+    session_id: str | None = None
 
 
 @dataclass
@@ -1097,6 +1099,7 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
             raw_decisions = stashed_decisions(
                 messages, candidates, request.question, model=request.model,
                 root=request.workspace_root, disk_check=request.disk_check,
+                session=request.session_id,
             )
         elif recoverable:
             raw_decisions = recoverable_decisions(
