@@ -42,20 +42,34 @@ MAX_GOAL_CHARS = 1000  # ponytail: a goal longer than this is probably pasted co
 # Order matters: wider spans (URLs, emails, IPv6) go before the hosts/paths they contain.
 # ponytail: regex redaction cannot see unquoted names ("patient Maria Souza age 54");
 # those pass through. Quote record values, or add an NER pass if the corpus needs it.
+# Scan hostnames from their required suffix, avoiding repeated failed prefix scans.
+_HOSTNAME_FROM_END = r"\b[A-Za-z]{2,}(?:\.[A-Za-z0-9-]+)+\b"
+_REVERSED_RULES = frozenset({_HOSTNAME_FROM_END})
+_RELATIVE_PATH = r"\b[\w.-]+(?:/[\w.-]+)+\.\w{1,6}\b"
+
 RULES: tuple[tuple[str, str], ...] = (
-    ("<URL>", r"\b[a-zA-Z][a-zA-Z0-9+.-]*://\S+"),
+    (
+        r"\g<url_prefix><URL>",
+        r"(?<![a-zA-Z0-9+.-])(?=[a-zA-Z0-9+.-]*://\S+)"
+        r"(?P<url_prefix>[a-zA-Z0-9+.-]*?)\b[a-zA-Z][a-zA-Z0-9+.-]*://\S+",
+    ),
     ("<EMAIL>", r"\b[\w.+-]+@[\w-]+(?:\.[\w-]+)*\b"),
     ("<TOKEN>", r"(?i)\bauthorization\s*:\s*(?:(?:basic|bearer|digest|token)\s+)?\S+"),
     ("<TOKEN>", r"(?i)\bbearer\s+\S+"),
-    ("<TOKEN>", r"\beyJ[\w-]+\.[\w-]+\.[\w-]+"),
+    (
+        r"\g<jwt_prefix><TOKEN>",
+        r"(?<![\w-])(?=[\w-]+\.[\w-]+\.[\w-]+)"
+        r"(?P<jwt_prefix>[\w-]*?)\beyJ[\w-]+\.[\w-]+\.[\w-]+",
+    ),
     ("<TOKEN>", r"(?i)\b(?:set-)?cookie\s*:\s*\S+"),
     # NAME_API_KEY=..., client_secret: ...: the secret word glued to a longer identifier.
     (
-        "<TOKEN>",
+        r"\g<token_prefix><TOKEN>",
         # Only exact count names with a whole integer value are exempt; numeric secrets stay hidden.
-        r"(?i)\b(?!(?:max_tokens|tokens)\s*[:=]\s*[0-9]+(?=\s|$))"
-        r"[\w-]*(?:api[_-]?key|access[_-]?key|token|secret|password|passwd)[\w-]*"
-        r"\s*[:=]\s*\S+",
+        r"(?i)(?<![\w-])(?P<token_prefix>-*)\b"
+        r"(?!(?:max_tokens|tokens)\s*[:=]\s*[0-9]+(?=\s|$))"
+        r"(?=[\w-]*(?:api[_-]?key|access[_-]?key|token|secret|password|passwd))"
+        r"[\w-]+\s*[:=]\s*\S+",
     ),
     (
         "<TOKEN>",
@@ -86,21 +100,87 @@ RULES: tuple[tuple[str, str], ...] = (
     ("<PATH>", r"\\\\[\w.$-]+\\\S*"),
     ("<PATH>", r"\b[A-Za-z]:[\\/]\S+"),
     ("<PATH>", r"(?<![\w])(?:~|\.{1,2})?/[\w.~-]+(?:/[\w.~-]*)*"),
-    ("<PATH>", r"\b[\w.-]+(?:/[\w.-]+)+\.\w{1,6}\b"),
+    ("<PATH>", _RELATIVE_PATH),
     ("<HOST>", r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
-    ("<HOST>", r"\b(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}\b"),
+    ("<HOST>", _HOSTNAME_FROM_END),
     ("<HOST>", r"\b[A-Za-z][\w-]*:\d{2,5}\b|\blocalhost\b"),
     ("<VALUE>", r"\"[^\"]*\"|`[^`]*`|“[^”]*”|‘[^’]*’|(?<!\w)'[^'\n]+'(?!\w)"),
     ("<NUMBER>", r"\b\d[\d.,/:-]{3,}\d\b"),
     ("<NUMBER>", r"(?<!\d)\d{9,}(?!\d)"),  # CPF/phone glued to letters, no word boundary
 )
-RULESET_SHA256 = hashlib.sha256(json.dumps(RULES).encode()).hexdigest()
+RULESET_SHA256 = hashlib.sha256(json.dumps((RULES, sorted(_REVERSED_RULES))).encode()).hexdigest()
 _COMPILED = tuple((label, re.compile(pattern)) for label, pattern in RULES)
+_EMAIL_DOMAIN = re.compile(r"[\w-]+(?:\.[\w-]+)*\b")
+_WORD_BOUNDARY = re.compile(r"\b")
+
+
+def _redact_emails(text: str) -> str:
+    """Check each @ once, preserving adjacent addresses and their word boundaries."""
+    parts: list[str] = []
+    cursor = 0
+    for match in re.finditer("@", text):
+        at = match.start()
+        start = at
+        while start > cursor and (text[start - 1].isalnum() or text[start - 1] in "_.+-"):
+            start -= 1
+        boundary = _WORD_BOUNDARY.search(text, start, at)
+        if boundary is None or boundary.start() == at:
+            continue
+        domain = _EMAIL_DOMAIN.match(text, at + 1)
+        if domain is None:
+            continue
+        parts.extend((text[cursor : boundary.start()], "<EMAIL>"))
+        cursor = domain.end()
+    parts.append(text[cursor:])
+    return "".join(parts)
+
+
+_PATH_SEGMENT = re.compile(r"[\w.-]+")
+_PATH_EXTENSION = re.compile(r"(?<=[\w.-])\.\w{1,6}\b")
+_WORD = re.compile(r"\w")
+
+
+def _redact_relative_paths(text: str) -> str:
+    """Visit each slash-separated segment once, keeping the last valid extension."""
+    parts: list[str] = []
+    cursor = 0
+    start = end = 0
+
+    def append_path(start: int, end: int) -> None:
+        nonlocal cursor
+        word = _WORD.search(text, start, end)
+        if word is None:
+            return
+        slash = text.find("/", word.start(), end)
+        if slash == -1:
+            return
+        last_extension = None
+        for extension in _PATH_EXTENSION.finditer(text, slash + 1, end):
+            last_extension = extension
+        if last_extension is not None:
+            parts.extend((text[cursor : word.start()], "<PATH>"))
+            cursor = last_extension.end()
+
+    for segment in _PATH_SEGMENT.finditer(text):
+        if text[end : segment.start()] != "/":
+            append_path(start, end)
+            start = segment.start()
+        end = segment.end()
+    append_path(start, end)
+    parts.append(text[cursor:])
+    return "".join(parts)
 
 
 def redact(text: str) -> str:
     for label, pattern in _COMPILED:
-        text = pattern.sub(label, text)
+        if label == "<EMAIL>":
+            text = _redact_emails(text)
+        elif pattern.pattern == _RELATIVE_PATH:
+            text = _redact_relative_paths(text)
+        elif pattern.pattern in _REVERSED_RULES:
+            text = pattern.sub(label[::-1], text[::-1])[::-1]
+        else:
+            text = pattern.sub(label, text)
     return text
 
 

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -72,7 +74,11 @@ def test_only_exact_flag_enables(log_dir, monkeypatch, value):
         ("use sk-proj-AbC123xyz789QWERTY000 key", "<TOKEN>", "AbC123"),
         ("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.sig_abc", "<TOKEN>", "eyJhbG"),
         ("api_key=hunter2hunter2", "<TOKEN>", "hunter2"),
-        ("ghp_" + "0123456789abcdefghij" "ABCDEFGHIJ012345 leaked", "<TOKEN>", "ghp_"),  # split so secret scanners skip the fake token
+        (
+            "ghp_" + "0123456789abcdefghijABCDEFGHIJ012345 leaked",
+            "<TOKEN>",
+            "ghp_",
+        ),  # split so secret scanners skip the fake token
         ("deploy to api.internal.acme.io today", "<HOST>", "acme"),
         ("ping 10.0.12.7 first", "<HOST>", "10.0.12.7"),
         ("fetch https://acme.com/x?id=9", "<URL>", "acme.com"),
@@ -89,6 +95,73 @@ def test_redaction_replaces_sensitive_spans(raw, placeholder, leak):
 def test_redaction_keeps_plain_goal():
     goal = "qual o valor de pressão arterial mais recente and/or trend"
     assert request_log.redact(goal) == goal
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("a@b+c@d", "<EMAIL><EMAIL>"),
+        ("--a+b@localhost", "--<EMAIL>"),
+        ("é-a@b 中+c@d", "<EMAIL> <EMAIL>"),
+        ("123abc-http://x", "123abc-<URL>"),
+        ("--token=abc123", "--<TOKEN>"),
+        ("foo-eyJfoo.bar.baz", "foo-<TOKEN>"),
+        ("a/b.txt-xyz", "<PATH>-xyz"),
+        ("a/b.txt/c/no_extension", "<PATH>/c/no_extension"),
+        ("--/--/a.a.txt", "--<PATH>"),
+        ("x/.txt", "x/.txt"),
+        ("a.bc-de.fg", "<HOST>"),
+        ("foo_bar.example.com", "foo_bar.<HOST>"),
+    ],
+)
+def test_redaction_preserves_boundaries_and_adjacent_matches(raw, expected):
+    assert request_log.redact(raw) == expected
+
+
+@pytest.mark.parametrize(
+    "shape",
+    [
+        '"a-" * 20000',
+        '"1-" * 20000',
+        '"a." * 20000',
+        '"a/" * 20000',
+        '"token-" * 7000',
+        '"eyJ-" * 10000 + ".payload"',
+        '"a@b+" * 10000',
+    ],
+)
+def test_redaction_of_long_inputs_finishes_under_one_second(shape):
+    # A subprocess timeout also bounds the test if quadratic scanning regresses.
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; "
+            f"sys.path.insert(0, {str(Path(request_log.__file__).resolve().parent.parent)!r}); "
+            "from time import perf_counter; from lcc.request_log import redact; "
+            f"text = {shape}; start = perf_counter(); redact(text); "
+            "print(perf_counter() - start)",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=True,
+    )
+    assert float(result.stdout) < 1
+
+
+def test_log_request_bounds_inputs_before_redaction(log_dir, monkeypatch):
+    monkeypatch.setenv(request_log.ENV_FLAG, "1")
+    calls = []
+
+    def record_redaction(text):
+        calls.append(text)
+        return text
+
+    monkeypatch.setattr(request_log, "redact", record_redaction)
+    request_log.log_request("a-" * 20000, field="1-" * 20000)
+    assert len(calls) == 2
+    assert all(len(text) <= request_log.MAX_GOAL_CHARS for text in calls)
 
 
 def test_ruleset_hash_is_recorded_and_stable(log_dir, monkeypatch):
@@ -267,7 +340,12 @@ def test_redaction_still_keeps_plain_pt_and_en_goals():
         out = request_log.redact(goal)
         assert "<VALUE>" not in out, out
     # prose after a secret keyword, CamelCase / snake_case identifiers and short numbers survive
-    for goal in ("rotate the token tomorrow", "refactor HttpRequestLoggerFactoryBuilder", "fix test_import_v2_requests_cases", "retry 3 times"):
+    for goal in (
+        "rotate the token tomorrow",
+        "refactor HttpRequestLoggerFactoryBuilder",
+        "fix test_import_v2_requests_cases",
+        "retry 3 times",
+    ):
         assert request_log.redact(goal) == goal, goal
 
 

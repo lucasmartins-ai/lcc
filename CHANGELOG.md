@@ -22,6 +22,9 @@ All notable changes to this project are documented here. The format is based on
 
 ### Security
 
+- Request-log redaction avoids repeated scans of long secret names, email addresses,
+  paths and hostnames; goals and fields remain bounded before redaction (#88).
+
 - Existing Jev ledger files are tightened to `0600` before appending (#70).
 - **HTTP server: tool errors no longer echo exception text** (#73). A failing tool call over
   `lcc mcp --http` shows only the handlers' own validation messages (missing `text`, a bad
