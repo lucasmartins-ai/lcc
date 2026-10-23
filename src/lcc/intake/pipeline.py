@@ -53,6 +53,12 @@ def _intake_block(parsed: ParsedIntake, cleaning: DictationClean | None) -> str:
         + (f' reasons="{",".join(parsed.reasons)}"' if parsed.reasons else "")
         + " -->"
     ]
+    if parsed.category:
+        lines.append(
+            f'<!-- lcc-intake:category id="{parsed.category}" '
+            f'p="{parsed.category_probability:.2f}" '
+            f"context_needed: {parsed.category_context} -->"
+        )
     if parsed.risk_flags:
         lines.append(f"<!-- risk_flags: {', '.join(parsed.risk_flags)} -->")
     if cleaning is not None and cleaning.removals:
@@ -159,6 +165,7 @@ class LccIntake:
                 "readiness": parsed.readiness.value,
                 "readiness_score": parsed.readiness_score,
                 "reasons": parsed.reasons,
+                "category": parsed.category,
                 "risk_flags": parsed.risk_flags,
                 "assumptions": parsed.assumptions,
                 "questions": parsed.questions,
@@ -173,6 +180,9 @@ class LccIntake:
                 "reasons": parsed.reasons,
                 "risk_flags": parsed.risk_flags,
                 "ask_count": parsed.ask_count,
+                "category": parsed.category,
+                "category_probability": parsed.category_probability,
+                "category_context": parsed.category_context,
                 "assumptions": parsed.assumptions,
                 "questions": parsed.questions,
                 "brief": asdict(parsed.brief),

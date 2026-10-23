@@ -12,6 +12,8 @@ from bisect import bisect_right
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from lcc.intake.category import classify
+
 
 class ReadinessState(StrEnum):
     """Readiness classification for incoming prompt context."""
@@ -62,6 +64,11 @@ class ParsedIntake:
     risk_flags: list[str] = field(default_factory=list)
     ask_count: int = 0
     dictation: bool = False
+    #: Advisory request category (``lcc.intake.category``); empty below its confidence threshold.
+    category: str = ""
+    category_probability: float = 0.0
+    #: What the agent needs in context for that category; empty when ``category`` is.
+    category_context: str = ""
 
 
 _RISK_PATTERNS = [
@@ -190,6 +197,7 @@ def parse_intake(raw_input: str, *, dictation: bool | None = None) -> ParsedInta
         assumptions.append(f"Executing '{text}' with default technical guidelines.")
 
     readiness = max(states, key=_ORDER.index)
+    category = classify(text)
     score = _SCORES[readiness]
     intent_preview = text[:80] + ("..." if len(text) > 80 else "")
     return ParsedIntake(
@@ -205,4 +213,7 @@ def parse_intake(raw_input: str, *, dictation: bool | None = None) -> ParsedInta
         risk_flags=risk_flags,
         ask_count=asks,
         dictation=dictation,
+        category=category.id if category else "",
+        category_probability=category.probability if category else 0.0,
+        category_context=category.context_needed if category else "",
     )

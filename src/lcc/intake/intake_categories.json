@@ -1,0 +1,61 @@
+{
+ "taxonomy": "request-taxonomy-v2",
+ "categories": {
+  "approve_or_pick": {
+   "name_pt": "Aprovar ou escolher",
+   "context_needed": "The agent's last turn verbatim (proposal, numbered options, failed action being retried), the active plan/todo and current step, plus whatever context the approved action itself needs."
+  },
+  "supply_fact_or_step_done": {
+   "name_pt": "Dado ou passo feito",
+   "context_needed": "The agent's open question or the manual-step checklist it gave, which step was blocked on this value or action, and any attached file. Secret-handling rules if the value looks like a credential."
+  },
+  "task_status_or_control": {
+   "name_pt": "Andamento, próximo passo ou parar",
+   "context_needed": "Task state: plan/todo with done and pending items, running jobs or loops, the agent's recent outputs and tool results, known blockers, and the original scope."
+  },
+  "revise_recent_output": {
+   "name_pt": "Ajustar o que foi entregue",
+   "context_needed": "The artifact being criticized (its source files, render or text), the previous iteration, the user's original brief and supplied assets, and style/voice/design rules (anti-slop, brand)."
+  },
+  "correct_approach_or_rule": {
+   "name_pt": "Corrigir rumo ou definir regra",
+   "context_needed": "The agent's earlier decisions or claims being corrected and why it made them, the original instruction, standing user constraints (preferred tools, browser-bridge rule, cost limits, voice rules), and where rules are persisted (memory/plan)."
+  },
+  "failure_report": {
+   "name_pt": "Algo quebrou",
+   "context_needed": "The pasted error/log verbatim if present; otherwise runtime/CI/deploy logs and job state to fetch. The command or change that preceded it, the code and config the symptom points to, recent changes, sent-history or data records for automations."
+  },
+  "git_ship": {
+   "name_pt": "Commit, push, PR",
+   "context_needed": "git status/diff, branch, remotes, open PR, the list of changes made this session (to commit only its own work), commit conventions and attribution, test/build command."
+  },
+  "handoff_prompt": {
+   "name_pt": "Escrever prompt de continuação",
+   "context_needed": "Compact session state: goal, decisions taken, done and pending items, key file paths, roadmap/phase docs, repo conventions and gates, known pitfalls, any new decisions stated in the request."
+  },
+  "specified_task": {
+   "name_pt": "Tarefa com instrução própria",
+   "context_needed": "The request text in full, every file/path/URL/attachment it names (fetched), the code it targets, repo instructions (AGENTS.md/CONTEXT.md), stack and design conventions, test/deploy commands."
+  },
+  "project_audit_or_direction": {
+   "name_pt": "Auditoria ou rumo do projeto",
+   "context_needed": "Broad repo map, README/CONTEXT/ADR/roadmap, current feature status, product and business facts (users, pricing, goals), relevant prior decisions; a runnable app for UX audits."
+  },
+  "environment_and_infra": {
+   "name_pt": "Ferramentas e infraestrutura",
+   "context_needed": "Agent/harness config files, installed tools/connectors/models list, relevant service config and state (env vars, deploy config, crons, DNS), machine paths, safety rules on credentials and external changes, current docs for the service."
+  },
+  "external_accounts_and_comms": {
+   "name_pt": "Contas externas e mensagens",
+   "context_needed": "Browser bridge/integration availability and login state, outreach/posting pipeline config and caps, sent-message history (avoid duplicates), CRM/lead data, owner profile and voice/anti-slop rules, approval policy for sending."
+  },
+  "general_question": {
+   "name_pt": "Pergunta geral",
+   "context_needed": "The question and the facts it states; web search; at most the user profile."
+  },
+  "UNKNOWN": {
+   "name_pt": "Não dá para saber pelo texto",
+   "context_needed": "The agent's last 1-3 turns and the task state."
+  }
+ }
+}

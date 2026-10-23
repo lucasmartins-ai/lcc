@@ -18,6 +18,12 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Intake request category (advisory).** `lcc intake` and the MCP `intake` tool return
+  `category`, `category_probability` and `category_context` from a frozen local classifier
+  (`lcc.intake.category`, intake judge v1 from lcc-judge: hashed n-gram logistic regression,
+  stdlib only, 1.2 MB, ~0.3 ms per prompt). Shown only at probability >= 0.45 (chosen on dev);
+  readiness is unchanged. Held-out, owner-labelled: 0.51 accuracy vs 0.22 for keyword rules and
+  0.86 for Opus, so it is a hint, not a gate. A missing or altered model disables the field.
 - **Lean stash pointer, opt-in.** `--stash-pointer lean` (CLI) and `stash_pointer: "lean"`
   (MCP), with `--rules-mode stashed`, add the exit status, a failing test or error type, and the
   first line to each pointer: about +13 tokens each. Default stays `plain`. Both forms are fixed
