@@ -15,6 +15,7 @@ from typing import Any, NoReturn
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
 
@@ -2216,6 +2217,10 @@ def measure_session_cmd(
     console.print("[dim]Counts only. Share them: lcc measure-session FILE --markdown[/dim]")
 
 
+#: How many removed speech spans the intake terminal summary lists before pointing at --report.
+INTAKE_SPANS_SHOWN = 40
+
+
 @app.command(name="intake")
 def intake_cmd(
     input_source: str = typer.Argument(
@@ -2373,7 +2378,7 @@ def intake_cmd(
         table.add_row(
             "Speech Cleaning",
             f"{len(cleaning.removals)} span(s), {cleaning.removed_chars} chars removed"
-            + (" (spans in --report)" if cleaning.removals else ""),
+            + (" (listed below)" if cleaning.removals else ""),
         )
     table.add_row("Target Model", model)
     table.add_row("Template", template)
@@ -2392,6 +2397,23 @@ def intake_cmd(
         )
 
     err_console.print(table)
+
+    if result.speech_cleaning is not None and result.speech_cleaning.removals:
+        # Every removed span, so a voice note is never rewritten out of sight. ponytail: capped
+        # for the terminal; --report keeps all of them.
+        shown = result.speech_cleaning.removals[:INTAKE_SPANS_SHOWN]
+        span_lines = [f"{r.start}-{r.end}  {r.text!r}  {r.kind}" for r in shown]
+        hidden = len(result.speech_cleaning.removals) - len(shown)
+        if hidden:
+            span_lines.append(f"... {hidden} more in --report")
+        err_console.print(
+            Panel(
+                escape("\n".join(span_lines)),
+                title="Speech Cleaning (removed: position, text, rule)",
+                border_style="cyan",
+                expand=False,
+            )
+        )
 
     if result.parsed.assumptions:
         assump_text = "\n".join(f"- {a}" for a in result.parsed.assumptions)
