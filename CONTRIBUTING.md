@@ -12,19 +12,26 @@ git clone https://github.com/lucasmartins-ai/lcc
 cd lcc
 
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e ".[dev,tiktoken]"
 ```
+
+New here? Issues labelled
+[good first issue](https://github.com/lucasmartins-ai/lcc/labels/good%20first%20issue) are
+scoped to one module and say how to test them. Questions go to
+[Discussions](https://github.com/lucasmartins-ai/lcc/discussions).
 
 ## Running the checks
 
 ```bash
 python -m pytest          # tests
 ruff check .              # lint
-ruff format --check .     # formatting
 mypy                      # optional static type check
+npm test                  # Node API and Claude Code hook tests
 ```
 
-All four should pass before you open a pull request. New behavior needs tests.
+`pytest` and `ruff check` must pass before you open a pull request; CI runs both. New
+behavior needs tests. `ruff format --check` is not part of the gate (older files predate it),
+so format only the files you touch.
 
 ## Code style
 
@@ -35,8 +42,8 @@ All four should pass before you open a pull request. New behavior needs tests.
   (`cleaning`, `token_budget`, `prompt_builder`, `reporting`, `pipeline`) free of any
   network or LLM dependency — see [docs/adr/0006](docs/adr/0006-determinism-boundary.md).
 - **Do not add heavy dependencies** without a clear justification in the PR description.
-- **Do not implement roadmap features** (RAG, embeddings, local LLMs, model routing,
-  response verification) unless an issue explicitly asks for it. The MVP stays small.
+- **Do not add RAG, embeddings or a vector store**, and do not make a network call the
+  default. Larger features start as an issue first.
 
 ## Commits and pull requests
 
