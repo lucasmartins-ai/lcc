@@ -349,3 +349,18 @@ def test_intake_terminal_summary_shows_bracketed_spans_literally(tmp_path: Path)
     result = runner.invoke(app, ["intake", str(src)])
     assert result.exit_code == 0
     assert "[Music]" in result.output
+
+
+def test_optimize_terminal_summary_lists_speech_edits(tmp_path: Path):
+    src = tmp_path / "talk.srt"
+    src.write_text(
+        "1\n00:00:01,000 --> 00:00:02,000\n[Music]\n"
+        "Speaker 1: Um, the queue, you know, is stuck.\nSpeaker 1: restart it.\n",
+        encoding="utf-8",
+    )
+    result = runner.invoke(app, ["optimize", str(src), "-q", "why?"])
+    assert result.exit_code == 0, result.output
+    assert "Speech Cleaning" in result.output
+    assert "', you know,'" in result.output
+    assert "[Music]" in result.output
+    assert "'\\nSpeaker 1:'" in result.output  # the speaker-turn merge is listed too
