@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -243,6 +244,76 @@ def test_cli_measure_session_empty_directory_fails_cleanly(tmp_path: Path):
     result = CliRunner().invoke(app, ["measure-session", str(tmp_path), "--markdown"])
     assert result.exit_code == 2
     assert "no *.jsonl session files" in result.output
+
+
+def _plant_session(tmp_path: Path, projects: Path, name: str, n: int, mtime: int) -> Path:
+    folder = tmp_path / f"build-{name}"
+    folder.mkdir()
+    path = projects / name
+    _session(folder, n).rename(path)
+    os.utime(path, (mtime, mtime))
+    return path
+
+
+def test_measure_session_latest_picks_the_newest_session(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    monkeypatch.setenv("LCC_STASH_DIR", str(tmp_path / "stash"))
+    home = tmp_path / "config"
+    projects = home / "projects" / "proj"
+    projects.mkdir(parents=True)
+    _plant_session(tmp_path, projects, "older.jsonl", n=4, mtime=1_000_000_000)
+    newest = _plant_session(tmp_path, projects, "newer.jsonl", n=9, mtime=2_000_000_000)
+    (projects / "notes.txt").write_text("not a session", encoding="utf-8")
+    os.utime(projects / "notes.txt", (3_000_000_000, 3_000_000_000))
+    sidechain = projects / "sidechain"
+    sidechain.mkdir()
+    (sidechain / "deeper.jsonl").write_text("", encoding="utf-8")
+    os.utime(sidechain / "deeper.jsonl", (3_000_000_000, 3_000_000_000))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(home))
+    result = CliRunner().invoke(app, ["measure-session", "--latest", "--json"])
+    assert result.exit_code == 0, result.output
+    assert json.loads(result.stdout)["tool_calls"] == 9  # the newest top-level *.jsonl won
+    assert MARKER not in result.stdout and str(newest) not in result.stdout
+    assert str(newest) in result.stderr  # the picked path goes to stderr, stdout stays counts
+
+
+@pytest.mark.parametrize("config_dir", [None, ""])
+def test_measure_session_latest_falls_back_to_home_without_config_dir(
+    tmp_path: Path, monkeypatch, config_dir
+):
+    monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    monkeypatch.setenv("LCC_STASH_DIR", str(tmp_path / "stash"))
+    monkeypatch.setattr(Path, "home", lambda: tmp_path / "home")
+    if config_dir is None:
+        monkeypatch.delenv("CLAUDE_CONFIG_DIR", raising=False)
+    else:
+        monkeypatch.setenv("CLAUDE_CONFIG_DIR", config_dir)
+    projects = tmp_path / "home" / ".claude" / "projects" / "proj"
+    projects.mkdir(parents=True)
+    _plant_session(tmp_path, projects, "session.jsonl", n=6, mtime=1_000_000_000)
+    result = CliRunner().invoke(app, ["measure-session", "--latest", "--json"])
+    assert result.exit_code == 0, result.output
+    assert json.loads(result.stdout)["tool_calls"] == 6
+
+
+def test_measure_session_latest_fails_cleanly_without_sessions(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path))  # no projects/ under it at all
+    result = CliRunner().invoke(app, ["measure-session", "--latest"])
+    assert result.exit_code == 2
+    assert "no Claude Code sessions found" in result.output
+
+
+def test_measure_session_rejects_passing_session_and_latest(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path))
+    result = CliRunner().invoke(app, ["measure-session", str(_session(tmp_path)), "--latest"])
+    assert result.exit_code == 2
+    assert "exactly one" in result.output
+
+
+def test_measure_session_requires_session_or_latest():
+    result = CliRunner().invoke(app, ["measure-session"])
+    assert result.exit_code == 2
+    assert "exactly one" in result.output
 
 
 def test_p90_never_exceeds_the_largest_value():

@@ -2147,14 +2147,26 @@ def stash_verify_cmd(
     sys.stdout.write("every stash pointer resolves and passes its hash\n")
 
 
+def _claude_projects_root() -> Path:
+    """Directory holding Claude Code session transcripts: $CLAUDE_CONFIG_DIR/projects."""
+    config_dir = os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude"
+    return Path(config_dir) / "projects"
+
+
 @app.command(name="measure-session")
 def measure_session_cmd(
-    session: Path = typer.Argument(
-        ...,
+    session: Path | None = typer.Argument(
+        None,
         help="A Claude Code session or Codex CLI rollout file (JSONL; format auto-detected), "
-        "or a directory of them (aggregated per mode).",
+        "or a directory of them (aggregated per mode). Pass exactly one of SESSION and --latest.",
         show_default=False,
         exists=True,
+    ),
+    latest: bool = typer.Option(
+        False,
+        "--latest",
+        help="Measure the most recently modified *.jsonl session under $CLAUDE_CONFIG_DIR "
+        "projects (default: ~/.claude/projects) instead of passing SESSION.",
     ),
     question: str | None = typer.Option(
         None,
@@ -2176,6 +2188,20 @@ def measure_session_cmd(
     ),
 ) -> None:
     """What each compaction mode would do to one of your sessions. Offline, counts only."""
+    if latest:
+        if session is not None:
+            _fail("pass exactly one of SESSION or --latest.", code=2)
+        root = _claude_projects_root()
+        session = max(
+            root.glob("*/*.jsonl"),
+            key=lambda p: (p.stat().st_mtime, str(p)),
+            default=None,
+        )
+        if session is None:
+            _fail(f"no Claude Code sessions found under {root}", code=2)
+        typer.echo(f"Using latest session: {session}", err=True)
+    elif session is None:
+        _fail("pass exactly one of SESSION or --latest.", code=2)
     if session.is_dir():
         from lcc.session_report import DEFAULT_QUESTION, directory_to_markdown, measure_directory
 
