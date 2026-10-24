@@ -324,3 +324,28 @@ def test_compact_rejects_bad_restorations(tmp_path: Path):
         app, ["compact", str(src), "--question", "x", "--max-restorations", "-1"]
     )
     assert result.exit_code == 2
+
+
+def test_intake_terminal_summary_lists_removed_speech_spans(tmp_path: Path):
+    src = tmp_path / "voice.txt"
+    src.write_text(
+        "então tipo eu preciso que você corrija o teste do checkout, né, que tá quebrando, "
+        "tipo, toda vez no CI, sabe, aí dá timeout",
+        encoding="utf-8",
+    )
+    result = runner.invoke(app, ["intake", str(src)])
+    assert result.exit_code == 0
+    assert "Speech Cleaning" in result.output
+    assert "58-63" in result.output and "', né,'" in result.output
+    assert "comma_bounded" in result.output
+
+
+def test_intake_terminal_summary_shows_bracketed_spans_literally(tmp_path: Path):
+    src = tmp_path / "talk.srt"
+    src.write_text(
+        "1\n00:00:01,000 --> 00:00:02,000\n[Music]\nSpeaker 1: the queue is stuck.\n",
+        encoding="utf-8",
+    )
+    result = runner.invoke(app, ["intake", str(src)])
+    assert result.exit_code == 0
+    assert "[Music]" in result.output

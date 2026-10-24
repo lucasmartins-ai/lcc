@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc intake` lists removed speech spans in the terminal.** The summary on stderr only
+  counted them and pointed at `--report`; it now prints each removal (position, text, rule),
+  up to 40, with the rest in `--report`. The JSON report and the MCP tool already carried them.
 - **Recall records in the opt-in ledger.** With `LCC_LEDGER=1` (or `ledger: true` on the MCP
   `recall` tool) each recall appends a counts-only line: outcome (`ok`, `missing`,
   `hash_mismatch` or `invalid`), bytes, seconds since the blob was stashed, whether it was a
