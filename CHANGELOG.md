@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc optimize` lists speech-cleaning edits in the terminal**, like `lcc intake`: each edit's
+  position, removed text and any inserted text, up to 40, with the rest in `--report`.
 - **`lcc intake` lists removed speech spans in the terminal.** The summary on stderr only
   counted them and pointed at `--report`; it now prints each removal (position, text, rule),
   up to 40, with the rest in `--report`. The JSON report and the MCP tool already carried them.
