@@ -126,9 +126,7 @@ def _read_input(source: str) -> str:
         return sys.stdin.read()
     path = Path(source)
     if not path.exists():
-        _fail(
-            f"input file not found: {source}; check the path or pass '-' to read from stdin"
-        )
+        _fail(f"input file not found: {source}; check the path or pass '-' to read from stdin")
     if path.is_dir():
         _fail(f"input path is a directory, not a file: {source}; pass a file path or '-' for stdin")
     try:
@@ -545,6 +543,24 @@ def _print_prepare_skip_summary(
         err_console.print(f"Prompt not written to: [green]{output_path}[/green]")
 
 
+#: How many speech edits a terminal summary lists before pointing at --report.
+SPANS_SHOWN = 40
+
+
+def _print_spans(title: str, lines: list[str]) -> None:
+    """Print every speech edit, so text is never rewritten out of sight.
+
+    ponytail: capped at ``SPANS_SHOWN`` for the terminal; --report keeps all of them.
+    """
+    shown = lines[:SPANS_SHOWN]
+    if len(lines) > SPANS_SHOWN:
+        shown.append(f"... {len(lines) - SPANS_SHOWN} more in --report")
+    # Escaped: transcript tags such as [Music] must print literally, not as Rich markup.
+    err_console.print(
+        Panel(escape("\n".join(shown)), title=title, border_style="cyan", expand=False)
+    )
+
+
 def _print_summary(report: Any, output_path: Path | None, report_path: Path | None) -> None:
     table = Table(title="lcc -- optimization summary", show_header=False, box=None, pad_edge=False)
     table.add_column("metric", style="bold cyan", no_wrap=True)
@@ -556,6 +572,16 @@ def _print_summary(report: Any, output_path: Path | None, report_path: Path | No
         err_console.print(f"Prompt written to: [green]{output_path}[/green]")
     if report_path is not None:
         err_console.print(f"Report written to: [green]{report_path}[/green]")
+    for step in report.cleaning_steps:
+        if step.name == "speech_transcript_cleaning" and step.spans:
+            _print_spans(
+                "Speech Cleaning (position, removed → inserted)",
+                [
+                    f"{e['start']}-{e['end']}  {e['removed']!r}"
+                    + (f" → {e['inserted']!r}" if e["inserted"] else "")
+                    for e in step.spans
+                ],
+            )
     if report.warnings:
         body = "\n".join(f"- {warning}" for warning in report.warnings)
         err_console.print(Panel(body, title="Warnings", border_style="yellow", expand=False))
@@ -1236,8 +1262,7 @@ def _compact_tool_calls(
     )
     table.add_row(
         "Reduction",
-        f"{report['reduction_ratio']:.1%}"
-        + ("" if report["worth_it"] else " (below target)"),
+        f"{report['reduction_ratio']:.1%}" + ("" if report["worth_it"] else " (below target)"),
     )
     table.add_row(
         "Tokens",
@@ -1245,9 +1270,7 @@ def _compact_tool_calls(
     )
     if report["calls"]:
         call_label = (
-            "Laya calls"
-            if str(report.get("provider_used", "")).startswith("laya")
-            else "Jev calls"
+            "Laya calls" if str(report.get("provider_used", "")).startswith("laya") else "Jev calls"
         )
         table.add_row(call_label, f"{report['calls']} ({report['latency_ms']} ms)")
     table.add_row(
@@ -1952,9 +1975,7 @@ def explain_cmd(
         "-s",
         help="Original input file, to show what each block actually contained.",
     ),
-    only: str | None = typer.Option(
-        None, "--only", help="Show only keep, trim or drop decisions."
-    ),
+    only: str | None = typer.Option(None, "--only", help="Show only keep, trim or drop decisions."),
     limit: int | None = typer.Option(None, "--limit", help="Show at most N blocks per group."),
 ) -> None:
     """Explain a compaction report: why each block was kept, trimmed or dropped.
@@ -2004,9 +2025,7 @@ def explain_cmd(
         _fail("--limit must be at least 1", code=2)
 
     try:
-        rendered = render_explanation(
-            payload, only=only, limit=limit, source_text=source_text
-        )
+        rendered = render_explanation(payload, only=only, limit=limit, source_text=source_text)
     except ValueError as exc:
         _fail(str(exc), code=2)
     sys.stdout.write(terminal_safe(rendered) + "\n")
@@ -2015,7 +2034,8 @@ def explain_cmd(
 @app.command(name="recall")
 def recall_cmd(
     stash_id: str = typer.Argument(
-        ..., help="The id after 'lcc recall' in a stashed pointer (12-64 hex chars).",
+        ...,
+        help="The id after 'lcc recall' in a stashed pointer (12-64 hex chars).",
         show_default=False,
     ),
     lines: str | None = typer.Option(None, "--lines", help="Only lines a-b (1-based)."),
@@ -2080,7 +2100,8 @@ def stash_ls_cmd(
 def stash_gc_cmd(
     root: list[Path] | None = typer.Option(None, "--root", help=_ROOT_HELP),
     older_than: str = typer.Option(
-        "30d", "--older-than",
+        "30d",
+        "--older-than",
         help="Only blobs not put or recalled for this long (30d, 12h; at least 1h).",
     ),
     apply: bool = typer.Option(
@@ -2132,7 +2153,8 @@ def measure_session_cmd(
         ...,
         help="A Claude Code session or Codex CLI rollout file (JSONL; format auto-detected), "
         "or a directory of them (aggregated per mode).",
-        show_default=False, exists=True,
+        show_default=False,
+        exists=True,
     ),
     question: str | None = typer.Option(
         None,
@@ -2177,8 +2199,9 @@ def measure_session_cmd(
         from lcc import input_map as imap
 
         if question is not None:
-            _fail("--question has no effect with --input-map, which runs no compaction mode.",
-                  code=2)
+            _fail(
+                "--question has no effect with --input-map, which runs no compaction mode.", code=2
+            )
 
         report = imap.input_map(session)
         rendered = json.dumps(report, indent=2) if as_json else imap.to_markdown(report)
@@ -2198,7 +2221,8 @@ def measure_session_cmd(
     table = Table(
         title=f"{report['messages']} messages · {report['tool_calls']} tool calls · "
         f"{report['tokens_before']:,} tokens ({report['token_count_method']})",
-        box=None, pad_edge=False,
+        box=None,
+        pad_edge=False,
     )
     for column in ("mode", "tokens after", "reduction", "texts kept", "stashed", "time"):
         table.add_column(column, justify="left" if column == "mode" else "right")
@@ -2207,18 +2231,17 @@ def measure_session_cmd(
             table.add_row(row["mode"], f"did not run ({row['error']})", "", "", "", "")
             continue
         table.add_row(
-            row["mode"], f"{row['tokens_after']:,}", f"{row['reduction']:.1%}",
-            f"{report['texts'] - row['texts_lost']}/{report['texts']}", str(row["stashed"]),
+            row["mode"],
+            f"{row['tokens_after']:,}",
+            f"{row['reduction']:.1%}",
+            f"{report['texts'] - row['texts_lost']}/{report['texts']}",
+            str(row["stashed"]),
             f"{row['ms']} ms",
         )
     console.print(table)
     if report.get("token_count_note"):
         console.print(f"[yellow]Approximate counts:[/yellow] {report['token_count_note']}")
     console.print("[dim]Counts only. Share them: lcc measure-session FILE --markdown[/dim]")
-
-
-#: How many removed speech spans the intake terminal summary lists before pointing at --report.
-INTAKE_SPANS_SHOWN = 40
 
 
 @app.command(name="intake")
@@ -2399,20 +2422,9 @@ def intake_cmd(
     err_console.print(table)
 
     if result.speech_cleaning is not None and result.speech_cleaning.removals:
-        # Every removed span, so a voice note is never rewritten out of sight. ponytail: capped
-        # for the terminal; --report keeps all of them.
-        shown = result.speech_cleaning.removals[:INTAKE_SPANS_SHOWN]
-        span_lines = [f"{r.start}-{r.end}  {r.text!r}  {r.kind}" for r in shown]
-        hidden = len(result.speech_cleaning.removals) - len(shown)
-        if hidden:
-            span_lines.append(f"... {hidden} more in --report")
-        err_console.print(
-            Panel(
-                escape("\n".join(span_lines)),
-                title="Speech Cleaning (removed: position, text, rule)",
-                border_style="cyan",
-                expand=False,
-            )
+        _print_spans(
+            "Speech Cleaning (removed: position, text, rule)",
+            [f"{r.start}-{r.end}  {r.text!r}  {r.kind}" for r in result.speech_cleaning.removals],
         )
 
     if result.parsed.assumptions:
@@ -2593,12 +2605,9 @@ def mcp_cmd(
 
 
 def cli_main() -> None:
-
-
     """Console-script entry point (``lcc``)."""
     app()
 
 
 if __name__ == "__main__":
     cli_main()
-
