@@ -46,11 +46,14 @@ right (our reimplementation of `/compact`, written by Opus); full and verbatim c
 
 ```sh
 pip install "local-context-compiler[tiktoken]"   # the CLI is `lcc`
+lcc fetch-tokenizer                               # once: exact token counts
 lcc measure-session "$(ls -t ~/.claude/projects/*/*.jsonl | head -1)"   # your latest session
 ```
 
-The second line reads your most recent Claude Code session, runs every mode offline and prints
-counts only. Nothing is changed and nothing leaves the machine.
+`fetch-tokenizer` downloads tiktoken's encoding files once; it is the only lcc command that goes
+online, and without it counts are labelled approximate. The last line reads your most recent
+Claude Code session, runs the rules modes offline in seconds and prints counts only. Nothing is
+changed and nothing leaves the machine.
 
 **Claude Code plugin** (replaces the `/compact` summary). Function hooks are early access, so
 this needs **Claude Code 2.1.274+ and the flag below**:

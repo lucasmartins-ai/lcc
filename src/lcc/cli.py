@@ -2147,6 +2147,18 @@ def stash_verify_cmd(
     sys.stdout.write("every stash pointer resolves and passes its hash\n")
 
 
+@app.command(name="fetch-tokenizer")
+def fetch_tokenizer_cmd() -> None:
+    """Download tiktoken's encodings once so counts are exact. The only command that goes online."""
+    from lcc.token_budget.counters import FETCH_ENCODINGS, fetch_tokenizer
+
+    try:
+        target = fetch_tokenizer()
+    except Exception as exc:  # noqa: BLE001 - network or install problem, shown to the user
+        _fail(f"could not fetch the tokenizer: {exc}", code=1)
+    sys.stdout.write(f"{', '.join(FETCH_ENCODINGS)} cached in {target}; counts are exact now.\n")
+
+
 @app.command(name="measure-session")
 def measure_session_cmd(
     session: Path = typer.Argument(

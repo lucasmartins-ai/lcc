@@ -11,8 +11,10 @@ from __future__ import annotations
 
 import contextlib
 import importlib
+import os
 import threading
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
 from lcc.schemas import TokenCount, TokenCountMethod
@@ -29,15 +31,39 @@ except Exception:  # pragma: no cover - exercised only when tiktoken is absent
     _HAS_TIKTOKEN = False
 
 _DEFAULT_ENCODING = "cl100k_base"
+#: Encodings `lcc fetch-tokenizer` downloads: the default plus o200k_base (gpt-4.1/4o).
+FETCH_ENCODINGS = (_DEFAULT_ENCODING, "o200k_base")
+#: Where `lcc fetch-tokenizer` stores tiktoken's files. Used only when TIKTOKEN_CACHE_DIR is
+#: unset and the directory exists, so an explicit user setting always wins.
+_CACHE_HOME = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+TOKENIZER_CACHE = _CACHE_HOME / "lcc" / "tiktoken"
+if "TIKTOKEN_CACHE_DIR" not in os.environ and TOKENIZER_CACHE.is_dir():
+    os.environ["TIKTOKEN_CACHE_DIR"] = str(TOKENIZER_CACHE)  # tiktoken reads it per call
 
 #: Notes recorded on a ``TokenCount`` so a report or warning can explain an approximate
 #: result honestly (ADR 0005/0008). Each names a distinct, non-overlapping cause.
 _NOTE_TIKTOKEN_MISSING = "tiktoken is not installed; used the heuristic estimator."
 _NOTE_NETWORK_BLOCKED = (
     "tiktoken would need to download encoding assets, which lcc blocks to stay offline; "
-    "used the heuristic estimator. Pre-cache the tokenizer (for example, set "
-    "TIKTOKEN_CACHE_DIR to a populated directory) to enable exact counts."
+    "used the heuristic estimator. Run `lcc fetch-tokenizer` once (the only command that "
+    "goes online) or set TIKTOKEN_CACHE_DIR to a populated directory for exact counts."
 )
+
+
+def fetch_tokenizer() -> Path:
+    """Download the tiktoken encodings into :data:`TOKENIZER_CACHE`, with network allowed.
+
+    The one place lcc touches the network for the tokenizer, and only when the user runs
+    `lcc fetch-tokenizer` (ADR 0008). Returns the cache directory.
+    """
+    if not _HAS_TIKTOKEN:
+        raise RuntimeError(_NOTE_TIKTOKEN_MISSING)
+    target = Path(os.environ.get("TIKTOKEN_CACHE_DIR") or TOKENIZER_CACHE)
+    target.mkdir(parents=True, exist_ok=True)
+    os.environ["TIKTOKEN_CACHE_DIR"] = str(target)
+    for name in FETCH_ENCODINGS:
+        tiktoken.get_encoding(name)
+    return target
 
 
 class TokenizerNetworkBlocked(RuntimeError):
