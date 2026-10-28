@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+
+- **`lcc measure-session` runs the two rules modes by default; `auto` needs `--auto`.** The
+  `auto` arm took about 4 minutes of a 4-minute run on a 10k-message session, so the README's
+  "run it on your latest session" line looked hung. The default now returns in seconds; the
+  report's `modes` list has two rows unless `--auto` is passed (directories too).
+
 ### Added
 
 - **`lcc optimize` lists speech-cleaning edits in the terminal**, like `lcc intake`: each edit's

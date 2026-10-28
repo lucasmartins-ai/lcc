@@ -85,7 +85,7 @@ def test_measure_reports_counts_per_mode_and_never_text(tmp_path: Path, monkeypa
     monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
     stash_home = tmp_path / "home-stash"
     monkeypatch.setenv("LCC_STASH_DIR", str(stash_home))
-    report = measure_session(_session(tmp_path))
+    report = measure_session(_session(tmp_path), include_auto=True)
     modes = {row["mode"]: row for row in report["modes"]}
     assert {"rules:lossless", "rules:stashed", "auto"} <= set(modes)
     assert report["messages"] > 0 and report["tool_calls"] == 12
@@ -174,7 +174,7 @@ def test_measure_cli_question_reaches_compaction_request(
         app, ["measure-session", str(_session(tmp_path, 1)), "--json", *options]
     )
     assert result.exit_code == 0, result.output
-    assert seen == [expected] * 3
+    assert seen == [expected] * 2  # the two rules modes; `auto` needs --auto
     report = json.loads(result.output)
     assert all("error" not in mode for mode in report["modes"])
     assert expected not in result.output
@@ -203,7 +203,7 @@ def test_measure_directory_aggregates_median_and_p90_per_mode(tmp_path: Path, mo
     report = measure_directory(project)
     assert report["sessions"] == 3
     modes = {row["mode"]: row for row in report["modes"]}
-    assert set(modes) == {"rules:lossless", "rules:stashed", "auto"}
+    assert set(modes) == {"rules:lossless", "rules:stashed"}  # `auto` is opt-in (--auto)
     singles = [measure_session(project / f"s{i}.jsonl") for i in range(3)]
     stashed = sorted(
         row["reduction"] for r in singles for row in r["modes"] if row["mode"] == "rules:stashed"
@@ -250,3 +250,14 @@ def test_p90_never_exceeds_the_largest_value():
 
     assert _p90([0.2, 0.3, 0.4]) <= 0.4
     assert _p90([0.5]) == 0.5
+
+
+def test_auto_mode_is_opt_in(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("LCC_DISABLE_NETWORK", "1")
+    monkeypatch.setenv("LCC_STASH_DIR", str(tmp_path / "stash"))
+    session = _session(tmp_path)
+    assert [row["mode"] for row in measure_session(session)["modes"]] == [
+        "rules:lossless",
+        "rules:stashed",
+    ]
+    assert "auto" in [row["mode"] for row in measure_session(session, include_auto=True)["modes"]]

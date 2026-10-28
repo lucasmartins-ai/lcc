@@ -2174,6 +2174,11 @@ def measure_session_cmd(
         help="Instead of the modes, show where the session's billed input tokens go, by "
         "category, with the cache read/write split.",
     ),
+    include_auto: bool = typer.Option(
+        False,
+        "--auto",
+        help="Also run the `auto` provider. It can take minutes on a long session.",
+    ),
 ) -> None:
     """What each compaction mode would do to one of your sessions. Offline, counts only."""
     if session.is_dir():
@@ -2183,7 +2188,9 @@ def measure_session_cmd(
             _fail("--input-map takes one session file, not a directory.", code=2)
         try:
             report = measure_directory(
-                session, question=DEFAULT_QUESTION if question is None else question
+                session,
+                question=DEFAULT_QUESTION if question is None else question,
+                include_auto=include_auto,
             )
         except ValueError as exc:
             _fail(str(exc), code=2)
@@ -2214,7 +2221,11 @@ def measure_session_cmd(
         return
     from lcc.session_report import DEFAULT_QUESTION, measure_session, to_markdown
 
-    report = measure_session(session, question=DEFAULT_QUESTION if question is None else question)
+    report = measure_session(
+        session,
+        question=DEFAULT_QUESTION if question is None else question,
+        include_auto=include_auto,
+    )
     if as_json or markdown:
         sys.stdout.write((json.dumps(report, indent=2) if as_json else to_markdown(report)) + "\n")
         return

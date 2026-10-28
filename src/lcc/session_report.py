@@ -22,11 +22,16 @@ SCHEMA = "lcc-session-report/1"
 DIRECTORY_SCHEMA = "lcc-session-directory-report/1"
 DEFAULT_QUESTION = "finish the task in this session"
 #: (label, provider, rules_mode). `recoverable` is left out: it needs the session's disk.
+#: The rules modes take seconds; `auto` can take minutes on a long session, so it is opt-in.
 MODES: tuple[tuple[str, str, str], ...] = (
     ("rules:lossless", "rules", "lossless"),
     ("rules:stashed", "rules", "stashed"),
-    ("auto", "auto", "lossless"),  # rules_mode is ignored outside provider "rules"
 )
+AUTO_MODE = ("auto", "auto", "lossless")  # rules_mode is ignored outside provider "rules"
+
+
+def _modes(include_auto: bool) -> tuple[tuple[str, str, str], ...]:
+    return (*MODES, AUTO_MODE) if include_auto else MODES
 
 
 def _result_text(content: Any) -> str:
@@ -208,7 +213,9 @@ def _norm(text: str) -> str:
     return " ".join(text.split())
 
 
-def measure_session(path: Path, question: str = DEFAULT_QUESTION) -> dict[str, Any]:
+def measure_session(
+    path: Path, question: str = DEFAULT_QUESTION, include_auto: bool = False
+) -> dict[str, Any]:
     from lcc import __version__
     from lcc.relevance.transcript import (
         TranscriptCompactionRequest,
@@ -225,7 +232,7 @@ def measure_session(path: Path, question: str = DEFAULT_QUESTION) -> dict[str, A
     with tempfile.TemporaryDirectory(prefix="lcc-measure-") as scratch:
         os.environ["LCC_STASH_DIR"] = scratch  # never the user's real stash
         try:
-            for label, provider, rules_mode in MODES:
+            for label, provider, rules_mode in _modes(include_auto):
                 started = time.perf_counter()
                 try:
                     result = compact_transcript(
@@ -306,7 +313,9 @@ def _p90(values: list[float]) -> float:
     return statistics.quantiles(values, n=10, method="inclusive")[-1]
 
 
-def measure_directory(path: Path, question: str = DEFAULT_QUESTION) -> dict[str, Any]:
+def measure_directory(
+    path: Path, question: str = DEFAULT_QUESTION, include_auto: bool = False
+) -> dict[str, Any]:
     """Measure every ``*.jsonl`` session directly in ``path`` and aggregate per mode.
 
     Reports the session count and, per mode, the median and p90 reduction over the sessions
@@ -317,9 +326,12 @@ def measure_directory(path: Path, question: str = DEFAULT_QUESTION) -> dict[str,
     sessions = sorted(p for p in path.glob("*.jsonl") if p.is_file())
     if not sessions:
         raise ValueError(f"no *.jsonl session files in {path.name or path}")
-    reports = [measure_session(session, question=question) for session in sessions]
+    reports = [
+        measure_session(session, question=question, include_auto=include_auto)
+        for session in sessions
+    ]
     rows: list[dict[str, Any]] = []
-    for label, _provider, _rules_mode in MODES:
+    for label, _provider, _rules_mode in _modes(include_auto):
         values = [
             row["reduction"]
             for report in reports
