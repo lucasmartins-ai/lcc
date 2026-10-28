@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **`lcc fetch-tokenizer`** downloads tiktoken's `cl100k_base` and `o200k_base` once into
+  `~/.cache/lcc/tiktoken` (or `TIKTOKEN_CACHE_DIR` when set), and lcc uses that directory when
+  `TIKTOKEN_CACHE_DIR` is unset. Before, a fresh `pip install "...[tiktoken]"` still counted
+  approximately, because lcc blocks the download to stay offline (ADR 0008), and the fix was an
+  environment variable. Normal operation is still offline; this command is the explicit exception.
+  On one 3,898-message session the heuristic said 523,741 tokens and the exact count was 844,444.
+
 ### Changed
 
 - **`lcc measure-session` runs the two rules modes by default; `auto` needs `--auto`.** The

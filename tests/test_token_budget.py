@@ -7,6 +7,7 @@ are unavailable offline. None of these tests require real network access.
 
 from __future__ import annotations
 
+import os
 import types
 from typing import Any
 
@@ -298,3 +299,19 @@ def test_special_token_text_is_counted_by_tiktoken():
     if not _fallback_encoding_available_offline():
         pytest.skip("default tiktoken encoding assets are not cached offline")
     assert count_tokens("hello <|endoftext|> world").counter == "tiktoken"
+
+
+def test_fetch_tokenizer_fills_the_cache_dir_with_network_allowed(tmp_path, monkeypatch):
+    fetched = []
+
+    def _get_encoding(name):
+        assert counters._GUARDED_THREADS == {}  # explicit fetch: the guard is not active
+        fetched.append((name, os.environ["TIKTOKEN_CACHE_DIR"]))
+
+    monkeypatch.setattr(counters, "tiktoken", types.SimpleNamespace(get_encoding=_get_encoding))
+    monkeypatch.setattr(counters, "_HAS_TIKTOKEN", True)
+    monkeypatch.setenv("TIKTOKEN_CACHE_DIR", str(tmp_path / "cache"))
+
+    assert counters.fetch_tokenizer() == tmp_path / "cache"
+    assert (tmp_path / "cache").is_dir()
+    assert fetched == [(name, str(tmp_path / "cache")) for name in counters.FETCH_ENCODINGS]
