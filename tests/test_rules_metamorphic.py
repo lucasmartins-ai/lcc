@@ -128,8 +128,13 @@ def test_an_unrelated_call_changes_no_other_decision(
     at = data.draw(st.sampled_from(candidates))
     # `pwd` is read-only (no later write), its output is unique, and it names no file.
     extra = pair("zz-unrelated", "Bash", {"command": "pwd"}, "/zz/unrelated-output")
+    inserted = insert(payload, at, extra)
     before = decide(payload, goal, mode)
-    after = decide(insert(payload, at, extra), goal, mode)
+    after = decide(inserted, goal, mode)
+    # recoverable/stashed build on the lossy rules and may show another reason there (a lossless
+    # dedupe), so read the positional protection from lossy, before and after the insertion.
+    rules = before if mode == "lossy" else decide(payload, goal, "lossy")
+    rules_after = after if mode == "lossy" else decide(inserted, goal, "lossy")
     last = len(payload) - 1  # last message index
     for call_id, (decision, reason, index) in before.items():
         # Two messages were inserted: a call before the slot ages by 2 and may cross a threshold.
@@ -138,7 +143,9 @@ def test_an_unrelated_call_changes_no_other_decision(
             < old_age + 2
         # `call_before_latest_error` is positional by design: a call inserted right before the
         # latest error becomes that "call before".
-        if crosses or reason == "call_before_latest_error":
+        moved = (rules[call_id][1] == "call_before_latest_error"
+                 and rules_after[call_id][1] != "call_before_latest_error")
+        if crosses or reason == "call_before_latest_error" or moved:
             continue
         assert after[call_id][:2] == (decision, reason), (
             f"{mode}: an unrelated call at {at} moved {call_id}: "
