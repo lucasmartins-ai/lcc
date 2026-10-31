@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-31
+
 ### Added
 
 - **`lcc fetch-tokenizer`** downloads tiktoken's `cl100k_base` and `o200k_base` once into
@@ -1072,7 +1074,8 @@ response verification — those remain roadmap items (see `docs/roadmap.md`).
   `CODE_OF_CONDUCT.md`, the `docs/` set (architecture, evaluation, roadmap, release, ADRs),
   examples, and agent guidance (`CLAUDE.md`, `AGENTS.md`).
 
-[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/lucasmartins-ai/lcc/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/lucasmartins-ai/lcc/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/lucasmartins-ai/lcc/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/lucasmartins-ai/lcc/compare/v0.5.0...v1.0.0
