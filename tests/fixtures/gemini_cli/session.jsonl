@@ -1,0 +1,19 @@
+{"sessionId":"fixture-session-0001","projectHash":"959f592f40738cdb907ad97e2a8ae12cb46d55953776bdd4d8d3f6567576c00c","startTime":"2026-11-02T12:27:16.246Z","lastUpdated":"2026-11-02T12:27:16.246Z","kind":"main"}
+{"id":"user-1","timestamp":"2026-11-02T12:27:16.247Z","type":"user","content":[{"text":"Keep spacing exactly:  café  \n"},{"text":"\tsecond line\r\n"}]}
+{"$set":{"lastUpdated":"2026-11-02T12:27:16.248Z"}}
+{"id":"assistant-1","timestamp":"2026-11-02T12:27:16.248Z","type":"gemini","content":[{"text":"I will inspect two fixture files.\n"}],"thoughts":[],"tokens":null,"model":"fixture-model"}
+{"$set":{"lastUpdated":"2026-11-02T12:27:16.250Z"}}
+{"id":"assistant-1","timestamp":"2026-11-02T12:27:16.248Z","type":"gemini","content":[{"text":"I will inspect two fixture files.\n"}],"thoughts":[],"tokens":null,"model":"fixture-model","toolCalls":[{"id":"call-1","name":"read_file","args":{"file_path":"hello.txt"},"status":"executing","timestamp":"2026-11-02T00:00:00.000Z","displayName":"read_file","description":"","renderOutputAsMarkdown":false},{"id":"call-2","name":"read_file","args":{"file_path":"other.txt"},"status":"executing","timestamp":"2026-11-02T00:00:00.000Z","displayName":"read_file","description":"","renderOutputAsMarkdown":false}]}
+{"id":"assistant-1","timestamp":"2026-11-02T12:27:16.248Z","type":"gemini","content":[{"text":"I will inspect two fixture files.\n"}],"thoughts":[],"tokens":null,"model":"fixture-model","toolCalls":[{"id":"call-1","name":"read_file","args":{"file_path":"hello.txt"},"status":"success","timestamp":"2026-11-02T00:00:00.000Z","displayName":"read_file","description":"","renderOutputAsMarkdown":false,"result":[{"functionResponse":{"id":"call-1","name":"read_file","response":{"output":"hello\n"}}}]},{"id":"call-2","name":"read_file","args":{"file_path":"other.txt"},"status":"success","timestamp":"2026-11-02T00:00:00.000Z","displayName":"read_file","description":"","renderOutputAsMarkdown":false,"result":[{"functionResponse":{"id":"call-2","name":"read_file","response":{"output":"world\n"}}}]}]}
+{"id":"discarded-user","timestamp":"2026-11-02T12:27:16.253Z","type":"user","content":"This branch is discarded."}
+{"$set":{"lastUpdated":"2026-11-02T12:27:16.253Z"}}
+{"id":"discarded-assistant","timestamp":"2026-11-02T12:27:16.254Z","type":"gemini","content":"This answer is discarded.","thoughts":[],"tokens":null,"model":"fixture-model"}
+{"$set":{"lastUpdated":"2026-11-02T12:27:16.254Z"}}
+{"$rewindTo":"discarded-user"}
+{"id":"user-2","timestamp":"2026-11-02T12:27:16.255Z","type":"user","content":"Keep the final summary short.\n"}
+{"$set":{"lastUpdated":"2026-11-02T12:27:16.256Z"}}
+{"id":"assistant-2","timestamp":"2026-11-02T12:27:16.256Z","type":"gemini","content":"The fixture greeting is hello.\n","thoughts":[],"tokens":null,"model":"fixture-model"}
+{"$set":{"lastUpdated":"2026-11-02T12:27:16.257Z"}}
+{"id":"tool-results","timestamp":"2026-11-02T12:27:16.258Z","type":"user","content":[{"functionResponse":{"id":"call-1","name":"read_file","response":{"output":"hello\n"}}},{"functionResponse":{"id":"call-2","name":"read_file","response":{"output":"world\n"}}}]}
+{"$patch":{"updates":[{"id":"user-2","content":[{"text":"Keep the final summary short.\n"}]},{"id":"assistant-2","content":[{"text":"The fixture greeting is hello.\n"}]},{"id":"assistant-1","toolCalls":[{"id":"call-1","result":[{"functionResponse":{"id":"call-1","name":"read_file","response":{"output":"hello\n"}}},{"functionResponse":{"id":"call-2","name":"read_file","response":{"output":"world\n"}}}]},{"id":"call-2","result":[{"functionResponse":{"id":"call-1","name":"read_file","response":{"output":"hello\n"}}},{"functionResponse":{"id":"call-2","name":"read_file","response":{"output":"world\n"}}}]}]}],"orderIds":["user-1","assistant-1","tool-results","user-2","assistant-2"]}}
+{"$set":{"lastUpdated":"2026-11-02T12:27:16.260Z"}}

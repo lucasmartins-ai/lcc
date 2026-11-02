@@ -2163,7 +2163,7 @@ def fetch_tokenizer_cmd() -> None:
 def measure_session_cmd(
     session: Path = typer.Argument(
         ...,
-        help="A Claude Code session or Codex CLI rollout file (JSONL; format auto-detected), "
+        help="A Claude Code, Codex CLI or Gemini CLI session (JSONL; format auto-detected), "
         "or a directory of them (aggregated per mode).",
         show_default=False,
         exists=True,
