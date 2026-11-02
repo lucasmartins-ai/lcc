@@ -50,6 +50,9 @@ lcc fetch-tokenizer                               # once: exact token counts
 lcc measure-session "$(ls -t ~/.claude/projects/*/*.jsonl | head -1)"   # your latest session
 ```
 
+The PyPI package is `local-context-compiler`. `pip install lcc` installs an unrelated astronomy
+package that happens to own that name.
+
 `fetch-tokenizer` downloads tiktoken's encoding files once; it is the only lcc command that goes
 online, and without it counts are labelled approximate. The last line reads your most recent
 Claude Code session, runs the rules modes offline in seconds and prints counts only. Nothing is
