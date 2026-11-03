@@ -1,7 +1,8 @@
 # LongHealth v1: do verbatim compaction and a deterministic check hold up on clinical records? (draft 2026-11-03)
 
-**Status: DRAFT, not frozen.** It becomes binding when committed with the owner's route approval line (Run order,
-step 2). Record texts, questions, options and answers never enter this repository (see Data use); only counts,
+**Status: binding draft, not frozen.** The owner approved the route and cap on 2026-11-03 (Run order, step 2), so the
+hypotheses, gates and criteria above the Amendments can now change only by a dated amendment. The harness freeze
+(step 4) is still to come. Record texts, questions, options and answers never enter this repository (see Data use); only counts,
 aggregates and per-item 0/1 scores keyed by ids do. Results are tagged INFERIDO until `gateClaim` returns PASS on
 them.
 
@@ -314,6 +315,8 @@ time. It takes a lock file, and a second driver refuses to start (the `stashed-r
 
 1. This file committed as draft.
 2. Owner approves the route and cap (dated line here).
+   **Approved 2026-11-03 by the owner: subscription CLI, $0 cash, hard cap 650 calls, harness and pilot next**
+   ("I approve", in reply to "Do you approve the study's route and cap (650 calls on the subscription, $0)?").
 3. Harness and tests in `benchmarks/research/longhealth-v1/`: builder, compaction runner, independent stash check,
    recall shim, verifier, scorer. Pilot on the 2 pilot-pool targets.
 4. Freeze amendment: LCC pin, sha256 of the harness, Q-T, Q-0, Q-N, S-clin and the green test log.
