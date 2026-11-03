@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **Draft pre-registration of a public clinical study, `benchmarks/research/longhealth-v1/PROTOCOL.md`.**
+  Every number in `docs/EVIDENCE.md` comes from the maintainer's own sessions. This protocol runs `stashed` +
+  `recall`, two summaries and an oracle-free verifier on LongHealth, 20 fictional patients that anyone can download.
+  It declares the arms, gates, hypotheses and budget before any answer exists. It is not frozen and has no results
+  yet.
+
 ## [1.3.0] - 2026-10-31
 
 ### Added
