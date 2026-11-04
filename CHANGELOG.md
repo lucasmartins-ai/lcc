@@ -21,6 +21,10 @@ All notable changes to this project are documented here. The format is based on
   `recall`, two summaries and an oracle-free verifier on LongHealth, 20 fictional patients that anyone can download.
   It declares the arms, gates, hypotheses and budget before any answer exists. It is not frozen and has no results
   yet.
+- **LongHealth v1 harness and pilot report, `benchmarks/research/longhealth-v1/`.** `longhealth_v1.py` builds the
+  sessions, compacts them with lcc, runs the arms through subscription `claude -p` under a 650-call cap, and
+  scores them; `recall_shim.py` serves `recall` over MCP. `PILOT.md` reports the 2-patient pilot and the decisions
+  it leaves before the freeze. D has not run.
 
 ## [1.3.0] - 2026-10-31
 

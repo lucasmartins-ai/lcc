@@ -74,7 +74,7 @@ LongHealth paper's tables**.
 - LCC at the pin recorded at freeze (today `origin/main` `cab0da0`, release 1.3.0). It runs offline from a detached
   worktree with a clean tree.
 - Settings: `provider="rules"`, `rules_mode="stashed"`, the default `preserve_recent` (6), no `workspace_root`,
-  plain pointers.
+  plain pointers. (Amendment 1: `head` pointers.)
 - **Compaction is query-blind.** `question` is the same fixed text for every session: `Answer questions about one
   patient from today's list.` It names no file, patient or value. So stashing, like the summary writers, never
   sees `P`, and H2 compares the two compactions with the same access.
@@ -246,7 +246,7 @@ Every catch, re-ask and forced F is logged with the check that caused it.
 - PASS iff the CI lower bounds of `stashed_t − summary_s` **and** `stashed_t − summary_clin` are both > 0.
 - This is not a matched-budget comparison. The summaries are smaller, and both sizes are reported.
 
-**H3 (primary, the deterministic check).** On `unans`, `stashed_v` gives fewer unsupported answers than `stashed_t`
+**H3 (primary, the deterministic check; descriptive since Amendment 1).** On `unans`, `stashed_v` gives fewer unsupported answers than `stashed_t`
 without costing more than the margin on answerable questions. PASS iff both:
 - the CI upper bound of UA(`stashed_v`) − UA(`stashed_t`) is < 0. Fewer refusals or formatting failures cannot
   meet this; only fewer A–E choices about absent patients can.
@@ -327,4 +327,44 @@ time. It takes a lock file, and a second driver refuses to start (the `stashed-r
 
 ## Amendments
 
-None yet.
+### Amendment 1 (2026-11-04, after the pilot, before the freeze)
+
+The pilot (`PILOT.md`) left four decisions to the owner. The answer, verbatim: "concordo com d1 - d3 e prefiro que
+constuir um ponteiro" (D1–D3 as recommended in `PILOT.md`, and D4 option (b)).
+
+- **D1. H3 becomes descriptive.** In the pilot, UA was 0/40 in every arm, so H3's first criterion could not be met.
+  `stashed_v` stays in D, and its UA, U, A against `stashed_t`, the verifier's catches, re-asks and forced F are
+  reported with CIs and no pass claim. H1 and H2 are unchanged.
+- **D2. The verifier is unchanged.** Its three checks stay as written, though the pilot showed the number check
+  flagging right answers. Changing it after seeing its pilot effect is the tuning the risk table rules out.
+- **D3. Summary calls get up to 5 infrastructure attempts; other calls keep 3.**
+  - A reply with no tools that comes back over more than one turn counts as an infrastructure failure. The CLI
+    resumed a cut reply and returned only its tail in 4 of 6 `ans_early` S-clin attempts.
+  - Each attempt's tokens stay in the arm's cumulative usage, and split counts are reported per arm
+    (`split_replies` in the results).
+  - At the pilot's split rate D needs about 36 extra calls. The 650-call cap still binds: a run that reaches it
+    stops, and the sessions it leaves count as V2 drops.
+- **D4. The stashed arms use `head` pointers.** This is a new opt-in lcc pointer: the lean fields with the first
+  line replaced by the opening of the removed text, at most 160 characters across lines.
+  - In the pilot every record opened with a salutation. The plain and lean pointers therefore said nothing about
+    whom a removed record was about. In one of the two `ans_early` sessions the model made no recall call and
+    answered F to all 20 questions.
+  - In the 6 pilot sessions, head pointers named the right patient in 115 of 115 stashed records.
+  - The pointer reads only the stashed bytes. It never sees `P` or the goal, so compaction stays query-blind.
+  - Q-T's marker description becomes `[removed: N lines, S KB · "<the opening of the removed text>" · lcc recall
+    <id>]`. Q-0 follows Q-T, as before.
+  - The LCC pin becomes the commit that ships `head`, recorded at the freeze.
+- **Re-pilot.** `stashed_t`, `stashed_0` and `stashed_v` (with its re-asks) rerun on the same 2 pilot targets with
+  head pointers. The other arms do not depend on the pointer and are reused. The plain-pointer pilot answers are
+  kept beside them for comparison.
+- **Clarifications from the harness**, recorded before the freeze:
+  - The re-ask is a new call. It carries the first pass's prompt, the recalled texts exactly as the shim emitted
+    them, the first answer and the failed checks.
+  - `recall` is capped at 8 calls per answer and 20,000 tokens per call. A longer text returns its first tokens
+    and a note to pass `lines`.
+  - Transport retries: 2 per driver run, within each call's attempt limit.
+  - Prompt order: context, then `P`, then Q-T (or Q-0).
+  - V4 is one call.
+  - Every call sets `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`.
+  - `LONGHEALTH_PAUSE_AT` can stop the driver between calls; the next run resumes from cache.
+- **Not changed:** D, the builder, the gates, H1, H2, scoring, the metrics and the cap.
