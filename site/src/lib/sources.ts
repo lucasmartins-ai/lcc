@@ -69,10 +69,10 @@ export const blob = (repo: Repo, file: string) => `${repo.url}/blob/${repo.sha}/
 export const commitUrl = (repo: Repo, sha: string) => `${repo.url}/commit/${sha}`;
 export const short = (sha: string) => sha.slice(0, 7);
 
-/** Site URL for a path, under the configured base (SITE_BASE). */
-export const href = (p = "") => import.meta.env.BASE_URL.replace(/\/?$/, "/") + p.replace(/^\//, "");
+/** Site URL for a path, under the configured base (SITE_BASE). Pages are linked without `.html`. */
+export const href = (p = "") => import.meta.env.BASE_URL.replace(/\/?$/, "/") + p.replace(/^\//, "").replace(/\.html$/, "");
 
-// ---- lcc docs rendered as site pages, at the paths the old Jekyll site used (QUICKSTART.html) ----
+// ---- lcc docs rendered as site pages, at the paths the old Jekyll site used (QUICKSTART) ----
 
 export const docFiles = list(lcc, "docs")
   .concat(list(lcc, "benchmarks/research").filter((f) => !f.slice("benchmarks/research/".length).includes("/")))

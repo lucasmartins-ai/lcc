@@ -22,6 +22,11 @@ const nav = [
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- The site shares the lookadev.com origin: only same-origin scripts, whatever the markdown contains. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title === "lcc" ? "lcc — Local Context Compiler" : `${title} · lcc`}</title>
     <meta name="description" content={description} />

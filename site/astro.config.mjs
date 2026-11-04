@@ -2,11 +2,15 @@
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
-// SITE_BASE: "/" for the custom domain, "/lcc" for lucasmartins-ai.github.io/lcc.
-// Pages build as QUICKSTART.html etc., the paths the old Jekyll site served.
+// Served at lookadev.com/lcc/ by the lcc-site Worker (wrangler.jsonc). The build lands in
+// dist/<base> so the asset tree matches the URL paths the Worker receives.
+const base = process.env.SITE_BASE ?? "/lcc";
+
 export default defineConfig({
-  site: process.env.SITE_URL ?? "https://lcc.lookadev.com",
-  base: process.env.SITE_BASE ?? "/",
+  site: process.env.SITE_URL ?? "https://lookadev.com",
+  base,
+  outDir: `./dist${base.replace(/\/$/, "")}`,
   build: { format: "file" },
-  vite: { plugins: [tailwindcss()] },
+  // Scripts ship as files so the page CSP (Base.astro) can allow only same-origin scripts.
+  vite: { plugins: [tailwindcss()], build: { assetsInlineLimit: 0 } },
 });
