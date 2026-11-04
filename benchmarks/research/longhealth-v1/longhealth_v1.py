@@ -829,9 +829,11 @@ def phase_score(bench: dict, which: str) -> None:
     present = [a for a in ARMS if sdir("answers", a).is_dir()]
     run_arms = [a for a in present if a != "none"]
     every = sessions(bench, which)
-    status = {s["id"]: [session_status(a, s["id"]) for a in run_arms] for s in every}
+    cap_spent = n_calls() >= CALL_CAP  # Amendment 1: what the spent cap leaves unrun is dropped (V2), not pending
+    status = {s["id"]: [session_status(a, s["id"]) for a in (ARMS if cap_spent else run_arms) if a != "none"]
+              for s in every}
     none_status = {t: status_of(sdir("answers", "none", f"{t}.json")) for t in targets(bench, which)}
-    if n_calls() >= CALL_CAP:  # Amendment 1: what the spent cap leaves unrun is dropped (V2), not pending
+    if cap_spent:  # an arm the cap never reached has no cache: each of its sessions is pending, then terminal
         status = {sid: ["terminal" if x == "pending" else x for x in st] for sid, st in status.items()}
         none_status = {t: "terminal" if x == "pending" else x for t, x in none_status.items()}
     pending = any("pending" in st for st in status.values()) or (
@@ -864,7 +866,7 @@ def phase_score(bench: dict, which: str) -> None:
     for t in sorted(none_ok & {s["target"] for s in kept}):
         a = rj(sdir("answers", "none", f"{t}.json"))
         rows += score_session("none", {"target": t, "condition": "ans_early"}, bench[t], a["text"])
-        usage["none"] = usage.get("none", 0) + a["in_tokens"] + a["out_tokens"]
+        usage["none"] = usage.get("none", 0) + a["in_tokens"] + a["out_tokens"] + a.get("retry_tokens", 0)
 
     table = {arm: {m: metric([r for r in rows if r["arm"] == arm], m) for m in ("A", "E", "U", "UA")}
              for arm in present}

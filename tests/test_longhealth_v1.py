@@ -206,6 +206,13 @@ def test_score_end_to_end_on_fake_answers(tmp_path, monkeypatch):
     lh.phase_score(bench, "pilot")
     res = lh.rj(tmp_path / "results-pilot.json")
     assert res["complete"] and res["dropped"] == [first] and not res["gates"]["V2"]
+    # an arm the spent cap never reached drops every session, even with no cache directory at all
+    hidden = tmp_path / "answers-stashed_v"
+    (tmp_path / "answers" / "stashed_v").rename(hidden)
+    lh.phase_score(bench, "pilot")
+    res = lh.rj(tmp_path / "results-pilot.json")
+    assert len(res["dropped"]) == 6 and not res["gates"]["V2"] and res["verdict"] is None
+    hidden.rename(tmp_path / "answers" / "stashed_v")
     monkeypatch.setattr(lh, "CALL_CAP", 650)
     # a terminal infrastructure failure (3 attempts) drops that session from every arm (V2)
     lh.wj(answer, {"ok": False, "attempts": 3, "error": "exit 1"})
