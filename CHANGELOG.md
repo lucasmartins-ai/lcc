@@ -6,6 +6,27 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+
+- **Intake category: v3 is now the default model.**
+  - **Previous turn:** v3 reads the agent's last message when it is given. That message is a new
+    optional `previous_turn` in `LccIntake.process`, MCP `intake` and `lcc intake --previous-turn`.
+  - **Training data:** the owner's prompts plus public agent and coding-chat prompts.
+  - **Results:** on other people's prompts v3 is right on 0.70, against v1's 0.30. On the owner's
+    held-out prompts it scored 0.46 against v1's 0.52 and did not pass its non-inferiority test
+    (−0.059 [−0.140, +0.016]). It is the default by a product decision taken after that result.
+  - **Pinning v1:** `LCC_INTAKE_CATEGORY_MODEL=v1` keeps the previous model.
+  - **Display threshold:** 0.5 (v1: 0.45).
+  - **Receipts:** lcc-judge `research/goal-engine-2026-10-04/intake-judge-v3/RESULTS_EXTERNAL.md`
+    and `RESULTS_OWNER.md`.
+- **Efficiency baseline updated.**
+  - **What moved:** intake `prefix_share` 0.9529 → 0.8940 and `tokens_out` 17737 → 17790.
+  - **Why:** v3 adds a category comment at the end of the gate's synthetic brief, where v1 gave
+    none. The byte-identical head is unchanged (3,847 characters with either model); only the
+    output grew.
+  - **How:** only those two deterministic fields were edited, with the values printed by
+    `python benchmarks/efficiency_gate.py --check` with v3 as default. Cost was not re-measured.
+
 ### Added
 
 - **Head stash pointer, opt-in.** `--stash-pointer head` (CLI) and `stash_pointer: "head"` (MCP),

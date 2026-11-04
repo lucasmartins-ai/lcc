@@ -108,9 +108,9 @@ class LccIntake:
             clean_speech=False,
         )
 
-    def parse(self, raw_input: str) -> ParsedIntake:
+    def parse(self, raw_input: str, previous_turn: str | None = None) -> ParsedIntake:
         """Parse raw input readiness and brief without compressing."""
-        return parse_intake(raw_input)
+        return parse_intake(raw_input, previous_turn=previous_turn)
 
     def process(
         self,
@@ -118,12 +118,17 @@ class LccIntake:
         question: str = "",
         output_format: str = "markdown",
         extra_constraints: list[str] | None = None,
+        previous_turn: str | None = None,
     ) -> IntakeResult:
-        """Execute full intake & LCC compilation pipeline."""
+        """Execute full intake & LCC compilation pipeline.
+
+        ``previous_turn`` is the agent's last message before ``raw_input``, if known; only the
+        advisory category reads it.
+        """
         detection = detect_dictation(raw_input)
         cleaning = clean_dictation(raw_input) if detection.detected else None
         input_text = cleaning.text if cleaning else raw_input
-        parsed = parse_intake(input_text, dictation=detection.detected)
+        parsed = parse_intake(input_text, dictation=detection.detected, previous_turn=previous_turn)
         relevance_result: RelevanceCompactionResult | None = None
         if self.enable_relevance and parsed.readiness != ReadinessState.BLOCKED:
             from lcc.relevance import RelevanceCompactionRequest, compact_context

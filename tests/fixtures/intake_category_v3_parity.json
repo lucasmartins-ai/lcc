@@ -1,0 +1,108 @@
+{
+ "source": "lcc-judge research/intake_judge_v2.py Judge on intake-judge-v3 pick.json (sha256 47f76322...)",
+ "cases": [
+  {
+   "prompt": "faz o commit e push",
+   "previous_turn": null,
+   "label": "git_ship",
+   "probability": 0.99297935
+  },
+  {
+   "prompt": "sim",
+   "previous_turn": "Quer que eu faça o commit e o push agora?",
+   "label": "approve_or_pick",
+   "probability": 0.989435699
+  },
+  {
+   "prompt": "sim",
+   "previous_turn": "Posso seguir com a opção 2 ou prefere a 1?",
+   "label": "approve_or_pick",
+   "probability": 0.970880134
+  },
+  {
+   "prompt": "pode",
+   "previous_turn": null,
+   "label": "approve_or_pick",
+   "probability": 0.883679468
+  },
+  {
+   "prompt": "deu erro no deploy, olha o log: TypeError: cannot read properties of undefined",
+   "previous_turn": null,
+   "label": "failure_report",
+   "probability": 0.967845922
+  },
+  {
+   "prompt": "não é isso, usa o pnpm em vez do npm",
+   "previous_turn": "Rodei npm install e atualizei o lockfile.",
+   "label": "correct_approach_or_rule",
+   "probability": 0.384468127
+  },
+  {
+   "prompt": "what's the difference between a mutex and a semaphore?",
+   "previous_turn": null,
+   "label": "general_question",
+   "probability": 0.612430981
+  },
+  {
+   "prompt": "fix the failing test in auth.spec.ts and rerun the suite",
+   "previous_turn": null,
+   "label": "specified_task",
+   "probability": 0.379815492
+  },
+  {
+   "prompt": "como está o andamento?",
+   "previous_turn": "Iniciei a migração do banco; faltam dois passos.",
+   "label": "task_status_or_control",
+   "probability": 0.335898043
+  },
+  {
+   "prompt": "the button is still misaligned on mobile",
+   "previous_turn": "I changed the flex layout of the header.",
+   "label": "revise_recent_output",
+   "probability": 0.34819131
+  },
+  {
+   "prompt": "abre um PR com essas mudanças",
+   "previous_turn": null,
+   "label": "git_ship",
+   "probability": 0.541623707
+  },
+  {
+   "prompt": "???",
+   "previous_turn": null,
+   "label": "UNKNOWN",
+   "probability": 0.797043925
+  },
+  {
+   "prompt": "sim",
+   "previous_turn": "   ",
+   "label": "approve_or_pick",
+   "probability": 0.893499723
+  },
+  {
+   "prompt": "sim",
+   "previous_turn": "???",
+   "label": "approve_or_pick",
+   "probability": 0.893499723
+  },
+  {
+   "prompt": "sim",
+   "previous_turn": "Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Rodei os testes de integração e todos passaram. Quer que eu faça o commit e o push agora?",
+   "label": "approve_or_pick",
+   "probability": 0.980601948
+  },
+  {
+   "prompt": "corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. corrige o bug do checkout que quebra no Safari. e depois roda os testes",
+   "previous_turn": null,
+   "label": "failure_report",
+   "probability": 0.223291222
+  },
+  {
+   "prompt": "Ｆａｚ o deploy em produção — já revisei tudo ✅",
+   "previous_turn": null,
+   "label": "git_ship",
+   "probability": 0.462393955
+  }
+ ],
+ "note": "Expected values come from the reference on the prompt's first 1000 and the previous turn's last 600 characters, as at training time; the test passes the full inputs."
+}

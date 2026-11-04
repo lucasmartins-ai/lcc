@@ -8,9 +8,9 @@
     },
     "intake": {
       "cost": 1.317,
-      "prefix_share": 0.952935,
+      "prefix_share": 0.894027,
       "tokens_in": 17511,
-      "tokens_out": 17737
+      "tokens_out": 17790
     },
     "mcp-compact-transcript": {
       "cost": 2.712,

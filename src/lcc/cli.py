@@ -2332,6 +2332,11 @@ def intake_cmd(
         "--relevance-provider",
         help="Relevance scoring provider: auto, jev, laya, or mechanical.",
     ),
+    previous_turn: str = typer.Option(
+        "",
+        "--previous-turn",
+        help="The agent's last message before this input; the category reads its last 600 chars.",
+    ),
 ) -> None:
     """Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC."""
     from lcc.intake import LccIntake, ReadinessState
@@ -2357,6 +2362,7 @@ def intake_cmd(
         raw_input=raw_text,
         question=question,
         output_format=output_format,
+        previous_turn=previous_turn or None,
     )
 
     # Output formatted prompt

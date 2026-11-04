@@ -133,7 +133,9 @@ def count_asks(text: str) -> int:
     return asks
 
 
-def parse_intake(raw_input: str, *, dictation: bool | None = None) -> ParsedIntake:
+def parse_intake(
+    raw_input: str, *, dictation: bool | None = None, previous_turn: str | None = None
+) -> ParsedIntake:
     """Classify ``raw_input`` into a readiness state with named reasons and a derived brief.
 
     ``dictation`` is the speech detection made on the raw text before filler cleaning; when
@@ -197,7 +199,7 @@ def parse_intake(raw_input: str, *, dictation: bool | None = None) -> ParsedInta
         assumptions.append(f"Executing '{text}' with default technical guidelines.")
 
     readiness = max(states, key=_ORDER.index)
-    category = classify(text)
+    category = classify(text, previous_turn=previous_turn)
     score = _SCORES[readiness]
     intent_preview = text[:80] + ("..." if len(text) > 80 else "")
     return ParsedIntake(
