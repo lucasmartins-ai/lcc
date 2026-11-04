@@ -92,6 +92,9 @@ def test_compaction_stashes_early_target_keeps_late_and_checks_blobs(tmp_path, m
     sess = lh.build_session(bench, "patient_03", "ans_early")
     comp = lh.compact_session(sess, tmp_path / "tamper")
     texts = {b["id"]: b["content"] for b in comp["blocks"] if b["kind"] == "tool_result"}
+    pointers = [t for t in texts.values() if lh.NOTE_RE.fullmatch(t)]
+    assert pointers and all(' · "' in t for t in pointers)  # head pointers, and the check parses every one
+    assert len(pointers) == len(comp["stashed"])
     blob = next((tmp_path / "tamper").glob("[0-9a-f]" * 64))
     blob.write_bytes(b"changed")
     assert lh.independent_stash_check(sess["blocks"], texts, tmp_path / "tamper")
@@ -260,6 +263,13 @@ def test_cli_rejects_a_reply_split_over_turns_without_tools(tmp_path, monkeypatc
     res = lh.cached(tmp_path / "summaries" / "summary_clin" / "s.json", lambda: lh.cli())
     assert res["attempts"] == 2 and res["retry_tokens"] == 70_100
     assert lh.consumed_usage()["summary_clin"] == 70_100 + 60_100
+    # A summary gets SUMMARY_ATTEMPTS, two per run: still pending after 4 splits, terminal after the 5th.
+    monkeypatch.setattr(lh, "cli", lambda *a: _fake_cli("2"))
+    path = tmp_path / "summaries" / "summary_s" / "s.json"
+    for want in ("pending", "pending", "terminal"):
+        assert lh.cached(path, lambda: lh.cli(), max_attempts=lh.SUMMARY_ATTEMPTS) is None
+        assert lh.status_of(path) == want
+    assert lh.rj(path)["attempts"] == 5
 
 
 def test_scoring_metrics_and_bootstrap():

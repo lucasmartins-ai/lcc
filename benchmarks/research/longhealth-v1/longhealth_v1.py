@@ -43,6 +43,10 @@ CONDITIONS = ("ans_early", "ans_late", "unans")
 F_TEXT = "Question cannot be answered with provided documents"
 GOAL = "Answer questions about one patient from today's list."
 TOKEN_MODEL = "gpt-4.1"  # the counter stashed-recall-v1 and its shim used
+# Amendment 1 (after the pilot): lean fields with the opening of the removed text, so a stashed record still says
+# whom it is about (plain/lean pointers named no patient: every record opens with a salutation).
+STASH_POINTER = "head"
+SUMMARY_ATTEMPTS = 5  # Amendment 1 (D3): S-clin replies split in 4 of 6 ans_early attempts in the pilot
 BOOT_N = 2000
 
 RECALL_SENTENCE = (
@@ -52,7 +56,7 @@ RECALL_SENTENCE = (
 Q_T = (
     "You are continuing a chart-review session. The context above is everything you have from the session so "
     "far; parts of it may have been compressed. Some old tool results were replaced by a marker of the form "
-    "[removed: N lines, S KB · lcc recall <id>]. " + RECALL_SENTENCE + " For each numbered question, choose one "
+    '[removed: N lines, S KB · "<the opening of the removed text>" · lcc recall <id>]. ' + RECALL_SENTENCE + " For each numbered question, choose one "
     "option from A to F. Answer on one line per question, in this form:\n"
     '<number>: <letter>: <exact option text> | quote: "<words copied exactly from a record that support the option>"\n'
     'You may give up to three quotes, separated by " | quote: ". Each quote must be at least 20 characters copied '
@@ -103,7 +107,8 @@ ARMS = {
     "summary_clin": ("summary_clin", False, Q_0),
     "stashed_v": ("stashed", True, Q_T),
 }
-NOTE_RE = re.compile(r"\[removed: \d+ lines?, \d+(?:\.\d)? K?B · lcc recall ([0-9a-f]{12})\]")
+# Any pointer form (plain, lean, head): the id is always last, so a quoted opening cannot spoof it.
+NOTE_RE = re.compile(r"\[removed: \d+ lines?, \d+(?:\.\d)? K?B(?: · [^\n]*)? · lcc recall ([0-9a-f]{12})\]")
 LINE_RE = re.compile(r"^[ \t*]*(\d{1,2})[ \t*]*[:.)][ \t*]*([A-F])\b[ \t*]*:?(.*)$", re.M)
 NUM_RE = re.compile(r"[0-9]+(?:[.,][0-9]+)?")
 LIMIT_RE = re.compile(r"hit your (?:usage )?limit|usage limit|rate.?limit|limit reached|resets? at|\b429\b", re.I)
@@ -283,7 +288,7 @@ def compact_session(sess: dict, stash: Path) -> dict:
     os.environ["LCC_STASH_DIR"] = str(stash)
     payload = payload_of(sess["blocks"])
     r = compact_transcript(TranscriptCompactionRequest(payload=payload, question=GOAL, provider="rules",
-                                                       rules_mode="stashed"))
+                                                       rules_mode="stashed", stash_pointer=STASH_POINTER))
     texts = {x.id: x.text for m in r.messages for x in m.tool_results}
     viol = verify_stashed(payload, messages_to_payload(r.messages))
     indep = independent_stash_check(sess["blocks"], texts, stash)
@@ -379,28 +384,31 @@ def usage_tokens(usage: dict) -> tuple[int, int]:
             usage.get("output_tokens") or 0)
 
 
-def cached(path: Path, fn) -> dict | None:
-    """Run fn once per path. Infrastructure failures and usage limits are retried up to 3 attempts in all (V2):
-    2 per run for transport errors; a usage limit is recorded as an attempt and stops the driver, so the next run
-    resumes from cache after the reset. Model answers, refusals included, are never retried."""
+def cached(path: Path, fn, max_attempts: int = 3) -> dict | None:
+    """Run fn once per path. Infrastructure failures and usage limits are retried up to max_attempts in all (V2;
+    summaries get SUMMARY_ATTEMPTS): 2 per run for transport errors; a usage limit is recorded as an attempt and
+    stops the driver, so the next run resumes from cache after the reset. Model answers, refusals included, are
+    never retried."""
     prev = rj(path) if path.exists() else None
     if prev and prev.get("ok"):
         return prev
     attempts = prev["attempts"] if prev else 0
     wasted = prev.get("retry_tokens", 0) if prev else 0  # tokens of rejected attempts, still part of the arm's cost
     for _ in range(2):
-        if attempts >= 3:
+        if attempts >= max_attempts:
             break
         attempts += 1
         try:
-            res = {"ok": True, "attempts": attempts, **fn(), "retry_tokens": wasted}
+            res = {"ok": True, "attempts": attempts, **fn(), "retry_tokens": wasted, "max_attempts": max_attempts}
             wj(path, res)
             return res
         except InfraError as e:
             wasted += e.tokens
-            wj(path, {"ok": False, "attempts": attempts, "error": str(e)[:300], "retry_tokens": wasted})
+            wj(path, {"ok": False, "attempts": attempts, "error": str(e)[:300], "retry_tokens": wasted,
+                      "max_attempts": max_attempts})
         except LimitHit as e:
-            wj(path, {"ok": False, "attempts": attempts, "error": f"usage limit: {e}", "retry_tokens": wasted})
+            wj(path, {"ok": False, "attempts": attempts, "error": f"usage limit: {e}", "retry_tokens": wasted,
+                      "max_attempts": max_attempts})
             raise SystemExit(f"usage limit ({e}); rerun after the reset, the cache resumes") from None
     return None
 
@@ -626,7 +634,8 @@ def phase_run(bench: dict, which: str, arm: str) -> None:
             text = S_TEXT if ctx_kind == "summary_s" else S_CLIN
             summ = cached(sdir("summaries", ctx_kind, f"{s['id']}.json"),
                           lambda s=s, text=text: cli("summary", SUMMARIZER, SYSTEM_SUM,
-                                                     f"{render(s['blocks'])}\n\n{text}", "high"))
+                                                     f"{render(s['blocks'])}\n\n{text}", "high"),
+                          max_attempts=SUMMARY_ATTEMPTS)
             if not summ:
                 continue
             context, stash = summary_context(s, summ["text"]), None
@@ -775,11 +784,11 @@ def recall_behaviour(arm: str, kept: list[dict], loc: dict, comp_of) -> dict:
 
 
 def status_of(path: Path) -> str:
-    """ok, terminal (an infrastructure failure after 3 attempts) or pending (never run, or still retryable)."""
+    """ok, terminal (an infrastructure failure after its last attempt) or pending (never run, or still retryable)."""
     if not path.exists():
         return "pending"
     r = rj(path)
-    return "ok" if r.get("ok") else "terminal" if r.get("attempts", 0) >= 3 else "pending"
+    return "ok" if r.get("ok") else "terminal" if r.get("attempts", 0) >= r.get("max_attempts", 3) else "pending"
 
 
 def session_status(arm: str, sid: str) -> str:
