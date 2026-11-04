@@ -204,6 +204,17 @@ better than `plain`: line and byte counts already do that for 99.5% of them. Its
 gain is saying what an output contains, and whether that changes recall accuracy is not measured
 ([research](research/judge-as-stash-policy.md)). The default stays `plain`.
 
+**Head pointer (opt-in).** `--stash-pointer head` (CLI) or `stash_pointer: "head"` (MCP) writes
+the lean fields with the first line replaced by the opening of the output. That is its non-empty
+lines after any Codex header, joined with whitespace collapsed, printable characters only, capped
+at 160 characters, like a search snippet. It is for outputs whose first line says nothing, such
+as a letter that opens with a salutation. In the 6 LongHealth v1 pilot sessions every clinical
+record opens that way, and the head pointer named the right patient in all 115 stashed records.
+On 8 real Claude Code sessions (2026-11-04, 407 stashed outputs) it cost +35 tokens per pointer
+over `plain` (2.7% of the stashed tokens given back; `lean` +0.9%). 61 short outputs stayed whole
+because the pointer would not be shorter than them. Whether it raises recall accuracy is not
+measured yet. The default stays `plain`.
+
 From the CLI. Getting a result back re-hashes the blob and refuses one that fails:
 
 ```bash

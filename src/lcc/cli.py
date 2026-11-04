@@ -1363,9 +1363,10 @@ def compact_command(
         "plain",
         "--stash-pointer",
         help=(
-            "--rules-mode stashed only: 'plain' (default) or 'lean', which adds the exit "
+            "--rules-mode stashed only: 'plain' (default); 'lean', which adds the exit "
             "status, error type or failing test and the first line to each pointer "
-            "(about +13 tokens each; see docs/TOOL_CALLS.md)."
+            "(about +13 tokens each); or 'head', which is 'lean' with the first 160 "
+            "characters across lines instead of the first line (see docs/TOOL_CALLS.md)."
         ),
     ),
     max_state_tokens: int = typer.Option(

@@ -181,8 +181,9 @@ class TranscriptCompactionRequest:
     #: holds exactly the removed content, even after later writes (disk-authoritative).
     workspace_root: str | None = None
     disk_check: bool = True
-    #: ``stashed`` only: ``plain`` (default) or ``lean`` (adds exit status, error/test ids and the
-    #: first line; see :mod:`lcc.relevance.transcript_stash`).
+    #: ``stashed`` only: ``plain`` (default), ``lean`` (adds exit status, error/test ids and the
+    #: first line) or ``head`` (``lean`` with the opening across lines; see
+    #: :mod:`lcc.relevance.transcript_stash`).
     stash_pointer: str = "plain"
     #: ``recoverable`` only: also allow re-run command pointers (off since the v0.7 review).
     allow_command_pointers: bool = False
@@ -1045,7 +1046,8 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
     ):
         # Refused, not ignored: same as the CLI's --stash-pointer check, for every caller.
         raise TranscriptError(
-            "stash_pointer 'lean' needs provider 'rules' and rules_mode 'stashed'"
+            f"stash_pointer '{request.stash_pointer}' needs provider 'rules' and "
+            "rules_mode 'stashed'"
         )
 
     messages = parse_transcript(request.payload)
