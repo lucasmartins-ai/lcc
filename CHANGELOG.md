@@ -8,6 +8,14 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Head stash pointer, opt-in.** `--stash-pointer head` (CLI) and `stash_pointer: "head"` (MCP),
+  with `--rules-mode stashed`, write the lean fields with the first line replaced by the first 160
+  characters across lines. The LongHealth v1 pilot showed why: every record opens with a
+  salutation, so `lean` said nothing about whom a removed record was about, and in half of the
+  sessions where the target patient was stashed the model never recalled. Head pointers named the
+  right patient in 115 of 115 stashed records there. Cost on 8 real sessions: +35 tokens per
+  pointer over `plain`. Default stays `plain`. See docs/TOOL_CALLS.md.
+
 - **Draft pre-registration of a public clinical study, `benchmarks/research/longhealth-v1/PROTOCOL.md`.**
   Every number in `docs/EVIDENCE.md` comes from the maintainer's own sessions. This protocol runs `stashed` +
   `recall`, two summaries and an oracle-free verifier on LongHealth, 20 fictional patients that anyone can download.
