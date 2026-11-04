@@ -100,4 +100,38 @@ envelope log. Recall turns resend the context, so `stashed_t` costs what `full_t
 | D3 | Split summaries | (a) up to 5 attempts for summary calls and the split rate reported per arm; (b) keep 3 attempts and accept the risk of V2 drops in `ans_early` | (a). At the pilot's split rate (4 of 6 `ans_early` S-clin attempts, 0 of 10 other summary attempts) D needs about 36 extra calls, about 600 of the 650 cap in all. The worst case is 4 extra on each of the 108 summaries (+432); the cap then stops the run, and the sessions it leaves count as V2 drops |
 | D4 | Stashed loses on `ans_early` | (a) run D as pre-registered and publish the result, likely an H1/H2 FAIL with the cause (no recall); (b) first build an LCC pointer that tells the model what a removed text is about, release it, then re-pin and re-pilot | Owner's call: (a) is the honest v1 and costs an estimated 34% of a week's plan (pilot: ~4% for 60 calls); (b) is product work and a v2 study |
 
+The owner chose D1–D3 as recommended and D4 (b) on 2026-11-04; they are recorded as Amendment 1 in `PROTOCOL.md`.
+
+## Re-pilot with head pointers (2026-11-04)
+
+LCC gained an opt-in `head` pointer (lucasmartins-ai/lcc#138, pinned here at `9d1406c`). It is lean's fields with the
+first line replaced by the opening of the removed text, at most 160 characters across lines. The pilot sessions were
+compacted again with it. The same reads were stashed, the location receipt was unchanged (40/40/40), and head
+pointers named the right patient in 115 of 115 stashed records.
+
+`stashed_t`, `stashed_0` and `stashed_v` (with its re-asks) were rerun: 22 calls, 82 of the cap in all. Every other
+arm was reused. The plain-pointer answers are kept beside them.
+
+| Arm | A, plain | A, head | E, plain | E, head |
+|---|---|---|---|---|
+| `full_t` (reused) | 62/80 | 62/80 | 32/40 | 32/40 |
+| `stashed_t` | 46/80 | 61/80 | 23/40 | 31/40 |
+| `stashed_0` | 30/80 | 31/80 | 15/40 | 16/40 |
+| `stashed_v` | 42/80 | 57/80 | 21/40 | 28/40 |
+| `summary_s` (reused) | 54/80 | 54/80 | 29/40 | 29/40 |
+| `summary_clin` (reused) | 62/80 | 62/80 | 31/40 | 31/40 |
+
+- `stashed_t − full_t` moved from −0.20 to −0.0125. By condition, `ans_early` moved from −0.40 to −0.025 (per
+  patient 0.00 and −0.05), and `ans_late` stayed at 0.00.
+- Recall: questions whose answer needed a recall got one in 95% of cases (was 40%), and recall precision rose from
+  0.43 to 0.87. The tool's effect on stash-dependent questions (S1) rose from +0.375 to +0.75. Without the tool
+  (`stashed_0`), head pointers alone added 1 question.
+- Cost: `stashed_t` used 584k tokens in all, against 665k for `full_t`. C′ grew from 180k to 185k tokens.
+- On E, `stashed_t` was 0.05 above `summary_s` and level with `summary_clin`.
+- The verifier still cost answers: `stashed_v` scored 57 against `stashed_t`'s 61, and UA was 0 in every arm.
+
+`gateClaim` passes the headline (46/80 → 61/80, with full context at 62/80) as a measurement of these 6 sessions.
+It is in-sample: the pointer was designed after seeing these sessions, on 2 clusters. Only D, on 18 patients the
+design never saw, can say whether it holds.
+
 D has not been built, compacted or run. Nothing is frozen.
