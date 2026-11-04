@@ -131,7 +131,9 @@ arm was reused. The plain-pointer answers are kept beside them.
 - The verifier still cost answers: `stashed_v` scored 57 against `stashed_t`'s 61, and UA was 0 in every arm.
 
 `gateClaim` passes the headline (46/80 → 61/80, with full context at 62/80) as a measurement of these 6 sessions.
-It is in-sample: the pointer was designed after seeing these sessions, on 2 clusters. Only D, on 18 patients the
-design never saw, can say whether it holds.
+It is in-sample: the pointer was designed after seeing these sessions, on 2 clusters. Only D can say whether it
+holds. Its 18 targets are patients whose questions and answers the design never used, but D is not fully unseen:
+their records appeared as distractors in the pilot sessions, and the first-line check above read all 133 record
+texts.
 
 D has not been built, compacted or run. Nothing is frozen.
