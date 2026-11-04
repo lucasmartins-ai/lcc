@@ -1,0 +1,82 @@
+---
+import Base from "../layouts/Base.astro";
+import { models } from "../lib/models.ts";
+import { studies } from "../lib/research.ts";
+import { blob, cite, codeBlock, href, judge, lcc, md, read, section } from "../lib/sources.ts";
+
+const bench = section(read(judge, "README.md"), "Run the benchmark");
+if (!bench) throw new Error('LCC-judge README.md: no "Run the benchmark" section');
+const readme = cite(lcc, "README.md");
+const kb = (n: number) => `${(n / 1024).toFixed(n < 10240 ? 1 : 0)} KB`;
+---
+
+<Base title="Downloads" current="Downloads" description="The model files LCC ships, with sha256, the JSON receipts behind each study, and the commands that recompute the numbers.">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-accent">Downloads</p>
+    <h1 class="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Models, receipts, reproduce</h1>
+
+    <section class="mt-12">
+      <h2 class="text-xl font-semibold">Shipped models</h2>
+      <p class="mt-2 max-w-3xl text-dim">
+        The same bytes <code class="font-mono text-ink">pip install local-context-compiler</code> installs. LCC checks each file against the
+        sha256 pinned in its loader and switches the feature off on a mismatch; this site's build fails on one.
+      </p>
+      <div class="mt-6 space-y-4">
+        {
+          models.map((m) => (
+            <div class="rounded-xl border border-line bg-panel p-5">
+              <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                <h3 class="font-mono text-ink">{m.name}</h3>
+                <span class="font-mono text-xs text-faint">{kb(m.bytes)}</span>
+              </div>
+              <p class="mt-1 text-sm text-dim">{m.what}</p>
+              <p class="mt-3 font-mono text-xs break-all text-dim">
+                sha256 <span class="text-ink">{m.sha256}</span>
+              </p>
+              <p class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                <a class="text-accent underline" href={href(`models/${m.name}`)} download>Download</a>
+                <a class="text-dim underline hover:text-ink" href={blob(lcc, m.path)}>{m.path}</a>
+                <a class="text-dim underline hover:text-ink" href={blob(lcc, m.loader)}>pinned as {m.constant} in {m.loader.split("/").at(-1)}</a>
+              </p>
+            </div>
+          ))
+        }
+      </div>
+      <div class="prose mt-6 max-w-2xl" set:html={md("```sh\nshasum -a 256 intake_category_v1.json   # Linux: sha256sum\n```", lcc, "README.md")} />
+    </section>
+
+    <section class="mt-16">
+      <h2 class="text-xl font-semibold">Receipts</h2>
+      <p class="mt-2 max-w-3xl text-dim">
+        Machine-readable results of each study in LCC-judge, at the commit this site was built from. Counts and aggregates only.
+      </p>
+      <div class="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          studies
+            .filter((s) => s.files.some((f) => f.kind === "json"))
+            .map((s) => (
+              <div>
+                <h3 class="text-sm font-medium"><a class="hover:text-accent" href={href(`research/${s.id}.html`)}>{s.name}</a></h3>
+                <ul class="mt-2 space-y-1 font-mono text-xs break-all">
+                  {s.files.filter((f) => f.kind === "json").map((f) => <li><a class="text-dim hover:text-accent" href={f.url}>{f.name}</a></li>)}
+                </ul>
+              </div>
+            ))
+        }
+      </div>
+    </section>
+
+    <section class="mt-16 grid grid-cols-1 gap-12 lg:grid-cols-2">
+      <div>
+        <h2 class="text-xl font-semibold">Reproduce the block judge numbers</h2>
+        <p class="mt-2 text-sm text-faint">From the <a class="underline hover:text-dim" href={blob(judge, "README.md")}>LCC-judge README</a>:</p>
+        <div class="prose mt-4" set:html={md(bench, judge, "README.md")} />
+      </div>
+      <div>
+        <h2 class="text-xl font-semibold">Run lcc's synthetic benchmark</h2>
+        <p class="mt-2 text-sm text-faint">No network, {readme("about 20 s")}. From the <a class="underline hover:text-dim" href={blob(lcc, "README.md")}>lcc README</a>:</p>
+        <div class="prose mt-4" set:html={codeBlock(lcc, "README.md", "run_judge_bench.py")} />
+      </div>
+    </section>
+  </div>
+</Base>

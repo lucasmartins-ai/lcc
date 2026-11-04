@@ -76,3 +76,24 @@ jobs:
     - name: Run Node Tests
       run: |
         npm test
+
+  test-site:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+    - name: Set up Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version: '24'
+    - name: Install
+      run: npm ci
+    - name: Intake demo parity (TypeScript port vs the Python fixture)
+      run: npm test
+    - name: Typecheck and build (research pages read LCC-judge's default branch)
+      run: |
+        npm run fetch-judge
+        npm run check
+        npm run build

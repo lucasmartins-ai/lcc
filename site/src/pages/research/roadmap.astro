@@ -1,0 +1,14 @@
+---
+import Base from "../../layouts/Base.astro";
+import { ROADMAP } from "../../lib/research.ts";
+import { blob, judge, md, read, title } from "../../lib/sources.ts";
+
+const src = read(judge, ROADMAP);
+---
+
+<Base title={title(src, "Roadmap")} current="Research">
+  <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <div class="prose" set:html={md(src, judge, ROADMAP)} />
+    <p class="mt-12 font-mono text-xs text-faint">Source: <a class="underline hover:text-dim" href={blob(judge, ROADMAP)}>LCC-judge/{ROADMAP}</a></p>
+  </article>
+</Base>
