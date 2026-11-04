@@ -1,0 +1,7054 @@
+{
+ "counts": {
+  "ans_early": {
+   "stash_dependent": 360
+  },
+  "ans_late": {
+   "in_view": 360
+  },
+  "unans": {
+   "absent": 360
+  }
+ },
+ "sessions": {
+  "patient_01__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0",
+      "8e200ec1c4190c515e498e709190399f21bad7ca26356e4b7539b1c6957c2b59"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0",
+      "8e200ec1c4190c515e498e709190399f21bad7ca26356e4b7539b1c6957c2b59"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0",
+      "8e200ec1c4190c515e498e709190399f21bad7ca26356e4b7539b1c6957c2b59"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0",
+      "8e200ec1c4190c515e498e709190399f21bad7ca26356e4b7539b1c6957c2b59"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0",
+      "8e200ec1c4190c515e498e709190399f21bad7ca26356e4b7539b1c6957c2b59"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7bf5345e8b4ffd96b8024f823e46678c6e63af34717463bcfd2043c21cf1bde0"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 17
+   },
+   "ok": true
+  },
+  "patient_01__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 13
+   },
+   "ok": true
+  },
+  "patient_01__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": true
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": true
+    },
+    {
+     "qno": 5,
+     "exact_value": true
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": true
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": true
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": true
+    },
+    {
+     "qno": 18,
+     "exact_value": true
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 22
+   },
+   "ok": true
+  },
+  "patient_02__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "4409f37d3765fe9de3c32d28f3451b672701e1874af2021af1acdc5057b874aa"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "4409f37d3765fe9de3c32d28f3451b672701e1874af2021af1acdc5057b874aa"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "84dff905955390ed038cc1306a68a6c88dd542cdfe989e4f8cc2b585a71ca8d5",
+      "da06f98c98b4884979e2332c6b1e2cc3d8f398ff3d9b3952d45a3f378dcc277f"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "84dff905955390ed038cc1306a68a6c88dd542cdfe989e4f8cc2b585a71ca8d5",
+      "94de089ba922eb34e1545508e35e04eb5407c8d7829944fbff50a89784a8d81f",
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751",
+      "da06f98c98b4884979e2332c6b1e2cc3d8f398ff3d9b3952d45a3f378dcc277f"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "da06f98c98b4884979e2332c6b1e2cc3d8f398ff3d9b3952d45a3f378dcc277f"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "84dff905955390ed038cc1306a68a6c88dd542cdfe989e4f8cc2b585a71ca8d5",
+      "94de089ba922eb34e1545508e35e04eb5407c8d7829944fbff50a89784a8d81f",
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751",
+      "da06f98c98b4884979e2332c6b1e2cc3d8f398ff3d9b3952d45a3f378dcc277f"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "da06f98c98b4884979e2332c6b1e2cc3d8f398ff3d9b3952d45a3f378dcc277f"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "da06f98c98b4884979e2332c6b1e2cc3d8f398ff3d9b3952d45a3f378dcc277f"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "da06f98c98b4884979e2332c6b1e2cc3d8f398ff3d9b3952d45a3f378dcc277f"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "4409f37d3765fe9de3c32d28f3451b672701e1874af2021af1acdc5057b874aa"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "84dff905955390ed038cc1306a68a6c88dd542cdfe989e4f8cc2b585a71ca8d5"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "4409f37d3765fe9de3c32d28f3451b672701e1874af2021af1acdc5057b874aa"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "84dff905955390ed038cc1306a68a6c88dd542cdfe989e4f8cc2b585a71ca8d5"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "84dff905955390ed038cc1306a68a6c88dd542cdfe989e4f8cc2b585a71ca8d5"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "108c10910af38bf76148ac4979f233ef3e5c547eb310b462a538abe4e0dcd751"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 16
+   },
+   "ok": true
+  },
+  "patient_02__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 22
+   },
+   "ok": true
+  },
+  "patient_02__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": true
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": true
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": true
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": true
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": true
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 23
+   },
+   "ok": true
+  },
+  "patient_04__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "11c561a5c1804e137daaf7a3b8b39aca2f4bba4c03f47737b1def75a980e3877"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a4afd9cbef92f49aa4f274d58e512a205f278cd28796b43f21cde406ea99a6ee",
+      "4281de482036c736622fbe78f9eb56a3cff734e9724a289a0fbde333f81eef83",
+      "11c561a5c1804e137daaf7a3b8b39aca2f4bba4c03f47737b1def75a980e3877"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "274d60ff2cf3dd349fb2e807239259a29bdcc43330e1e1228bf3bbb4c43758ad"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "274d60ff2cf3dd349fb2e807239259a29bdcc43330e1e1228bf3bbb4c43758ad"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "274d60ff2cf3dd349fb2e807239259a29bdcc43330e1e1228bf3bbb4c43758ad"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d45cffcc13ca0d0c81890c5349c3aaff74d1d13ff966d5b91c4be203c8d90924"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "40090d168ce22d86b1a0073ecafc6cc1b688869064c6b24583635ac1774bc9fb"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8ca06b4660de18fed39e4309542e8bc36ee763fec37dde29078b821307066da5",
+      "a4afd9cbef92f49aa4f274d58e512a205f278cd28796b43f21cde406ea99a6ee",
+      "4281de482036c736622fbe78f9eb56a3cff734e9724a289a0fbde333f81eef83",
+      "274d60ff2cf3dd349fb2e807239259a29bdcc43330e1e1228bf3bbb4c43758ad",
+      "40090d168ce22d86b1a0073ecafc6cc1b688869064c6b24583635ac1774bc9fb",
+      "7456686c109a09c91661abf9664ed85a8a3efc9345ab777f141a7f8569e8459f",
+      "d45cffcc13ca0d0c81890c5349c3aaff74d1d13ff966d5b91c4be203c8d90924",
+      "01f46357d010f83db358c2b9423a33e771674f8267f449eb9bd23afed817da95",
+      "d0b784c9041a0119a7f4f28cdcdb6e9e9682f0103ab68a377001a3b84d233fcc"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d45cffcc13ca0d0c81890c5349c3aaff74d1d13ff966d5b91c4be203c8d90924"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d45cffcc13ca0d0c81890c5349c3aaff74d1d13ff966d5b91c4be203c8d90924"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d0b784c9041a0119a7f4f28cdcdb6e9e9682f0103ab68a377001a3b84d233fcc"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "0226a63c6ff67873465284c787f686e0c2c2d35f4100348ac0918e07508305e5"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "01f46357d010f83db358c2b9423a33e771674f8267f449eb9bd23afed817da95"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f117e7680d19a2bd093f58b32792a8706552713b555faddde3b27f8bf05e739e"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d0b784c9041a0119a7f4f28cdcdb6e9e9682f0103ab68a377001a3b84d233fcc"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d0b784c9041a0119a7f4f28cdcdb6e9e9682f0103ab68a377001a3b84d233fcc"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d0b784c9041a0119a7f4f28cdcdb6e9e9682f0103ab68a377001a3b84d233fcc"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d0b784c9041a0119a7f4f28cdcdb6e9e9682f0103ab68a377001a3b84d233fcc"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d0b784c9041a0119a7f4f28cdcdb6e9e9682f0103ab68a377001a3b84d233fcc"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a4afd9cbef92f49aa4f274d58e512a205f278cd28796b43f21cde406ea99a6ee"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 24
+   },
+   "ok": true
+  },
+  "patient_04__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 20
+   },
+   "ok": true
+  },
+  "patient_04__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": true
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": true
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": true
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": true
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 23
+   },
+   "ok": true
+  },
+  "patient_06__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dc4a044f3200618fb002d910d8b175a2ad0ff1db277a4e10d03845a49c7b934d"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dce56359ceebcc2ef6b75c8fb5a28e9908c16f02a9af7cdce9e8b5b077f9f92a"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dce56359ceebcc2ef6b75c8fb5a28e9908c16f02a9af7cdce9e8b5b077f9f92a"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dce56359ceebcc2ef6b75c8fb5a28e9908c16f02a9af7cdce9e8b5b077f9f92a"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "459c532113cd36b97e770c229628c273656d43b56c9470ec80bb80516911838f"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dc4a044f3200618fb002d910d8b175a2ad0ff1db277a4e10d03845a49c7b934d"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8c934c4fa17554035e7b14ed6b805c56af0e13f9ac18f9bae3af9a331a36be81"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "459c532113cd36b97e770c229628c273656d43b56c9470ec80bb80516911838f"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "aee4242f18a0c3c183b0b28b885166cbb7c1fed6fb90d398e8785dabfd644127"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dc4a044f3200618fb002d910d8b175a2ad0ff1db277a4e10d03845a49c7b934d"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dce56359ceebcc2ef6b75c8fb5a28e9908c16f02a9af7cdce9e8b5b077f9f92a"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "aee4242f18a0c3c183b0b28b885166cbb7c1fed6fb90d398e8785dabfd644127"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dc4a044f3200618fb002d910d8b175a2ad0ff1db277a4e10d03845a49c7b934d"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "145545431239ad9c6d1caec119a0c1acff233cbdcf7cbbac6708e195bd6fa6a7"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dce56359ceebcc2ef6b75c8fb5a28e9908c16f02a9af7cdce9e8b5b077f9f92a"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "aee4242f18a0c3c183b0b28b885166cbb7c1fed6fb90d398e8785dabfd644127"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "459c532113cd36b97e770c229628c273656d43b56c9470ec80bb80516911838f",
+      "145545431239ad9c6d1caec119a0c1acff233cbdcf7cbbac6708e195bd6fa6a7",
+      "95dfbd2541b4d309eeafa25bd31fbef86c999db8bc860149464841fe3c6befa1",
+      "aee4242f18a0c3c183b0b28b885166cbb7c1fed6fb90d398e8785dabfd644127",
+      "dc4a044f3200618fb002d910d8b175a2ad0ff1db277a4e10d03845a49c7b934d"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "aee4242f18a0c3c183b0b28b885166cbb7c1fed6fb90d398e8785dabfd644127"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "459c532113cd36b97e770c229628c273656d43b56c9470ec80bb80516911838f"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dce56359ceebcc2ef6b75c8fb5a28e9908c16f02a9af7cdce9e8b5b077f9f92a",
+      "95dfbd2541b4d309eeafa25bd31fbef86c999db8bc860149464841fe3c6befa1",
+      "aee4242f18a0c3c183b0b28b885166cbb7c1fed6fb90d398e8785dabfd644127",
+      "dc4a044f3200618fb002d910d8b175a2ad0ff1db277a4e10d03845a49c7b934d"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 18
+   },
+   "ok": true
+  },
+  "patient_06__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 21
+   },
+   "ok": true
+  },
+  "patient_06__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": true
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": true
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": true
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": true
+    },
+    {
+     "qno": 18,
+     "exact_value": true
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 19
+   },
+   "ok": true
+  },
+  "patient_07__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f78c09ef79feadc76685b3aa1f655db33e0dba61ed6ef3a0656669239f84cee0"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f78c09ef79feadc76685b3aa1f655db33e0dba61ed6ef3a0656669239f84cee0"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f78c09ef79feadc76685b3aa1f655db33e0dba61ed6ef3a0656669239f84cee0"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "38282de802b223d075c38d019d1453d42363c6436c0a0f6919ed33a008103d6b"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "38282de802b223d075c38d019d1453d42363c6436c0a0f6919ed33a008103d6b"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "38282de802b223d075c38d019d1453d42363c6436c0a0f6919ed33a008103d6b"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "38282de802b223d075c38d019d1453d42363c6436c0a0f6919ed33a008103d6b"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c1038e6b147e07d17b15f61bc6c7af34defbd19d2fd4628fd0b33d2e351b9a9d"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f50f986aa0feb4520eaa3539c6306208c1ea76e5f532490ba5cfaaaee5200eeb"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "38282de802b223d075c38d019d1453d42363c6436c0a0f6919ed33a008103d6b"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f78c09ef79feadc76685b3aa1f655db33e0dba61ed6ef3a0656669239f84cee0"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f78c09ef79feadc76685b3aa1f655db33e0dba61ed6ef3a0656669239f84cee0"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f50f986aa0feb4520eaa3539c6306208c1ea76e5f532490ba5cfaaaee5200eeb"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "646c9ceae7831478cfc5c9583ffbaf3fdbf74c954f4440135fc9b61c9eb22b62"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "646c9ceae7831478cfc5c9583ffbaf3fdbf74c954f4440135fc9b61c9eb22b62"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f50f986aa0feb4520eaa3539c6306208c1ea76e5f532490ba5cfaaaee5200eeb"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f50f986aa0feb4520eaa3539c6306208c1ea76e5f532490ba5cfaaaee5200eeb"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "38282de802b223d075c38d019d1453d42363c6436c0a0f6919ed33a008103d6b"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c1038e6b147e07d17b15f61bc6c7af34defbd19d2fd4628fd0b33d2e351b9a9d"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f78c09ef79feadc76685b3aa1f655db33e0dba61ed6ef3a0656669239f84cee0",
+      "3ea74b2f741ecc78e830778e9f5b60126e81075c656402f070732c45f51da7a4"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 22
+   },
+   "ok": true
+  },
+  "patient_07__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 25
+   },
+   "ok": true
+  },
+  "patient_07__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": true
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": true
+    },
+    {
+     "qno": 18,
+     "exact_value": true
+    },
+    {
+     "qno": 19,
+     "exact_value": true
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 23
+   },
+   "ok": true
+  },
+  "patient_08__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "037a12c94882262b356673ac17d7fe15d42a6bd13aeb1d77bcd94afce555ea95"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "037a12c94882262b356673ac17d7fe15d42a6bd13aeb1d77bcd94afce555ea95"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "037a12c94882262b356673ac17d7fe15d42a6bd13aeb1d77bcd94afce555ea95"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "037a12c94882262b356673ac17d7fe15d42a6bd13aeb1d77bcd94afce555ea95"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a4aca05061c0f94be1534a8575ccb7fd85cb77354bfcf0cd4872a9a5f08322a6"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f3632ba69fb1dd02052be7f05f4cbd9e9e8913920b39e444212ddb000541f841"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a4aca05061c0f94be1534a8575ccb7fd85cb77354bfcf0cd4872a9a5f08322a6"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f3632ba69fb1dd02052be7f05f4cbd9e9e8913920b39e444212ddb000541f841"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f3632ba69fb1dd02052be7f05f4cbd9e9e8913920b39e444212ddb000541f841"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1ca36d65ae5a166d288bab6b24efea6094f1426d6ccce2a71ab19c53c007d4e4"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "037a12c94882262b356673ac17d7fe15d42a6bd13aeb1d77bcd94afce555ea95"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "037a12c94882262b356673ac17d7fe15d42a6bd13aeb1d77bcd94afce555ea95",
+      "50d877672f290e53f599a2fd72a2fb65effabefa9d9abb2f568ffd7d887fee2c",
+      "1ca36d65ae5a166d288bab6b24efea6094f1426d6ccce2a71ab19c53c007d4e4",
+      "f3632ba69fb1dd02052be7f05f4cbd9e9e8913920b39e444212ddb000541f841",
+      "a4aca05061c0f94be1534a8575ccb7fd85cb77354bfcf0cd4872a9a5f08322a6"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 18
+   },
+   "ok": true
+  },
+  "patient_08__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 16
+   },
+   "ok": true
+  },
+  "patient_08__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": true
+    },
+    {
+     "qno": 5,
+     "exact_value": true
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": true
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": true
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 24
+   },
+   "ok": true
+  },
+  "patient_09__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04",
+      "708c9a7af4d7544b7780b1771e8ceb1494e852890dd8b3a0429f4b5f8fa28e4f",
+      "799fbf9f42aabb18363382aa528f61091929c8da051276c733907add05db84c6",
+      "50c163b06ece8496a8eb647d134523a2ad5e42abe8d797c632656569f6f9e120"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "708c9a7af4d7544b7780b1771e8ceb1494e852890dd8b3a0429f4b5f8fa28e4f"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "45d24a87a218886fd5b9eca5b21af49b1708b341763ec9cf04178c2936707d23"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "799fbf9f42aabb18363382aa528f61091929c8da051276c733907add05db84c6"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50c163b06ece8496a8eb647d134523a2ad5e42abe8d797c632656569f6f9e120"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "799fbf9f42aabb18363382aa528f61091929c8da051276c733907add05db84c6"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "799fbf9f42aabb18363382aa528f61091929c8da051276c733907add05db84c6"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "708c9a7af4d7544b7780b1771e8ceb1494e852890dd8b3a0429f4b5f8fa28e4f"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fea14b962b1d022ecc9989ce267f8517a64a6b0e8f3aa77d33826a313ad33fa9"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50c163b06ece8496a8eb647d134523a2ad5e42abe8d797c632656569f6f9e120"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "708c9a7af4d7544b7780b1771e8ceb1494e852890dd8b3a0429f4b5f8fa28e4f"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "799fbf9f42aabb18363382aa528f61091929c8da051276c733907add05db84c6"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c96be50f5202bc15c23e2847fd90a03581e98dca4cbf8c56bc450e247829af04",
+      "708c9a7af4d7544b7780b1771e8ceb1494e852890dd8b3a0429f4b5f8fa28e4f",
+      "fea14b962b1d022ecc9989ce267f8517a64a6b0e8f3aa77d33826a313ad33fa9",
+      "799fbf9f42aabb18363382aa528f61091929c8da051276c733907add05db84c6",
+      "50c163b06ece8496a8eb647d134523a2ad5e42abe8d797c632656569f6f9e120",
+      "45d24a87a218886fd5b9eca5b21af49b1708b341763ec9cf04178c2936707d23"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 17
+   },
+   "ok": true
+  },
+  "patient_09__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 16
+   },
+   "ok": true
+  },
+  "patient_09__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": true
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": true
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": true
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": true
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 16
+   },
+   "ok": true
+  },
+  "patient_10__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6ba545bc6d8cac74b06636951d9d76439b826871db1e0cad1a6b00099aeac650"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "76ab993b402c36a204a0e5ff875178b5642c2a8bb28d47d98219a379ecfa002d"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6ba545bc6d8cac74b06636951d9d76439b826871db1e0cad1a6b00099aeac650"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "920177161f9e406d9ddb63df057f9f2452345397b55c37cf67e3879ecebe52b7"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "76ab993b402c36a204a0e5ff875178b5642c2a8bb28d47d98219a379ecfa002d"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "76ab993b402c36a204a0e5ff875178b5642c2a8bb28d47d98219a379ecfa002d",
+      "6ba545bc6d8cac74b06636951d9d76439b826871db1e0cad1a6b00099aeac650",
+      "b9dee6f6e250f786b4b0abca31844bf720cb60b0db89d55f84c34798ff5bf9e1"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b9dee6f6e250f786b4b0abca31844bf720cb60b0db89d55f84c34798ff5bf9e1"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "deb8ce00ccc1c01619fdc599f758eb8adb9e08d9534308a21b7bb729e169a7e6"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "76ab993b402c36a204a0e5ff875178b5642c2a8bb28d47d98219a379ecfa002d"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "76ab993b402c36a204a0e5ff875178b5642c2a8bb28d47d98219a379ecfa002d",
+      "6ba545bc6d8cac74b06636951d9d76439b826871db1e0cad1a6b00099aeac650"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9f8ac44f0467a7344f70024854e6430a99539017198daaa342d26cab99ec3be3",
+      "a98900bd85ec2952942f0a9fa59fde0bd1c71bde5c41e5a9336cc1d5fd8f5844",
+      "6ba545bc6d8cac74b06636951d9d76439b826871db1e0cad1a6b00099aeac650"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 32
+   },
+   "ok": true
+  },
+  "patient_10__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 17
+   },
+   "ok": true
+  },
+  "patient_10__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": true
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": true
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 7
+   },
+   "ok": true
+  },
+  "patient_11__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "0ebeaede6fd2198da8c7cdbbee971b154c0dc9fcd500c49e5ebbe0d650a152d2"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "0ebeaede6fd2198da8c7cdbbee971b154c0dc9fcd500c49e5ebbe0d650a152d2"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "0914da50e559b7e7398bcb6b59f7a57c54578a0c6fac064e351bf7a973b47917"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5",
+      "63b476b116330ea258d633b952375116387be8f5a7473a198358861fbe30c7d9"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fbbdfe562c33020b3b68a4e22c308243dae6a9eca1e40b0df9dbbf2c28681ee5",
+      "0ebeaede6fd2198da8c7cdbbee971b154c0dc9fcd500c49e5ebbe0d650a152d2"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 12
+   },
+   "ok": true
+  },
+  "patient_11__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 17
+   },
+   "ok": true
+  },
+  "patient_11__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": true
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": true
+    },
+    {
+     "qno": 18,
+     "exact_value": true
+    },
+    {
+     "qno": 19,
+     "exact_value": true
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 31
+   },
+   "ok": true
+  },
+  "patient_12__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3",
+      "8d18666c1f14c00b757d32ea67222c8da1112efd887930be84d5011a9875082f",
+      "fb5267091381e7d57ae2c9faa37371358c5769270a67aa23f12d01e2307616d0",
+      "5c95904fbea039c85f662605423bfa53cde60caadee401c33e7df6a679c4b1c0",
+      "2970cb373d5639ec2fa12fa14f0703a67c22c0ef72183044c7ab94afd98a216c",
+      "655c2e653a21fee648371f363a87d0bcd6d21efa95a97008a17be8d9381ba5b4"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3",
+      "8d18666c1f14c00b757d32ea67222c8da1112efd887930be84d5011a9875082f",
+      "fb5267091381e7d57ae2c9faa37371358c5769270a67aa23f12d01e2307616d0",
+      "5c95904fbea039c85f662605423bfa53cde60caadee401c33e7df6a679c4b1c0",
+      "2970cb373d5639ec2fa12fa14f0703a67c22c0ef72183044c7ab94afd98a216c",
+      "655c2e653a21fee648371f363a87d0bcd6d21efa95a97008a17be8d9381ba5b4"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fb5267091381e7d57ae2c9faa37371358c5769270a67aa23f12d01e2307616d0"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8d18666c1f14c00b757d32ea67222c8da1112efd887930be84d5011a9875082f"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fb5267091381e7d57ae2c9faa37371358c5769270a67aa23f12d01e2307616d0"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f2e6ea2a2abcbb8d129280ce2d8cba7f64d8587ed71eafb313b9da051be31af3"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fb5267091381e7d57ae2c9faa37371358c5769270a67aa23f12d01e2307616d0"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "655c2e653a21fee648371f363a87d0bcd6d21efa95a97008a17be8d9381ba5b4"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 18
+   },
+   "ok": true
+  },
+  "patient_12__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 15
+   },
+   "ok": true
+  },
+  "patient_12__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": true
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": true
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 23
+   },
+   "ok": true
+  },
+  "patient_13__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1acb575f56f102c52e0613e4bb2e20fb7f81b41a7d1e1595c035a6c657fd6706"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "476a1c53377f3e74c99cdb8c3923b18afa9709ddc49869bf4f810fd70d44da46"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1acb575f56f102c52e0613e4bb2e20fb7f81b41a7d1e1595c035a6c657fd6706",
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "5495494b7d8fa1b4ce3dd9eb50ed134d0a405aabd5c7e913e0887260a516eccd"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "327c5d5b2e00b8fe975becba86d748c0a478d1bf8b5ba821f1561aa4ccd999f3",
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "327c5d5b2e00b8fe975becba86d748c0a478d1bf8b5ba821f1561aa4ccd999f3"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1acb575f56f102c52e0613e4bb2e20fb7f81b41a7d1e1595c035a6c657fd6706",
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1acb575f56f102c52e0613e4bb2e20fb7f81b41a7d1e1595c035a6c657fd6706",
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1acb575f56f102c52e0613e4bb2e20fb7f81b41a7d1e1595c035a6c657fd6706"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9",
+      "1acb575f56f102c52e0613e4bb2e20fb7f81b41a7d1e1595c035a6c657fd6706"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d7b32ee05844f5ceb55e3abe25835d19ac376498226a803f6d4ca588ee95f0f9",
+      "476a1c53377f3e74c99cdb8c3923b18afa9709ddc49869bf4f810fd70d44da46",
+      "5495494b7d8fa1b4ce3dd9eb50ed134d0a405aabd5c7e913e0887260a516eccd",
+      "1acb575f56f102c52e0613e4bb2e20fb7f81b41a7d1e1595c035a6c657fd6706",
+      "327c5d5b2e00b8fe975becba86d748c0a478d1bf8b5ba821f1561aa4ccd999f3",
+      "23c5ef58c04f04e586ace7da40908ab4caf934d45c7e1c7d8c00575d7c444e49"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 30
+   },
+   "ok": true
+  },
+  "patient_13__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 22
+   },
+   "ok": true
+  },
+  "patient_13__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": true
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": true
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": true
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 17
+   },
+   "ok": true
+  },
+  "patient_14__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c2e2afafb2c6c84f5147c305dd34386f29b0b00d19c50332a148986dbce702b0"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "717bcdd9be789bd035ad189d68d53112b0cbed3780d7755fc4683e25124aa435"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "311095650a2c90d5312199ef61c1cf288d1c6635a4440e95cc487ebed3c83e76"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fdbf0f09517a66f9485c14bed8afeab61afba9f98f242ac310db2b25d7e2b579"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30",
+      "fdbf0f09517a66f9485c14bed8afeab61afba9f98f242ac310db2b25d7e2b579",
+      "311095650a2c90d5312199ef61c1cf288d1c6635a4440e95cc487ebed3c83e76"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fdbf0f09517a66f9485c14bed8afeab61afba9f98f242ac310db2b25d7e2b579"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fdbf0f09517a66f9485c14bed8afeab61afba9f98f242ac310db2b25d7e2b579"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fdbf0f09517a66f9485c14bed8afeab61afba9f98f242ac310db2b25d7e2b579"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "311095650a2c90d5312199ef61c1cf288d1c6635a4440e95cc487ebed3c83e76"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "717bcdd9be789bd035ad189d68d53112b0cbed3780d7755fc4683e25124aa435"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "311095650a2c90d5312199ef61c1cf288d1c6635a4440e95cc487ebed3c83e76"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b606155123ae170bfc5ff38d79c941ad9a58ceca7b8fd21a3227877c6ad06d30",
+      "fdbf0f09517a66f9485c14bed8afeab61afba9f98f242ac310db2b25d7e2b579",
+      "9db15c408b1900efd71fb7fd2a733ab30f640ff5cf52ad33a0825e1a008a0c65"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 18
+   },
+   "ok": true
+  },
+  "patient_14__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 17
+   },
+   "ok": true
+  },
+  "patient_14__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": true
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": true
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": true
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": true
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 24
+   },
+   "ok": true
+  },
+  "patient_15__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c92fac00d8cc590458627888d3757d3c4ab1d9a93915385d6b8fd012262ac2f0"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c92fac00d8cc590458627888d3757d3c4ab1d9a93915385d6b8fd012262ac2f0"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dc3923abc13c638d80c05d3dd003dca6f879ad880b0cd0ad8bc05c88ac8d0c2a"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "9b643addb5e7ce4069733e851ada58512c30753744be0b2b811a2f8e5a8460f4",
+      "dc3923abc13c638d80c05d3dd003dca6f879ad880b0cd0ad8bc05c88ac8d0c2a"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c92fac00d8cc590458627888d3757d3c4ab1d9a93915385d6b8fd012262ac2f0"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c92fac00d8cc590458627888d3757d3c4ab1d9a93915385d6b8fd012262ac2f0"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c92fac00d8cc590458627888d3757d3c4ab1d9a93915385d6b8fd012262ac2f0"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dc3923abc13c638d80c05d3dd003dca6f879ad880b0cd0ad8bc05c88ac8d0c2a"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "50e66e9d07f8583e014582d810f1aa4967a6ade928038df23245d82d97e2aaf1",
+      "9b643addb5e7ce4069733e851ada58512c30753744be0b2b811a2f8e5a8460f4",
+      "dc3923abc13c638d80c05d3dd003dca6f879ad880b0cd0ad8bc05c88ac8d0c2a"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c92fac00d8cc590458627888d3757d3c4ab1d9a93915385d6b8fd012262ac2f0",
+      "6a2badea4fede00a05c2602f35010987e886e5561cb7d91c53a49de8d91bd4d1"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "361c3af9b37a51dc56fcd0be0957dea2cd0f41ba52bbdc40fad3ebf905040586",
+      "dc3923abc13c638d80c05d3dd003dca6f879ad880b0cd0ad8bc05c88ac8d0c2a"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 25
+   },
+   "ok": true
+  },
+  "patient_15__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 25
+   },
+   "ok": true
+  },
+  "patient_15__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": false
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": true
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": true
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 23
+   },
+   "ok": true
+  },
+  "patient_16__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6a2abc3d7ed2cef1d3583293341081946b2e72550bbbfee4276664579c7d8cf9"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6a2abc3d7ed2cef1d3583293341081946b2e72550bbbfee4276664579c7d8cf9",
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6a2abc3d7ed2cef1d3583293341081946b2e72550bbbfee4276664579c7d8cf9"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d96e5cf17778fd080fb4e5695aeaa85ce63c031e7b0bccf59525a35e36f353bc"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "629c802eec291df4d76f4de71c683b18221097ed1e5c4ae8bb312419b6e978c3"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "629c802eec291df4d76f4de71c683b18221097ed1e5c4ae8bb312419b6e978c3"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "629c802eec291df4d76f4de71c683b18221097ed1e5c4ae8bb312419b6e978c3"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "629c802eec291df4d76f4de71c683b18221097ed1e5c4ae8bb312419b6e978c3"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d96e5cf17778fd080fb4e5695aeaa85ce63c031e7b0bccf59525a35e36f353bc"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40",
+      "d96e5cf17778fd080fb4e5695aeaa85ce63c031e7b0bccf59525a35e36f353bc",
+      "629c802eec291df4d76f4de71c683b18221097ed1e5c4ae8bb312419b6e978c3"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d34e6115ecd854d86873caf29fe49d99ac8cb411d19e84d2aec0a3856da58a40",
+      "629c802eec291df4d76f4de71c683b18221097ed1e5c4ae8bb312419b6e978c3"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 9
+   },
+   "ok": true
+  },
+  "patient_16__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 10
+   },
+   "ok": true
+  },
+  "patient_16__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": true
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": true
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 12
+   },
+   "ok": true
+  },
+  "patient_17__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "955333dbe03afcafc37530d8ddb6c307dc49e0f03eaacff5cbd3f19b84704042"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "83e346d7c6aef0b8d954fa7ed8e1bd90d40668017e215db7201691afcba135b1"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "97e48647537eb16b02909ba0d84f4be204f2f7d084ed087000ea97b8d602ae5e"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d99ca44459bf05a071312654c459bcf3caaa7c2f85c274cba1d11c9cd7aa6839",
+      "97e48647537eb16b02909ba0d84f4be204f2f7d084ed087000ea97b8d602ae5e"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "83e346d7c6aef0b8d954fa7ed8e1bd90d40668017e215db7201691afcba135b1"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "83e346d7c6aef0b8d954fa7ed8e1bd90d40668017e215db7201691afcba135b1"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d99ca44459bf05a071312654c459bcf3caaa7c2f85c274cba1d11c9cd7aa6839"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d99ca44459bf05a071312654c459bcf3caaa7c2f85c274cba1d11c9cd7aa6839"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d99ca44459bf05a071312654c459bcf3caaa7c2f85c274cba1d11c9cd7aa6839"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "955333dbe03afcafc37530d8ddb6c307dc49e0f03eaacff5cbd3f19b84704042",
+      "d99ca44459bf05a071312654c459bcf3caaa7c2f85c274cba1d11c9cd7aa6839",
+      "97e48647537eb16b02909ba0d84f4be204f2f7d084ed087000ea97b8d602ae5e"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d99ca44459bf05a071312654c459bcf3caaa7c2f85c274cba1d11c9cd7aa6839",
+      "97e48647537eb16b02909ba0d84f4be204f2f7d084ed087000ea97b8d602ae5e"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "dd7369d2928fa0e0f02373b21df9b0315b26d182962b849c4c509e4c7041ebd4",
+      "d99ca44459bf05a071312654c459bcf3caaa7c2f85c274cba1d11c9cd7aa6839"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 18
+   },
+   "ok": true
+  },
+  "patient_17__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 13
+   },
+   "ok": true
+  },
+  "patient_17__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": true
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": true
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": true
+    },
+    {
+     "qno": 19,
+     "exact_value": true
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 21
+   },
+   "ok": true
+  },
+  "patient_18__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "5af0863bdbf37a854c7ba6cfb04c0310bef92342d77d51a88cc7cfb6851695e6"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fe24ced18186ae2d021e8b1fbb3296407fb293c9b12508657bcca1917f55bc0e"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6effdc00c53983734ddc30f0af49d0948f1404e6d5ca16449180753bf6871294"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1320e16ae3477d2ed2a3913ca53d23aa7575f2ef23242fead28581ff2b5d8e12"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1320e16ae3477d2ed2a3913ca53d23aa7575f2ef23242fead28581ff2b5d8e12",
+      "c8d0e10d98f1bfe067889351ab0466984ccb8204e7ef60e9ae57db366bd8240a",
+      "84679c09174d68cf155b1c0e33268cdb553edd64d00dd12023ac1de254904c1d"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c16b6f504aa42621abd774b0390e931fced2a4c9b586d610188074b7b085b8d9"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fe24ced18186ae2d021e8b1fbb3296407fb293c9b12508657bcca1917f55bc0e"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6858d3054ac6ad72a1e13ff7cb3cc2872d3979ac85d4744e832d0d0c0e89331a"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1320e16ae3477d2ed2a3913ca53d23aa7575f2ef23242fead28581ff2b5d8e12"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "f848c9e472edefe98a4bd649b41d8bcebe8924fa8d425b3fcf8209f466e62b37"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1320e16ae3477d2ed2a3913ca53d23aa7575f2ef23242fead28581ff2b5d8e12",
+      "fe24ced18186ae2d021e8b1fbb3296407fb293c9b12508657bcca1917f55bc0e",
+      "f848c9e472edefe98a4bd649b41d8bcebe8924fa8d425b3fcf8209f466e62b37",
+      "c8d0e10d98f1bfe067889351ab0466984ccb8204e7ef60e9ae57db366bd8240a",
+      "b7a2fcd79071d4752b879afa0d1ca3bb6af2bb8db6b995b74b9096e36e78bb4d",
+      "c16b6f504aa42621abd774b0390e931fced2a4c9b586d610188074b7b085b8d9",
+      "6858d3054ac6ad72a1e13ff7cb3cc2872d3979ac85d4744e832d0d0c0e89331a",
+      "a98208b7ee79bb799ad9d82d901b6756b227aaed203722a5d1be4e17076edca0",
+      "5af0863bdbf37a854c7ba6cfb04c0310bef92342d77d51a88cc7cfb6851695e6",
+      "6effdc00c53983734ddc30f0af49d0948f1404e6d5ca16449180753bf6871294",
+      "84679c09174d68cf155b1c0e33268cdb553edd64d00dd12023ac1de254904c1d"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b7a2fcd79071d4752b879afa0d1ca3bb6af2bb8db6b995b74b9096e36e78bb4d"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6858d3054ac6ad72a1e13ff7cb3cc2872d3979ac85d4744e832d0d0c0e89331a"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "6effdc00c53983734ddc30f0af49d0948f1404e6d5ca16449180753bf6871294"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fe24ced18186ae2d021e8b1fbb3296407fb293c9b12508657bcca1917f55bc0e",
+      "84679c09174d68cf155b1c0e33268cdb553edd64d00dd12023ac1de254904c1d"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b7a2fcd79071d4752b879afa0d1ca3bb6af2bb8db6b995b74b9096e36e78bb4d"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1320e16ae3477d2ed2a3913ca53d23aa7575f2ef23242fead28581ff2b5d8e12"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c8d0e10d98f1bfe067889351ab0466984ccb8204e7ef60e9ae57db366bd8240a",
+      "84679c09174d68cf155b1c0e33268cdb553edd64d00dd12023ac1de254904c1d"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "1320e16ae3477d2ed2a3913ca53d23aa7575f2ef23242fead28581ff2b5d8e12"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "c16b6f504aa42621abd774b0390e931fced2a4c9b586d610188074b7b085b8d9",
+      "6858d3054ac6ad72a1e13ff7cb3cc2872d3979ac85d4744e832d0d0c0e89331a",
+      "5af0863bdbf37a854c7ba6cfb04c0310bef92342d77d51a88cc7cfb6851695e6",
+      "6effdc00c53983734ddc30f0af49d0948f1404e6d5ca16449180753bf6871294"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 33
+   },
+   "ok": true
+  },
+  "patient_18__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 19
+   },
+   "ok": true
+  },
+  "patient_18__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": true
+    },
+    {
+     "qno": 2,
+     "exact_value": true
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": true
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": true
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 13
+   },
+   "ok": true
+  },
+  "patient_19__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a942a1711998fd6ed2e3112aea779566ec62da1fcc7b8f09101ff1268a43ce35"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a",
+      "099c1298639146f484485a1a9950dc9a5cd337d8482052d1d3cd2a240a5091fd"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fd4f48ae859eb4f2a3c4670fc1711cd4cef5089c5cbaf84a3485dfb7a2c214b9"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773",
+      "fd4f48ae859eb4f2a3c4670fc1711cd4cef5089c5cbaf84a3485dfb7a2c214b9",
+      "8d4fe90a48c2631762934befea22a9d51ad03a0558b9d0dfd8f309cc5d3f71a9",
+      "a942a1711998fd6ed2e3112aea779566ec62da1fcc7b8f09101ff1268a43ce35",
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773",
+      "fd4f48ae859eb4f2a3c4670fc1711cd4cef5089c5cbaf84a3485dfb7a2c214b9",
+      "8d4fe90a48c2631762934befea22a9d51ad03a0558b9d0dfd8f309cc5d3f71a9",
+      "a942a1711998fd6ed2e3112aea779566ec62da1fcc7b8f09101ff1268a43ce35",
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "fd4f48ae859eb4f2a3c4670fc1711cd4cef5089c5cbaf84a3485dfb7a2c214b9",
+      "8d4fe90a48c2631762934befea22a9d51ad03a0558b9d0dfd8f309cc5d3f71a9",
+      "a942a1711998fd6ed2e3112aea779566ec62da1fcc7b8f09101ff1268a43ce35",
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8d4fe90a48c2631762934befea22a9d51ad03a0558b9d0dfd8f309cc5d3f71a9",
+      "a942a1711998fd6ed2e3112aea779566ec62da1fcc7b8f09101ff1268a43ce35",
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "8d4fe90a48c2631762934befea22a9d51ad03a0558b9d0dfd8f309cc5d3f71a9",
+      "a942a1711998fd6ed2e3112aea779566ec62da1fcc7b8f09101ff1268a43ce35"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "a00bd559e70b0a099efb2d0bf2127bb1059ffe666c6746ea2f701baeda696773",
+      "fd4f48ae859eb4f2a3c4670fc1711cd4cef5089c5cbaf84a3485dfb7a2c214b9",
+      "8767dae149b2fd18b5f58632d3961e4dda48950ea0a18cb4c97c00b4a81e240a",
+      "099c1298639146f484485a1a9950dc9a5cd337d8482052d1d3cd2a240a5091fd"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 29
+   },
+   "ok": true
+  },
+  "patient_19__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 22
+   },
+   "ok": true
+  },
+  "patient_19__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": false
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": false
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": true
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": true
+    },
+    {
+     "qno": 9,
+     "exact_value": true
+    },
+    {
+     "qno": 10,
+     "exact_value": true
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": false
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": true
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": true
+    },
+    {
+     "qno": 17,
+     "exact_value": true
+    },
+    {
+     "qno": 18,
+     "exact_value": true
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 17
+   },
+   "ok": true
+  },
+  "patient_20__ans_early": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7e99eb1ac4c42c18f13132aae29a3a9bac912a0ae4600dfe852cf50e7794393b"
+     ]
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b61a2f3d4e04d5703dbbe58266528766f12e42df317965034552c6f46e277d99"
+     ]
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9",
+      "b61a2f3d4e04d5703dbbe58266528766f12e42df317965034552c6f46e277d99"
+     ]
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "7e99eb1ac4c42c18f13132aae29a3a9bac912a0ae4600dfe852cf50e7794393b"
+     ]
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "81449bd46339f593c7c40ea6124a07407306c38ecfcb9c98a908aead96a4ae8d"
+     ]
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "81449bd46339f593c7c40ea6124a07407306c38ecfcb9c98a908aead96a4ae8d"
+     ]
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "b61a2f3d4e04d5703dbbe58266528766f12e42df317965034552c6f46e277d99"
+     ]
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "81449bd46339f593c7c40ea6124a07407306c38ecfcb9c98a908aead96a4ae8d"
+     ]
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9",
+      "b61a2f3d4e04d5703dbbe58266528766f12e42df317965034552c6f46e277d99"
+     ]
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9"
+     ]
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9",
+      "9ec5eeccafd5b4d2160509eb817bcb837ebc9b42296c56ea7a63489c48e158c9"
+     ]
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "d512a855411108f9b2bbd09e1019a24196ab6cb9001dc954ad4a7f1977700df9",
+      "b61a2f3d4e04d5703dbbe58266528766f12e42df317965034552c6f46e277d99",
+      "81449bd46339f593c7c40ea6124a07407306c38ecfcb9c98a908aead96a4ae8d"
+     ]
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "stash_dependent",
+     "gold_shas": [
+      "81449bd46339f593c7c40ea6124a07407306c38ecfcb9c98a908aead96a4ae8d"
+     ]
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 16
+   },
+   "ok": true
+  },
+  "patient_20__ans_late": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 2,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 3,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 4,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 5,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 6,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 7,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 8,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 9,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 10,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 11,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 12,
+     "exact_value": true,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 13,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 14,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 15,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 16,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 17,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 18,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 19,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    },
+    {
+     "qno": 20,
+     "exact_value": false,
+     "where": "in_view",
+     "gold_shas": []
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 29
+   },
+   "ok": true
+  },
+  "patient_20__unans": {
+   "rows": [
+    {
+     "qno": 1,
+     "exact_value": false
+    },
+    {
+     "qno": 2,
+     "exact_value": true
+    },
+    {
+     "qno": 3,
+     "exact_value": true
+    },
+    {
+     "qno": 4,
+     "exact_value": true
+    },
+    {
+     "qno": 5,
+     "exact_value": false
+    },
+    {
+     "qno": 6,
+     "exact_value": false
+    },
+    {
+     "qno": 7,
+     "exact_value": false
+    },
+    {
+     "qno": 8,
+     "exact_value": false
+    },
+    {
+     "qno": 9,
+     "exact_value": false
+    },
+    {
+     "qno": 10,
+     "exact_value": false
+    },
+    {
+     "qno": 11,
+     "exact_value": false
+    },
+    {
+     "qno": 12,
+     "exact_value": true
+    },
+    {
+     "qno": 13,
+     "exact_value": false
+    },
+    {
+     "qno": 14,
+     "exact_value": false
+    },
+    {
+     "qno": 15,
+     "exact_value": false
+    },
+    {
+     "qno": 16,
+     "exact_value": false
+    },
+    {
+     "qno": 17,
+     "exact_value": false
+    },
+    {
+     "qno": 18,
+     "exact_value": false
+    },
+    {
+     "qno": 19,
+     "exact_value": false
+    },
+    {
+     "qno": 20,
+     "exact_value": false
+    }
+   ],
+   "stash_reasons": {
+    "stashed:stale_read_far_from_recent_work": 20
+   },
+   "ok": true
+  }
+ }
+}
