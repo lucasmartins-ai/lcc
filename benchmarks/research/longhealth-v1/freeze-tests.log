@@ -1,0 +1,10 @@
+# LongHealth v1 freeze test log
+commit: 17d9595ca0f9b54cdec2e483cf389e8c8a1bb2ae (detached worktree, 0 changed files)
+python: Python 3.14.3
+date: 2026-11-04T11:02:37Z
+
+$ HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 python -m pytest -o addopts= -q -p no:cacheprovider tests/test_longhealth_v1.py tests/test_transcript_stash.py
+51 passed in 1.60s
+
+$ HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 python -m pytest -o addopts= -q -p no:cacheprovider
+2385 passed, 19 skipped in 64.34s (0:01:04)

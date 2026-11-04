@@ -1,8 +1,8 @@
 # LongHealth v1: do verbatim compaction and a deterministic check hold up on clinical records? (draft 2026-11-03)
 
-**Status: binding draft, not frozen.** The owner approved the route and cap on 2026-11-03 (Run order, step 2), so the
-hypotheses, gates and criteria above the Amendments can now change only by a dated amendment. The harness freeze
-(step 4) is still to come. Record texts, questions, options and answers never enter this repository (see Data use); only counts,
+**Status: frozen by Amendment 2 (2026-11-04).** The owner approved the route and cap on 2026-11-03 (Run order,
+step 2), and the pilot's decisions are Amendment 1. From the commit that merges Amendment 2, the harness, texts and
+LCC pin below are fixed. Anything that changes them is a dated amendment that says what it changes and why. Record texts, questions, options and answers never enter this repository (see Data use); only counts,
 aggregates and per-item 0/1 scores keyed by ids do. Results are tagged INFERIDO until `gateClaim` returns PASS on
 them.
 
@@ -368,3 +368,41 @@ constuir um ponteiro" (D1–D3 as recommended in `PILOT.md`, and D4 option (b)).
   - Every call sets `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`.
   - `LONGHEALTH_PAUSE_AT` can stop the driver between calls; the next run resumes from cache.
 - **Not changed:** D, the builder, the gates, H1, H2, scoring, the metrics and the cap.
+
+### Amendment 2: freeze (2026-11-04, before any D call)
+
+Run order step 4. Everything D runs is fixed here.
+
+- **LCC pin:** `main` at `17d9595ca0f9b54cdec2e483cf389e8c8a1bb2ae`. That commit includes lucasmartins-ai/lcc#138
+  (`head` pointer), and its `src/` is identical to `9d1406c`, which the re-pilot used. It runs from a detached
+  worktree with a clean tree, with `PYTHONPATH=<pin>/src`, `HF_HUB_OFFLINE=1` and `TRANSFORMERS_OFFLINE=1`.
+  `lcc.__version__` there reads 1.3.0, so the pin is the commit, not the version.
+- **Harness** (sha256 of the files at the pin):
+  - `longhealth_v1.py` `44384a17fda811429d88be532e1571cfe02351d6ca9d315cc1327c5f8f3e3efb`
+  - `recall_shim.py` `110c8416760fcbd5c51afc7f2a27723898afef7f60d8799bfcb92c3601604443`
+- **Texts** (sha256 of the UTF-8 strings in the harness):
+  - Q-T `c2716a3458276d325a197ffd26766092689d0328a811e756606801ff173d77e6`
+  - Q-0 `04122a5616d3b53dd5535040d9e3ba85129d3911685b7590b6d3e29740ecd863`
+  - Q-N `f507a4030eec3562d098f8cab90368cf092f78d9308fb7799327d9a367d74aa6`
+  - S-clin `174f28e1acce667d502a0431f35fc74c24ca78dc8455f697a3ec7d68a7d3c632`
+  - S is unchanged from `probe-eval-v1`: `ea72d62f…` over the text plus its final newline, which a test checks;
+    `264df71ded196288d789f944b9f6bef6cb7e2468e40e95ceea84973a49321a5d` without the newline.
+  - The fixed compaction goal is `23152227b656de77a070f390f50dca8671ae42384d7fa8da55b1b362dbbb0882`.
+- **Settings:**
+  - pointer: `head`;
+  - answerer: `claude-sonnet-5-5` at medium effort;
+  - summarizer: `claude-opus-5-5` at high effort;
+  - output cap: 128,000;
+  - attempts: 5 for summaries, 3 for every other call;
+  - recall caps: 8 calls and 20,000 tokens;
+  - call cap: 650, of which 82 were used by the toolcheck, the pilot and the re-pilot, leaving 568 for D (about 540
+    expected).
+- **Token counter:** lcc's offline heuristic (`count_tokens(..., "gpt-4.1")` reports `approximate`, because no
+  tiktoken assets are installed). It is the default an lcc user gets, and the pilot used it too. It sets every
+  token size here: C, C′, summary context, restored context, the recall shim's 20,000-token cap and the
+  summary arms' re-attach budget. Cumulative usage comes from the CLI envelopes, which count tokens exactly.
+- **E receipt:** the `exact_value` flag on each row of `location-receipt-D.json`. The locate phase sets it from the
+  gold (correct option text contains a digit) before any answer exists, and it is committed with the location
+  receipt (step 5).
+- **Test log:** `freeze-tests.log`, run at the pin. The harness and stash tests gave 51 passed; the full suite gave
+  2,385 passed and 19 skipped.
