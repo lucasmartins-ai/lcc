@@ -369,7 +369,11 @@ def _tool_intake(args: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(text, str) or not text.strip():
         raise ToolInputError("intake requires non-empty 'text'")
     question = args.get("question", "") or ""
-    result = LccIntake().process(raw_input=text, question=question)
+    previous_turn = args.get("previous_turn")
+    if previous_turn is not None and not isinstance(previous_turn, str):
+        raise ToolInputError("intake 'previous_turn' must be a string")
+    previous_turn = previous_turn or None
+    result = LccIntake().process(raw_input=text, question=question, previous_turn=previous_turn)
     return {
         "readiness": result.parsed.readiness.value,
         "readiness_score": result.parsed.readiness_score,
@@ -656,6 +660,14 @@ TOOLS: dict[str, dict[str, Any]] = {
             "properties": {
                 "text": {"type": "string"},
                 "question": {"type": "string", "default": ""},
+                "previous_turn": {
+                    "type": "string",
+                    "default": "",
+                    "description": (
+                        "The agent's last message before 'text', if known. Only the advisory "
+                        "category reads it."
+                    ),
+                },
             },
             "required": ["text"],
         },

@@ -94,6 +94,7 @@ lcc = [
     "py.typed",
     "relevance/specialist_v3.json",
     "intake/intake_category_v1.json",
+    "intake/intake_category_v3.json",
     "intake/intake_categories.json",
 ]
 
