@@ -23,5 +23,7 @@ Nothing is typed by hand twice:
   source file. Model sha256 values are computed and must match the pins in the Python loaders.
 - After a change to the intake model, regenerate the fixture: `python tests/test_site_intake_fixture.py --write`.
 
-Deploy is not wired. `SITE_BASE=/lcc` builds for `lucasmartins-ai.github.io/lcc`; the default `/` suits a
-custom domain.
+Deploy: `.github/workflows/site.yml` builds on pushes to `main` that touch the site's sources, daily (new LCC-judge
+results) and on demand, and publishes to GitHub Pages at `lcc.lookadev.com`. It skips the publish step until
+Settings -> Pages -> Source is "GitHub Actions"; the custom domain is set there too. `SITE_BASE=/lcc` would build for
+`lucasmartins-ai.github.io/lcc` instead.

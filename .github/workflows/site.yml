@@ -1,0 +1,74 @@
+name: Site
+
+# Builds site/ and publishes it to GitHub Pages at the custom domain below. The deploy step runs
+# only once Settings -> Pages -> Source is "GitHub Actions" (build_type "workflow"); while the
+# legacy Jekyll source is set, it is skipped. The daily run picks up new LCC-judge results.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "docs/**"
+      - "benchmarks/research/*.md"
+      - "README.md"
+      - "src/lcc/intake/**"
+      - "src/lcc/relevance/specialist*"
+      - ".github/workflows/site.yml"
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+    - name: Set up Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version: '24'
+    - name: Install
+      run: npm ci
+    - name: Intake demo parity
+      run: npm test
+    - name: Build
+      env:
+        SITE_URL: https://lcc.lookadev.com
+        SITE_BASE: /
+      run: |
+        npm run fetch-judge
+        npm run build
+    - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      with:
+        path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+    - id: mode
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        mode="$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type || true)"
+        echo "Pages build_type: ${mode:-unknown}"
+        echo "workflow=$([ "$mode" = workflow ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+    - id: deploy
+      if: steps.mode.outputs.workflow == 'true'
+      uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
