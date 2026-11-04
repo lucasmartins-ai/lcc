@@ -119,9 +119,10 @@ class LimitHit(RuntimeError):
 
 
 class InfraError(RuntimeError):
-    def __init__(self, msg: str, tokens: int = 0):  # tokens the failed attempt consumed (a split reply has some)
+    def __init__(self, msg: str, tokens: int = 0, split: bool = False):
         super().__init__(msg)
-        self.tokens = tokens
+        self.tokens = tokens  # what the failed attempt consumed (a split reply has some)
+        self.split = split  # a no-tool reply that came back over more than one turn (counted per arm)
 
 
 # --- io ---------------------------------------------------------------------------------------------------------
@@ -367,7 +368,7 @@ def cli(role: str, model: str, system: str, prompt: str, effort: str, tool: tupl
         append(ROOT / "split-envelopes.jsonl", {"role": role, **{k: v for k, v in env.items() if k != "result"}})
         raise InfraError(f"{role}: reply split over {env['num_turns']} turns without tools "
                          f"(stop_reason {env.get('stop_reason')}, models {sorted(env.get('modelUsage') or {})})",
-                         sum(usage_tokens(env.get("usage") or {})))
+                         sum(usage_tokens(env.get("usage") or {})), split=True)
     if not ok:
         msg = f"{out[-2000:]}\n{err[-2000:]}"
         if LIMIT_RE.search(msg):
@@ -394,21 +395,23 @@ def cached(path: Path, fn, max_attempts: int = 3) -> dict | None:
         return prev
     attempts = prev["attempts"] if prev else 0
     wasted = prev.get("retry_tokens", 0) if prev else 0  # tokens of rejected attempts, still part of the arm's cost
+    splits = prev.get("splits", 0) if prev else 0
     for _ in range(2):
         if attempts >= max_attempts:
             break
         attempts += 1
         try:
-            res = {"ok": True, "attempts": attempts, **fn(), "retry_tokens": wasted, "max_attempts": max_attempts}
+            res = {"ok": True, "attempts": attempts, **fn(), "retry_tokens": wasted, "splits": splits,
+                   "max_attempts": max_attempts}
             wj(path, res)
             return res
         except InfraError as e:
-            wasted += e.tokens
+            wasted, splits = wasted + e.tokens, splits + e.split
             wj(path, {"ok": False, "attempts": attempts, "error": str(e)[:300], "retry_tokens": wasted,
-                      "max_attempts": max_attempts})
+                      "splits": splits, "max_attempts": max_attempts})
         except LimitHit as e:
             wj(path, {"ok": False, "attempts": attempts, "error": f"usage limit: {e}", "retry_tokens": wasted,
-                      "max_attempts": max_attempts})
+                      "splits": splits, "max_attempts": max_attempts})
             raise SystemExit(f"usage limit ({e}); rerun after the reset, the cache resumes") from None
     return None
 
@@ -721,11 +724,11 @@ def bootstrap(rows: list[dict], a: str, b: str, name: str, n: int | None = None,
 
 
 def verdicts(tests: dict, gates: dict, complete: bool) -> dict | None:
-    """H1–H3 pass/fail, or None when the run is invalid: any gate failed, or an arm is missing (PROTOCOL.md)."""
+    """H1 and H2 pass/fail, or None when the run is invalid: any gate failed, or an arm is missing (PROTOCOL.md).
+    H3 is descriptive since Amendment 1: its contrasts are in `tests`, with no verdict."""
     if not complete or not all(gates.values()):
         return None
-    return {"H1": tests["H1"]["lo"] > -0.05, "H2": tests["H2_s"]["lo"] > 0 and tests["H2_clin"]["lo"] > 0,
-            "H3": tests["H3_UA"]["hi"] < 0 and tests["H3_A"]["lo"] > -0.05}
+    return {"H1": tests["H1"]["lo"] > -0.05, "H2": tests["H2_s"]["lo"] > 0 and tests["H2_clin"]["lo"] > 0}
 
 
 def answer_of(arm: str, sid: str) -> dict | None:
@@ -733,7 +736,7 @@ def answer_of(arm: str, sid: str) -> dict | None:
     a = sdir("answers", arm, f"{sid}.json")
     if not (a.exists() and rj(a).get("ok")):
         return None
-    usage = rj(a)["in_tokens"] + rj(a)["out_tokens"]
+    usage = rj(a)["in_tokens"] + rj(a)["out_tokens"] + rj(a).get("retry_tokens", 0)
     if arm != "stashed_v":
         return {"text": rj(a)["text"], "final": None, "usage": usage}
     v = sdir("verify", f"{sid}.json")
@@ -742,7 +745,7 @@ def answer_of(arm: str, sid: str) -> dict | None:
     final = rj(v).get("final")
     r2 = sdir("answers", "stashed_v_reask", f"{sid}.json")
     if r2.exists() and rj(r2).get("ok"):
-        usage += rj(r2)["in_tokens"] + rj(r2)["out_tokens"]
+        usage += rj(r2)["in_tokens"] + rj(r2)["out_tokens"] + rj(r2).get("retry_tokens", 0)
     return {"text": rj(a)["text"], "final": {int(k): x for k, x in final.items()} if final else None, "usage": usage}
 
 
@@ -802,14 +805,23 @@ def session_status(arm: str, sid: str) -> str:
 
 
 def consumed_usage() -> dict[str, int]:
-    """Every call's tokens by arm, dropped sessions and rejected (split) attempts included (the re-ask counts for
-    stashed_v, each summary for its arm)."""
+    """Every call's tokens by arm, dropped sessions and rejected (split) attempts included."""
+    return per_arm(lambda r: r.get("retry_tokens", 0) + (r["in_tokens"] + r["out_tokens"] if r.get("ok") else 0))
+
+
+def split_counts() -> dict[str, int]:
+    """Split replies by arm (Amendment 1), every attempt of every cached call."""
+    return {arm: n for arm, n in per_arm(lambda r: r.get("splits", 0)).items() if n}
+
+
+def per_arm(value) -> dict[str, int]:
+    """value(cache record) summed by arm over every cached call: the re-ask counts for stashed_v, each summary for
+    its arm, dropped sessions included."""
     out: dict[str, int] = {}
     for group, arm_of in (("answers", lambda d: "stashed_v" if d == "stashed_v_reask" else d), ("summaries", str)):
         for f in sdir(group).glob("*/*.json") if sdir(group).is_dir() else ():
-            r, arm = rj(f), arm_of(f.parent.name)
-            used = r.get("retry_tokens", 0) + (r["in_tokens"] + r["out_tokens"] if r.get("ok") else 0)
-            out[arm] = out.get(arm, 0) + used
+            arm = arm_of(f.parent.name)
+            out[arm] = out.get(arm, 0) + value(rj(f))
     return out
 
 
@@ -819,6 +831,9 @@ def phase_score(bench: dict, which: str) -> None:
     every = sessions(bench, which)
     status = {s["id"]: [session_status(a, s["id"]) for a in run_arms] for s in every}
     none_status = {t: status_of(sdir("answers", "none", f"{t}.json")) for t in targets(bench, which)}
+    if n_calls() >= CALL_CAP:  # Amendment 1: what the spent cap leaves unrun is dropped (V2), not pending
+        status = {sid: ["terminal" if x == "pending" else x for x in st] for sid, st in status.items()}
+        none_status = {t: "terminal" if x == "pending" else x for t, x in none_status.items()}
     pending = any("pending" in st for st in status.values()) or (
         "none" in present and "pending" in none_status.values())
     # Verdicts need every arm and no answer still to run; only terminal infrastructure failures drop (V2).
@@ -844,7 +859,7 @@ def phase_score(bench: dict, which: str) -> None:
             extra = 0
             if ARMS[arm][0] in ("summary_s", "summary_clin"):
                 sm = rj(sdir("summaries", ARMS[arm][0], f"{s['id']}.json"))
-                extra = sm["in_tokens"] + sm["out_tokens"]
+                extra = sm["in_tokens"] + sm["out_tokens"] + sm.get("retry_tokens", 0)
             usage[arm] = usage.get(arm, 0) + ans["usage"] + extra
     for t in sorted(none_ok & {s["target"] for s in kept}):
         a = rj(sdir("answers", "none", f"{t}.json"))
@@ -906,6 +921,7 @@ def phase_score(bench: dict, which: str) -> None:
                                    for k in ("summary_s", "summary_clin")},
         "cumulative_usage_tokens": consumed_usage(),
         "cumulative_usage_cohort_tokens": usage,
+        "split_replies": split_counts(),
     }
     failures = {arm: {c: sum(r["failure"] for r in rows if r["arm"] == arm and r["condition"] == c)
                       for c in CONDITIONS} for arm in present}

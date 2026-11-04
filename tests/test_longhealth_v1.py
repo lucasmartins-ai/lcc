@@ -151,7 +151,7 @@ def test_verify_and_merge_reask():
 def test_verdicts_are_withheld_for_invalid_or_incomplete_runs():
     ok = {"lo": 0.1, "hi": 0.2}
     tests = {"H1": ok, "H2_s": ok, "H2_clin": ok, "H3_UA": {"lo": -0.3, "hi": -0.1}, "H3_A": ok}
-    assert lh.verdicts(tests, {"V1": True, "V6_not_contaminated": True}, True) == {"H1": True, "H2": True, "H3": True}
+    assert lh.verdicts(tests, {"V1": True, "V6_not_contaminated": True}, True) == {"H1": True, "H2": True}
     assert lh.verdicts(tests, {"V1": False, "V6_not_contaminated": True}, True) is None
     assert lh.verdicts(tests, {"V1": True}, False) is None
 
@@ -186,7 +186,7 @@ def test_score_end_to_end_on_fake_answers(tmp_path, monkeypatch):
     assert res["complete"] and not res["dropped"]
     assert res["table"]["full_t"]["A"] == [80, 80] and res["table"]["stashed_v"]["U"] == [40, 40]
     assert all(res["gates"].values()), res["gates"]
-    assert res["verdict"] == {"H1": True, "H2": False, "H3": False}  # equal arms: no difference to detect
+    assert res["verdict"] == {"H1": True, "H2": False}  # equal arms: no difference to detect; H3 is descriptive
     assert res["sizes"]["C_prime_tokens"] < res["sizes"]["C_tokens"]
     assert res["sizes"]["cumulative_usage_tokens"]["summary_s"] == 6 * (11 + 6)
     first = lh.sessions(bench, "pilot")[0]["id"]
@@ -201,6 +201,12 @@ def test_score_end_to_end_on_fake_answers(tmp_path, monkeypatch):
     lh.phase_score(bench, "pilot")
     res = lh.rj(tmp_path / "results-pilot.json")
     assert not res["complete"] and res["dropped"] == [] and res["verdict"] is None
+    # once the call cap is spent, what it left unrun is dropped (Amendment 1), not pending
+    monkeypatch.setattr(lh, "CALL_CAP", lh.n_calls())
+    lh.phase_score(bench, "pilot")
+    res = lh.rj(tmp_path / "results-pilot.json")
+    assert res["complete"] and res["dropped"] == [first] and not res["gates"]["V2"]
+    monkeypatch.setattr(lh, "CALL_CAP", 650)
     # a terminal infrastructure failure (3 attempts) drops that session from every arm (V2)
     lh.wj(answer, {"ok": False, "attempts": 3, "error": "exit 1"})
     lh.phase_score(bench, "pilot")
@@ -234,7 +240,7 @@ def test_usage_limit_messages_are_recognised():
 
 def _fake_cli(turns: str) -> dict:
     if turns == "2":
-        raise lh.InfraError("summary: reply split over 2 turns without tools", 70_100)
+        raise lh.InfraError("summary: reply split over 2 turns without tools", 70_100, split=True)
     return {"text": "summary", "turns": 1, "in_tokens": 100, "out_tokens": 60_000}
 
 
@@ -261,8 +267,9 @@ def test_cli_rejects_a_reply_split_over_turns_without_tools(tmp_path, monkeypatc
     turns = iter(["2", "1"])
     monkeypatch.setattr(lh, "cli", lambda *a: _fake_cli(next(turns)))
     res = lh.cached(tmp_path / "summaries" / "summary_clin" / "s.json", lambda: lh.cli())
-    assert res["attempts"] == 2 and res["retry_tokens"] == 70_100
+    assert res["attempts"] == 2 and res["retry_tokens"] == 70_100 and res["splits"] == 1
     assert lh.consumed_usage()["summary_clin"] == 70_100 + 60_100
+    assert lh.split_counts() == {"summary_clin": 1}
     # A summary gets SUMMARY_ATTEMPTS, two per run: still pending after 4 splits, terminal after the 5th.
     monkeypatch.setattr(lh, "cli", lambda *a: _fake_cli("2"))
     path = tmp_path / "summaries" / "summary_s" / "s.json"

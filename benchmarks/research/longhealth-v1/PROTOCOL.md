@@ -340,7 +340,8 @@ constuir um ponteiro" (D1–D3 as recommended in `PILOT.md`, and D4 option (b)).
 - **D3. Summary calls get up to 5 infrastructure attempts; other calls keep 3.**
   - A reply with no tools that comes back over more than one turn counts as an infrastructure failure. The CLI
     resumed a cut reply and returned only its tail in 4 of 6 `ans_early` S-clin attempts.
-  - Each attempt's tokens stay in the arm's cumulative usage, and split counts are reported per arm.
+  - Each attempt's tokens stay in the arm's cumulative usage, and split counts are reported per arm
+    (`split_replies` in the results).
   - At the pilot's split rate D needs about 36 extra calls. The 650-call cap still binds: a run that reaches it
     stops, and the sessions it leaves count as V2 drops.
 - **D4. The stashed arms use `head` pointers.** This is a new opt-in lcc pointer: the lean fields with the first
