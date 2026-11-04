@@ -480,12 +480,13 @@ TOOLS: dict[str, dict[str, Any]] = {
                 },
                 "stash_pointer": {
                     "type": "string",
-                    "enum": ["plain", "lean"],
+                    "enum": ["plain", "lean", "head"],
                     "default": "plain",
                     "description": (
                         "rules_mode 'stashed' only. 'lean' adds the exit status, error type "
                         "or failing test and the first line to each pointer (about +13 "
-                        "tokens each)."
+                        "tokens each). 'head' is 'lean' with the first 160 characters "
+                        "across lines instead of the first line."
                     ),
                 },
                 "workspace_root": {

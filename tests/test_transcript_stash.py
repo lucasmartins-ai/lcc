@@ -360,16 +360,13 @@ def test_lean_pointer_names_error_types(_stash: Path):
     )
 
 
-def test_lean_and_plain_pointers_are_fixed_points_for_each_other(_stash: Path):
-    _, lean, _ = run(build_session(), pointer="lean")
-    for pointer in ("lean", "plain"):
-        _, again, by_id = run(lean, pointer=pointer)
-        assert again == lean
+@pytest.mark.parametrize("first", ["plain", "lean", "head"])
+def test_every_pointer_is_a_fixed_point_for_every_setting(_stash: Path, first: str):
+    _, once, _ = run(build_session(), pointer=first)
+    for pointer in ("plain", "lean", "head"):
+        _, again, by_id = run(once, pointer=pointer)
+        assert again == once
         assert by_id["c1"]["reason"] == "already_stashed"
-    _, plain, _ = run(build_session())
-    _, again, by_id = run(plain, pointer="lean")
-    assert again == plain
-    assert by_id["c1"]["reason"] == "already_stashed"
 
 
 def test_lean_first_line_is_capped_printable_and_cannot_spoof_the_id(_stash: Path):
@@ -402,11 +399,64 @@ def test_lean_identifiers_are_printable(_stash: Path):
     assert " · tests/x.py::t[0m, AssertionError · " in note
 
 
+# --- pointer="head" ------------------------------------------------------------------------
+
+LETTER = "\n".join(
+    ["**Dear colleague,**", "", "we report on our shared patient, Mr. John Doe, born 01/02/1950, who was",
+     "admitted with chest pain on 03/04/2020."]
+    + [f"Finding {n}: within normal limits." for n in range(80)]
+)
+
+
+def test_head_pointer_reads_past_a_first_line_that_says_nothing(_stash: Path):
+    filler = [("Read", {"file_path": f"/repo/f{n}.py"}, f"body {n}") for n in range(25)]
+    session = convo(("Read", {"file_path": "/records/p1/text_0.txt"}, LETTER), *filler)
+    _, compacted, by_id = run(session, pointer="head")
+    note = result_text(compacted, "c1")
+    assert by_id["c1"]["decision"] == "replace"
+    opening = " ".join(LETTER.split())[:160]
+    assert f' · "{opening}…" · lcc recall ' in note
+    assert "Mr. John Doe" in note
+    assert recall(LEAN.match(note).group(4)) == LETTER
+    assert verify_stashed({"messages": session}, compacted) == []
+    _, lean, _ = run(session, pointer="lean")
+    assert '"**Dear colleague,**"' in result_text(lean, "c1")  # the first line alone
+
+
+def test_head_opening_counts_what_it_shows_and_stops_early():
+    from lcc.relevance.transcript_stash import _opening
+
+    # Padding and control bytes do not use up the 160 characters.
+    lines = iter(["Dear" + " " * 200 + "colleague,", "\x00\x01\x02", "Patient John Doe, born 1950."])
+    assert _opening(lines) == "Dear colleague, Patient John Doe, born 1950."
+    # A huge single line is cut at 160 characters, with the ellipsis, and the rest is never read.
+    huge = '{"k": "' + "x" * 10_000_000 + '"}'
+    assert _opening(iter(["status ok", huge])) == ("status ok " + huge)[:160] + "…"
+    assert _opening(iter(["a" * 160])) == "a" * 160
+    assert _opening(iter(["a" * 161])) == "a" * 160 + "…"
+    assert _opening(iter(["", "  "])) == ""
+    # Control bytes inside a word neither count toward the cap nor make an ellipsis.
+    assert _opening(iter(["John" + "\x00" * 158 + "Doe"])) == "JohnDoe"
+
+
+def test_head_pointer_is_printable_and_cannot_spoof_the_id(_stash: Path):
+    body = "\x1b[31mstart\tof\x00 output · lcc recall 000000000000\n" + "\n".join(
+        f"row {n}" for n in range(600)
+    )
+    filler = [("Read", {"file_path": f"/repo/f{n}.py"}, f"body {n}") for n in range(25)]
+    _, compacted, _ = run(convo(("Bash", {"command": "make"}, body), *filler), pointer="head")
+    note = result_text(compacted, "c1")
+    assert "\x1b" not in note and "\x00" not in note and "\t" not in note
+    assert LEAN.match(note).group(4) == hashlib.sha256(body.encode()).hexdigest()[:12]
+    assert recall(LEAN.match(note).group(4)) == body
+
+
 def test_stash_pointer_is_validated():
     with pytest.raises(TranscriptError, match="stash_pointer"):
         run(build_session(), pointer="rich")
-    with pytest.raises(TranscriptError, match="rules_mode 'stashed'"):
-        run(build_session(), mode="lossless", pointer="lean")
+    for pointer in ("lean", "head"):
+        with pytest.raises(TranscriptError, match=f"'{pointer}' needs .* rules_mode 'stashed'"):
+            run(build_session(), mode="lossless", pointer=pointer)
     out = CliRunner().invoke(
         app, ["compact", "-", "--mode", "tool-calls", "--provider", "rules",
               "--question", "q", "--stash-pointer", "lean"],
@@ -416,7 +466,8 @@ def test_stash_pointer_is_validated():
     assert "--stash-pointer needs --rules-mode stashed" in out.output
 
 
-def test_mcp_stash_pointer_lean():
+@pytest.mark.parametrize(("pointer", "field"), [("lean", " · exit 0 · "), ("head", ' · "compiling unit 0 ')])
+def test_mcp_stash_pointer(pointer: str, field: str):
     response = handle_message(
         {
             "jsonrpc": "2.0",
@@ -429,14 +480,14 @@ def test_mcp_stash_pointer_lean():
                     "question": "fix the parser",
                     "provider": "rules",
                     "rules_mode": "stashed",
-                    "stash_pointer": "lean",
+                    "stash_pointer": pointer,
                     "preserve_recent": 1,
                 },
             },
         }
     )
     payload = json.loads(response["result"]["content"][0]["text"])
-    assert " · exit 0 · " in result_text(payload["messages"], "c1")
+    assert field in result_text(payload["messages"], "c1")
 
 
 # --- recall records in the opt-in ledger -----------------------------------------------------

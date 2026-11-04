@@ -15,6 +15,10 @@ re-hashes on read, so what comes back is provably what was removed.
 <sha12>]``. Every field comes from the stashed bytes alone, so the note is still one fixed point
 per output. The id stays last, so both forms parse the same way.
 
+``pointer="head"`` (opt-in, ``--stash-pointer head``) is ``lean`` with the first line replaced by
+the opening of the output across lines, whitespace collapsed, capped at 160 characters: what a
+search snippet shows. A letter whose first line is a salutation then still says whom it is about.
+
 Eligible: every result ``lossy`` would drop or trim, plus every result ``recoverable`` replaces;
 lossless dedupes win where they apply. Everything else is kept verbatim, as in those modes:
 pinned turns, the latest error and the call before it, calls named in the goal, duplicate ids.
@@ -60,11 +64,12 @@ _NOTE = re.compile(
     r"^\[removed: (?:\d+ tokens|\d+ lines?, \d+(?:\.\d)? K?B)(?: · [^\n]*)?"
     r" · lcc recall (?P<id>[0-9a-f]{12})\]$"
 )
-POINTERS = ("plain", "lean")
+POINTERS = ("plain", "lean", "head")
 _EXIT = re.compile(r"^(?:Process exited with code|Exit code:?|exit code:?)\s*(-?\d+)\b")
 _ERROR_TYPE = re.compile(r"\b[A-Z][A-Za-z0-9_]*(?:Error|Exception)\b")
 _FAILED_TEST = re.compile(r"^(?:FAILED|ERROR) (\S+::\S+)", re.M)
 _LEAN_FIRST = 60
+_HEAD = 160
 _LEAN_ID = 60
 
 
@@ -354,8 +359,9 @@ def _printable(value: str) -> str:
     return "".join(ch for ch in value if ch.isprintable())
 
 
-def _lean_fields(text: str) -> list[str]:
-    """Exit status, up to two identifiers and the first line, by fixed rules over ``text``."""
+def _lean_fields(text: str, head: bool = False) -> list[str]:
+    """Exit status, up to two identifiers and the first line (``head``: the opening across lines),
+    by fixed rules over ``text``."""
     lines = text.splitlines()
     fields: list[str] = []
     # Codex prints the status in its header, Claude Code's Bash at the end: look only there,
@@ -376,23 +382,53 @@ def _lean_fields(text: str) -> list[str]:
         fields.append(", ".join(found))
     # The first line of the output itself: Codex's header lines say nothing the fields above don't.
     body = (line.strip() for line in lines if not _HEADER_RE.match(line) and line != "Output:")
-    first = next((line for line in body if line), "")
-    first = _printable(first)
+    if head:
+        opening = _opening(body)
+        if opening:
+            fields.append(f'"{opening}"')
+        return fields
+    first = _printable(next((line for line in body if line), ""))
     if first:
         cut = len(first) > _LEAN_FIRST
         fields.append('"' + first[:_LEAN_FIRST] + ("…" if cut else "") + '"')
     return fields
 
 
-def stash_note_lean(text: str, digest: str) -> str:
-    """:func:`stash_note` plus exit status, identifiers and the first line (``pointer="lean"``)."""
+def _opening(lines: Iterator[str]) -> str:
+    """Printable characters across lines, whitespace runs as one space, at most ``_HEAD`` of them
+    (``…`` when cut).
+
+    Counts only what it shows and stops at the first character past the cap, copying nothing
+    larger than the snippet.
+    """
+    out: list[str] = []
+    for line in lines:
+        gap = bool(out)
+        for ch in line:
+            if ch.isspace():
+                gap = bool(out)
+            elif ch.isprintable():
+                if gap:
+                    out.append(" ")
+                    gap = False
+                out.append(ch)
+                if len(out) > _HEAD:
+                    return "".join(out[:_HEAD]) + "…"
+    return "".join(out)
+
+
+def stash_note_lean(text: str, digest: str, head: bool = False) -> str:
+    """:func:`stash_note` plus exit status, identifiers and the first line (``pointer="lean"``),
+    or the opening across lines (``head=True``, ``pointer="head"``)."""
     base = stash_note(text, digest)
-    head, _, tail = base.rpartition(" · lcc recall ")
-    return " · ".join([head, *_lean_fields(text)]) + " · lcc recall " + tail
+    start, _, tail = base.rpartition(" · lcc recall ")
+    return " · ".join([start, *_lean_fields(text, head)]) + " · lcc recall " + tail
 
 
 def _note(text: str, digest: str, pointer: str) -> str:
-    return stash_note_lean(text, digest) if pointer == "lean" else stash_note(text, digest)
+    if pointer == "plain":
+        return stash_note(text, digest)
+    return stash_note_lean(text, digest, head=pointer == "head")
 
 
 def _too_short_to_stash(text: str, pointer: str = "plain") -> bool:
