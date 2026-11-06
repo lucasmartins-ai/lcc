@@ -703,9 +703,13 @@ def recoverable_decisions(
                 }
                 if disk_decides:
                     hit["disk"] = disk
-        elif reason is None and cmd is not None and is_read_only_command(cmd):
-            if command_changed(cmd, call):
-                reason = "command_output_changed_later"
+        elif (
+            reason is None
+            and cmd is not None
+            and is_read_only_command(cmd)
+            and command_changed(cmd, call)
+        ):
+            reason = "command_output_changed_later"
         if hit is None and reason is None and cmd is not None and is_read_only_command(cmd):
             if not allow_command_pointers:
                 reasons[call.id] = "command_pointers_disabled"
