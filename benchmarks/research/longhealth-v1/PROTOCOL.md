@@ -406,3 +406,36 @@ Run order step 4. Everything D runs is fixed here.
   receipt (step 5).
 - **Test log:** `freeze-tests.log`, run at the pin. The harness and stash tests gave 51 passed; the full suite gave
   2,385 passed and 19 skipped.
+
+### Amendment 3: billing route (2026-11-06, during D)
+
+This changes who pays for the D calls still to run. It changes nothing that Amendment 2 fixes.
+
+- **Why:** the owner holds API credits that expire on 2026-11-10 and asked on 2026-11-06 to spend them on D instead
+  of the subscription.
+- **Owner approval (2026-11-06):** "Approve, use the API", in reply to "Do you approve Amendment 3: rest of D on API
+  credits, estimated $135–165?".
+- **Switch point:** calls 1–214 (`calls.jsonl` lines) ran on the subscription. The subscription driver was stopped
+  with SIGINT at 21:06:54 UTC, between calls. The interrupt landed while line 215 was being written: that line is a
+  start record for a `summary_clin` answer whose CLI was never launched. It counts toward the cap, as every
+  started call does, and nothing was sent. Every call from line 216 on runs on API credits, so no call is split
+  across routes.
+- **How:** the runner sets `CLAUDE_CONFIG_DIR` to a separate Claude Code configuration that the owner signed in to
+  with an Anthropic Console (API) account. The harness passes that variable through: it strips only `PYTHON*` and
+  `ANTHROPIC_*` and reads no settings files (`--setting-sources ""`), so the harness file and its sha256 do not
+  change.
+- **Unchanged:** the pin, the harness and recall shim sha256s, Q-T, Q-0, Q-N, S, S-clin, the compaction goal, the
+  models and efforts, the output cap, attempts, recall caps, the call cap of 650 (counted the same way), one driver
+  at a time, and the arm order. The Claude Code CLI version is logged at the start of every chunk in `d-run.log`.
+- **Pacing:** the subscription rule (pause at 80 % of the 5-hour or weekly window) no longer applies. After a
+  temporary usage or rate limit (`LimitHit`) the driver stops and resumes from cache once the limit clears. The
+  650-call cap still ends the run for good, as the Budget section and Amendment 1 say; resuming never resets it.
+- **Credits, not new cash:** the calls draw on API credits the owner already holds, so the Budget section's "$0
+  cash" still holds for new spending. This amendment approves using those credits only; buying more needs a new
+  approval. Estimated credit use before the switch: $135–165, from list prices per million tokens (Claude Opus 5.5
+  $4 in / $20 out, Claude Sonnet 5.5 $2 / $10) and the mean input and output tokens per call so far, with input
+  priced at 1× to 1.25×. RESULTS reports the credit use recomputed from the tokens each call recorded, at those
+  list prices: a valuation, not a receipt.
+- **Expected effect on results:** none. The same models run through the same CLI with the same prompts, and the
+  route is not a factor in any hypothesis. `summary_clin` is the only arm with calls on both routes, and RESULTS
+  says so.
