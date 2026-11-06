@@ -29,6 +29,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Context fill in the statusline.** `scripts/statusline.mjs` appends `ctx N% of SIZE` from
+  Claude Code's `context_window.used_percentage`, and `/compact suggested` from 30 %
+  (`LCC_SUGGEST_COMPACT_AT`, `0` turns it off). It needs no ledger and only suggests: it never
+  compacts. docs/CLAUDE_CODE.md shows how to have Claude Code compact on its own at 40 % with
+  its `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` setting. The cost effect of compacting that early is not
+  measured.
+
 - **Head stash pointer, opt-in.** `--stash-pointer head` (CLI) and `stash_pointer: "head"` (MCP),
   with `--rules-mode stashed`, write the lean fields with the first line replaced by the first 160
   characters across lines. The LongHealth v1 pilot showed why: every record opens with a
