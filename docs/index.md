@@ -41,6 +41,7 @@ MCP (Claude Code, Cursor, Claude Desktop):
 - [Quickstart](QUICKSTART.md): every command, offline
 - [Share your numbers](SHARE_STATS.md): anonymous `lcc share-stats` summary for beta testers
 - [Claude Code plugin](CLAUDE_CODE.md): verbatim `/compact` instead of a lossy summary
+- [Compacting earlier](COMPACT_EARLIER.md): see the context fill and compact at 30–40 % in Claude Code, Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor
 - [Tool-call mode](TOOL_CALLS.md): compacting agent transcripts
 - [Specialist v3](SPECIALIST.md): offline block ranker for structured transcripts
 - [Real-session benchmarks](REAL_SESSION_BENCHMARKS.md): what each mode removed on real agent sessions

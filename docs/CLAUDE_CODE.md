@@ -159,7 +159,9 @@ auto-compact window, so on a 1M-token model 40 % is roughly 400k tokens. That co
 through this plugin like any other: verbatim when the pass clears `minReductionRatio`,
 Claude Code's own summary (with the `PreCompact` pin) otherwise. Earlier compaction is not
 free. On a warm cache, the first request after a compaction writes the new prefix at the
-cache-write price. Whether 30/40 saves money on your sessions has not been measured yet.
+cache-write price. Whether 30/40 saves money on your sessions has not been measured yet. The
+same rule for Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor:
+[Compacting earlier](COMPACT_EARLIER.md).
 
 ## Idle stash (opt-in)
 

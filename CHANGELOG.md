@@ -35,6 +35,10 @@ All notable changes to this project are documented here. The format is based on
   compacts. docs/CLAUDE_CODE.md shows how to have Claude Code compact on its own at 40 % with
   its `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` setting. The cost effect of compacting that early is not
   measured.
+- **docs/COMPACT_EARLIER.md.** The same 30/40 rule for every agent tool. For Claude Code,
+  Codex CLI, Gemini CLI, Aider, OpenCode, Cline and Cursor it lists where the context fill is
+  shown and which native setting compacts earlier, with sources read on 2026-11-06. Where a tool
+  documents neither, the table says so.
 
 - **Head stash pointer, opt-in.** `--stash-pointer head` (CLI) and `stash_pointer: "head"` (MCP),
   with `--rules-mode stashed`, write the lean fields with the first line replaced by the first 160
