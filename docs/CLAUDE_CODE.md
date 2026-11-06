@@ -163,6 +163,43 @@ cache-write price. Whether 30/40 saves money on your sessions has not been measu
 same rule for Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor:
 [Compacting earlier](COMPACT_EARLIER.md).
 
+## Recall hints (opt-in)
+
+A stashed output is only useful if the agent asks for it back, and agents often don't: in the
+LongHealth v1 pilot, `stashed` lost 0.40 of accuracy on questions whose answer had been
+stashed, because the model rarely called `recall`. `lcc hint` is a deterministic nudge. When
+your new prompt names something that sits in a stashed output (an identifier, a path, a test
+id, a date, a name), the agent gets one line before it answers:
+
+```text
+lcc hint: your prompt names a stashed output (test_refund_77): "pytest output: FAILED tests/test_api.py::test_refund_77" · lcc recall 3ba2ab04a8dc
+```
+
+Turn it on with a `UserPromptSubmit` hook in `~/.claude/settings.json`:
+
+```json
+{ "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command", "command": "lcc hint --hook", "timeout": 5 } ] } ] } }
+```
+
+- **Candidates:** the `lcc recall <id>` pointers in the last 16 MB of the session transcript,
+  plus the stashed outputs whose sidecar names this session (the plugin sends its session id
+  on every pass).
+- **Matching:** lexical and offline. Identifiers, paths and numbers weigh 3, capitalised names
+  and long words 2, other words 1, and stop words nothing. Each weight is divided by how many
+  candidates contain the term. A hint needs a score of 3 or more with at least one term of
+  weight 2, and must beat the best candidate it leaves out by 1.5×. A prompt that fits three
+  outputs equally gets no hint.
+- **Limits:** at most 2 hints per prompt. An id hinted twice in a session is muted there. The
+  counts live in `hints/<session hash>.json` next to the stash, and they are ids and counts only.
+- **Never in the way:** with `--hook`, any error prints nothing and exits 0, so the prompt
+  always goes through. On this machine a hint takes about 0.27 s, mostly Python start-up.
+
+Any other agent tool that can run a command per prompt can use the same matcher:
+`lcc hint "<prompt>" --transcript <session file> --session <id>` prints one line per hint. On
+50 real stashed outputs, with a synthetic prompt naming an identifier unique to each, the top
+hint was the right output 50 times out of 50, and 4 generic prompts got no hint. That is a
+check that the matcher works, not a measure of how much hints help: that needs a study.
+
 ## Idle stash (opt-in)
 
 Off by default. With `idleStash: true`, when a session is **resumed** after `idleTtlSeconds`
