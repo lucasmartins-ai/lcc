@@ -427,12 +427,15 @@ This changes who pays for the D calls still to run. It changes nothing that Amen
 - **Unchanged:** the pin, the harness and recall shim sha256s, Q-T, Q-0, Q-N, S, S-clin, the compaction goal, the
   models and efforts, the output cap, attempts, recall caps, the call cap of 650 (counted the same way), one driver
   at a time, and the arm order. The Claude Code CLI version is logged at the start of every chunk in `d-run.log`.
-- **Pacing:** the subscription rule (pause at 80 % of the 5-hour or weekly window) no longer applies. Chunks run
-  until the cap or a usage or rate limit (`LimitHit`), then resume from cache.
-- **Cash:** the Budget section's "$0 cash" is replaced by the API cost of the remaining calls, estimated before the
-  switch at $135–165. The estimate uses list prices per million tokens (Claude Opus 5.5 $4 in / $20 out, Claude
-  Sonnet 5.5 $2 / $10) and the mean input and output tokens per call so far, with input priced at 1× to 1.25×.
-  RESULTS reports the cost recomputed from the tokens each call recorded.
+- **Pacing:** the subscription rule (pause at 80 % of the 5-hour or weekly window) no longer applies. After a
+  temporary usage or rate limit (`LimitHit`) the driver stops and resumes from cache once the limit clears. The
+  650-call cap still ends the run for good, as the Budget section and Amendment 1 say; resuming never resets it.
+- **Credits, not new cash:** the calls draw on API credits the owner already holds, so the Budget section's "$0
+  cash" still holds for new spending. This amendment approves using those credits only; buying more needs a new
+  approval. Estimated credit use before the switch: $135–165, from list prices per million tokens (Claude Opus 5.5
+  $4 in / $20 out, Claude Sonnet 5.5 $2 / $10) and the mean input and output tokens per call so far, with input
+  priced at 1× to 1.25×. RESULTS reports the credit use recomputed from the tokens each call recorded, at those
+  list prices: a valuation, not a receipt.
 - **Expected effect on results:** none. The same models run through the same CLI with the same prompts, and the
   route is not a factor in any hypothesis. `summary_clin` is the only arm with calls on both routes, and RESULTS
   says so.
