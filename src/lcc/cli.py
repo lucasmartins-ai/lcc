@@ -6,6 +6,7 @@ Thin presentation/IO layer over the pipeline. The optimized prompt goes to ``--o
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import sys
@@ -2049,6 +2050,83 @@ def recall_cmd(
     except StashError as exc:
         _fail(str(exc), code=2)
     sys.stdout.write(text)
+
+
+_HINT_TAIL = 16_000_000
+
+
+def _read_tail(path: str | Path | None, limit: int = _HINT_TAIL) -> str:
+    """The last ``limit`` bytes of a transcript, or "" when it cannot be read.
+
+    ponytail: a long session's JSONL can pass 600 MB, and reading it whole costs a second per
+    prompt. Recent pointers sit at the end, and the session's sidecars cover older stashes.
+    """
+    if not path:
+        return ""
+    try:
+        with open(path, "rb") as f:
+            f.seek(0, os.SEEK_END)
+            f.seek(max(0, f.tell() - limit))
+            return f.read().decode("utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+@app.command(name="hint")
+def hint_cmd(
+    prompt: str | None = typer.Argument(None, help="The new prompt (not needed with --hook)."),
+    transcript: Path | None = typer.Option(
+        None, "--transcript", help="A transcript whose `lcc recall` pointers are the candidates."
+    ),
+    session: str | None = typer.Option(
+        None, "--session", help="Session id: adds its stashed outputs and mutes ids hinted twice."
+    ),
+    hook: bool = typer.Option(
+        False,
+        "--hook",
+        help="Read a Claude Code UserPromptSubmit event on stdin and answer with "
+        "additionalContext. Never fails the prompt: any error prints nothing and exits 0.",
+    ),
+) -> None:
+    """Name the stashed outputs a new prompt points at, one `lcc recall <id>` line each."""
+    if hook:
+        # A prompt hook must never block or break the prompt (exit 2 would block it): every
+        # step, the import and the final flush included, sits inside the guard.
+        try:
+            from lcc.relevance.recall_hints import hint_line, hints_for
+
+            event = json.loads(sys.stdin.read() or "null")
+            if not isinstance(event, dict) or not isinstance(event.get("prompt"), str):
+                return
+            path = event.get("transcript_path")
+            session_id = event.get("session_id")
+            found = hints_for(
+                event["prompt"],
+                transcript=_read_tail(path if isinstance(path, str) else None),
+                session_id=session_id if isinstance(session_id, str) else None,
+            )
+            if found:
+                context = "\n".join(hint_line(h) for h in found)
+                answer = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "UserPromptSubmit",
+                        "additionalContext": context,
+                    }
+                }
+                sys.stdout.write(json.dumps(answer) + "\n")
+                sys.stdout.flush()
+        except Exception:  # noqa: BLE001 - see above: a hint is never worth a failed prompt
+            # A reader that closed the pipe would fail the flush again at exit: point stdout
+            # at /dev/null so the interpreter shuts down with code 0.
+            with contextlib.suppress(Exception):
+                os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        return
+    from lcc.relevance.recall_hints import hint_line, hints_for
+
+    if prompt is None:
+        _fail("a prompt is required (or use --hook)", code=2)
+    for hint in hints_for(prompt, transcript=_read_tail(transcript), session_id=session):
+        sys.stdout.write(terminal_safe(hint_line(hint)) + "\n")
 
 
 stash_app = typer.Typer(

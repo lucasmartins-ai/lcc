@@ -29,6 +29,17 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Recall hints, opt-in: `lcc hint`.** When a new prompt names something that sits in a
+  stashed output, the agent gets one line with its `lcc recall <id>`. In the LongHealth v1 pilot
+  the model rarely recalled on its own, and this targets that loss.
+  - Candidates: the transcript's pointers (last 16 MB) plus the session's stashed outputs.
+  - Matching: lexical, deterministic and offline. At most 2 hints per prompt, a 1.5× gap over the
+    best candidate left out, and an id hinted twice in a session is muted.
+  - `--hook` answers a Claude Code `UserPromptSubmit` event and never fails the prompt.
+  - Cost: about 0.27 s per prompt on the maintainer's machine.
+  - On 50 real stashed outputs with synthetic prompts, the top hint was right 50 of 50. That shows
+    the matcher works, not that hints help. See docs/CLAUDE_CODE.md.
+
 - **Context fill in the statusline.** `scripts/statusline.mjs` appends `ctx N% of SIZE` from
   Claude Code's `context_window.used_percentage`, and `/compact suggested` from 30 %
   (`LCC_SUGGEST_COMPACT_AT`, `0` turns it off). It needs no ledger and only suggests: it never
