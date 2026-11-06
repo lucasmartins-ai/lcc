@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Claude Code statusline for lcc: tokens this session's lcc passes removed, outputs stashed,
-// and the cache-read share of the last request.
+// the cache-read share of the last request, and how full the context window is, with a
+// `/compact suggested` hint from LCC_SUGGEST_COMPACT_AT percent (default 30, 0 = off).
 //
 // Reads the opt-in local ledger (`ledger: true` in the plugin options, or LCC_LEDGER=1; file
 // ~/.cache/lcc/ledger.jsonl or LCC_LEDGER_PATH) and the JSON Claude Code pipes to a statusline
@@ -63,16 +64,43 @@ function short(n) {
   return String(n);
 }
 
+const DEFAULT_SUGGEST_AT = 30;
+
+/** The context percent at which to suggest /compact; null when the hint is off ("0"). */
+export function suggestAt(env = process.env) {
+  const raw = env.LCC_SUGGEST_COMPACT_AT;
+  if (typeof raw !== "string" || raw.trim() === "") return DEFAULT_SUGGEST_AT;
+  const value = Number(raw);
+  if (value === 0) return null;
+  return Number.isFinite(value) && value > 0 ? value : DEFAULT_SUGGEST_AT;
+}
+
+/**
+ * ` · ctx N% of SIZE`, plus ` · /compact suggested` at `at` percent or more. From Claude Code's
+ * `context_window.used_percentage` (input tokens only), which is null early in a session and
+ * right after /compact: then no segment. Floored, so the hint shows iff the printed % >= `at`.
+ */
+export function contextSegment(input, at) {
+  const window = input?.context_window;
+  const used = window?.used_percentage;
+  if (typeof used !== "number" || !Number.isFinite(used) || used < 0) return "";
+  const pct = Math.floor(used);
+  const size = count(window.context_window_size);
+  const of = size ? ` of ${short(size).replace(/\.0(?=[kM]$)/, "")}` : "";
+  const hint = at !== null && pct >= at ? " · /compact suggested" : "";
+  return ` · ctx ${pct}%${of}${hint}`;
+}
+
 /** The statusline text. `ledger` is the file's text, or null when there is no ledger. */
-export function render(input, ledger) {
+export function render(input, ledger, at = DEFAULT_SUGGEST_AT) {
   const share = cacheReadShare(input);
-  const cache = share === null ? "" : ` · cache read ${Math.round(share * 100)}%`;
-  if (ledger === null) return `lcc: ledger off${cache}`;
+  const tail = (share === null ? "" : ` · cache read ${Math.round(share * 100)}%`) + contextSegment(input, at);
+  if (ledger === null) return `lcc: ledger off${tail}`;
   const total = summarize(ledger, sessionKey(input?.session_id));
-  if (total.passes === 0) return `lcc: no pass this session${cache}`;
+  if (total.passes === 0) return `lcc: no pass this session${tail}`;
   const passes = total.passes === 1 ? "1 pass" : `${total.passes} passes`;
   const stashed = total.stashed ? ` · ${total.stashed} stashed` : "";
-  return `lcc: -${short(total.saved)} tokens (${passes})${stashed}${cache}`;
+  return `lcc: -${short(total.saved)} tokens (${passes})${stashed}${tail}`;
 }
 
 function main() {
@@ -90,7 +118,7 @@ function main() {
   }
   let line;
   try {
-    line = render(input, ledger);
+    line = render(input, ledger, suggestAt());
   } catch {
     line = "lcc";
   }

@@ -130,16 +130,38 @@ on stdin. Add it to `~/.claude/settings.json` with the plugin's path on your mac
 { "statusLine": { "type": "command", "command": "node /path/to/plugins/claude-code/scripts/statusline.mjs" } }
 ```
 
-It prints the tokens this session's passes removed, the outputs stashed, and the cache-read
-share of the last request (from Claude Code's `context_window.current_usage`, when present):
+It prints the tokens this session's passes removed, the outputs stashed, the cache-read
+share of the last request (from Claude Code's `context_window.current_usage`, when present),
+and how full the context window is (`context_window.used_percentage`, floored, with the window
+size):
 
 ```text
-lcc: -40.6k tokens (2 passes) · 23 stashed · cache read 92%
+lcc: -40.6k tokens (2 passes) · 23 stashed · cache read 92% · ctx 41% of 200k · /compact suggested
 ```
 
 `lcc: no pass this session` before the first applied pass; `lcc: ledger off` when there is no
-ledger file. Generated from the fixture ledger in `test/fixtures/ledger.jsonl`
-(`node test/statusline.test.mjs`).
+ledger file. The `ctx` part needs no ledger. Claude Code sends no percentage early in a session
+and right after `/compact`, and then the part is left out. Generated from the fixture ledger
+in `test/fixtures/ledger.jsonl` (`node test/statusline.test.mjs`).
+
+**Compacting earlier.** `/compact suggested` appears once the context is 30 % full. Set
+`LCC_SUGGEST_COMPACT_AT` to another percentage, or to `0` to turn the hint off. The
+statusline only suggests: nothing it runs compacts the session. To have Claude Code compact
+on its own at 40 %, add this to `~/.claude/settings.json` (a plugin cannot set it for you):
+
+```json
+{ "env": { "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "40", "LCC_SUGGEST_COMPACT_AT": "30" } }
+```
+
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is a Claude Code setting. It takes 1–100, applies to
+subagents too, and can only lower the default threshold. Its percentage is of the
+auto-compact window, so on a 1M-token model 40 % is roughly 400k tokens. That compaction goes
+through this plugin like any other: verbatim when the pass clears `minReductionRatio`,
+Claude Code's own summary (with the `PreCompact` pin) otherwise. Earlier compaction is not
+free. On a warm cache, the first request after a compaction writes the new prefix at the
+cache-write price. Whether 30/40 saves money on your sessions has not been measured yet. The
+same rule for Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor:
+[Compacting earlier](COMPACT_EARLIER.md).
 
 ## Idle stash (opt-in)
 

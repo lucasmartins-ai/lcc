@@ -102,10 +102,14 @@ paths, never sent anywhere), and `scripts/statusline.mjs` shows it in the Claude
 statusline:
 
 ```text
-lcc: -40.6k tokens (2 passes) · 23 stashed · cache read 92%
+lcc: -40.6k tokens (2 passes) · 23 stashed · cache read 92% · ctx 41% of 200k · /compact suggested
 ```
 
-Setup and the ledger format: [`docs/CLAUDE_CODE.md`](../../../docs/CLAUDE_CODE.md#receipt-ledger-and-statusline).
+The `ctx` part shows how full the context window is and suggests `/compact` from 30 %
+(`LCC_SUGGEST_COMPACT_AT`, `0` = off). To have Claude Code compact on its own at 40 %, set
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=40` in the `env` of `~/.claude/settings.json`.
+
+Setup, the ledger format and earlier compaction: [`docs/CLAUDE_CODE.md`](../../../docs/CLAUDE_CODE.md#receipt-ledger-and-statusline).
 
 ## Fallback is the default when anything is off
 
