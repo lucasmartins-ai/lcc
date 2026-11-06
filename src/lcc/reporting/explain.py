@@ -153,10 +153,11 @@ def summarize(report: dict[str, Any]) -> list[tuple[str, str]]:
         limit = report.get("laya_context_limit")
         limit_str = f" (limit {limit} tokens)" if limit else ""
         rows.append(("Laya Model", f"{laya_m}{limit_str}"))
-    elif report.get("jev_model_resolved") or report.get("jev_model_requested"):
-        if report.get("provider_used") == "jev":
-            jev_m = report.get("jev_model_resolved") or report.get("jev_model_requested")
-            rows.append(("Jev Model", str(jev_m)))
+    elif (report.get("jev_model_resolved") or report.get("jev_model_requested")) and (
+        report.get("provider_used") == "jev"
+    ):
+        jev_m = report.get("jev_model_resolved") or report.get("jev_model_requested")
+        rows.append(("Jev Model", str(jev_m)))
 
     if report.get("degraded"):
         rows.append(("Degraded", str(report.get("degradation_reason") or "yes, reason unrecorded")))

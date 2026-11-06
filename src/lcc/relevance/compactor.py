@@ -1968,31 +1968,34 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
                     decision_kind = "keep"
                     reason = "high_risk_conservative_retention"
                     chars_after = None
-                elif confidence is not None:
-                    if decision_kind == "drop" and confidence < request.confidence_threshold:
-                        if confidence < request.confidence_threshold / 2:
+                elif (
+                    confidence is not None
+                    and decision_kind == "drop"
+                    and confidence < request.confidence_threshold
+                ):
+                    if confidence < request.confidence_threshold / 2:
+                        decision_kind = "keep"
+                        reason = "low_confidence_kept"
+                    else:
+                        head, ok, _ = trim_block_safe(
+                            block.text, request.trim_head_chars
+                        )
+                        if ok and trim_threshold is not None:
+                            decision_kind = "trim"
+                            reason = "low_confidence_trimmed"
+                            chars_after = len(
+                                _render_trimmed(
+                                    block.text,
+                                    score,
+                                    trim_threshold,
+                                    request.threshold,
+                                    request.trim_head_chars,
+                                )
+                            )
+                        else:
                             decision_kind = "keep"
                             reason = "low_confidence_kept"
-                        else:
-                            head, ok, _ = trim_block_safe(
-                                block.text, request.trim_head_chars
-                            )
-                            if ok and trim_threshold is not None:
-                                decision_kind = "trim"
-                                reason = "low_confidence_trimmed"
-                                chars_after = len(
-                                    _render_trimmed(
-                                        block.text,
-                                        score,
-                                        trim_threshold,
-                                        request.threshold,
-                                        request.trim_head_chars,
-                                    )
-                                )
-                            else:
-                                decision_kind = "keep"
-                                reason = "low_confidence_kept"
-                                chars_after = None
+                            chars_after = None
             else:
                 if ctype == "high_risk" and score <= 0.0:
                     # Mechanical zero-overlap on high-risk text is not evidence of
