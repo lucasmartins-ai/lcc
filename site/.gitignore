@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.cache/
+# npm ci in CI needs the lockfile (the root .gitignore ignores lockfiles)
+!package-lock.json
+.wrangler/

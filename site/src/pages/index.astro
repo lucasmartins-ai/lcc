@@ -1,0 +1,68 @@
+---
+import Base from "../layouts/Base.astro";
+import { guides, home } from "../lib/home.ts";
+import { href } from "../lib/sources.ts";
+
+const cards = [
+  ["Use cases", "use-cases.html", "Five ways to run lcc. Each one has the number it was measured at and a link to where that number comes from."],
+  ["Research", "research.html", "The pre-registered studies behind the shipped models, failed ones included, generated from the LCC-judge repo."],
+  ["Demo", "demo.html", "The intake category judge running in your browser, on the same weights LCC ships. Your text stays in the tab."],
+  ["Downloads", "downloads.html", "Model files with sha256, JSON receipts, and the commands that recompute the numbers."],
+];
+---
+
+<Base title="lcc" description={home.description}>
+  <section class="mx-auto max-w-6xl px-4 pt-14 pb-10 sm:px-6 sm:pt-20">
+    <div class="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,40rem)]">
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.18em] text-accent">Local Context Compiler · MIT · offline</p>
+        <h1 class="mt-5 text-[2.1rem] leading-[1.12] font-semibold tracking-tight text-balance sm:text-5xl">{home.tagline}</h1>
+        <div class="prose mt-6 max-w-xl text-[1.05rem] text-dim [&_strong]:text-ink" set:html={home.lead} />
+        <div class="mt-8 flex flex-wrap gap-3 text-sm">
+          <a href="#install" class="rounded-md bg-accent px-4 py-2 font-medium text-bg hover:bg-accent/90">Install</a>
+          <a href={href("demo.html")} class="rounded-md border border-line px-4 py-2 text-ink hover:border-faint">Try the intake demo</a>
+        </div>
+      </div>
+      <figure class="rounded-xl border border-line bg-panel p-5 sm:p-6">
+        <div class="prose text-sm [&_table]:w-full [&_td]:px-2 [&_th]:px-2 sm:[&_td:nth-child(2)]:whitespace-nowrap" set:html={home.table} />
+        <figcaption class="prose mt-4 text-xs text-faint" set:html={home.notes} />
+      </figure>
+    </div>
+  </section>
+
+  {
+    home.image && (
+      <section class="mx-auto max-w-6xl px-4 sm:px-6">
+        <img src={home.image.href} alt={home.image.text} loading="lazy" class="w-full rounded-xl border border-line" />
+      </section>
+    )
+  }
+
+  <section id="install" class="mx-auto mt-20 max-w-6xl scroll-mt-6 px-4 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">Install</h2>
+    <div class="prose mt-6 max-w-3xl" set:html={home.install} />
+  </section>
+
+  <section class="mx-auto mt-20 max-w-6xl px-4 sm:px-6">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {
+        cards.map(([label, url, text]) => (
+          <a href={href(url)} class="group rounded-xl border border-line bg-panel p-6 transition-colors hover:border-faint">
+            <h2 class="flex items-center justify-between text-lg font-semibold">
+              {label}
+              <span class="text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-accent" aria-hidden="true">→</span>
+            </h2>
+            <p class="mt-2 text-sm text-dim">{text}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mx-auto mt-20 max-w-6xl px-4 sm:px-6">
+    <h2 class="text-2xl font-semibold tracking-tight">Guides</h2>
+    <ul class="mt-6 grid grid-cols-1 gap-x-8 gap-y-2 text-dim sm:grid-cols-2 lg:grid-cols-3">
+      {guides.map((g) => <li><a href={g.url} class="hover:text-accent">{g.label}</a></li>)}
+    </ul>
+  </section>
+</Base>

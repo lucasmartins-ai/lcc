@@ -1,0 +1,57 @@
+name: Site
+
+# Builds site/ and publishes it to Cloudflare Workers at lookadev.com/lcc/* (site/wrangler.jsonc).
+# Nothing runs until the repository variable SITE_DEPLOY is "true", and only from main. Publishing
+# needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID as secrets of the lcc-site environment (limit
+# it to main in Settings -> Environments). The daily run picks up new LCC-judge results.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "docs/**"
+      - "benchmarks/research/*.md"
+      - "README.md"
+      - "src/lcc/intake/**"
+      - "src/lcc/relevance/specialist*"
+      - ".github/workflows/site.yml"
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: vars.SITE_DEPLOY == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: lcc-site
+      url: https://lookadev.com/lcc/
+    defaults:
+      run:
+        working-directory: site
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+    - name: Set up Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version: '24'
+    - name: Install
+      run: npm ci
+    - name: Intake demo parity
+      run: npm test
+    - name: Build
+      run: |
+        npm run fetch-judge
+        npm run build
+    - name: Deploy to Cloudflare Workers
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      run: npx wrangler deploy   # pinned in package-lock.json
