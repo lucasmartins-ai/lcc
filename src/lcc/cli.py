@@ -2152,7 +2152,11 @@ def handoff_cmd(
     if stdout:
         sys.stdout.write(packet)
         return
-    sys.stdout.write(f"{write(packet, out)}\n")
+    try:
+        path = write(packet, out)
+    except OSError as exc:
+        _fail(f"handoff: {exc}", code=2)
+    sys.stdout.write(f"{path}\n")
 
 
 stash_app = typer.Typer(
