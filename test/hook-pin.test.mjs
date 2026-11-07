@@ -10,6 +10,8 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  contextEstimate,
+  earlyCompactBlock,
   extractFacts,
   precompactText,
   quoted,
@@ -97,4 +99,89 @@ assert.equal(run("precompact", "{"), "");
 const idleBlock = JSON.parse(run("precompact", JSON.stringify({ ...JSON.parse(hookInput), custom_instructions: "lcc:idle" })));
 assert.equal(idleBlock.decision, "block");
 assert.equal(run("sessionstart", JSON.stringify({ custom_instructions: "lcc:idle" })), "");
+
+// Early-compaction guard: an early auto-compaction with little tool output to stash is blocked.
+const said = (id, input, extra = {}) => ({
+  type: "assistant",
+  message: { id, role: "assistant", content: [{ type: "text", text: "ok" }], usage: { input_tokens: 2, cache_read_input_tokens: input, output_tokens: 8 }, ...extra },
+});
+const turns = (resultChars, input) => [
+  user("Refactor the parser."),
+  ...Array.from({ length: 10 }, (_, i) => [
+    said(`m${i}`, input),
+    user([result(`r${i}`, "x".repeat(resultChars))]),
+  ]).flat(),
+  said("last", input),
+];
+const EARLY = { CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "40", CLAUDE_CODE_AUTO_COMPACT_WINDOW: "300000" };
+const auto = { trigger: "auto" };
+// 22 messages; past the first and before the newest 6 sit 7 results of 400 chars = 700 tokens.
+const chatty = turns(400, 120_000);
+assert.deepEqual(contextEstimate(chatty), { used: 120_010, removable: 700, peak: 120_010 });
+const blocked = earlyCompactBlock(auto, chatty, EARLY);
+assert.equal(blocked.decision, "block");
+// The 300k variable is capped at 200k: nothing yet shows the model's window is larger.
+assert.match(blocked.reason, /^lcc: early compaction deferred: 0% of the context [^]* context 60% of 200000 tokens/);
+// Lots of spent tool output: the compaction goes ahead (lcc's own pass or the pinned summary).
+assert.equal(earlyCompactBlock(auto, turns(160_000, 120_000), EARLY), null);
+// Never blocked: a manual /compact, no early threshold set, one at or above 75 % of the window
+// (a block during overflow recovery fails the request), or no usage record yet.
+assert.equal(earlyCompactBlock({ trigger: "manual" }, chatty, EARLY), null);
+assert.equal(earlyCompactBlock(auto, chatty, { CLAUDE_CODE_AUTO_COMPACT_WINDOW: "300000" }), null);
+assert.equal(earlyCompactBlock(auto, chatty, { ...EARLY, CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "80" }), null);
+assert.equal(earlyCompactBlock(auto, turns(400, 225_000), EARLY), null);
+assert.equal(earlyCompactBlock(auto, [user("hi")], EARLY), null);
+// The window variable is capped by the model's window, which the hook cannot read: at least
+// 200k, or the largest request that succeeded. With 300k set on a 200k model, 160k is past 75 %.
+assert.equal(earlyCompactBlock(auto, turns(400, 160_000), EARLY), null);
+assert.equal(earlyCompactBlock(auto, turns(400, 160_000), { CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "40" }), null);
+assert.equal(earlyCompactBlock(auto, turns(400, 140_000), { CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "40" }).decision, "block");
+// A request of 267k succeeded earlier, so the window is at least that: 180k is under 75 % of it.
+const grown = [user("go"), said("p", 267_000), { type: "system", subtype: "compact_boundary", compactMetadata: { postTokens: 30_000 } }, ...turns(400, 180_000)];
+assert.equal(earlyCompactBlock(auto, grown, EARLY).decision, "block");
+// A smaller window variable wins, and one written in a form the hook does not read never blocks.
+assert.equal(earlyCompactBlock(auto, chatty, { ...EARLY, CLAUDE_CODE_AUTO_COMPACT_WINDOW: "150000" }), null);
+assert.equal(earlyCompactBlock(auto, chatty, { ...EARLY, CLAUDE_CODE_AUTO_COMPACT_WINDOW: "100k" }), null);
+// What the transcript gained since the last request counts: a 500k-char tool result just
+// appended takes the 120k past 75 % of 300k, so the guard stands down.
+assert.equal(earlyCompactBlock(auto, [...chatty, user([result("big", "y".repeat(500_000))])], EARLY), null);
+// After a compaction only what followed it counts, starting from its postTokens.
+const boundary = { type: "system", subtype: "compact_boundary", compactMetadata: { postTokens: 30_000 } };
+assert.deepEqual(contextEstimate([...turns(160_000, 120_000), boundary, user("next")]), {
+  used: 30_000 + Buffer.byteLength(JSON.stringify("next")),
+  removable: 0,
+  peak: 120_010,
+});
+// Records of one assistant message (same id) count as one message: the result stays among the
+// newest 6 messages (it would be spent if each record of "b" counted).
+const split = [user("go"), said("a", 1000), user([result("r", "z".repeat(4000))]), said("b", 2000), said("b", 2000), said("b", 2000), user("1"), said("c", 3000), user("2"), said("d", 3000)];
+assert.equal(contextEstimate(split).removable, 0);
+assert.equal(contextEstimate([user("hi")]).used, null);
+// A tool result written between two records of one response is not in that response's usage.
+const interleaved = [user("go"), said("a", 120_000), user([result("r", "x".repeat(500_000))]), said("a", 120_000)];
+assert.ok(contextEstimate(interleaved).used > 600_000);
+// A "<synthetic>" zero-usage message (a local error, overflow included) is not a request.
+const synthetic = { type: "assistant", message: { id: "s", model: "<synthetic>", content: [], usage: { input_tokens: 0, output_tokens: 0 } } };
+// After one, the guard stands down until a request succeeds (overflow recovery is never blocked).
+assert.equal(contextEstimate([...turns(400, 280_000), synthetic, user("continue")]).used, null);
+assert.equal(earlyCompactBlock(auto, [...chatty, synthetic, user("continue")], EARLY), null);
+assert.equal(contextEstimate([...chatty, synthetic, user("continue"), said("n", 120_000)]).used, 120_010);
+// A PDF's bytes do not bound its tokens: a document block since the last request stands it down.
+const pdf = { type: "document", source: { type: "base64", media_type: "application/pdf", data: "JVBERi0xLjQK" } };
+assert.equal(earlyCompactBlock(auto, [...chatty, user([pdf])], EARLY), null);
+assert.equal(earlyCompactBlock(auto, [...chatty, user([result("q", [pdf])])], EARLY), null);
+// Text that only mentions a document block is escaped by JSON and still counted as bytes.
+assert.equal(earlyCompactBlock(auto, [...chatty, user([result("q", '{"type":"document"}')])], EARLY).decision, "block");
+// What was added is counted in UTF-8 bytes, so CJK text cannot undercount: 200k CJK chars are
+// 600k bytes, past 75 % of 300k.
+assert.equal(earlyCompactBlock(auto, [...chatty, user("字".repeat(200_000))], EARLY), null);
+// End to end: the hook prints the block decision instead of summary instructions.
+const early = join(dir, "early.jsonl");
+writeFileSync(early, chatty.map((line) => JSON.stringify(line)).join("\n"));
+const guarded = execFileSync("node", [SCRIPT, "precompact"], {
+  input: JSON.stringify({ hook_event_name: "PreCompact", trigger: "auto", transcript_path: early }),
+  encoding: "utf8",
+  env: { ...process.env, ...EARLY },
+});
+assert.equal(JSON.parse(guarded).decision, "block");
 console.log("hook-pin: ok");
