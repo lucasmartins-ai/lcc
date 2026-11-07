@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-07
+
 ### Changed
 
 - **Intake category: v3 is now the default model.**
@@ -110,15 +112,21 @@ All notable changes to this project are documented here. The format is based on
   right patient in 115 of 115 stashed records there. Cost on 8 real sessions: +35 tokens per
   pointer over `plain`. Default stays `plain`. See docs/TOOL_CALLS.md.
 
-- **Draft pre-registration of a public clinical study, `benchmarks/research/longhealth-v1/PROTOCOL.md`.**
-  Every number in `docs/EVIDENCE.md` comes from the maintainer's own sessions. This protocol runs `stashed` +
-  `recall`, two summaries and an oracle-free verifier on LongHealth, 20 fictional patients that anyone can download.
-  It declares the arms, gates, hypotheses and budget before any answer exists. It is not frozen and has no results
-  yet.
-- **LongHealth v1 harness and pilot report, `benchmarks/research/longhealth-v1/`.** `longhealth_v1.py` builds the
-  sessions, compacts them with lcc, runs the arms through subscription `claude -p` under a 650-call cap, and
-  scores them; `recall_shim.py` serves `recall` over MCP. `PILOT.md` reports the 2-patient pilot and the decisions
-  it leaves before the freeze. D has not run.
+- **LongHealth v1, a pre-registered study on public clinical records, `benchmarks/research/longhealth-v1/`.**
+  Every number in `docs/EVIDENCE.md` comes from the maintainer's own sessions. This study runs on LongHealth,
+  20 fictional patients that anyone can download.
+  - **Pre-registration:** `PROTOCOL.md` declared the arms, gates, hypotheses and budget before the pilot. Two
+    amendments after the pilot froze it, with lcc pinned at `17d9595`, before any set-D call.
+  - **Code and pilot:** `longhealth_v1.py` builds, compacts, runs and scores the sessions. `PILOT.md` reports the
+    pilot that led to the head pointer.
+  - **Set D:** 18 patients, run with head pointers. Every validity gate passed.
+  - **H1 passed:** `stashed` + `recall` scored 0.889 on answerable questions against 0.887 for full context
+    (+0.1 points, 95% CI −1.9 to +2.1, margin −5).
+  - **H2 failed:** on exact values it beat the generic summary (+10.8) but not the clinical summary (+1.4, CI
+    −1.2 to +4.1).
+  - **Verifier:** it cost 8.4 points.
+  - **Scope:** one run, one answerer model. These are that run's numbers, not general behaviour; the owner's
+    evidence check labels them inferred until they are replicated. Results and limits are in `RESULTS.md`.
 
 ### Fixed
 
@@ -1206,7 +1214,8 @@ response verification — those remain roadmap items (see `docs/roadmap.md`).
   `CODE_OF_CONDUCT.md`, the `docs/` set (architecture, evaluation, roadmap, release, ADRs),
   examples, and agent guidance (`CLAUDE.md`, `AGENTS.md`).
 
-[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/lucasmartins-ai/lcc/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/lucasmartins-ai/lcc/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/lucasmartins-ai/lcc/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/lucasmartins-ai/lcc/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/lucasmartins-ai/lcc/compare/v1.0.0...v1.1.0

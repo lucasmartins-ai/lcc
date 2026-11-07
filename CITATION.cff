@@ -3,8 +3,11 @@ message: "If you use lcc in research, please cite it as below."
 title: "lcc: Local Context Compiler"
 type: software
 authors:
-  - name: "Local Context Compiler contributors"
-version: "1.3.0"
+  - given-names: Lucas
+    family-names: Martins
+    affiliation: LookADev
+version: "1.4.0"
+date-released: "2026-11-07"
 license: MIT
 repository-code: "https://github.com/lucasmartins-ai/lcc"
 url: "https://pypi.org/project/local-context-compiler/"
