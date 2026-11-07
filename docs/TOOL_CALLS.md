@@ -243,7 +243,12 @@ and `rules_mode: "stashed"`, since one disk would be shared by every caller.
 **Retention.** Nothing in the stash expires on its own and nothing deletes it by default,
 the Claude Code plugin included. Each blob has a `<sha256>.json` sidecar (`0600`) with
 `created_at`, `last_put_at`, `last_recalled_at` and the truncated SHA-256 of the session ids
-that stashed it; never content, paths or raw ids.
+that stashed it; never content, paths or raw ids. `lcc hint` keeps two caches beside them:
+`<sha256>.terms` (`0600`), the distinct casefolded words of the blob, written the first time a
+hint reads it and as sensitive as the blob; and `<session hash>.ids` (`0600`), the blobs put in
+each session. `gc --apply` deletes a blob's `.terms` before the blob and any `.terms` whose blob
+is gone; a `.json` whose blob is gone, and an `.ids`, once unused for `--older-than` (the next
+hint rebuilds the index).
 
 ```bash
 lcc stash ls                         # id, bytes, lines, dates, sessions, files referencing it

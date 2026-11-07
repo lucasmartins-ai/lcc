@@ -28,6 +28,11 @@ Lifecycle (:mod:`lcc.relevance.stash_lifecycle`): each blob has a ``<sha256>.jso
 with timestamps and truncated session-id hashes, never content. ``put`` and ``recall`` hold a
 shared ``flock`` on ``<stash>/.lock`` and ``lcc stash gc --apply`` an exclusive one, so a blob
 ``put`` refreshes while gc runs is never deleted under it.
+
+Two caches serve ``lcc hint`` (:mod:`lcc.relevance.recall_hints`), and gc removes both: a
+``<session hash>.ids`` index of the blobs put for each session (:func:`read_index`), and a
+``<sha256>.terms`` file per blob with its casefolded terms, written on the first hint that
+reads the blob. The terms come from the blob's content, so they get the blob's 0600 mode.
 """
 
 from __future__ import annotations
@@ -170,11 +175,18 @@ def sidecar_path(blob: Path) -> Path:
     return blob.with_name(blob.name + ".json")
 
 
-def read_sidecar(blob: Path) -> dict[str, Any]:
-    """Provenance for ``blob``; ``{}`` when absent or unreadable (it is advisory only)."""
+def read_sidecar(blob: Path, *, strict: bool = False) -> dict[str, Any]:
+    """Provenance for ``blob``; ``{}`` when absent or unreadable (it is advisory only). With
+    ``strict``, a sidecar that exists but cannot be read raises its :class:`OSError`."""
     try:
         meta = json.loads(sidecar_path(blob).read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except FileNotFoundError:
+        return {}
+    except OSError:
+        if strict:
+            raise
+        return {}
+    except ValueError:
         return {}
     return meta if isinstance(meta, dict) else {}
 
@@ -195,6 +207,76 @@ def _touch_sidecar(blob: Path, **fields: Any) -> None:
     # Provenance is best effort; the blob and the pointer are what recall needs.
     with contextlib.suppress(OSError):
         _write_private(sidecar_path(blob), json.dumps(meta, sort_keys=True).encode("utf-8"))
+
+
+def terms_path(blob: Path) -> Path:
+    return blob.with_name(blob.name + ".terms")
+
+
+_INDEX_FULL = "scanned"  # this line follows the records of a scan of every sidecar
+
+
+def index_path(root: Path, key: str) -> Path:
+    return root / f"{key}.ids"
+
+
+def append_index(root: Path, key: str, digests: list[str], *, full: bool = False) -> None:
+    """Append ``\\n<sha256>\\n`` per digest (then the full-scan line) to session ``key``'s index.
+
+    One ``O_APPEND`` write, so concurrent puts never lose a record. The leading newline keeps a
+    torn write (crash, full disk) on a line of its own, where :func:`read_index` sees it. The
+    fsync makes the record outlast a system crash that keeps the blob ``put`` writes next.
+
+    ponytail: fsync, not macOS's F_FULLFSYNC: a power cut can still lose the record and keep the
+    sidecar; that blob is not hinted until gc expires the index.
+    """
+    data = ("".join(f"\n{d}\n" for d in digests) + (f"\n{_INDEX_FULL}\n" if full else "")).encode()
+    flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT
+    flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
+    fd = os.open(index_path(root, key), flags, 0o600)
+    try:
+        if os.write(fd, data) != len(data):
+            raise OSError("short write to the session index")
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def read_index(root: Path, key: str) -> list[str] | None:
+    """The blobs recorded for session hash ``key``, or ``None`` when the index cannot vouch for
+    them: missing, unreadable, never completed by a full scan, or holding a torn record after its
+    last full scan. ``put`` records a blob before its sidecar names the session, so a vouched
+    index lists every blob whose sidecar names it, plus blobs removed or re-owned since: callers
+    check each sidecar again.
+
+    ponytail: an lcc older than the index that stashes into a session after its first hint is not
+    seen until gc expires the index; ``lcc hint`` and the plugin ship together.
+    """
+    try:
+        lines = index_path(root, key).read_bytes().decode("ascii", "replace").split("\n")
+    except OSError:
+        return None
+    digests: list[str] = []
+    vouched = False
+    for line in lines:
+        if line == _INDEX_FULL:
+            vouched = True
+        elif _FULL.match(line):
+            digests.append(line)
+        elif line:
+            vouched = False  # a torn record: only a later full scan vouches again
+    return digests if vouched else None
+
+
+def _index_put(root: Path, key: str, digest: str) -> None:
+    """Record ``digest`` for session ``key``. On failure the index goes, so the next hint reads
+    every sidecar and rebuilds it rather than trust an index that lacks this blob. The rebuild
+    takes the exclusive lock, so it cannot run before this put has written the sidecar."""
+    try:
+        append_index(root, key, [digest])
+    except OSError:
+        with contextlib.suppress(OSError):
+            index_path(root, key).unlink()
 
 
 def session_hash(session_id: Any) -> str | None:
@@ -219,6 +301,7 @@ def put(text: str, *, session: str | None = None) -> str:
     if not _is_windows():
         os.chmod(root, 0o700)
     target = root / digest
+    key = session_hash(session)
     with stash_lock(root) as locked:
         if not locked and not _is_windows():
             warnings.warn(
@@ -227,18 +310,21 @@ def put(text: str, *, session: str | None = None) -> str:
                 RuntimeWarning,
                 stacklevel=2,
             )
+        if key:
+            _index_put(root, key, digest)  # first: see read_index
         if target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == digest:
             os.utime(target)
         else:
             _write_private(target, data)
-        _touch_sidecar(target, session=session_hash(session), last_put_at=True)
+        _touch_sidecar(target, session=key, last_put_at=True)
     return digest
 
 
 def _stash_names() -> list[str]:
     """Sorted blob names now in the stash: one listing for a batch of ``_blob`` lookups."""
     root = stash_dir()
-    return sorted(p.name for p in root.iterdir() if _FULL.match(p.name)) if root.is_dir() else []
+    # os.listdir, not Path.iterdir: a Path per entry cost ~3 ms on a stash of 800 blobs.
+    return sorted(n for n in os.listdir(root) if _FULL.match(n)) if root.is_dir() else []
 
 
 def _blob(stash_id: str, names: list[str] | None = None) -> tuple[str, bytes]:

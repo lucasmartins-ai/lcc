@@ -32,6 +32,7 @@ from lcc.relevance.transcript_stash import (
     sidecar_path,
     stash_dir,
     stash_lock,
+    terms_path,
 )
 
 # Matches the pointer in plain text and inside JSON strings alike ("lcc recall" is ASCII).
@@ -39,6 +40,7 @@ _REF = re.compile(rb"recall ([0-9a-f]{12})")
 _AGE = re.compile(r"^(\d+)([dhm]?)$")
 # What ``tempfile.mkstemp(prefix=".tmp-")`` names: 8 chars of its alphabet, no suffix.
 _TMP = re.compile(r"^\.tmp-[a-z0-9_]{8}$")
+_IDS = re.compile(r"^[0-9a-f]{16}\.ids$")  # transcript_stash.index_path of a session_hash
 DEFAULT_ROOTS = (Path.home() / ".claude" / "projects", Path.home() / ".codex" / "sessions")
 DEFAULT_OLDER_THAN = "30d"
 MIN_AGE = 3600  # a younger threshold races a compaction whose pointer is not on disk yet
@@ -183,20 +185,27 @@ def gc(
 
     unreferenced = [b for b in blobs if b.name[:12] not in refs]
     names = {b.name for b in blobs}
-    # Leftovers of a crashed put (.tmp-*) or a removed blob (<sha>.json) can hold a secret too.
+
+    def orphan(name: str) -> bool:  # <sha>.json or <sha>.terms whose blob is gone
+        stem, _, suffix = name.partition(".")
+        return suffix in ("json", "terms") and bool(_FULL.match(stem)) and stem not in names
+
+    # Leftovers of a crashed put (.tmp-*) or a removed blob (<sha>.json, <sha>.terms) can hold a
+    # secret too. A session index (<key>.ids) unused for the threshold goes as well; the next
+    # hint in that session rebuilds it from the sidecars.
     leftovers = [
         p for p in (root.iterdir() if root.is_dir() else [])
-        if _is_plain_file(p)
-        and (
-            _TMP.match(p.name)
-            or (p.name.endswith(".json") and _FULL.match(p.name[:-5]) and p.name[:-5] not in names)
-        )
+        if _is_plain_file(p) and (_TMP.match(p.name) or _IDS.match(p.name) or orphan(p.name))
     ]
+
+    def gone(path: Path) -> bool:  # an orphan .terms lists the words of a removed blob: no wait
+        return path.name.endswith(".terms") or expired(path)
+
     report: dict[str, Any] = {
         "blobs": len(blobs),
         "referenced": len(blobs) - len(unreferenced),
         "candidates": [b.name for b in unreferenced if expired(b)],
-        "leftovers": [p.name for p in leftovers if expired(p)],
+        "leftovers": [p.name for p in leftovers if gone(p)],
         "removed": [],
         "applied": apply,
     }
@@ -207,11 +216,12 @@ def gc(
             # Re-checked under the lock: a put since the scan made it young again.
             if blob.name[:12] in refs or not expired(blob):
                 continue
+            terms_path(blob).unlink(missing_ok=True)  # first: if this fails the blob stays too
             blob.unlink(missing_ok=True)
             sidecar_path(blob).unlink(missing_ok=True)
             report["removed"].append(blob.name)
         for path in leftovers:
-            if expired(path):
+            if gone(path):
                 path.unlink(missing_ok=True)
     return report
 
