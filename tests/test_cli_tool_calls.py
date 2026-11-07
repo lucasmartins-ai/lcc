@@ -280,3 +280,19 @@ def test_rules_mode_is_refused_without_provider_rules_or_outside_tool_calls(tmp_
     unknown = runner.invoke(app, ["compact", str(src), "-q", "x", "--mode", "tool-calls",
                                   "--provider", "rules", "--rules-mode", "nope"])
     assert unknown.exit_code == 2
+
+
+def test_a_jsonl_record_holding_a_line_separator_is_not_split(tmp_path: Path):
+    # U+2028 and U+0085 may sit unescaped in a JSON string; str.splitlines() cut the record there.
+    lines = [
+        {"type": "user", "message": {"role": "user", "content": "Fix the parser\u2028now"}},
+        {"type": "assistant", "message": {"role": "assistant", "content": "On it\x85."}},
+    ]
+    src = tmp_path / "session.jsonl"
+    src.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in lines), encoding="utf-8")
+    out = tmp_path / "out.json"
+    args = ["compact", str(src), "-q", "x", "--mode", "tool-calls", "--provider", "rules"]
+    result = runner.invoke(app, [*args, "-o", str(out)])
+    assert result.exit_code == 0, result.output
+    texts = [m["text"] for m in json.loads(out.read_text(encoding="utf-8"))]
+    assert texts == ["Fix the parser\u2028now", "On it\x85."]

@@ -43,6 +43,7 @@ MCP (Claude Code, Cursor, Claude Desktop):
 - [Claude Code plugin](CLAUDE_CODE.md): verbatim `/compact` instead of a lossy summary
 - [Compacting earlier](COMPACT_EARLIER.md): see the context fill and compact at 30–40 % in Claude Code, Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor
 - [Tool-call mode](TOOL_CALLS.md): compacting agent transcripts
+- [Handoff](HANDOFF.md): `lcc handoff` writes what the next agent needs, from any agent tool
 - [Specialist v3](SPECIALIST.md): offline block ranker for structured transcripts
 - [Real-session benchmarks](REAL_SESSION_BENCHMARKS.md): what each mode removed on real agent sessions
 - [MCP server](MCP.md): the six tools
