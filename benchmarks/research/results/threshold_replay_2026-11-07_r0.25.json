@@ -1,0 +1,185 @@
+{
+  "sessions": 196,
+  "min_requests": 100,
+  "requests": 64179,
+  "real_compactions": 139,
+  "post_compaction_extra_tokens_median": 20350,
+  "lcc_reduction": 0.25,
+  "model_vs_billed_at_default": {
+    "median": 0.891,
+    "q1": 0.7697,
+    "q3": 0.9935
+  },
+  "write_price_median": 2.0,
+  "thresholds": {
+    "summary@30%": {
+      "affected_share": 0.842,
+      "compactions_median_affected": 2,
+      "below_floor_share": 0.122,
+      "vs_own_default_affected": {
+        "median": 0.7458,
+        "q1": 0.623,
+        "q3": 0.9188
+      },
+      "vs_builtin_default_affected": {
+        "median": 0.7458,
+        "q1": 0.623,
+        "q3": 0.9188
+      },
+      "vs_builtin_default_all": {
+        "median": 0.8043,
+        "q1": 0.6509,
+        "q3": 1.0
+      },
+      "corpus_vs_builtin_default": 0.8681
+    },
+    "summary@40%": {
+      "affected_share": 0.587,
+      "compactions_median_affected": 2,
+      "below_floor_share": 0.015,
+      "vs_own_default_affected": {
+        "median": 0.7451,
+        "q1": 0.6215,
+        "q3": 0.8607
+      },
+      "vs_builtin_default_affected": {
+        "median": 0.7451,
+        "q1": 0.6215,
+        "q3": 0.8607
+      },
+      "vs_builtin_default_all": {
+        "median": 0.9559,
+        "q1": 0.6807,
+        "q3": 1.0
+      },
+      "corpus_vs_builtin_default": 0.7107
+    },
+    "summary@60%": {
+      "affected_share": 0.378,
+      "compactions_median_affected": 3.0,
+      "below_floor_share": 0.0,
+      "vs_own_default_affected": {
+        "median": 0.791,
+        "q1": 0.716,
+        "q3": 0.8326
+      },
+      "vs_builtin_default_affected": {
+        "median": 0.791,
+        "q1": 0.716,
+        "q3": 0.8326
+      },
+      "vs_builtin_default_all": {
+        "median": 1.0,
+        "q1": 0.8161,
+        "q3": 1.0
+      },
+      "corpus_vs_builtin_default": 0.8073
+    },
+    "summary@default": {
+      "affected_share": 0.27,
+      "compactions_median_affected": 2,
+      "below_floor_share": 0.0,
+      "vs_own_default_affected": {
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0
+      },
+      "vs_builtin_default_affected": {
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0
+      },
+      "vs_builtin_default_all": {
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0
+      },
+      "corpus_vs_builtin_default": 1.0
+    },
+    "lcc@30%": {
+      "affected_share": 0.842,
+      "compactions_median_affected": 5,
+      "below_floor_share": 0.153,
+      "vs_own_default_affected": {
+        "median": 0.9324,
+        "q1": 0.6372,
+        "q3": 1.031
+      },
+      "vs_builtin_default_affected": {
+        "median": 0.9352,
+        "q1": 0.8155,
+        "q3": 1.031
+      },
+      "vs_builtin_default_all": {
+        "median": 0.9849,
+        "q1": 0.8419,
+        "q3": 1.0207
+      },
+      "corpus_vs_builtin_default": 0.8109
+    },
+    "lcc@40%": {
+      "affected_share": 0.587,
+      "compactions_median_affected": 7,
+      "below_floor_share": 0.051,
+      "vs_own_default_affected": {
+        "median": 0.8,
+        "q1": 0.6817,
+        "q3": 1.0166
+      },
+      "vs_builtin_default_affected": {
+        "median": 0.9862,
+        "q1": 0.8872,
+        "q3": 1.0361
+      },
+      "vs_builtin_default_all": {
+        "median": 1.0,
+        "q1": 0.973,
+        "q3": 1.0005
+      },
+      "corpus_vs_builtin_default": 0.9097
+    },
+    "lcc@60%": {
+      "affected_share": 0.378,
+      "compactions_median_affected": 8.5,
+      "below_floor_share": 0.01,
+      "vs_own_default_affected": {
+        "median": 0.8591,
+        "q1": 0.8031,
+        "q3": 0.9264
+      },
+      "vs_builtin_default_affected": {
+        "median": 1.1241,
+        "q1": 0.9863,
+        "q3": 1.2123
+      },
+      "vs_builtin_default_all": {
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0241
+      },
+      "corpus_vs_builtin_default": 1.0604
+    },
+    "lcc@default": {
+      "affected_share": 0.27,
+      "compactions_median_affected": 5,
+      "below_floor_share": 0.0,
+      "vs_own_default_affected": {
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0
+      },
+      "vs_builtin_default_affected": {
+        "median": 1.4174,
+        "q1": 1.2981,
+        "q3": 1.5434
+      },
+      "vs_builtin_default_all": {
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0935
+      },
+      "corpus_vs_builtin_default": 1.246
+    }
+  },
+  "approximation": "Billed input is exact (5-minute and 1-hour cache writes priced apart); the replay is a model: growth from usage deltas, one fixed overhead, one post-compaction size, no output tokens. Use it to compare thresholds, not as a bill."
+}
