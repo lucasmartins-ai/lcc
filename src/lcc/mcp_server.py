@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sys
 from typing import Any
 
@@ -396,16 +397,24 @@ def _session_arg(value: Any) -> str | None:
 
 
 def _tool_recall(args: dict[str, Any]) -> dict[str, Any]:
-    from lcc.relevance.transcript_stash import recall, recall_sha256
+    from lcc.relevance.transcript_stash import on_disk, recall, recall_sha256
 
     stash_id = args.get("id", "")
     if not isinstance(stash_id, str):
         raise ToolInputError("recall requires 'id' (the hex id after 'lcc recall' in the pointer)")
+    file = args.get("file")
+    file = file if isinstance(file, str) and file else None
+    if file is not None and not os.path.isabs(file):
+        # A relative path would resolve against the server's cwd, not the agent's.
+        raise ToolInputError("recall 'file' must be an absolute path")
     lines = args.get("lines")
     span = lines if isinstance(lines, str) and lines else None
     ledger = args.get("ledger")
     text = recall(stash_id, span, ledger=ledger if isinstance(ledger, bool) else None)
-    return {"sha256": recall_sha256(stash_id), "text": text}
+    result: dict[str, Any] = {"sha256": recall_sha256(stash_id), "text": text}
+    if file is not None:
+        result["on_disk"] = on_disk(text, file)
+    return result
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -635,6 +644,15 @@ TOOLS: dict[str, dict[str, Any]] = {
             "properties": {
                 "id": {"type": "string", "description": "The hex id from the pointer."},
                 "lines": {"type": "string", "description": "Optional 1-based range 'a-b'."},
+                "file": {
+                    "type": "string",
+                    "description": (
+                        "Optional absolute path of the file this output read. Adds on_disk: "
+                        "{state: unchanged|changed|missing|unreadable, compared_as: "
+                        "numbered|lines, lines_compared, lines_differ}; counts only, never the "
+                        "file's content."
+                    ),
+                },
                 "ledger": {
                     "type": "boolean",
                     "default": False,

@@ -299,7 +299,7 @@ def _body(text: str) -> tuple[str, bool]:
     end = 0
     while end < len(lines) and _CODEX_HEAD.match(lines[end]):
         end += 1
-    if end < len(lines) and lines[end] == "Output:":
+    if 0 < end < len(lines) and lines[end] == "Output:":  # a bare "Output:" line is content
         ok = all(m is None or m.group(1) == "0" for m in map(_EXIT.match, lines[:end]))
         running = any(line.startswith("Process running") for line in lines[:end])
         return "\n".join(lines[end + 1 :]), ok and not running

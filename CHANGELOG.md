@@ -29,6 +29,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc recall --file`: is the file still what this output showed?** A recalled file read is
+  what the file held when it was read. `--file PATH` (MCP: `file`) compares it with the file now,
+  numbered reads line by line, and says `still matches`, `differs (3 of 120 lines)`, `no longer
+  exists` or `could not be compared`. The note goes to stderr, so stdout stays the exact bytes; MCP
+  returns counts only, never the file's content, and takes an absolute path only. An empty output
+  matches only an empty file.
+
 - **`lcc handoff`: a packet for the next agent.** From a Claude Code session, a Codex rollout or
   a JSON transcript it writes `.lcc/handoff/<sha12>.md`. The packet holds the user's first and
   latest requests, the files edited and read, the last tool error, and the stashed outputs the
@@ -78,6 +85,10 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- **`recoverable` mode kept a bare first `Output:` line out of the comparison.** With no Codex
+  exec header above it, that line is the output's own content, but it was dropped as if it closed
+  a header. A ranged read such as `sed -n '1,3p'` then looked a line short and was kept instead
+  of replaced by a pointer.
 - **JSONL records holding U+2028 or U+0085 were dropped.** `lcc compact --mode tool-calls` split
   Claude Code and Codex JSONL with `str.splitlines()`, which also breaks at those characters.
   They can sit unescaped inside JSON strings, so any record that held one was cut in two and

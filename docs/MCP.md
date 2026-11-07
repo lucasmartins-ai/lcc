@@ -14,7 +14,7 @@ framing of its request). It exposes seven tools:
 | `prepare` | Inspect-first deterministic preparation; returns `action` + `prompt` (or skip note) | Yes |
 | `explain` | Audits a `compact` report object (`report`, optional `source_text`/`only`/`limit`) | Yes |
 | `intake` | Intake triage: readiness with named `reasons`, non-blocking `risk_flags`, `ask_count`, an advisory `category` (with `category_probability` and `category_context`; empty below the model's threshold; optional `previous_turn` input), questions, assumptions, a `speech` receipt (every removed filler span), and a compiled prompt with the static template first | Yes (default; no relevance pass) |
-| `recall` | Returns an output `compact_transcript` (`rules_mode: "stashed"`) removed (`id`, optional `lines` `a-b`); hash-verified on read. See [`docs/TOOL_CALLS.md`](TOOL_CALLS.md) | Yes (stdio only; refused by `--http`) |
+| `recall` | Returns an output `compact_transcript` (`rules_mode: "stashed"`) removed (`id`, optional `lines` `a-b`); hash-verified on read. Optional `file` adds `on_disk`: whether that file still holds what the output showed. See [`docs/TOOL_CALLS.md`](TOOL_CALLS.md) | Yes (stdio only; refused by `--http`) |
 
 Stdlib only — no new dependencies, and the base install is untouched. The
 server only calls the same public library entry points as the CLI, so the
@@ -86,5 +86,8 @@ offline) and is the executable contract.
   with `TYPESAFE_API_KEY` in the server's environment.
 - Tool errors come back as `{content: [{type: "text", text: "error: …"}],
   isError: true}` — never as dropped content.
+- `recall`'s `file` must be an absolute path. Its `on_disk` answer holds counts, never content,
+  but it still tells the caller whether that file exists and whether it holds the recalled
+  lines. Give `file` only to agents that may read those files anyway.
 - The server never writes files and never touches the network beyond what the
   chosen provider does (`mechanical`/`laya`: zero).

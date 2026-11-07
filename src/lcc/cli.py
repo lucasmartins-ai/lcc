@@ -2041,15 +2041,20 @@ def recall_cmd(
         show_default=False,
     ),
     lines: str | None = typer.Option(None, "--lines", help="Only lines a-b (1-based)."),
+    file: Path | None = typer.Option(
+        None, "--file", help="The file this output read: one line on stderr says if it changed."
+    ),
 ) -> None:
     """Print a tool output that `rules_mode="stashed"` removed, after re-checking its hash."""
-    from lcc.relevance.transcript_stash import StashError, recall
+    from lcc.relevance.transcript_stash import StashError, on_disk, on_disk_note, recall
 
     try:
         text = recall(stash_id, lines or None)
     except StashError as exc:
         _fail(str(exc), code=2)
     sys.stdout.write(text)
+    if file is not None:  # stdout stays the exact bytes; the note goes to stderr
+        sys.stderr.write(terminal_safe(on_disk_note(on_disk(text, file))) + "\n")
 
 
 _HINT_TAIL = 16_000_000
