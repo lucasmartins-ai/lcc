@@ -143,6 +143,17 @@ def test_codex_exec_read_is_a_file_read():
     assert text_of(compacted, "c1") == "[removed: re-read p.py (lines 1-39) (cwd /r) to recover]"
 
 
+def test_a_bare_output_first_line_is_content_not_a_codex_header():
+    # With no Codex header above it, a first line "Output:" is the file's own line. Dropping it
+    # made this 12-line read look 11 lines long, so it was kept instead of replaced.
+    out = "Output:\n" + "\n".join(LINES[1:12]) + "\n"
+    _r, compacted, d = run(
+        convo(("Bash", {"command": "sed -n '1,12p' src/p.py", "cwd": "/r"}, out), *filler())
+    )
+    assert d["c1"]["decision"] == "replace"
+    assert text_of(compacted, "c1") == "[removed: re-read src/p.py (lines 1-12) (cwd /r) to recover]"
+
+
 def test_codex_exec_read_with_nonzero_exit_is_kept():
     out = "Process exited with code 1\nOutput:\nsed: p.py: No such file or directory" + "x" * 80
     _r, _c, d = run(convo(("exec_command", {"cmd": "sed -n '1,9p' p.py"}, out), *filler()))

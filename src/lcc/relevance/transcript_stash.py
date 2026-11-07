@@ -380,7 +380,10 @@ def on_disk(text: str, path: str | Path) -> dict[str, Any]:
         counts = {"lines_compared": len(rows), "lines_differ": differ}
         return out | {"state": state, "compared_as": "numbered"} | counts
     shown = _file_lines(body)
-    found = "\n" + "\n".join(shown) + "\n" in "\n" + "\n".join(disk) + "\n"
+    if not shown:  # an empty output matches only an empty file, not any blank line
+        found = not disk
+    else:
+        found = "\n" + "\n".join(shown) + "\n" in "\n" + "\n".join(disk) + "\n"
     state = "unchanged" if found else "changed"
     return out | {"state": state, "compared_as": "lines", "lines_compared": len(shown)}
 
