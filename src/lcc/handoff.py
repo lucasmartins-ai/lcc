@@ -255,7 +255,13 @@ def build(raw: list[dict[str, Any]], source: Source | None = None) -> str:
             return False
         if flags:
             return call.result.is_error
-        edit = bool(_paths(call)[0]) and bool(ERROR_RE.search(call.result.text))
+        # A reply that opens with "Success" is one, whatever file names it lists (`Exception.py`).
+        text = call.result.text
+        edit = (
+            bool(_paths(call)[0])
+            and not text.lstrip().startswith("Success")
+            and bool(ERROR_RE.search(text))
+        )
         exits = (m.group(1) for m in map(EXIT_RE.match, call.result.text.splitlines()) if m)
         exit_code = bool(_command(call)) and any(code != "0" for code in exits)
         return edit or exit_code or _is_error(call, False)

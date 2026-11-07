@@ -341,6 +341,14 @@ def test_cli_fails_cleanly_on_a_missing_or_bad_transcript(stash: Path, tmp_path:
     assert CliRunner().invoke(app, ["handoff", str(bad)]).exit_code == 2
 
 
+def test_cli_fails_cleanly_on_an_unwritable_out(stash: Path, tmp_path: Path) -> None:
+    blocker = tmp_path / "a-file"
+    blocker.write_text("", encoding="utf-8")
+    out = CliRunner().invoke(app, ["handoff", str(claude_session(tmp_path)), "--out", str(blocker)])
+    assert out.exit_code == 2
+    assert not isinstance(out.exception, OSError)
+
+
 def test_a_prompt_holding_a_line_separator_is_kept_whole(stash: Path, tmp_path: Path) -> None:
     record = {"type": "user", "message": {"role": "user", "content": "ship it today"}}
     path = tmp_path / "s.jsonl"
@@ -404,6 +412,29 @@ def test_a_failed_codex_patch_is_an_error_not_an_edit(stash: Path, tmp_path: Pat
     packet = build(*load(path))
     assert "## Files edited\n\nnone\n" in packet
     assert "Tool: `apply_patch`\n\n```\nError: Failed to find expected lines" in packet
+
+
+def test_a_successful_patch_naming_an_error_file_is_an_edit(stash: Path, tmp_path: Path) -> None:
+    def item(payload: dict[str, object]) -> str:
+        return json.dumps({"type": "response_item", "payload": payload})
+
+    patch = "*** Begin Patch\n*** Update File: src/CustomException.py\n@@\n-x\n+y\n*** End Patch"
+    lines = [
+        json.dumps({"type": "session_meta", "payload": {}}),
+        item({"type": "custom_tool_call", "call_id": "p", "name": "apply_patch", "input": patch}),
+        item(
+            {
+                "type": "custom_tool_call_output",
+                "call_id": "p",
+                "output": "Success. Updated the following files:\nM src/CustomException.py",
+            }
+        ),
+    ]
+    path = tmp_path / "rollout.jsonl"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    packet = build(*load(path))
+    assert "## Files edited\n\n- `src/CustomException.py`\n" in packet
+    assert "## Last tool error\n\nnone\n" in packet
 
 
 def test_a_long_json_transcript_is_read_whole(
