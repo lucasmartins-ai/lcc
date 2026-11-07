@@ -86,5 +86,8 @@ offline) and is the executable contract.
   with `TYPESAFE_API_KEY` in the server's environment.
 - Tool errors come back as `{content: [{type: "text", text: "error: …"}],
   isError: true}` — never as dropped content.
+- `recall`'s `file` must be an absolute path. Its `on_disk` answer holds counts, never content,
+  but it still tells the caller whether that file exists and whether it holds the recalled
+  lines. Give `file` only to agents that may read those files anyway.
 - The server never writes files and never touches the network beyond what the
   chosen provider does (`mechanical`/`laya`: zero).
