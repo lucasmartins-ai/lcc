@@ -500,11 +500,20 @@ that Amendments 1–4 fix, and no D number already reported.
   - Infrastructure failures: no turn started, a transport error, a CLI crash, a timeout, or a failed turn whose
     message is not a refusal (an auth error, or no message at all). A usage limit stops the driver, and the next
     run resumes from cache.
-  - Refusals: the provider ended a started turn with a refusal, policy, safety or classifier message (a fixed
-    pattern in the driver). The answer is scored wrong on all 20 questions, listed by session in the report and
-    counted in V5. It is never retried and never dropped. This is V2 as
-    written. In D the frozen harness counted a provider classifier stop as an infrastructure failure, which RESULTS
-    reports as a deviation (`patient_12__ans_early`); S6 does not repeat it.
+  - Refusals: the provider ended a started turn with one of the pinned CLI's own refusal errors, matched as they
+    are written in the `codex-cli 0.166.0` binary, or with the provider's own refusal text:
+    - a policy error: `invalid prompt:`, `cyber policy:`, `bio policy:` or `misalignment policy violation`;
+    - the provider's `invalid_prompt` text, which the CLI may pass on without its prefix: `flagged as potentially
+      violating our usage policy` or `limited access to this content for safety reasons`;
+    - a turn cut by the content filter: `Incomplete response returned, reason: content_filter`;
+    - a risk flag: `flagged for possible cybersecurity risk` or `flagged for possible biological risk`.
+
+    Any other failed turn is infrastructure, even when its text holds a word such as "safety", "flagged" or
+    "classifier". A refusal is scored wrong on all 20 questions, listed by session in the report and counted in V5.
+    It is never retried and never dropped. This is V2 as written. In D the frozen harness counted a provider
+    classifier stop as an infrastructure failure: Anthropic's `reasoning_extraction` classifier stopped the
+    `summary_clin` summarizer on `patient_12__ans_early`, and RESULTS reports the drop as a deviation. S6 does not
+    repeat it. The CLI has no such string; the signals listed above are this provider's.
   - Splits: Amendment 1's split rule covers Claude replies without tools that were resumed over turns. It does not
     apply here. The answer is the run's last agent message, and a run with none is an infrastructure failure.
 - **Budget:** S6 has its own cap of **130 calls**, outside the 650-call D budget.
@@ -535,6 +544,7 @@ that Amendments 1–4 fix, and no D number already reported.
     `results-pilot-subset.json`.
   - D starts only if every gate below holds. `run --set D` checks them from the cached pilot answers and refuses
     to start otherwise:
+    - the S6 toolcheck passed (V4);
     - every pilot answer is a parsed answer (≥ 95 % of lines);
     - no answer used a denied tool, and none was refused;
     - `stashed_t` returned at least one recall in each pilot session.
@@ -564,7 +574,7 @@ that Amendments 1–4 fix, and no D number already reported.
   - RESULTS gets an S6 section next to the Claude numbers. Differences between the two answerers are described,
     not tested.
 - **Files** (sha256):
-  - `s6_codex.py` `b5816f14f442c50e513f7652d4419ac5bbb83e086baef14f2a5cbbc650b039ae`
+  - `s6_codex.py` `fb7766b00e99219825557848bacc059b0cb2c5981435fe570b909b0847375182`
   - `longhealth_v1.py` and `recall_shim.py` are unchanged (Amendment 2's sha256s, which a test checks).
   - The tests are in `tests/test_longhealth_v1_s6.py`, with a fake `codex` on `PATH`. They make no model call.
 - **Data use:** unchanged. Prompts, event streams, recalled text and answers stay under the private root. The

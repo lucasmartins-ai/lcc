@@ -41,11 +41,15 @@ CONFIG = ('approval_policy="never"', 'web_search="disabled"', "skills.bundled.en
           "include_permissions_instructions=false", "include_environment_context=false",
           "include_apps_instructions=false", "include_collaboration_mode_instructions=false", "project_doc_max_bytes=0")
 DENIED = {"command_execution", "file_change", "web_search"}  # an answer that used one is never scored: the run stops
-TRANSPORT_RE = re.compile(r"stream disconnected|error sending request|connection (?:reset|refused|closed)|timed? ?out|"
-                          r"\b50[0-4]\b|internal server error|service unavailable|bad gateway|overloaded", re.I)
-# Only a provider message that says so is a refusal; any other failed turn (401, no message, ...) is infrastructure.
-REFUSAL_RE = re.compile(r"refus|usage polic|content polic|safety|classifier|flagged|content.?filter|moderation|"
-                        r"invalid_prompt|cyber", re.I)
+# A refusal is one of the pinned CLI's own refusal errors, matched as written in the codex-cli 0.166.0 binary (the
+# provider's policy codes and a turn cut by the content filter), or the provider's invalid_prompt text, which the CLI
+# may pass on without its prefix. Any other failed turn (401, no message, an error that merely holds "safety" or
+# "flagged", ...) is infrastructure and retried. D's analogue was Anthropic's classifier stop.
+REFUSAL_RE = re.compile(r"\b(?:invalid prompt|cyber policy|bio policy): |misalignment policy violation|"
+                        r"Incomplete response returned, reason: content_filter|"
+                        r"flagged for possible (?:cybersecurity|biological) risk|"
+                        r"flagged as potentially violating our usage policy|"
+                        r"limited access to this content for safety reasons", re.I)
 PILOT = ("patient_03__ans_early", "patient_05__ans_early")  # Amendment 5's pilot: 2 sessions from the pilot pool
 
 
@@ -216,7 +220,7 @@ def parse_events(events: list[dict], rc: int, err: str) -> dict:
         + "\n" + err[-2000:]
     if lh.LIMIT_RE.search(msg):
         raise lh.LimitHit(lh.LIMIT_RE.search(msg).group(0))
-    if started and failed and REFUSAL_RE.search(failed[-1]) and not TRANSPORT_RE.search(msg):
+    if started and failed and REFUSAL_RE.search(failed[-1]):
         # The provider ended the turn with a refusal: scored wrong on every question, never retried (Amendment 5).
         return {**base, "text": "", "refusal": failed[-1][:300]}
     raise lh.InfraError(f"codex: exit {rc}: {msg[-300:]}", base["in_tokens"] + base["out_tokens"])
@@ -285,10 +289,16 @@ def d_dropped(which: str) -> set[str]:
     return set(lh.rj(path)["dropped"])
 
 
+def v4_passed() -> bool:
+    path = s6dir("toolcheck", "result.json")
+    return path.exists() and lh.rj(path).get("ok") is True
+
+
 def pilot_failures() -> list[str]:
-    """Amendment 5's gate before any D call: each pilot answer parsed (≥ 95 % of its 20 lines) and not refused, and
-    `stashed_t` got recalled text back in each pilot session. A denied tool never reaches a cached answer."""
-    bad = []
+    """Amendment 5's gate before any D call: the S6 toolcheck passed (V4), each pilot answer parsed (≥ 95 % of its 20
+    lines) and was not refused, and `stashed_t` got recalled text back in each pilot session. A denied tool never
+    reaches a cached answer."""
+    bad = [] if v4_passed() else ["V4: the S6 toolcheck has not passed"]
     for sid in PILOT:
         for arm in ARMS:
             path = s6dir("answers", arm, f"{sid}.json")
@@ -343,9 +353,8 @@ def phase_score(bench: dict, which: str, only: list[str] | None) -> None:
         sel = [r for r in rows if r["arm"] == arm]
         return 1 - sum(r["failure"] for r in sel) / len(sel) if sel else 0.0
 
-    toolcheck = s6dir("toolcheck", "result.json")
     gates = {"V1": (acc["full_t"] or 0) >= 0.60, "V2": bool(every) and len(dropped) <= 0.05 * len(every),
-             "V4": toolcheck.exists() and lh.rj(toolcheck)["ok"], "V5": all(parse_rate(a) >= 0.95 for a in ARMS)}
+             "V4": v4_passed(), "V5": all(parse_rate(a) >= 0.95 for a in ARMS)}
     contrasts = {"A": lh.bootstrap(rows, "stashed_t", "full_t", "A"), "E": lh.bootstrap(rows, "stashed_t", "full_t", "E"),
                  "A_by_condition": {c: lh.bootstrap(rows, "stashed_t", "full_t", "A", condition=c)
                                     for c in ("ans_early", "ans_late")},
@@ -389,8 +398,8 @@ def main(argv=None) -> None:
         a.only = a.only or list(PILOT)
     if a.phase == "run" and not APPROVED:
         raise SystemExit("Amendment 5 is not approved yet: no pilot or D answer runs before the owner's OK")
-    if a.phase == "run" and a.which == "D" and pilot_failures():
-        raise SystemExit(f"the S6 pilot gate has not passed: {pilot_failures()}")
+    if a.phase == "run" and a.which == "D" and (bad := pilot_failures()):
+        raise SystemExit(f"the S6 pilot gate has not passed: {bad}")
     with lh.driver_lock():  # one driver at a time, D's or S6's
         if a.phase == "toolcheck":
             phase_toolcheck()

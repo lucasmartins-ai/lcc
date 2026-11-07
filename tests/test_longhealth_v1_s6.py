@@ -126,7 +126,8 @@ if mode in ("ok", "shell"):
     out({"type": "turn.completed", "usage": {"input_tokens": 100, "cached_input_tokens": 60, "output_tokens": 7}})
     sys.exit()
 msg = {"limit": "You've hit your usage limit", "transport": "stream disconnected before completion",
-       "refusal": "This request was blocked by the content policy", "unauthorized": "401 Unauthorized"}[mode]
+       "refusal": "cyber policy: This request has been flagged for possible cybersecurity risk.",
+       "unauthorized": "401 Unauthorized"}[mode]
 out({"type": "turn.failed", "error": {"message": msg}})
 sys.exit(1)
 '''
@@ -166,7 +167,7 @@ def test_codex_call_outcomes_ledger_and_plan_window(fake_codex, monkeypatch):
     assert seen["prompt"] == "the prompt" and seen["leaked"] == []
     assert seen["codex_home"] == str(s6.s6dir("codex-home")) and seen["home"] == str(s6.s6dir("home"))
     assert (s6.s6dir("codex-home") / "auth.json").resolve() == (fake_codex / "main-codex" / "auth.json").resolve()
-    assert _call(monkeypatch, "refusal")["refusal"].startswith("This request was blocked")
+    assert _call(monkeypatch, "refusal")["refusal"].startswith("cyber policy: ")
     for mode in ("transport", "noturn", "unauthorized", "nomsg"):  # only a stated refusal is scored; these retry
         with pytest.raises(lh.InfraError):
             _call(monkeypatch, mode)
@@ -195,6 +196,27 @@ def test_codex_call_outcomes_ledger_and_plan_window(fake_codex, monkeypatch):
     monkeypatch.setattr(s6, "S6_CAP", 9)
     with pytest.raises(SystemExit, match="cap 9"):
         _call(monkeypatch, "ok")
+
+
+def test_only_the_cli_refusal_errors_are_refusals():
+    def failed(message):
+        return [{"type": "turn.started"}, {"type": "turn.failed", "error": {"message": message}}]
+
+    for m in ("cyber policy: This request has been flagged for possible cybersecurity risk.",
+              "bio policy: This content was flagged for possible biological risk.",
+              "invalid prompt: your prompt was flagged as potentially violating our usage policy",
+              "misalignment policy violation",
+              # the provider's invalid_prompt text, as the CLI may pass it on without its own prefix
+              "Your prompt was flagged as potentially violating our usage policy. Please try again.",
+              "Invalid prompt: we've limited access to this content for safety reasons.",
+              "stream disconnected before completion: Incomplete response returned, reason: content_filter"):
+        assert s6.parse_events(failed(m), 1, "")["refusal"] == m
+    # failures that only hold refusal-like words are infrastructure: retried, never scored as a refusal
+    for m in ("This request was blocked by the content policy", "safety service unavailable, try again",
+              "the request was flagged by an upstream classifier", "error echoing input: cyber attack refused",
+              "Incomplete response returned, reason: max_output_tokens"):
+        with pytest.raises(lh.InfraError):
+            s6.parse_events(failed(m), 1, "")
 
 
 def test_auth_link_guard(fake_codex):
@@ -278,11 +300,18 @@ def test_run_waits_for_approval_and_for_the_scored_d_run(tmp_path, monkeypatch):
         lh.wj(s6.s6dir("answers", "stashed_t", f"{sid}.json"), _answer("1: B: x"))
     with pytest.raises(SystemExit, match="pilot gate"):
         s6.main(["run", "--set", "D", "--arm", "full_t"])
-    assert s6.pilot_failures() == [f"stashed_t/{sid}: {why}" for sid in s6.PILOT
-                                   for why in ("under 95 % of lines parsed", "no recall returned text")]
+    no_v4 = ["V4: the S6 toolcheck has not passed"]
+    assert s6.pilot_failures() == no_v4 + [f"stashed_t/{sid}: {why}" for sid in s6.PILOT
+                                           for why in ("under 95 % of lines parsed", "no recall returned text")]
     for sid in s6.PILOT:
         lh.wj(s6.s6dir("answers", "stashed_t", f"{sid}.json"), _answer(good))
         lh.append(s6.s6dir("recall-log", "stashed_t", f"{sid}.jsonl"), {"n": 1, "ok": True})
+    # a good pilot still waits for V4: the toolcheck missing, then failed
+    assert s6.pilot_failures() == no_v4
+    lh.wj(s6.s6dir("toolcheck", "result.json"), {"ok": False})
+    with pytest.raises(SystemExit, match="V4: the S6 toolcheck has not passed"):
+        s6.main(["run", "--set", "D", "--arm", "full_t"])
+    lh.wj(s6.s6dir("toolcheck", "result.json"), {"ok": True})
     assert s6.pilot_failures() == []
     lh.wj(s6.s6dir("answers", "full_t", f"{s6.PILOT[0]}.json"), _answer("", "refused by the classifier"))
     assert s6.pilot_failures() == [f"full_t/{s6.PILOT[0]}: refused"]
