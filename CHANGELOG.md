@@ -17,6 +17,27 @@ All notable changes to this project are documented here. The format is based on
   larger one must take at most 2.5x as long, and a prompt at the caps must finish within 2 s.
   It does not assert the 50 ms goal from the research notes.
 
+### Changed
+
+- **`lcc hint` keeps two caches in the stash, and the hints stay the same.**
+  - **Session index:** `put` appends each blob to `<session hash>.ids`, so a hint reads the
+    sidecars of its own session's blobs, not every sidecar in the stash. A missing, torn or
+    never-scanned index falls back to the full scan, which rebuilds it.
+  - **Terms cache:** the first hint that reads a blob writes its casefolded terms to
+    `<sha256>.terms` (0600; the header names the blob, the tokeniser and Unicode versions and
+    the hash of the list).
+    Later prompts read the list instead of tokenising the blob again. The blob is still read
+    and hash-checked, and a damaged or outdated list is rebuilt.
+  - **Retention:** `lcc stash gc --apply` deletes a blob's `.terms` before the blob, orphaned
+    `.terms` files whatever their age, and session indexes unused for `--older-than`.
+  - **Speed, measured on one Mac** (3 interleaved runs against the previous code, in-process, caches
+    built; hints byte-identical in every run): a real stash of 786 blobs with a 72-blob session
+    went from 37-38 ms to 8-9 ms per prompt; a synthetic session at the caps (300 blobs, 8 MB)
+    from 356-370 ms to 55 ms, and one four times larger from 357-369 ms to 86-96 ms. The first
+    prompt that has to build the caches is slower: 47-51 ms instead of 39-40 ms on the real
+    stash, 508-526 ms instead of 368-378 ms at the caps. Python start-up (about 0.2 s) is not
+    included.
+
 ### Fixed
 
 - **Llama 3.3 and DeepSeek templates: `task_type` and `format_requirements` are neutralized

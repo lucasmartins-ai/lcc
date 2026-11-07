@@ -18,15 +18,22 @@ none), divided by how many candidates contain the term. A hint needs a score of 
 ``MIN_SCORE`` with at least one term of weight 2 or more, and must beat the best candidate it
 leaves out by ``GAP`` (so a prompt that fits three outputs equally gets no hint). At most
 ``MAX_HINTS`` per prompt, and an id hinted ``MUTE_AFTER`` times in a session is muted there.
+
+Speed: this runs on every prompt. The session's index (:func:`read_index`) spares reading every
+sidecar in the stash, and each blob's terms are tokenised once and kept in ``<sha256>.terms``.
+Both are caches: when one is missing, damaged or from another tokeniser the slow path runs, and
+the hints are the same either way.
 """
 
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import json
 import os
 import re
 import tempfile
+import unicodedata
 from bisect import bisect_left
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
@@ -38,9 +45,14 @@ from lcc.relevance.transcript_stash import (
     _blob,
     _opening,
     _stash_names,
+    _write_private,
+    append_index,
+    read_index,
     read_sidecar,
     session_hash,
     stash_dir,
+    stash_lock,
+    terms_path,
 )
 
 MIN_SCORE = Fraction(3)
@@ -49,10 +61,12 @@ MAX_HINTS = 2
 MUTE_AFTER = 2
 OPENING = 80
 TERM = 40  # the longest matched term a hint line repeats; keeps the line far under 10,000 chars
-# ponytail: every candidate blob is read and tokenised on each prompt; the caps bound that to
-# a few hundred ms on a large session. Cache each blob's term set in its sidecar if it is not.
+# Every candidate blob is still read and hash-checked on each prompt (a corrupt one never
+# hints); the caps bound that. Tokenising is what the terms cache saves.
 MAX_BLOBS = 300
 MAX_BYTES = 8_000_000
+# Bump when _tokens or the casefolding changes: cached term sets from before then are ignored.
+TERMS_VERSION = 1
 
 _REF = re.compile(r"lcc recall ([0-9a-f]{12})(?![0-9a-f])")
 _TOKEN = re.compile(r"\w[\w./:-]*")
@@ -215,7 +229,8 @@ def find_hints(
     names = _stash_names()
     root = stash_dir()
     matched: dict[str, set[str]] = {}
-    openings: dict[str, str] = {}
+    openings: dict[str, bytes] = {}
+    fresh: dict[Path, list[str]] = {}
     budget = MAX_BYTES
     for stash_id in _unique(ids)[:MAX_BLOBS]:
         if stash_id in skip:
@@ -236,15 +251,22 @@ def find_hints(
         if size > budget:
             continue  # checked before reading: one huge log must not stall the prompt
         try:
-            _, data = _blob(stash_id, names)
+            name, data = _blob(stash_id, names)
         except StashError:
             continue  # gone, corrupt or ambiguous: recall would fail too
         budget -= len(data)
-        text = data.decode("utf-8", errors="replace")
-        found = {key for key in (t.casefold() for t in _tokens(text)) if key in weights}
+        every = _cached_terms(root / name)
+        if every is None:
+            every = sorted({t.casefold() for t in _tokens(data.decode("utf-8", errors="replace"))})
+            fresh[root / name] = every
+        if len(weights) < len(every):  # from the smaller side: a pasted log can be the prompt
+            found = {key for key in weights if _has(every, key)}
+        else:
+            found = {term for term in every if term in weights}
         if found:
             matched[stash_id] = found
-            openings[stash_id] = text
+            openings[stash_id] = data
+    _store_terms(root, fresh)
     df: dict[str, int] = {}
     for found in matched.values():
         for key in found:
@@ -273,10 +295,52 @@ def find_hints(
             stash_id,
             round(float(scores[stash_id]), 4),
             tuple(sorted(matched[stash_id], key=lambda key: (-weights[key], key))),
-            _snippet(openings[stash_id]),
+            _snippet(openings[stash_id].decode("utf-8", errors="replace")),
         )
         for stash_id in order[:shown]
     ]
+
+
+def _has(sorted_terms: list[str], key: str) -> bool:
+    at = bisect_left(sorted_terms, key)
+    return at < len(sorted_terms) and sorted_terms[at] == key
+
+
+def _terms_head(blob: Path, body: bytes) -> bytes:
+    # The Unicode version decides what \w and casefold mean, so a Python upgrade re-tokenises.
+    # The blob's name keeps another blob's list, copied over this one, from passing.
+    digest = hashlib.sha256(body).hexdigest()
+    return f"lcc-terms {TERMS_VERSION} {unicodedata.unidata_version} {blob.name} {digest}".encode()
+
+
+def _cached_terms(blob: Path) -> list[str] | None:
+    """The blob's sorted casefolded terms from its cache, or ``None`` when absent, damaged (the
+    body fails its hash), another blob's, or written by another tokeniser. Terms never hold a
+    newline."""
+    try:
+        raw = terms_path(blob).read_bytes()
+    except OSError:
+        return None
+    head, _, body = raw.partition(b"\n")
+    if head != _terms_head(blob, body):
+        return None
+    try:
+        text = body.decode("utf-8")
+    except UnicodeDecodeError:  # a planted file with a matching hash; _store_terms writes UTF-8
+        return None
+    return text.split("\n") if text else []
+
+
+def _store_terms(root: Path, fresh: dict[Path, list[str]]) -> None:
+    """Best effort, like the sidecars. Under the shared lock and only while the blob is there:
+    gc (exclusive lock) removes a blob with its terms, so none outlives it."""
+    if not fresh:
+        return
+    with contextlib.suppress(OSError), stash_lock(root):
+        for blob, every in fresh.items():
+            if blob.is_file():
+                body = "\n".join(every).encode("utf-8")
+                _write_private(terms_path(blob), _terms_head(blob, body) + b"\n" + body)
 
 
 def _snippet(text: str) -> str:
@@ -294,19 +358,56 @@ def hint_line(hint: Hint) -> str:
 
 
 def session_blobs(session_id: str | None) -> list[str]:
-    """Stash ids whose sidecar names ``session_id``, newest first."""
+    """Stash ids whose sidecar names ``session_id``, newest first.
+
+    Only the sidecars of the blobs in the session's index are read. Without an index that vouches
+    for itself every sidecar in the stash is, and the result is appended to the index as a full
+    scan, so a session that never stashed scans once, not on every prompt.
+    """
     key = session_hash(session_id)
     if not key:
         return []
     root = stash_dir()
+    indexed = read_index(root, key)
+    if indexed is None:
+        rows = _scan_and_index(root, key)
+    else:
+        # lexists: the scan lists any entry with a blob's name, as _stash_names does.
+        rows = _session_rows(root, key, [n for n in set(indexed) if os.path.lexists(root / n)])
+    rows.sort(key=lambda row: (-row[0], row[1]))
+    return [name[:12] for _, name in rows]
+
+
+def _scan_and_index(root: Path, key: str) -> list[tuple[float, str]]:
+    """Every sidecar, then the session's blobs appended to its index as a full scan. Under the
+    exclusive lock no put sits between its index record (or dropping the index) and its sidecar,
+    which the scan would miss. Without that lock, or with a sidecar that is there but cannot be
+    read (it may name the session), the scan still answers but does not vouch."""
+    try:
+        with stash_lock(root, exclusive=True) as locked:
+            try:
+                rows = _session_rows(root, key, _stash_names(), strict=True)
+            except OSError:
+                locked = False
+                rows = _session_rows(root, key, _stash_names())
+            if locked:
+                with contextlib.suppress(OSError):
+                    append_index(root, key, [name for _, name in rows], full=True)
+            return rows
+    except StashError:  # no stash yet, or it cannot be locked
+        return _session_rows(root, key, _stash_names())
+
+
+def _session_rows(
+    root: Path, key: str, names: Iterable[str], *, strict: bool = False
+) -> list[tuple[float, str]]:
     rows: list[tuple[float, str]] = []
-    for name in _stash_names():
-        meta = read_sidecar(root / name)
+    for name in names:
+        meta = read_sidecar(root / name, strict=strict)
         if key in meta.get("sessions", []):
             when = meta.get("last_put_at") or meta.get("created_at") or 0.0
-            rows.append((float(when), name[:12]))
-    rows.sort(key=lambda row: (-row[0], row[1]))
-    return [stash_id for _, stash_id in rows]
+            rows.append((float(when), name))
+    return rows
 
 
 def _state_path(key: str) -> Path:

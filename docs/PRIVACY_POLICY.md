@@ -55,7 +55,8 @@ response contents.
 The open-source CLI and local (stdio) MCP server can also keep a stash on **your own
 machine**: with `rules_mode: "stashed"`, removed tool outputs are stored verbatim in
 `~/.cache/lcc/stash` (owner-only), with a sidecar of timestamps and truncated session-id
-hashes, so `lcc recall` can return them. Nothing in it expires automatically and it can hold
+hashes, so `lcc recall` can return them. Once `lcc hint` has read a stored output, a list of the
+words in it is kept beside it too. Nothing in it expires automatically and it can hold
 secrets the outputs contained, even after the transcript is deleted; `lcc stash gc --apply`
 or deleting the directory removes it. The hosted deployment refuses `stashed` and `recall`
 and keeps no stash.

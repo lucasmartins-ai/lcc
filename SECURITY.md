@@ -75,7 +75,9 @@ feed to `lcc` and the prompts/reports it writes with the same care as the source
   removing a session file does not remove the blobs it pointed to, and nothing expires by
   default. `lcc stash gc --apply` deletes blobs no transcript under `--root` references (and
   not used within `--older-than`); it fails closed and never runs on its own. Sidecars hold
-  timestamps and truncated session-id hashes only. See `docs/TOOL_CALLS.md`, *Retention*.
+  timestamps and truncated session-id hashes only. The `<sha256>.terms` file `lcc hint` writes
+  beside a blob lists the words in it, so it is deleted with the blob. See `docs/TOOL_CALLS.md`,
+  *Retention*.
 - *The remote provider's handling of data* once you opt in to `jev`.
 - *Semantic prompt injection against your model.* lcc never follows instructions in the
   text it compacts, but it does not remove them either: kept text reaches your model as is.
