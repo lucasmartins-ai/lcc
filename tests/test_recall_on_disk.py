@@ -154,3 +154,20 @@ def test_a_bare_output_line_is_content_not_a_codex_header(tmp_path: Path) -> Non
     src = tmp_path / "a.txt"
     src.write_text("expected\n", encoding="utf-8")
     assert on_disk("Output:\nexpected\n", src)["state"] == "changed"
+
+
+def test_an_empty_output_matches_only_an_empty_file(tmp_path: Path) -> None:
+    empty = tmp_path / "empty.txt"
+    empty.write_text("", encoding="utf-8")
+    blank = tmp_path / "blank.txt"
+    blank.write_text("a\n\nb\n", encoding="utf-8")
+    assert on_disk("", empty)["state"] == "unchanged"
+    assert on_disk("", blank)["state"] == "changed"
+
+
+def test_mcp_file_must_be_an_absolute_path(tmp_path: Path) -> None:
+    from lcc.mcp_server import ToolInputError
+
+    stash_id = put(read_output(["x"]))[:12]
+    with pytest.raises(ToolInputError, match="absolute"):
+        TOOLS["recall"]["handler"]({"id": stash_id, "file": "api.py"})
