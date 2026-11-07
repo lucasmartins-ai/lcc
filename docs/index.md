@@ -38,6 +38,7 @@ MCP (Claude Code, Cursor, Claude Desktop):
 
 ## Guides
 
+- [What lcc is](CONCEPT.md): the thesis, the glossary, product vs research
 - [Quickstart](QUICKSTART.md): every command, offline
 - [Share your numbers](SHARE_STATS.md): anonymous `lcc share-stats` summary for beta testers
 - [Claude Code plugin](CLAUDE_CODE.md): verbatim `/compact` instead of a lossy summary
