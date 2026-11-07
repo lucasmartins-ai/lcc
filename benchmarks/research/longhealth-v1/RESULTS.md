@@ -1,9 +1,10 @@
 # LongHealth v1 results: set D (2026-11-07)
 
 This is the run that [PROTOCOL.md](PROTOCOL.md) pre-registered: frozen by Amendment 2, with the billing route
-changed by Amendment 3. The verdicts below are the frozen harness's own (`longhealth_v1.py score --set D`). Every
-number comes from [`results.json`](results.json), which holds the aggregates and per-item 0/1 scores keyed by
-`(patient, question, condition, arm)`. No record text, question, option, summary or answer appears here (Data use).
+changed by Amendment 3. Amendment 4 leaves out the credit valuation. The verdicts below are the frozen harness's own
+(`longhealth_v1.py score --set D`). Every number comes from [`results.json`](results.json), which holds the
+aggregates and per-item 0/1 scores keyed by `(patient, question, condition, arm)`. No record text, question, option,
+summary or answer appears here (Data use).
 
 **Verdicts: H1 PASS, H2 FAIL, H3 descriptive.** Every validity gate passed. One dropped session departs from
 V2's rule, and scoring it as V2 reads leaves the verdicts unchanged (Dropped session).
@@ -184,6 +185,5 @@ do not change:
   unseen records is not tested here.
 - UA was 0 in every arm, so this run cannot show whether the verifier prevents unsupported answers.
 - 18 clusters: a percentile bootstrap can cover less than 95%. The per-patient differences above let a reader check.
-- **Not yet compliant: credit valuation.** Amendment 3 requires a valuation of the API-route calls, from the tokens
-  each call recorded, at list prices. This draft leaves it out until the owner decides whether to publish it. It
-  must be added, or its omission amended, before this file is final.
+- No credit valuation. Amendment 3 asked for one; Amendment 4, made after scoring, leaves it out. Calls and tokens
+  are reported above (Setup, Sizes and token use).
