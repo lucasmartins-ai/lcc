@@ -160,7 +160,18 @@ auto-compact window, so on a 1M-token model 40 % is roughly 400k tokens. That co
 through this plugin like any other: verbatim when the pass clears `minReductionRatio`,
 Claude Code's own summary (with the `PreCompact` pin) otherwise. Earlier compaction is not
 free. On a warm cache, the first request after a compaction writes the new prefix at the
-cache-write price. Whether 30/40 saves money on your sessions has not been measured yet. The
+cache-write price. A replay of 196 of the maintainer's long Claude Code sessions estimated the
+input cost with a model. That is one corpus and one run, not a measured bill, and output
+tokens are not counted. Compared with Claude Code's summary at its own threshold, the estimates
+at 40 % were:
+
+- the built-in summary's input cost was 29 % lower, the lowest of 30, 40 and 60 %;
+- lcc's verbatim pass is estimated at 9 % lower, assuming a pass removes 25 % of the
+  context. The pass itself was not replayed.
+
+At 40 % and above, verbatim compaction keeps more context than a summary, so it costs more
+input at the same threshold. What it buys is the exact text. Details:
+[Threshold replay](../benchmarks/research/THRESHOLD_REPLAY.md). The
 same rule for Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor:
 [Compacting earlier](COMPACT_EARLIER.md).
 

@@ -9,8 +9,11 @@ does not change these settings for you.
 
 Compacting earlier has a price. On a warm prompt cache, the first request after a compaction
 writes the new prefix at the cache-write price, and in every tool below except Claude Code with
-the lcc plugin, the compaction is the tool's own summary, which loses text. Whether 30/40 saves
-money on your sessions has not been measured yet.
+the lcc plugin, the compaction is the tool's own summary, which loses text. A replay of 196
+long Claude Code sessions estimates that compacting with the built-in summary at 40 % has a 29 %
+lower input cost than at the default, the lowest of 30, 40 and 60 %. This is a model estimate
+from one corpus and one tool, not a measured bill:
+[Threshold replay](../benchmarks/research/THRESHOLD_REPLAY.md).
 
 | tool | see the fill | compact on its own earlier | value for about 40 % |
 | --- | --- | --- | --- |

@@ -29,6 +29,17 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Compaction threshold replay.** `benchmarks/research/threshold_replay.py` replays real Claude
+  Code sessions at a compaction threshold of 30 %, 40 % and 60 % and at Claude Code's own, and
+  models the input cost. Cache reads count at 0.1×, and cache writes at each session's own
+  billed price. On 196 of the maintainer's sessions, it estimates that 40 % is the cheapest of
+  the three for the built-in summary, with an input cost 29 % below today's default. These are
+  model estimates from one corpus and one run, not measurements. For lcc's
+  verbatim pass at 40 %, the estimate is 9 % below the default. This assumes a cut of 25 %; the
+  pass itself was not replayed. At the default, the replay comes to a median 0.89 of the real
+  input bill.
+  Results and limits: [`THRESHOLD_REPLAY.md`](benchmarks/research/THRESHOLD_REPLAY.md).
+
 - **Claude Code plugin: early compaction is guarded.** With `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
   set below 75, the `PreCompact` hook blocks an auto-compaction when less than 25 % of the context
   is tool output lcc could stash. On such a session the built-in summary would lose detail while
