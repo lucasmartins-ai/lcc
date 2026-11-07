@@ -1,6 +1,6 @@
 """`lcc measure-session`: what each compaction mode would do to one of your sessions.
 
-Reads a Claude Code session or Codex rollout file (JSONL) locally and runs tool-call
+Reads a Claude Code, Codex or Gemini session file (JSONL) locally and runs tool-call
 compaction offline. Reports **counts only**: messages, tool calls, tokens before and after,
 user/assistant texts kept byte for byte, and time. No session text, path or tool output is
 in the report, so it can be pasted into a public issue. Nothing is sent anywhere;
@@ -15,6 +15,7 @@ import platform
 import statistics
 import tempfile
 import time
+from itertools import chain
 from pathlib import Path
 from typing import Any
 
@@ -53,7 +54,7 @@ def _result_text(content: Any) -> str:
 
 
 def from_claude_code(path: Path) -> list[dict[str, Any]]:
-    """Read Claude Code JSONL or an auto-detected Codex rollout into hook-shaped messages.
+    """Read Claude Code, Codex or Gemini JSONL into hook-shaped messages.
 
     The historical name is retained for callers. Reasoning and orphaned results are omitted.
     """
@@ -125,12 +126,13 @@ def codex_message(item: dict[str, Any], record_index: int) -> dict[str, Any] | N
 
 
 def messages_from_jsonl(lines: Any) -> list[dict[str, Any]]:
-    """Read session lines, detecting Codex by a first ``session_meta`` record.
+    """Read Claude, Codex or Gemini session lines, auto-detecting the first record.
 
     Codex response items are canonical; event_msg entries duplicate their text and are ignored.
     """
     messages: list[dict[str, Any]] = []
     codex: bool | None = None
+    lines = iter(lines)
     for record_index, line in enumerate(lines):
         try:
             record = json.loads(line)
@@ -139,6 +141,10 @@ def messages_from_jsonl(lines: Any) -> list[dict[str, Any]]:
         if not isinstance(record, dict):
             continue
         if codex is None:
+            from lcc.gemini_history import is_gemini_chat_record, messages_from_gemini_jsonl
+
+            if is_gemini_chat_record(record):
+                return messages_from_gemini_jsonl(chain([line], lines))
             codex = record.get("type") == "session_meta"
         if codex:
             item = record.get("payload")
