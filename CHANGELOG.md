@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- **DOI.** Zenodo archives each GitHub release. `CITATION.cff` and the README badge carry the
+  concept DOI [10.5281/zenodo.24038393](https://doi.org/10.5281/zenodo.24038393), which resolves to the latest
+  version; 1.4.0 is [10.5281/zenodo.24038394](https://doi.org/10.5281/zenodo.24038394).
+
 ## [1.4.0] - 2026-11-07
 
 ### Changed

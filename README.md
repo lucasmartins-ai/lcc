@@ -9,6 +9,7 @@ lcc cuts what the model does not need, keeps everything else byte for byte, and 
 [![Python](https://img.shields.io/pypi/pyversions/local-context-compiler.svg)](https://pypi.org/project/local-context-compiler/)
 [![CI](https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasmartins-ai/lcc/actions/workflows/ci.yml)
 [![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24038393.svg)](https://doi.org/10.5281/zenodo.24038393)
 [![GitHub stars](https://img.shields.io/github/stars/lucasmartins-ai/lcc?style=social)](https://github.com/lucasmartins-ai/lcc/stargazers)
 
 <img src="https://raw.githubusercontent.com/lucasmartins-ai/lcc/main/demos/stash.gif" alt="lcc measure-session on a 91-message Claude Code session, then lcc compact with the stashed mode, then lcc recall returning the exact lines of a removed file read" width="820">
