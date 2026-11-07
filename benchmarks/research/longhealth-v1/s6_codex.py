@@ -30,7 +30,7 @@ MODEL, EFFORT = "gpt-6.1-sol", "medium"  # the Codex catalog's workhorse model, 
 CODEX_VERSION = "codex-cli 0.166.0"  # the driver refuses another version: the CLI shapes the prompt and the tools
 S6_CAP = 130  # toolcheck 1 + pilot 4 + D 106, and room for V2 retries; not part of the 650-call D budget
 PAUSE_AT = 80  # % of the plan's 5-hour or weekly window: no S6 call starts above it (Amendment 3's pacing rule)
-APPROVED = None  # the owner's approval date, set by the commit that records it in Amendment 5; `run` refuses until
+APPROVED = "2026-11-07"  # the owner's approval date, recorded in Amendment 5; `run` refuses while it is unset
 ARMS = ("full_t", "stashed_t")
 MAIN_CODEX_HOME = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
 # Everything Codex would add beyond recall is off. Shell off is what keeps the gold (ROOT/benchmark_v5.json) and the

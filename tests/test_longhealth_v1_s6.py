@@ -285,7 +285,8 @@ def test_score_end_to_end_on_fake_answers(tmp_path, monkeypatch):
 
 def test_run_waits_for_approval_and_for_the_scored_d_run(tmp_path, monkeypatch):
     monkeypatch.setattr(lh, "ROOT", tmp_path)
-    assert s6.APPROVED is None  # the commit that records the owner's approval sets it
+    assert s6.APPROVED == "2026-11-07"  # the date Amendment 5 records
+    monkeypatch.setattr(s6, "APPROVED", None)
     with pytest.raises(SystemExit, match="not approved"):
         s6.main(["run", "--set", "D", "--arm", "full_t"])
     with pytest.raises(SystemExit, match="results-D.json is missing"):

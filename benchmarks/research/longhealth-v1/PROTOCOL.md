@@ -452,14 +452,16 @@ This changes one reporting line of Amendment 3. It changes no data, gate, test o
 - **Effect on results:** none. The route is not a factor in any hypothesis (Amendment 3), and the valuation enters
   no gate or test.
 
-### Amendment 5: S6, a second answerer (draft 2026-11-07, after scoring; awaiting owner approval)
+### Amendment 5: S6, a second answerer (2026-11-07, after scoring, approved before any pilot or D call)
 
 This runs secondary S6: `full_t` and `stashed_t` with an answerer from another model family. It changes nothing
 that Amendments 1–4 fix, and no D number already reported.
 
-- **Owner approval:** pending. No S6 call is made on a D session, and the pilot below does not run, until the owner
-  approves this amendment in chat. The approval line goes here, and the same commit sets the driver's `APPROVED`
-  to its date. Until then `s6_codex.py run` refuses to start.
+- **Owner approval (2026-11-07):** "Aprovo o S6" ("I approve S6"), in reply to "Aprova rodar o S6: 3 chamadas de
+  piloto e 106 no D, no seu ChatGPT Plus, pausando em 80%?" ("Do you approve running S6: 3 pilot calls and 106 on
+  D, on your ChatGPT Plus, pausing at 80 %?"), and again in the same words to "Do you approve S6 (3 pilot calls,
+  106 on D, on ChatGPT Plus, pausing at 80 %)?". This commit records it and sets the driver's `APPROVED` to that
+  date, before any pilot or D call. Until this commit `s6_codex.py run` refused to start.
 - **Why:** RESULTS names one answerer model as a limit. S6 tests whether `stashed_t − full_t` holds with an answerer
   from another family, on the same sessions, prompts and stashes.
 - **Answerer:** `gpt-6.1-sol` at `medium` reasoning effort, through the Codex CLI (`codex exec`), pinned to
@@ -574,7 +576,7 @@ that Amendments 1–4 fix, and no D number already reported.
   - RESULTS gets an S6 section next to the Claude numbers. Differences between the two answerers are described,
     not tested.
 - **Files** (sha256):
-  - `s6_codex.py` `fb7766b00e99219825557848bacc059b0cb2c5981435fe570b909b0847375182`
+  - `s6_codex.py` `4f999042204fee5266abe10250eb39418ce7f93a702c68724f00105caa7c46ed`
   - `longhealth_v1.py` and `recall_shim.py` are unchanged (Amendment 2's sha256s, which a test checks).
   - The tests are in `tests/test_longhealth_v1_s6.py`, with a fake `codex` on `PATH`. They make no model call.
 - **Data use:** unchanged. Prompts, event streams, recalled text and answers stay under the private root. The
