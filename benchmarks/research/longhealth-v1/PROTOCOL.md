@@ -439,3 +439,15 @@ This changes who pays for the D calls still to run. It changes nothing that Amen
 - **Expected effect on results:** none. The same models run through the same CLI with the same prompts, and the
   route is not a factor in any hypothesis. `summary_clin` is the only arm with calls on both routes, and RESULTS
   says so.
+
+### Amendment 4: credit valuation left out (2026-11-07, after scoring)
+
+This changes one reporting line of Amendment 3. It changes no data, gate, test or verdict.
+
+- **What:** RESULTS does not report the credit valuation that Amendment 3 asks for (the API-route calls valued at
+  list prices from the tokens each call recorded). The owner decided on 2026-11-07 not to publish it. That decision
+  came after scoring, with the verdicts known.
+- **What RESULTS reports instead:** the call count (582 of 650) and each arm's cumulative tokens, which come from the
+  same per-call records.
+- **Effect on results:** none. The route is not a factor in any hypothesis (Amendment 3), and the valuation enters
+  no gate or test.

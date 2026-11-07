@@ -39,6 +39,7 @@ CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude --plugin-dir plugins/claude-code
 | :--- | :--- |
 | `.claude-plugin/marketplace.json` | the marketplace this repository hosts (name `lcc`) |
 | `plugins/claude-code/.claude-plugin/plugin.json` | the plugin manifest and its configurable options |
+| `plugins/claude-code/.codex-plugin/plugin.json` | Codex's manifest: same name and version, `"hooks": {}` so Codex skips `hooks/hooks.json` (see the hooks README) |
 | `plugins/claude-code/.mcp.json` | starts the plugin's own `lcc mcp` server |
 | `plugins/claude-code/hooks/hooks.json` | registers the hook module and the two classic hooks |
 | `plugins/claude-code/hooks/lcc-compact.mjs` | the adapter: `session.compact` → `compact_transcript` → messages |

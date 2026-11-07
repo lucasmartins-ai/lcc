@@ -82,6 +82,13 @@ All notable changes to this project are documented here. The format is based on
   Claude Code and Codex JSONL with `str.splitlines()`, which also breaks at those characters.
   They can sit unescaped inside JSON strings, so any record that held one was cut in two and
   skipped. It now splits at `\n` only.
+- **Codex no longer warns on the plugin's hooks file.** Codex parses each hooks file with a strict
+  schema (`description` and `hooks` only), so `hooks/hooks.json` with Claude Code's top-level
+  `modules` printed "failed to parse plugin hooks config … unknown field modules" and Codex
+  skipped the whole file. No lcc hook ran there; the MCP server was unaffected. The plugin now ships
+  `.codex-plugin/plugin.json` with `"hooks": {}`, which replaces Codex's default `hooks/hooks.json`
+  lookup. Claude Code's `hooks/hooks.json` is unchanged. `test/plugin-manifests.test.mjs` pins both
+  and checks the two manifests carry the same version.
 
 ## [1.3.0] - 2026-10-31
 
