@@ -451,3 +451,131 @@ This changes one reporting line of Amendment 3. It changes no data, gate, test o
   same per-call records.
 - **Effect on results:** none. The route is not a factor in any hypothesis (Amendment 3), and the valuation enters
   no gate or test.
+
+### Amendment 5: S6, a second answerer (draft 2026-11-07, after scoring; awaiting owner approval)
+
+This runs secondary S6: `full_t` and `stashed_t` with an answerer from another model family. It changes nothing
+that Amendments 1–4 fix, and no D number already reported.
+
+- **Owner approval:** pending. No S6 call is made on a D session, and the pilot below does not run, until the owner
+  approves this amendment in chat. The approval line goes here, and the same commit sets the driver's `APPROVED`
+  to its date. Until then `s6_codex.py run` refuses to start.
+- **Why:** RESULTS names one answerer model as a limit. S6 tests whether `stashed_t − full_t` holds with an answerer
+  from another family, on the same sessions, prompts and stashes.
+- **Answerer:** `gpt-6.1-sol` at `medium` reasoning effort, through the Codex CLI (`codex exec`), pinned to
+  `codex-cli 0.166.0`. The driver refuses any other CLI version, because the CLI shapes the prompt and the tools.
+  `gpt-6.1-sol` is the Codex catalog's general model; medium is the effort the Claude answerer had. The calls run on
+  the owner's ChatGPT Plus plan: no API key and no new cash.
+- **The driver:** `s6_codex.py`, beside the frozen harness. It imports `longhealth_v1.py` and changes none of it.
+  S6 runs only through this driver, so the frozen arms and their files stay byte-identical. It shares D's driver
+  lock, so only one driver runs at a time.
+- **Same inputs as D:** the D sessions, compactions, stashes and location receipt, read from the private root and
+  never written. The prompt is built by the frozen code: context, then `P`, then Q-T (sha256 unchanged). The system
+  text is the frozen tool-arm system text, passed with `model_instructions_file`, so it replaces Codex's own base
+  instructions. The prompt goes on stdin. A test checks that the S6 prompt and stash equal what the frozen
+  `phase_run` sends for both arms.
+- **The recall tool:** the same `recall_shim.py`, as an MCP stdio server, with the same command, arguments and
+  environment that `mcp_config` gives the Claude arms. Its caps (8 calls per answer, 20,000 tokens per call) and its
+  JSONL log apply unchanged. `full_t` gets the empty stash, as in D.
+  - With approvals off, Codex refuses MCP calls unless the tool is approved. The driver approves `recall` only.
+  - Codex's own cut of tool output is raised to 40,000 tokens, so the shim's 20,000-token cap is the one that binds.
+    The largest recall in D was 31,720 characters.
+- **Isolation:**
+  - Shell, file edits, web search, images, plugins, apps, skills, memories and hooks are off.
+  - A separate Codex home holds only a link to the owner's login, and `HOME` points into the private root. So no
+    user config, `AGENTS.md`, rules or skills reach the prompt.
+  - The sandbox is read-only, in an empty working directory, and no flag that skips approvals or the sandbox is
+    ever passed.
+  - Codex adds, and this model cannot drop: a multi-agent developer message, collaboration tools (spawn an agent,
+    wait, ask the user) and a JavaScript `exec` tool. The report counts the item kinds of every call, retried and
+    dropped attempts included, so any use of them shows.
+  - An attempt that started the shell, a file edit or web search stops the run, and nothing from it is scored.
+    With the shell off, the gold file and the stash files are out of the answerer's reach.
+- **Outputs:** everything goes under `<private root>/s6/`: S6's own call ledger, a per-call record (outcome and plan
+  window before and after), the raw Codex event stream of every call (kept on a timeout too), answers, recall
+  logs, the S6 toolcheck and `results-<set>.json`. A score of a subset (`--only`) goes to
+  `results-<set>-subset.json` and never overwrites the whole set's results.
+- **Attempts:**
+  - V2 attempts are as frozen: 3 per answer, 2 per driver run.
+  - Infrastructure failures: no turn started, a transport error, a CLI crash, a timeout, or a failed turn whose
+    message is not a refusal (an auth error, or no message at all). A usage limit stops the driver, and the next
+    run resumes from cache.
+  - Refusals: the provider ended a started turn with one of the pinned CLI's own refusal errors, matched as they
+    are written in the `codex-cli 0.166.0` binary, or with the provider's own refusal text:
+    - a policy error: `invalid prompt:`, `cyber policy:`, `bio policy:` or `misalignment policy violation`;
+    - the provider's `invalid_prompt` text, which the CLI may pass on without its prefix: `flagged as potentially
+      violating our usage policy` or `limited access to this content for safety reasons`;
+    - a turn cut by the content filter: `Incomplete response returned, reason: content_filter`;
+    - a risk flag: `flagged for possible cybersecurity risk` or `flagged for possible biological risk`.
+
+    Any other failed turn is infrastructure, even when its text holds a word such as "safety", "flagged" or
+    "classifier". A refusal is scored wrong on all 20 questions, listed by session in the report and counted in V5.
+    It is never retried and never dropped. This is V2 as written. In D the frozen harness counted a provider
+    classifier stop as an infrastructure failure: Anthropic's `reasoning_extraction` classifier stopped the
+    `summary_clin` summarizer on `patient_12__ans_early`, and RESULTS reports the drop as a deviation. S6 does not
+    repeat it. The CLI has no such string; the signals listed above are this provider's.
+  - Splits: Amendment 1's split rule covers Claude replies without tools that were resumed over turns. It does not
+    apply here. The answer is the run's last agent message, and a run with none is an infrastructure failure.
+- **Budget:** S6 has its own cap of **130 calls**, outside the 650-call D budget.
+  - Spent so far: 3. Call 1 was the S6 toolcheck, refused by the approval policy before `recall` was approved.
+    Call 2 was the toolcheck again, which passed (V4). Call 3 was the smoke call below.
+  - Planned: the pilot needs 3 calls and D needs 106. The remaining 18 cover V2 retries.
+  - Pacing: no call starts while the plan's 5-hour or weekly window is at 80 % or more, and none starts if the
+    windows cannot be read. They are read from `codex app-server` (`account/rateLimits/read`, no model call)
+    before and after each call. This keeps room on the plan for the owner's other Codex work. The driver never
+    spends a plan reset credit; that is the owner's call.
+- **Smoke call** (outside D, on a pilot-pool session): `stashed_t` on `patient_03__ans_early`.
+  - It took 32 s, and 20 of 20 lines parsed.
+  - It made 10 recall attempts: 8 returned text and 2 hit the 8-call cap.
+  - Tokens: 218,373 input (160,768 of them cached) and 1,148 output (163 reasoning). Claude on the same session
+    and arm used 158,602 input and 5,362 output tokens.
+  - The plan window read 25 % (5-hour) and 58 % (weekly) after the smoke call. A share per call cannot be read from
+    whole percents after the fact, so the pilot logs the windows before and after each call.
+- **Cost estimate for D (INFERIDO):** 106 calls and about 8–17 M input tokens, most of them cached (74 % in the
+  smoke call), plus about 0.1–0.2 M output tokens.
+  - `full_t`: 53 × 55–110 k ≈ 2.9–5.8 M. The low end is D's mean full context; the high end is Claude's measured
+    `full_t` usage per session.
+  - `stashed_t`: 53 × 88–218 k ≈ 4.7–11.6 M. The low end is Claude's measured `stashed_t` usage per session; the
+    high end assumes every session recalls like the smoke call did.
+  - The pilot's window readings say whether D fits in one weekly window or runs paced across the reset.
+- **Pilot first:** `patient_03__ans_early` and `patient_05__ans_early` × both arms. That is 4 answers, 1 of them
+  the smoke call already cached, so 3 new calls.
+  - `run --set pilot` runs these 2 sessions only and refuses any other, and the pilot is scored to
+    `results-pilot-subset.json`.
+  - D starts only if every gate below holds. `run --set D` checks them from the cached pilot answers and refuses
+    to start otherwise:
+    - the S6 toolcheck passed (V4);
+    - every pilot answer is a parsed answer (≥ 95 % of lines);
+    - no answer used a denied tool, and none was refused;
+    - `stashed_t` returned at least one recall in each pilot session.
+  - If the pilot fails, S6 stops, and a new amendment decides what happens next.
+  - Prompts, caps, model, effort and CLI version never change after the pilot answers are seen. The recall cap
+    stays at 8 even though GPT reached it, so both answerers face the same tool.
+- **Scoring:** S6 runs on the 53 sessions D kept. An S6 drop (a terminal infrastructure failure in either arm)
+  removes that session from both S6 arms only.
+  - It uses the frozen `score_session`, `metric` and `bootstrap`: the paired cluster bootstrap over target
+    patients, 2,000 draws, the same seed.
+  - A broken stash contract scores `stashed_t` wrong, as in D.
+- **Gates:**
+  - V1: S6 `full_t` A ≥ 0.60.
+  - V2: at most 5 % of the 53 sessions dropped.
+  - V4: the S6 toolcheck passed.
+  - V5: ≥ 95 % of lines parse in each S6 arm.
+  - V3 and V3b are properties of the sessions and hold from D.
+  - V6 does not apply: there is no GPT `none` arm, and contamination is reported as a limit.
+  - A failed gate marks S6 invalid. Its numbers are published anyway.
+- **Report:** CIs only, with no pass or fail. S6 has no hypothesis, and H1's margin is not applied to it.
+  - The A, E, U and UA table per arm.
+  - `stashed_t − full_t` on A overall, on A in `ans_early` and `ans_late`, on E, and on A under the substring rule.
+    Each comes with its 95 % CI and per-patient differences.
+  - R1–R6 from S6's recall logs.
+  - Tokens per arm (input, cached, output, reasoning).
+  - Refusals, response failures by condition, Codex item kinds, calls by outcome and the plan windows.
+  - RESULTS gets an S6 section next to the Claude numbers. Differences between the two answerers are described,
+    not tested.
+- **Files** (sha256):
+  - `s6_codex.py` `fb7766b00e99219825557848bacc059b0cb2c5981435fe570b909b0847375182`
+  - `longhealth_v1.py` and `recall_shim.py` are unchanged (Amendment 2's sha256s, which a test checks).
+  - The tests are in `tests/test_longhealth_v1_s6.py`, with a fake `codex` on `PATH`. They make no model call.
+- **Data use:** unchanged. Prompts, event streams, recalled text and answers stay under the private root. The
+  repository gets the driver, its tests and aggregate results.
