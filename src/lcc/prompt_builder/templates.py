@@ -71,6 +71,20 @@ def _contract_sections(spec: PromptSpec) -> tuple[str, list[str], list[str]]:
     return role, constraints, response_requirements
 
 
+def _neutralized_contract(
+    spec: PromptSpec, pattern: re.Pattern[str]
+) -> tuple[str, str, list[str], list[str]]:
+    """``(role, task_type, constraints, response_requirements)`` with special tokens neutralized
+    in every caller-supplied field. Context and question are neutralized where they are used."""
+    role, constraints, response_requirements = _contract_sections(spec)
+    return (
+        role,
+        _neutralize(spec.task_type, pattern),
+        [_neutralize(c, pattern) for c in constraints],
+        [_neutralize(r, pattern) for r in response_requirements],
+    )
+
+
 def render_default(spec: PromptSpec) -> str:
     """Render the default, evidence-aware prompt template."""
     role, constraints, response_requirements = _contract_sections(spec)
@@ -242,12 +256,12 @@ def render_llama_3_3(spec: PromptSpec) -> str:
     Note: these special tokens only act as tokens on raw-completion endpoints.
     Through a chat API they are sent as plain text."""
 
-    role, constraints, response_requirements = _contract_sections(spec)
-
-    constraints = [_neutralize(c, _LLAMA_SPECIAL) for c in constraints]
+    role, task_type, constraints, response_requirements = _neutralized_contract(
+        spec, _LLAMA_SPECIAL
+    )
     system_sections = [
         role,
-        f"Task type: {spec.task_type}",
+        f"Task type: {task_type}",
         "Constraints:\n" + _render_bullets(constraints),
         "Response requirements:\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
@@ -280,14 +294,14 @@ def render_deepseek_r1(spec: PromptSpec) -> str:
     Note: these special tokens only act as tokens on raw-completion endpoints.
     Through a chat API they are sent as plain text."""
 
-    role, constraints, response_requirements = _contract_sections(spec)
-
-    constraints = [_neutralize(c, _DEEPSEEK_SPECIAL) for c in constraints]
+    role, task_type, constraints, response_requirements = _neutralized_contract(
+        spec, _DEEPSEEK_SPECIAL
+    )
     context = _neutralize(spec.context, _DEEPSEEK_SPECIAL).strip()
     question = _neutralize(spec.question, _DEEPSEEK_SPECIAL).strip()
     sections = [
         role,
-        f"Task type: {spec.task_type}",
+        f"Task type: {task_type}",
         "Constraints:\n" + _render_bullets(constraints),
         "Response requirements:\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),
@@ -309,14 +323,14 @@ def render_deepseek_v3(spec: PromptSpec) -> str:
     Note: these special tokens only act as tokens on raw-completion endpoints.
     Through a chat API they are sent as plain text."""
 
-    role, constraints, response_requirements = _contract_sections(spec)
-
-    constraints = [_neutralize(c, _DEEPSEEK_SPECIAL) for c in constraints]
+    role, task_type, constraints, response_requirements = _neutralized_contract(
+        spec, _DEEPSEEK_SPECIAL
+    )
     context = _neutralize(spec.context, _DEEPSEEK_SPECIAL).strip()
     question = _neutralize(spec.question, _DEEPSEEK_SPECIAL).strip()
     sections = [
         role,
-        f"Task type: {spec.task_type}",
+        f"Task type: {task_type}",
         "Constraints:\n" + _render_bullets(constraints),
         "Response requirements:\n"
         + "\n".join(f"{i}. {req}" for i, req in enumerate(response_requirements, start=1)),

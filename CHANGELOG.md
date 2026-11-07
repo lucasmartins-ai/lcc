@@ -12,6 +12,18 @@ All notable changes to this project are documented here. The format is based on
   concept DOI [10.5281/zenodo.24038393](https://doi.org/10.5281/zenodo.24038393), which resolves to the latest
   version; 1.4.0 is [10.5281/zenodo.24038394](https://doi.org/10.5281/zenodo.24038394).
 
+- **Nightly timing test for recall hints.** `tests/test_recall_hints_timing.py` (`LCC_TIMING=1`,
+  in the nightly workflow) stashes a session at the hint caps and one four times larger. The
+  larger one must take at most 2.5x as long, and a prompt at the caps must finish within 2 s.
+  It does not assert the 50 ms goal from the research notes.
+
+### Fixed
+
+- **Llama 3.3 and DeepSeek templates: `task_type` and `format_requirements` are neutralized
+  too** (#83). They went into the prompt raw, so a value holding `<|eot_id|>` or `<｜User｜>`
+  could open a new turn on a raw-completion endpoint. All three templates now pass every
+  caller-supplied field through the same neutralization.
+
 ## [1.4.0] - 2026-11-07
 
 ### Changed
