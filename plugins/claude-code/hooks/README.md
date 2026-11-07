@@ -128,6 +128,22 @@ The hook stands down — and Claude Code compacts the way it always did — when
 
 It also skips `precompute` invocations, which install nothing.
 
+## Codex
+
+Codex installs this same plugin folder and serves its MCP tools (`lcc mcp`); the hooks above
+are Claude Code's and do not run there. Codex parses a hooks file with a strict schema that
+allows only `description` and `hooks`, so it rejects `hooks/hooks.json` (its `modules` key
+belongs to Claude Code) with the error "unknown field modules" and drops the whole file. Its default is
+to read `hooks/hooks.json`; a `hooks` entry in `.codex-plugin/plugin.json` replaces that
+default. The plugin ships that manifest with `"hooks": {}`, so Codex loads no hooks and prints no
+warning, and Claude Code, which does not read `.codex-plugin/`, still gets `hooks/hooks.json`
+untouched. `lcc-pin.mjs` reads a Claude Code transcript, which a Codex rollout is not, so
+pointing Codex at the two classic hooks would only add trust prompts for no output.
+
+On a release, bump `version` in `.codex-plugin/plugin.json` together with
+`.claude-plugin/plugin.json`; `test/plugin-manifests.test.mjs` fails when they differ, or when
+a file Codex would read carries a key its schema rejects.
+
 ## Limitations, stated plainly
 
 - **Fired end to end on one session shape.** Claude Code 2.1.296 ran a real `/compact` through
