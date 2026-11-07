@@ -223,9 +223,20 @@ lcc compact session.json -q "fix the booking KeyError" --mode tool-calls \
 lcc explain report.json --only replace   # each removed output, its rule and its pointer
 lcc recall 3f9a1c0b2d4e               # whole output; 12-64 hex chars of the sha256
 lcc recall 3f9a1c0b2d4e --lines 40-80 # 1-based, inclusive
+lcc recall 3f9a1c0b2d4e --file src/api.py
+# stdout: the exact bytes; stderr: lcc: src/api.py differs from this output (3 of 120 lines)
 ```
 
-MCP: tool `recall` with `{"id": "...", "lines": "a-b"}` returns `{sha256, text}`. The stash
+A recalled file read is what the file held then. `--file` compares it with the file now: a
+numbered read (Claude Code `Read`, `cat -n`: every line numbered, consecutively) line by line,
+other output (`cat`, `sed -n`) as whole consecutive lines. A Codex exec header is skipped.
+`Read` prints `N<tab>line` with no padding, so a `cat` of a file that is itself such a listing is
+read as numbered; `compared_as` (MCP) says which reading was used. The note says `still matches`, `differs`, `no longer exists` or `could not be
+compared`; the stash keeps no paths, so the agent names the file, usually from the pointer.
+
+MCP: tool `recall` with `{"id": "...", "lines": "a-b"}` returns `{sha256, text}`; with
+`"file": "/abs/path"` it adds `on_disk: {path, state, compared_as, lines_compared, lines_differ}`, where
+`state` is `unchanged`, `changed`, `missing` or `unreadable`: counts only, never the file's content. The stash
 is local to the machine running `lcc mcp` over stdio; `lcc mcp --http` refuses both `recall`
 and `rules_mode: "stashed"`, since one disk would be shared by every caller.
 

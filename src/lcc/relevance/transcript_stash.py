@@ -37,6 +37,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import tempfile
 import time
 import warnings
@@ -51,7 +52,13 @@ from lcc.relevance.transcript_lossless import (
     lossless_decisions,
     verify_lossless,
 )
-from lcc.relevance.transcript_recoverable import recoverable_decisions
+from lcc.relevance.transcript_recoverable import (
+    DISK_MAX_BYTES,
+    _body,
+    _file_lines,
+    _numbered,
+    recoverable_decisions,
+)
 from lcc.relevance.transcript_rules import rules_decisions
 from lcc.token_budget import count_tokens
 
@@ -331,6 +338,69 @@ def recall(
 
 def recall_sha256(stash_id: str) -> str:
     return _blob(stash_id)[0]
+
+
+def on_disk(text: str, path: str | Path) -> dict[str, Any]:
+    """Whether ``path`` still holds what a recalled read of it showed: counts, never content.
+
+    Output (minus a Codex exec header) whose every line is numbered, consecutively, is a
+    Claude Code ``Read`` or ``cat -n`` (a reminder Claude Code appends is skipped): each row is
+    compared with the file's line at that number (``compared_as: numbered``). Anything else
+    must appear in the file as whole consecutive lines (``cat``, ``sed -n``; ``compared_as:
+    lines``). ``state`` is ``unchanged``, ``changed``, ``missing`` or ``unreadable`` (not a
+    regular UTF-8 file of at most ``DISK_MAX_BYTES``). Compared byte for byte, as
+    ``recoverable`` mode does: CRLF never matches LF, so a doubt reads as ``changed``.
+
+    ponytail: ``Read`` prints ``N<tab>line`` with no padding, so a ``cat`` of a file that is
+    itself a numbered listing reads as numbered, and the empty row ``Read`` adds after a final
+    newline cannot be told from a ``cat -n`` of a blank last line. ``compared_as`` says which
+    reading was used; pass the plain file to ``lcc recall`` when that matters.
+    """
+    out: dict[str, Any] = {"path": str(path)}
+    try:
+        info = os.stat(path)
+        if not stat.S_ISREG(info.st_mode) or info.st_size > DISK_MAX_BYTES:
+            return out | {"state": "unreadable"}
+        with open(path, "rb") as handle:
+            data = handle.read(DISK_MAX_BYTES + 1)  # the file may have grown since the stat
+        if len(data) > DISK_MAX_BYTES:
+            return out | {"state": "unreadable"}
+        disk = _file_lines(data.decode("utf-8"))
+    except FileNotFoundError:
+        return out | {"state": "missing"}
+    except (OSError, UnicodeDecodeError):
+        return out | {"state": "unreadable"}
+    body = _body(text)[0]
+    rows = _numbered(body.split("\n<system-reminder>", 1)[0])
+    if rows:
+        if len(rows) > 1 and rows[-1] == (len(disk) + 1, ""):
+            rows.pop()  # Read numbers the empty line after a final newline
+        differ = sum(1 for n, line in rows if n > len(disk) or disk[n - 1] != line)
+        state = "changed" if differ else "unchanged"
+        counts = {"lines_compared": len(rows), "lines_differ": differ}
+        return out | {"state": state, "compared_as": "numbered"} | counts
+    shown = _file_lines(body)
+    found = "\n" + "\n".join(shown) + "\n" in "\n" + "\n".join(disk) + "\n"
+    state = "unchanged" if found else "changed"
+    return out | {"state": state, "compared_as": "lines", "lines_compared": len(shown)}
+
+
+def on_disk_note(result: dict[str, Any]) -> str:
+    """One line for a person: ``lcc: <path> differs from this output (3 of 120 lines)``."""
+    # A newline in a file name must not start a second, forged note line.
+    path = "".join(c if c.isprintable() else repr(c)[1:-1] for c in result["path"])
+    state = result["state"]
+    count = result.get("lines_compared", 0)
+    lines = f"{count} line" + ("" if count == 1 else "s")
+    if state == "missing":
+        return f"lcc: {path} no longer exists"
+    if state == "unreadable":
+        return f"lcc: {path} could not be compared (not a regular UTF-8 file under 4 MB)"
+    if state == "unchanged":
+        return f"lcc: {path} still matches this output ({lines})"
+    if "lines_differ" in result:
+        return f"lcc: {path} differs from this output ({result['lines_differ']} of {lines})"
+    return f"lcc: {path} no longer holds these {lines} in a row"
 
 
 def parse_lines(spec: str) -> tuple[int, int]:
