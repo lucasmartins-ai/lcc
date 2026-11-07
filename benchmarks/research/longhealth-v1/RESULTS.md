@@ -9,9 +9,10 @@ summary or answer appears here (Data use).
 **Verdicts: H1 PASS, H2 FAIL, H3 descriptive.** Every validity gate passed. One dropped session departs from
 V2's rule, and scoring it as V2 reads leaves the verdicts unchanged (Dropped session).
 
-`gateClaim` (2026-11-07) returned PASS on the H1 result in its short form below, and BLOCK on a longer wording of the
-same numbers. It returned BLOCK on the H2, verifier and token findings. Those are tagged INFERIDO: one run, one
-answerer model, no independent replication.
+`gateClaim` is an evidence check the owner runs on a measured claim before publishing it. PASS lets the claim stand
+as measured. BLOCK means it must carry the label INFERIDO (Portuguese for "inferred"). On 2026-11-07 it returned PASS
+on the H1 result in its short form below, and BLOCK on a longer wording of the same numbers. It returned BLOCK on the
+H2, verifier and token findings, so read those as INFERIDO: one run, one answerer model, no independent replication.
 
 ## Setup
 
@@ -27,7 +28,7 @@ answerer model, no independent replication.
 |---|---|
 | V1 `full_t` A ≥ 0.60 | pass (621/700 = 0.887) |
 | V2 drops ≤ 5% | pass (1 of 54 = 1.9%), but the drop itself departs from V2 (see Dropped session) |
-| V3 `ans_early` stash-dependent ≥ 80% | pass (360/360) |
+| V3 `ans_early` stash-dependent ≥ 80% | pass (360/360 in the location receipt, which was written before any answer and covers all 54 sessions, the dropped one included; 340/340 on the 17 kept) |
 | V3b `ans_late` in view ≥ 80% | pass (360/360; `unans` 360/360 absent; 0 mixed) |
 | V4 recall through the CLI | pass |
 | V5 parse ≥ 95% | pass (0 response failures in any arm or condition) |
