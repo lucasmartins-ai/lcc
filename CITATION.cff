@@ -1,23 +1,22 @@
 cff-version: 1.2.0
-message: "If you use lcc in your work, please cite it as below."
+message: "If you use lcc in research, please cite it as below."
 title: "lcc: Local Context Compiler"
 type: software
 authors:
-  - given-names: Lucas
-    family-names: Martins
-    affiliation: LookADev
+  - name: "Local Context Compiler contributors"
 version: "1.4.0"
 date-released: "2026-11-07"
 license: MIT
 repository-code: "https://github.com/lucasmartins-ai/lcc"
-url: "https://lucasmartins-ai.github.io/lcc/"
+url: "https://pypi.org/project/local-context-compiler/"
 abstract: >-
-  lcc compacts the context of AI coding agents on the local machine. Its verbatim stashed mode replaces
-  bulky tool output with a pointer and keeps the exact bytes in a content-addressed stash that the agent
-  can recall. The LongHealth v1 pre-registered study in benchmarks/research/longhealth-v1 measures it
-  on public fictional clinical records.
+  lcc removes old tool output from a coding agent's context. In its stashed mode, every byte
+  it removes is one recall away, checked by hash, and each pass reports what it removed and
+  why. It runs locally and offline by default, and its tool-call mode leaves every user and
+  assistant message byte for byte.
 keywords:
   - context compaction
-  - large language models
   - coding agents
-  - long context
+  - LLM context window
+  - prompt caching
+  - Model Context Protocol

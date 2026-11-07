@@ -31,6 +31,18 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Published numbers are checked against their result files.** `scripts/check_claims.py`
+  renders the benchmark tables in the README, `CACHE_ALIGNMENT.md` and `THRESHOLD_REPLAY.md`
+  from their result JSON and fails when a cell or a table header no longer matches. A row
+  inside an HTML comment does not count. Figures from private sessions are listed as
+  owner-attested, and the check fails if their sentence changes. `tests/test_check_claims.py`
+  runs it in CI.
+
+- **`docs/CONCEPT.md`:** the thesis, the rules every product path keeps, the glossary, and
+  which parts are product and which are research.
+
+- **`CITATION.cff`** for citing lcc in research.
+
 - **Compaction threshold replay.** `benchmarks/research/threshold_replay.py` replays real Claude
   Code sessions at a compaction threshold of 30 %, 40 % and 60 % and at Claude Code's own, and
   models the input cost. Cache reads count at 0.1×, and cache writes at each session's own

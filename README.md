@@ -198,6 +198,7 @@ pass as not worth it, and the Claude Code plugin keeps the built-in summary.
 
 | Topic | Link |
 | --- | --- |
+| What lcc is, the glossary, product vs research | [CONCEPT.md](docs/CONCEPT.md) |
 | Five-minute tour of the CLI | [QUICKSTART.md](docs/QUICKSTART.md) |
 | Claude Code plugin | [CLAUDE_CODE.md](docs/CLAUDE_CODE.md) |
 | MCP server | [MCP.md](docs/MCP.md) |
