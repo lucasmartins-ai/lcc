@@ -33,11 +33,11 @@ jobs:
         LCC_FUZZ_ARTIFACTS: ${{ runner.temp }}/fuzz
       run: |
         pytest -q tests/test_invariants_fuzz.py tests/test_rules_metamorphic.py
-    - name: Linear-time property (rules passes)
+    - name: Timing properties (rules passes, recall hints)
       env:
         LCC_TIMING: "1"
       run: |
-        pytest -q tests/test_rules_linear_time.py
+        pytest -q tests/test_rules_linear_time.py tests/test_recall_hints_timing.py
     - name: Upload seeds and any failing input
       if: always()
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
