@@ -3,7 +3,9 @@ message: "If you use lcc in research, please cite it as below."
 title: "lcc: Local Context Compiler"
 type: software
 authors:
-  - name: "Local Context Compiler contributors"
+  - given-names: Lucas
+    family-names: Martins
+    affiliation: LookADev
 version: "1.4.0"
 date-released: "2026-11-07"
 license: MIT
