@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use lcc in research, please cite it as below."
+title: "lcc: Local Context Compiler"
+type: software
+authors:
+  - name: "Local Context Compiler contributors"
+version: "1.3.0"
+license: MIT
+repository-code: "https://github.com/lucasmartins-ai/lcc"
+url: "https://pypi.org/project/local-context-compiler/"
+abstract: >-
+  lcc removes old tool output from a coding agent's context. In its stashed mode, every byte
+  it removes is one recall away, checked by hash, and each pass reports what it removed and
+  why. It runs locally and offline by default, and its tool-call mode leaves every user and
+  assistant message byte for byte.
+keywords:
+  - context compaction
+  - coding agents
+  - LLM context window
+  - prompt caching
+  - Model Context Protocol
