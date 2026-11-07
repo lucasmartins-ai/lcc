@@ -40,6 +40,7 @@ MCP (Claude Code, Cursor, Claude Desktop):
 
 - [What lcc is](CONCEPT.md): the thesis, the glossary, product vs research
 - [Quickstart](QUICKSTART.md): every command, offline
+- [Workers that recall](ORCHESTRATION.md): pass stash ids, not pasted output, to a `claude -p` or `codex exec` worker
 - [Share your numbers](SHARE_STATS.md): anonymous `lcc share-stats` summary for beta testers
 - [Claude Code plugin](CLAUDE_CODE.md): verbatim `/compact` instead of a lossy summary
 - [Compacting earlier](COMPACT_EARLIER.md): see the context fill and compact at 30–40 % in Claude Code, Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor
