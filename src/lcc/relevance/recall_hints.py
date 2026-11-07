@@ -32,7 +32,6 @@ import hashlib
 import json
 import os
 import re
-import tempfile
 import unicodedata
 from bisect import bisect_left
 from collections.abc import Iterable, Iterator
@@ -425,6 +424,8 @@ def _load(key: str) -> dict[str, int]:
 
 def _save(key: str, hinted: dict[str, int]) -> None:
     """Counts per id only, never prompt text; best effort, like the stash sidecars."""
+    import tempfile  # ponytail: ~7 ms to import, paid only on a prompt that gets a hint
+
     path = _state_path(key)
     with contextlib.suppress(OSError):
         path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)

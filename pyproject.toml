@@ -82,9 +82,9 @@ Changelog = "https://github.com/lucasmartins-ai/lcc/blob/main/CHANGELOG.md"
 
 
 [project.scripts]
-lcc = "lcc.cli:cli_main"
+lcc = "lcc.entry:main"
 # Same entry point under the package name, so `uvx local-context-compiler mcp` works (MCP registry).
-local-context-compiler = "lcc.cli:cli_main"
+local-context-compiler = "lcc.entry:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

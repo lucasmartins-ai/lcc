@@ -19,115 +19,119 @@ runs so downstream prompt/KV caches survive (see ``docs/CACHE_ALIGNMENT.md``).
 
 from __future__ import annotations
 
-from lcc.relevance.blocks import (
-    BLOCK_ID_RE,
-    DEFAULT_MAX_BLOCK_CHARS,
-    DEFAULT_MIN_BLOCK_CHARS,
-    TextBlock,
-    block_id,
-    gaps_between,
-    reconstruct,
-    split_blocks,
-)
-from lcc.relevance.compactor import (
-    RELEVANCE_SCHEMA_VERSION,
-    BlockDecision,
-    RelevanceCompactionReport,
-    RelevanceCompactionRequest,
-    RelevanceCompactionResult,
-    clear_laya_client_cache,
-    compact_context,
-    report_to_dict,
-)
-from lcc.relevance.decisions import (
-    BLOCK_PARSER_VERSION,
-    DECISIONS_CACHE_SCHEMA_VERSION,
-    POLICY_VERSION,
-    PROTECTION_VERSION,
-    RELATIONSHIP_VERSION,
-    DecisionCache,
-    build_decision_identity,
-    canonical_dumps,
-    decision_key,
-    decision_key_v2,
-)
-from lcc.relevance.graph import ContextGraph, EdgeType, GraphEdge, build_graph
-from lcc.relevance.ir import (
-    DEFAULT_COLLECTED_AT,
-    IR_SCHEMA_VERSION,
-    IR_VERSION,
-    RESTORATION_REASONS,
-    build_context_ir,
-    dumps_canonical,
-    is_context_ir,
-    render_ir_explanation,
-    restored_ids,
-    summarize_ir,
-)
-from lcc.relevance.jev import (
-    JevClient,
-    JevError,
-    JevMalformedResponseError,
-    JevRequestError,
-    JevUnavailableError,
-    default_ledger_path,
-    parse_noul_answer,
-    resolve_typesafe_key,
-)
-from lcc.relevance.laya import (
-    DEFAULT_LAYA_MODEL,
-    DEFAULT_LAYA_TEMPERATURE,
-    HEAD_RESERVATION_TOKENS,
-    LayaClient,
-    LayaContextLimitExceededError,
-    LayaError,
-    LayaExecutionError,
-    LayaModelNotFoundError,
-    LayaUnavailableError,
-    calibrate_noul,
-    get_laya_context_limit,
-)
-from lcc.relevance.provider import (
-    SEMANTIC_PROVIDERS,
-    JevProvider,
-    LayaProvider,
-    MechanicalProvider,
-    SemanticProvider,
-    UnsupportedOperationError,
-    get_semantic_provider,
-)
-from lcc.relevance.safety import BlockAssessment, decide_assessment
-from lcc.relevance.specialist import (
-    SPECIALIST_PROVIDER,
-    BlockSegment,
-    SpecialistModelError,
-    render_transcript,
-)
-from lcc.relevance.sufficiency import SufficiencyResult, verify_sufficiency
-from lcc.relevance.transcript import (
-    SUPPORTED_PROVIDERS,
-    TRANSCRIPT_SCHEMA_VERSION,
-    ToolCall,
-    ToolResult,
-    TranscriptCompactionRequest,
-    TranscriptCompactionResult,
-    TranscriptError,
-    TranscriptFitError,
-    TranscriptMessage,
-    UnsupportedTranscriptProviderError,
-    compact_transcript,
-    messages_to_payload,
-    parse_transcript,
-)
-from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
-from lcc.relevance.verifier import (
-    VERIFIER_POLICY_VERSION,
-    SemanticVerificationResult,
-    VerificationContract,
-    VerifierDecision,
-    verify_semantic,
-    verify_semantic_contract,
-)
+from importlib import import_module
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from lcc.relevance.blocks import (
+        BLOCK_ID_RE,
+        DEFAULT_MAX_BLOCK_CHARS,
+        DEFAULT_MIN_BLOCK_CHARS,
+        TextBlock,
+        block_id,
+        gaps_between,
+        reconstruct,
+        split_blocks,
+    )
+    from lcc.relevance.compactor import (
+        RELEVANCE_SCHEMA_VERSION,
+        BlockDecision,
+        RelevanceCompactionReport,
+        RelevanceCompactionRequest,
+        RelevanceCompactionResult,
+        clear_laya_client_cache,
+        compact_context,
+        report_to_dict,
+    )
+    from lcc.relevance.decisions import (
+        BLOCK_PARSER_VERSION,
+        DECISIONS_CACHE_SCHEMA_VERSION,
+        POLICY_VERSION,
+        PROTECTION_VERSION,
+        RELATIONSHIP_VERSION,
+        DecisionCache,
+        build_decision_identity,
+        canonical_dumps,
+        decision_key,
+        decision_key_v2,
+    )
+    from lcc.relevance.graph import ContextGraph, EdgeType, GraphEdge, build_graph
+    from lcc.relevance.ir import (
+        DEFAULT_COLLECTED_AT,
+        IR_SCHEMA_VERSION,
+        IR_VERSION,
+        RESTORATION_REASONS,
+        build_context_ir,
+        dumps_canonical,
+        is_context_ir,
+        render_ir_explanation,
+        restored_ids,
+        summarize_ir,
+    )
+    from lcc.relevance.jev import (
+        JevClient,
+        JevError,
+        JevMalformedResponseError,
+        JevRequestError,
+        JevUnavailableError,
+        default_ledger_path,
+        parse_noul_answer,
+        resolve_typesafe_key,
+    )
+    from lcc.relevance.laya import (
+        DEFAULT_LAYA_MODEL,
+        DEFAULT_LAYA_TEMPERATURE,
+        HEAD_RESERVATION_TOKENS,
+        LayaClient,
+        LayaContextLimitExceededError,
+        LayaError,
+        LayaExecutionError,
+        LayaModelNotFoundError,
+        LayaUnavailableError,
+        calibrate_noul,
+        get_laya_context_limit,
+    )
+    from lcc.relevance.provider import (
+        SEMANTIC_PROVIDERS,
+        JevProvider,
+        LayaProvider,
+        MechanicalProvider,
+        SemanticProvider,
+        UnsupportedOperationError,
+        get_semantic_provider,
+    )
+    from lcc.relevance.safety import BlockAssessment, decide_assessment
+    from lcc.relevance.specialist import (
+        SPECIALIST_PROVIDER,
+        BlockSegment,
+        SpecialistModelError,
+        render_transcript,
+    )
+    from lcc.relevance.sufficiency import SufficiencyResult, verify_sufficiency
+    from lcc.relevance.transcript import (
+        SUPPORTED_PROVIDERS,
+        TRANSCRIPT_SCHEMA_VERSION,
+        ToolCall,
+        ToolResult,
+        TranscriptCompactionRequest,
+        TranscriptCompactionResult,
+        TranscriptError,
+        TranscriptFitError,
+        TranscriptMessage,
+        UnsupportedTranscriptProviderError,
+        compact_transcript,
+        messages_to_payload,
+        parse_transcript,
+    )
+    from lcc.relevance.trim import TRIM_POLICY_VERSION, detect_content_type, trim_block_safe
+    from lcc.relevance.verifier import (
+        VERIFIER_POLICY_VERSION,
+        SemanticVerificationResult,
+        VerificationContract,
+        VerifierDecision,
+        verify_semantic,
+        verify_semantic_contract,
+    )
 
 __all__ = [
     "BLOCK_ID_RE",
@@ -227,3 +231,126 @@ __all__ = [
     "verify_semantic_contract",
     "verify_sufficiency",
 ]
+
+# ponytail: names load on first use, so `lcc hint --hook` (every prompt) pays only for the
+# modules it imports. A new export goes in TYPE_CHECKING, __all__ and here.
+_EXPORTS = {
+    "lcc.relevance.blocks": (
+        "BLOCK_ID_RE",
+        "DEFAULT_MAX_BLOCK_CHARS",
+        "DEFAULT_MIN_BLOCK_CHARS",
+        "TextBlock",
+        "block_id",
+        "gaps_between",
+        "reconstruct",
+        "split_blocks",
+    ),
+    "lcc.relevance.compactor": (
+        "RELEVANCE_SCHEMA_VERSION",
+        "BlockDecision",
+        "RelevanceCompactionReport",
+        "RelevanceCompactionRequest",
+        "RelevanceCompactionResult",
+        "clear_laya_client_cache",
+        "compact_context",
+        "report_to_dict",
+    ),
+    "lcc.relevance.decisions": (
+        "BLOCK_PARSER_VERSION",
+        "DECISIONS_CACHE_SCHEMA_VERSION",
+        "POLICY_VERSION",
+        "PROTECTION_VERSION",
+        "RELATIONSHIP_VERSION",
+        "DecisionCache",
+        "build_decision_identity",
+        "canonical_dumps",
+        "decision_key",
+        "decision_key_v2",
+    ),
+    "lcc.relevance.graph": ("ContextGraph", "EdgeType", "GraphEdge", "build_graph"),
+    "lcc.relevance.ir": (
+        "DEFAULT_COLLECTED_AT",
+        "IR_SCHEMA_VERSION",
+        "IR_VERSION",
+        "RESTORATION_REASONS",
+        "build_context_ir",
+        "dumps_canonical",
+        "is_context_ir",
+        "render_ir_explanation",
+        "restored_ids",
+        "summarize_ir",
+    ),
+    "lcc.relevance.jev": (
+        "JevClient",
+        "JevError",
+        "JevMalformedResponseError",
+        "JevRequestError",
+        "JevUnavailableError",
+        "default_ledger_path",
+        "parse_noul_answer",
+        "resolve_typesafe_key",
+    ),
+    "lcc.relevance.laya": (
+        "DEFAULT_LAYA_MODEL",
+        "DEFAULT_LAYA_TEMPERATURE",
+        "HEAD_RESERVATION_TOKENS",
+        "LayaClient",
+        "LayaContextLimitExceededError",
+        "LayaError",
+        "LayaExecutionError",
+        "LayaModelNotFoundError",
+        "LayaUnavailableError",
+        "calibrate_noul",
+        "get_laya_context_limit",
+    ),
+    "lcc.relevance.provider": (
+        "SEMANTIC_PROVIDERS",
+        "JevProvider",
+        "LayaProvider",
+        "MechanicalProvider",
+        "SemanticProvider",
+        "UnsupportedOperationError",
+        "get_semantic_provider",
+    ),
+    "lcc.relevance.safety": ("BlockAssessment", "decide_assessment"),
+    "lcc.relevance.specialist": (
+        "SPECIALIST_PROVIDER",
+        "BlockSegment",
+        "SpecialistModelError",
+        "render_transcript",
+    ),
+    "lcc.relevance.sufficiency": ("SufficiencyResult", "verify_sufficiency"),
+    "lcc.relevance.transcript": (
+        "SUPPORTED_PROVIDERS",
+        "TRANSCRIPT_SCHEMA_VERSION",
+        "ToolCall",
+        "ToolResult",
+        "TranscriptCompactionRequest",
+        "TranscriptCompactionResult",
+        "TranscriptError",
+        "TranscriptFitError",
+        "TranscriptMessage",
+        "UnsupportedTranscriptProviderError",
+        "compact_transcript",
+        "messages_to_payload",
+        "parse_transcript",
+    ),
+    "lcc.relevance.trim": ("TRIM_POLICY_VERSION", "detect_content_type", "trim_block_safe"),
+    "lcc.relevance.verifier": (
+        "VERIFIER_POLICY_VERSION",
+        "SemanticVerificationResult",
+        "VerificationContract",
+        "VerifierDecision",
+        "verify_semantic",
+        "verify_semantic_contract",
+    ),
+}
+_HOME = {name: module for module, names in _EXPORTS.items() for name in names}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _HOME:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(_HOME[name]), name)
+    globals()[name] = value
+    return value

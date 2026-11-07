@@ -19,6 +19,20 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **`lcc hint --hook` answers without loading the CLI, and the hints stay the same.**
+  - **Entry point:** the `lcc` console script now starts at `lcc.entry:main`. When the command
+    line is exactly `lcc hint --hook` it runs the hook there; anything else goes to
+    `lcc.cli:cli_main` unchanged. An existing install keeps the old script until it is
+    upgraded or reinstalled (`pip install -e .` for a checkout).
+  - **Lazy imports:** `lcc`, `lcc.relevance` and `lcc.reporting` load their exported names on
+    first use, and the stash module loads the compaction modules (and tiktoken) only in the
+    functions that use them. The hook imports eight lcc modules and no third-party ones;
+    `tests/test_hint_entry.py` fails if that set grows.
+  - **Speed, measured on one Mac** (30 interleaved fresh-process runs per variant against the
+    previous code, a copy of a real stash, a 72-blob session with a 21 MB transcript, caches
+    built; output byte-identical in every run): the median went from 340-352 ms to 90-92 ms
+    per prompt, with and without a hint. About 23 ms of that is Python start-up.
+
 - **`lcc hint` keeps two caches in the stash, and the hints stay the same.**
   - **Session index:** `put` appends each blob to `<session hash>.ids`, so a hint reads the
     sidecars of its own session's blobs, not every sidecar in the stash. A missing, torn or

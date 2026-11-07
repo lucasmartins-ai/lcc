@@ -226,7 +226,9 @@ Turn it on with a `UserPromptSubmit` hook in `~/.claude/settings.json`:
 - **Limits:** at most 2 hints per prompt. An id hinted twice in a session is muted there. The
   counts live in `hints/<session hash>.json` next to the stash, and they are ids and counts only.
 - **Never in the way:** with `--hook`, any error prints nothing and exits 0, so the prompt
-  always goes through. On this machine a hint takes about 0.27 s, mostly Python start-up.
+  always goes through. On one Mac the hook takes about 90 ms per prompt (median of 30
+  fresh-process runs on a real stash with a 72-blob session and a 21 MB transcript), of which
+  about 23 ms is Python start-up. It took about 340 ms when it loaded the whole CLI.
 
 Any other agent tool that can run a command per prompt can use the same matcher:
 `lcc hint "<prompt>" --transcript <session file> --session <id>` prints one line per hint. On
