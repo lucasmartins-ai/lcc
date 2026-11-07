@@ -8,6 +8,7 @@ authors:
     affiliation: LookADev
 version: "1.4.0"
 date-released: "2026-11-07"
+doi: "10.5281/zenodo.24038393"
 license: MIT
 repository-code: "https://github.com/lucasmartins-ai/lcc"
 url: "https://pypi.org/project/local-context-compiler/"
