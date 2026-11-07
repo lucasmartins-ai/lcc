@@ -29,6 +29,16 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **Claude Code plugin: early compaction is guarded.** With `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
+  set below 75, the `PreCompact` hook blocks an auto-compaction when less than 25 % of the context
+  is tool output lcc could stash. On such a session the built-in summary would lose detail while
+  the window still has room. Claude Code retries on the next turn. The guard never blocks a manual
+  `/compact`, and never at or above 75 % of the window, counting the last request's usage plus the
+  UTF-8 bytes added since. The window is never taken larger than the model's: 200k until a larger
+  request has succeeded. A PDF or a local error since the last request stands the guard down.
+  This stays clear of Claude Code's own threshold (about 33k tokens under the window) and of
+  overflow recovery, where a block would fail the request.
+
 - **`lcc recall --file`: is the file still what this output showed?** A recalled file read is
   what the file held when it was read. `--file PATH` (MCP: `file`) compares it with the file now,
   numbered reads line by line, and says `still matches`, `differs (3 of 120 lines)`, `no longer

@@ -164,6 +164,28 @@ cache-write price. Whether 30/40 saves money on your sessions has not been measu
 same rule for Codex, Gemini CLI, Aider, OpenCode, Cline and Cursor:
 [Compacting earlier](COMPACT_EARLIER.md).
 
+**Early compaction is guarded.** An early compaction that reaches `PreCompact` is about to be
+Claude Code's own summary. When less than 25 % of the context is tool output that lcc could
+stash verbatim (a chat-heavy session), that summary would lose detail while the window still
+has room. So `PreCompact` blocks it, and Claude Code tries again on the next turn. The guard
+blocks only when all of these hold:
+
+- `trigger` is `auto` and `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is below 75. A manual `/compact`
+  always runs.
+- The context is under 75 % of the window. This counts the last request's usage plus the bytes
+  the transcript gained since. A PDF or a local error since that request stands the guard down.
+  The hook cannot read the model's window, so it uses the smaller of
+  `CLAUDE_CODE_AUTO_COMPACT_WINDOW` and the most it can prove: 200k (every Claude model), or
+  the largest request that succeeded. Until a session has a request over 200k, the guard
+  blocks only under 150k.
+- Tool results, outside the first message and the newest 6, make up less than 25 % of it.
+
+Claude Code compacts on its own about 33k tokens under the window, and a block during overflow
+recovery fails the request. The 75 % ceiling keeps the guard well under both. Measured on
+Claude Code 2.1.309: a blocking `PreCompact` ran on each of 4 turns at a forced 1 % threshold,
+and every turn succeeded, with cache reads unchanged. Turn the guard off by unsetting
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`.
+
 ## Recall hints (opt-in)
 
 A stashed output is only useful if the agent asks for it back, and agents often don't: in the
@@ -332,7 +354,7 @@ hooks, with no `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS`, no judge key and no network:
 
 | Hook | What it adds |
 | :--- | :--- |
-| `PreCompact` | stdout becomes extra instructions for the built-in summary: the session objective (the two newest user prompts), the files edited and read, and the last tool error, with the order to copy file paths, identifiers and error text verbatim |
+| `PreCompact` | stdout becomes extra instructions for the built-in summary: the session objective (the two newest user prompts), the files edited and read, and the last tool error, with the order to copy file paths, identifiers and error text verbatim. It blocks an early auto-compaction with too little tool output to stash ([Compacting earlier](#receipt-ledger-and-statusline)) |
 | `SessionStart`, matcher `compact` | the same facts, injected into the fresh context after the summary |
 
 Both read the facts from the hook's `transcript_path` (the session JSONL, which compaction

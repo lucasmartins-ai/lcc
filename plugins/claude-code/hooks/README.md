@@ -40,7 +40,7 @@ The plugin registers one function hook and two classic hooks:
 | Event | What it does |
 | :--- | :--- |
 | `session.compact` | Sends the transcript to `compact_transcript`, replaces the conversation with the compacted one when the pass was judged and removed something, otherwise calls `next(event)` so Claude Code's own summary runs |
-| `PreCompact` (classic) | Prints the session objective, edited/read files and the last tool error, asking the built-in summary to keep them verbatim (`scripts/lcc-pin.mjs precompact`); blocks the summary for an idle-stash compaction |
+| `PreCompact` (classic) | Prints the session objective, edited/read files and the last tool error, asking the built-in summary to keep them verbatim (`scripts/lcc-pin.mjs precompact`); blocks the summary for an idle-stash compaction, and for an early auto-compaction with too little tool output to stash |
 | `SessionStart`, matcher `compact` (classic) | Re-pins the same facts after the summary (`scripts/lcc-pin.mjs sessionstart`) |
 | `turn.complete`, `session.start` | Only with `idleStash: true` (off by default): record the last turn's time / run the idle stash on a session resumed after the cache expired (see "Idle stash" below) |
 
@@ -107,7 +107,10 @@ lcc: -40.6k tokens (2 passes) · 23 stashed · cache read 92% · ctx 41% of 200k
 
 The `ctx` part shows how full the context window is and suggests `/compact` from 30 %
 (`LCC_SUGGEST_COMPACT_AT`, `0` = off). To have Claude Code compact on its own at 40 %, set
-`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=40` in the `env` of `~/.claude/settings.json`.
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=40` in the `env` of `~/.claude/settings.json`. When less than
+25 % of the context is tool output lcc could stash, the `PreCompact` hook blocks that early
+compaction (below 75 % of the window only), so it does not become a lossy summary while
+there is room. Claude Code retries next turn.
 
 Setup, the ledger format and earlier compaction: [`docs/CLAUDE_CODE.md`](../../../docs/CLAUDE_CODE.md#receipt-ledger-and-statusline).
 
