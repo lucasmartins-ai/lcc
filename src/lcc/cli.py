@@ -1171,7 +1171,7 @@ def _compact_tool_calls(
         if first.startswith("{") and '"type"' in first:
             from lcc.session_report import messages_from_jsonl
 
-            payload = {"messages": messages_from_jsonl(raw.splitlines())}
+            payload = {"messages": messages_from_jsonl(raw.split("\n"))}
         else:
             _fail(
                 "tool-calls mode reads a JSON transcript (messages array or "
@@ -2127,6 +2127,32 @@ def hint_cmd(
         _fail("a prompt is required (or use --hook)", code=2)
     for hint in hints_for(prompt, transcript=_read_tail(transcript), session_id=session):
         sys.stdout.write(terminal_safe(hint_line(hint)) + "\n")
+
+
+@app.command(name="handoff")
+def handoff_cmd(
+    transcript: Path = typer.Argument(
+        ..., help="The session: Claude Code JSONL, Codex rollout, or a JSON transcript."
+    ),
+    out: Path = typer.Option(
+        Path(".lcc/handoff"), "--out", help="Directory for the packet (gets a .gitignore)."
+    ),
+    stdout: bool = typer.Option(False, "--stdout", help="Print the packet instead of writing it."),
+) -> None:
+    """Write what the next agent needs to pick up this session: requests, files, last error and
+    stashed ids, verbatim. Prints the packet's path (`<sha12>.md`)."""
+    from lcc.handoff import build, load, write
+    from lcc.relevance.transcript import TranscriptError
+
+    try:
+        raw, source = load(transcript.resolve())
+        packet = build(raw, source)
+    except (OSError, TranscriptError) as exc:
+        _fail(f"handoff: {exc}", code=2)
+    if stdout:
+        sys.stdout.write(packet)
+        return
+    sys.stdout.write(f"{write(packet, out)}\n")
 
 
 stash_app = typer.Typer(

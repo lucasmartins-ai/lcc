@@ -124,10 +124,43 @@ def codex_message(item: dict[str, Any], record_index: int) -> dict[str, Any] | N
     return None
 
 
-def messages_from_jsonl(lines: Any) -> list[dict[str, Any]]:
+#: Context an agent tool injects as user text, not a prompt. ponytail: a closed list, so a new
+#: wrapper shows up as a request (visible) instead of a real ``<task>…`` request being dropped.
+INJECTED = (
+    # Claude Code
+    "<system-reminder",
+    "<task-notification",
+    "<command-",
+    "<local-command-",
+    "<bash-",
+    "<user-prompt-submit-hook",
+    "<ci-monitor-event",
+    "[Request interrupted by user",
+    # Codex
+    "# AGENTS.md instructions",
+    "<environment_context",
+    "<user_instructions",
+    "<user_action",
+    "<turn_aborted",
+    "<guardian_tool_descriptions",
+    "<image",
+    "</image",
+)
+
+
+def _injected(block: Any) -> bool:
+    text = block.get("text") if isinstance(block, dict) else block
+    return isinstance(text, str) and text.lstrip().startswith(INJECTED)
+
+
+def messages_from_jsonl(lines: Any, *, flags: bool = False) -> list[dict[str, Any]]:
     """Read session lines, detecting Codex by a first ``session_meta`` record.
 
     Codex response items are canonical; event_msg entries duplicate their text and are ignored.
+    ``flags`` also keeps Claude Code's ``is_error`` on every result, marks meta and compact
+    summary records ``meta: True``, drops injected user text blocks (``INJECTED``) and reads the
+    messages a user sent mid-turn (``queued_command`` attachments), for ``lcc handoff``; off,
+    the output is unchanged.
     """
     messages: list[dict[str, Any]] = []
     codex: bool | None = None
@@ -144,8 +177,22 @@ def messages_from_jsonl(lines: Any) -> list[dict[str, Any]]:
             item = record.get("payload")
             if record.get("type") == "response_item" and isinstance(item, dict):
                 codex_entry = codex_message(item, record_index)
+                if flags and codex_entry is not None and codex_entry["role"] == "user":
+                    # One Codex user message holds AGENTS.md, the environment and the prompt.
+                    parts = item.get("content")
+                    if isinstance(parts, list):
+                        codex_entry["text"] = _result_text([p for p in parts if not _injected(p)])
                 if codex_entry is not None:
                     messages.append(codex_entry)
+            continue
+        queued = record.get("attachment")
+        if flags and record.get("type") == "attachment" and isinstance(queued, dict):
+            # A message the user sent while the agent worked: Claude Code attaches it mid-turn.
+            origin = queued.get("origin")
+            human = not isinstance(origin, dict) or origin.get("kind") == "human"
+            prompt = queued.get("prompt")
+            if queued.get("type") == "queued_command" and human and isinstance(prompt, str):
+                messages.append({"role": "user", "text": prompt})
             continue
         message = record.get("message")
         if record.get("type") not in ("user", "assistant") or not isinstance(message, dict):
@@ -158,6 +205,8 @@ def messages_from_jsonl(lines: Any) -> list[dict[str, Any]]:
                 continue
             kind = block.get("type")
             if kind == "text":
+                if flags and record["type"] == "user" and _injected(block):
+                    continue
                 texts.append(str(block.get("text") or ""))
             elif kind == "tool_use":
                 raw_input = block.get("input")
@@ -174,11 +223,14 @@ def messages_from_jsonl(lines: Any) -> list[dict[str, Any]]:
                         "tool_use_id": str(block.get("tool_use_id")),
                         "text": _result_text(block.get("content")),
                     }
+                    | ({"is_error": block.get("is_error") is True} if flags else {})
                 )
         entry: dict[str, Any] = {
             "role": message.get("role") or record["type"],
             "text": "\n".join(texts),
         }
+        if flags and (record.get("isMeta") or record.get("isCompactSummary")):
+            entry["meta"] = True
         if calls:
             entry["toolUses"] = calls
         if results:

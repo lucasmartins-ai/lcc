@@ -29,6 +29,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc handoff`: a packet for the next agent.** From a Claude Code session, a Codex rollout or
+  a JSON transcript it writes `.lcc/handoff/<sha12>.md`. The packet holds the user's first and
+  latest requests, the files edited and read, the last tool error, and the stashed outputs the
+  session points at. Every text is quoted verbatim and every stash id is checked against its
+  sha256. Secrets are masked, and there is no clock: the same input gives the same file. See
+  docs/HANDOFF.md.
+
 - **Recall hints, opt-in: `lcc hint`.** When a new prompt names something that sits in a
   stashed output, the agent gets one line with its `lcc recall <id>`. In the LongHealth v1 pilot
   the model rarely recalled on its own, and this targets that loss.
@@ -68,6 +75,13 @@ All notable changes to this project are documented here. The format is based on
   sessions, compacts them with lcc, runs the arms through subscription `claude -p` under a 650-call cap, and
   scores them; `recall_shim.py` serves `recall` over MCP. `PILOT.md` reports the 2-patient pilot and the decisions
   it leaves before the freeze. D has not run.
+
+### Fixed
+
+- **JSONL records holding U+2028 or U+0085 were dropped.** `lcc compact --mode tool-calls` split
+  Claude Code and Codex JSONL with `str.splitlines()`, which also breaks at those characters.
+  They can sit unescaped inside JSON strings, so any record that held one was cut in two and
+  skipped. It now splits at `\n` only.
 
 ## [1.3.0] - 2026-10-31
 
