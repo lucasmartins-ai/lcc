@@ -29,6 +29,10 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`docs/ORCHESTRATION.md`:** how an orchestrating agent passes a handoff packet or stash ids
+  to a `claude -p` or `codex exec` worker, which fetches each output with the lcc MCP `recall`
+  tool. One end-to-end test with each CLI, 2026-11-07.
+
 - **Published numbers are checked against their result files.** `scripts/check_claims.py`
   renders the benchmark tables in the README, `CACHE_ALIGNMENT.md` and `THRESHOLD_REPLAY.md`
   from their result JSON and fails when a cell or a table header no longer matches. A row
