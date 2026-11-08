@@ -67,7 +67,10 @@ the freeze.
   settings.
 - Gemini: the Gemini CLI (`gemini`, today 0.51.0) in headless mode on the owner's Google login. The CLI version and
   the model id are fixed at the freeze, after the toolcheck: the most capable model the CLI offers on that login, at
-  the CLI's default thinking setting. The driver refuses any other CLI version.
+  the CLI's default thinking setting. The driver refuses any other CLI version. Known risk: on 2026-11-08 the CLI
+  refused a free-tier Google login ("client no longer supported"). If the owner's login is refused at the toolcheck,
+  a dated amendment before the freeze either moves Gemini to a route the owner approves, or drops it, and then H4
+  and H5 name Claude alone. No Gemini call runs on a route the owner has not approved.
 - GPT: S6's runner, `gpt-6.1-sol` at medium effort through `codex-cli 0.166.0`, unchanged.
 
 **Gemini isolation**, following S6:
