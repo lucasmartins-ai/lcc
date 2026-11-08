@@ -1,4 +1,4 @@
-# LongHealth v2: retrieval, a matched-budget summary and a third answerer (draft 2026-11-07)
+# LongHealth v2: retrieval and a matched-budget summary (draft 2026-11-07)
 
 **Status: draft, not approved.** No model call runs until the owner approves the route and the caps (Run order,
 step 2), and the driver refuses to start while its `APPROVED` is unset. Record texts, questions, options, excerpts,
@@ -20,8 +20,10 @@ naming H2, more vendors and a retrieval baseline. v2 answers four gaps:
    stashed context (0.551), and the two tied on E. Compaction exists to free most of the window, and v1's H2 says
    nothing about a summary that has to fit a budget. v1 flagged this: H2 "is not a matched-budget comparison".
 3. **One answerer family.** Answerer, summarizer and the assistant that built the study all come from Anthropic.
-   S6 (v1 Amendment 5) adds GPT as a second answerer for `full_t` and `stashed_t`. v2 adds Gemini as a third, for
-   every primary arm, and a summarizer from outside Anthropic.
+   S6 (v1 Amendment 5) adds GPT as a second answerer for `full_t` and `stashed_t`. v2 adds GPT's `none` and, in
+   tier 2, GPT on `rag_t`, all descriptive. A Gemini answerer was drafted and then left out by the owner on
+   2026-11-08, after the Gemini CLI refused a free-tier Google login. So v2's primaries name Claude alone, and this
+   gap stays partly open.
 4. **One run.** v2 reruns `full_t` and `stashed_t` with the v1 answerer, which gives a test-retest measure and
    contemporaneous controls for the new arms.
 
@@ -30,7 +32,7 @@ study with its own hypotheses, and its numbering continues v1's (H4–H6, S7–S
 
 **What v2 cannot fix.**
 - It was designed after v1's results were known, on the same 18 targets and the same questions. LongHealth has 20
-  patients and v1 used all of them. v2 is new comparisons and new answerers on known data, not fresh data. The
+  patients and v1 used all of them. v2 is new comparisons on known data, not fresh data. The
   public clinical sets with real records (MIMIC-derived sets, emrQA, EHRNoteQA) need credentialed access or a data
   use agreement, so a second benchmark is out of scope.
 - Contamination: `none` answered 0.597 in v1. v2 measures it per answerer and cannot remove it.
@@ -53,35 +55,20 @@ the freeze.
 
 | arm | context | tool | answerers | role |
 |---|---|---|---|---|
-| `none` | the 20 questions, A–E (Q-N) | none | Gemini, GPT | contamination check (V6) |
-| `full_t` | `C` | `recall`, empty stash | Claude (rerun), Gemini | reference for H5 |
-| `stashed_t` | `C'` | `recall` over the stash | Claude (rerun), Gemini | treatment for H4 and H5 |
+| `none` | the 20 questions, A–E (Q-N) | none | GPT; Claude's is v1's | contamination check (V6) |
+| `full_t` | `C` | `recall`, empty stash | Claude (rerun) | reference for H5 |
+| `stashed_t` | `C'` | `recall` over the stash | Claude (rerun) | treatment for H4 and H5 |
 | `stashed_tN` | `C'` | `recall`, at most the session's budget N in all | Claude | treatment for H6 |
-| `rag_t` | retrieved excerpts (Q-R) | none | Claude, Gemini; GPT in tier 2 | comparator for H4 |
-| `summary_m32` | `C'` with the stash replaced by a summary of budget N (b = 0.32) | none | Claude; Gemini in tier 2 | comparator for H6 |
+| `rag_t` | retrieved excerpts (Q-R) | none | Claude; GPT in tier 2 | comparator for H4 |
+| `summary_m32` | `C'` with the stash replaced by a summary of budget N (b = 0.32) | none | Claude | comparator for H6 |
 | `summary_m11` | the same, b = 0.11 | none | Claude | secondary S9 |
-| `summary_g32` | as `summary_m32`, summary written by Gemini | none | Claude, tier 2 | secondary S11 |
 
 **Answerers.**
 - Claude: `claude-sonnet-5-5` at medium effort through `claude -p`, with v1's frozen harness, isolation and
   settings.
-- Gemini: the Gemini CLI (`gemini`, today 0.51.0) in headless mode on the owner's Google login. The CLI version and
-  the model id are fixed at the freeze, after the toolcheck: the most capable model the CLI offers on that login, at
-  the CLI's default thinking setting. The driver refuses any other CLI version.
-- GPT: S6's runner, `gpt-6.1-sol` at medium effort through `codex-cli 0.166.0`, unchanged.
-
-**Gemini isolation**, following S6:
-- A separate home under the private root holds only a link to the owner's login, so no user settings, `GEMINI.md`,
-  extensions or memories reach the prompt.
-- The only tool is `recall`, served by v1's `recall_shim.py` as an MCP stdio server with v1's caps (8 calls per
-  answer, 20,000 tokens per call) and log. Shell, file, web and every other built-in tool are off. An attempt that
-  used another tool stops the run, and nothing from it is scored.
-- The prompt is v1's frozen prompt: context, then `P`, then Q-T (or Q-0, Q-R), on stdin. Where the pinned CLI lets
-  the frozen system text replace its own system prompt, it does. Whatever the CLI adds that cannot be removed is
-  listed in the report, as S6 lists Codex's additions.
-- Refusals follow v1 Amendment 5: a provider refusal or safety stop is scored wrong on all 20 questions, listed and
-  counted in V5, never retried and never dropped. The toolcheck records the pinned CLI's refusal signals before the
-  pilot. Any other failed turn is infrastructure (V2).
+- GPT: S6's runner, `gpt-6.1-sol` at medium effort through `codex-cli 0.166.0`, with S6's isolation, unchanged.
+- Refusals follow v1 Amendment 5 for both: a provider refusal or safety stop is scored wrong on all 20 questions,
+  listed and counted in V5, never retried and never dropped. Any other failed turn is infrastructure (V2).
 
 ### `rag_t`
 
@@ -152,8 +139,7 @@ H6 holds P + recalled ≤ N and S ≤ N.
   first tokens that fit and a note that the budget is spent, as v1's shim does at its per-call cap. A small v2
   wrapper around v1's `recall_shim.py` keeps the total; v1's shim and its other caps (8 calls, 20,000 tokens per
   call) are unchanged. The prompt is Q-T, as for `stashed_t`.
-- **Summarizer:** `claude-opus-5-5` at high effort, as in v1, with its `<analysis>` part stripped. In tier 2,
-  `summary_g32` has the Gemini answerer's model write the b = 0.32 summary with the same text.
+- **Summarizer:** `claude-opus-5-5` at high effort, as in v1, with its `<analysis>` part stripped.
 - **Summary text S-clin-m** (draft): v1's S-clin, adapted to a partial summary, with the budget added:
 
 ```
@@ -175,25 +161,24 @@ sensitivity analysis, cumulative usage per arm, and R1–R6 for the `recall` arm
 - **RAG size:** retrieved tokens per session, as a median ratio to `C`, next to `stashed_t`'s restored context.
 - **Summary size:** N, the summary's actual tokens, re-asks and cuts.
 
-## Gates (per hypothesis and answerer)
+## Gates (per hypothesis)
 
-Each hypothesis is gated only on the arms it uses, for each answerer it names: H4 on `full_t`, `stashed_t`, `rag_t`
+Every primary is answered by Claude. Each hypothesis is gated only on the arms it uses: H4 on `full_t`, `stashed_t`, `rag_t`
 and `none`; H5 on `full_t`, `stashed_t` and `none`; H6 on `full_t`, `stashed_tN`, `summary_m32` and `none`. A gate
 that fails makes that hypothesis descriptive. A secondary or tier-2 arm can never void a primary. The numbers are
 published either way.
-- V1: `full_t` A ≥ 0.60 (Claude rerun, Gemini).
+- V1: `full_t` A ≥ 0.60 (Claude rerun).
 - V2: infrastructure failures retried as in v1 (3 attempts, 5 for summaries). A session is dropped from a
   hypothesis when any arm that hypothesis uses has a terminal infrastructure failure there; at most 5% of the 54
-  sessions may drop per hypothesis and answerer. Refusals are scored wrong, never dropped (v1 Amendment 5). This
+  sessions may drop per hypothesis. Refusals are scored wrong, never dropped (v1 Amendment 5). This
   covers a summarizer stop: if the provider stops a summary, that summary arm scores wrong on all 20 questions of
   that session.
 - V3, V3b: properties of the sessions, held from v1.
-- V4: a scripted `recall` through each new runner returns the stored bytes (Gemini toolcheck; the `stashed_tN`
-  wrapper).
+- V4: a scripted `recall` through the `stashed_tN` wrapper returns the stored bytes and stops at N − P.
 - V5: ≥ 95% of answer lines parse in each arm the hypothesis uses.
-- V6: an answerer whose `none` A reaches its `full_t` A − 0.10 is contaminated, and the hypotheses that name it
-  become descriptive. Claude's `none` is v1's (Q-N, 18 targets, 215/360), reused: it reads no session, so a rerun
-  would only repeat it. Gemini's comes from v2, and GPT's (v2) is read against S6's `full_t`.
+- V6: if Claude's `none` A reaches its v2 `full_t` A − 0.10, Claude is contaminated and every primary becomes
+  descriptive. Claude's `none` is v1's (Q-N, 18 targets, 215/360), reused: it reads no session, so a rerun would only
+  repeat it. GPT's `none` (v2) is read the same way against S6's `full_t`, and flags only GPT's secondaries.
 - V7 (new): `rag_t` span-level coverage ≥ 0.80 on D's answerable questions, from the receipt. Below that the
   retriever is too weak to test against, and H4 becomes descriptive.
 - V8 (new): at most 10% of `summary_m32` summaries cut after the re-ask. Above that the summary did not meet the
@@ -202,17 +187,15 @@ published either way.
 ## Hypotheses and pass criteria (declared before any v2 answer)
 
 **Statistics.** Paired cluster bootstrap over the 18 targets, 2,000 resamples, seed `20261108`, all of a target's
-questions in all conditions together; per-patient differences for every contrast. A hypothesis that names two
-answerers passes only if each passes on its own (an intersection-union test, which needs no multiplicity
-correction). The three hypotheses are separate questions with their own criteria. S12 repeats them with
+questions in all conditions together; per-patient differences for every contrast. The three hypotheses are separate questions with their own criteria. S12 repeats them with
 Bonferroni-adjusted 98.33% CIs.
 
-**H4 (primary, against retrieval).** `stashed_t` is not worse than `rag_t` on A, for Claude and for Gemini.
-- PASS iff, for each answerer, the 95% CI lower bound of `stashed_t − rag_t` is > −0.05.
+**H4 (primary, against retrieval).** `stashed_t` is not worse than `rag_t` on A (Claude).
+- PASS iff the 95% CI lower bound of `stashed_t − rag_t` is > −0.05.
 - Reported with E, U, UA, both contexts' sizes and cumulative usage.
 
-**H5 (primary, H1 replicated).** `stashed_t` is not worse than `full_t` on A, for the Claude rerun and for Gemini.
-- PASS iff, for each answerer, the 95% CI lower bound of `stashed_t − full_t` is > −0.05.
+**H5 (primary, H1 replicated).** `stashed_t` is not worse than `full_t` on A (Claude rerun).
+- PASS iff the 95% CI lower bound of `stashed_t − full_t` is > −0.05.
 - S6's GPT numbers stay descriptive, as Amendment 5 declared, and are shown beside H5.
 
 **H6 (primary, same budget, exact values).** On E, `stashed_tN` beats `summary_m32` (Claude).
@@ -220,8 +203,8 @@ Bonferroni-adjusted 98.33% CIs.
 - Both arms get the same N per session for what replaces the removed reads, which v1's H2 did not have. H6 does
   not revise H2.
 
-**What each outcome would mean**, written down now so the results cannot pick the reading. Each answerer's contrast
-gets two readings from its 95% CI. The first answers the hypothesis:
+**What each outcome would mean**, written down now so the results cannot pick the reading. Each contrast gets two
+readings from its 95% CI. The first answers the hypothesis:
 - **PASS**, as defined above.
 - **Contrary**: for H4 or H5 the upper bound is below −0.05 (the stash is worse by more than the margin); for H6 the
   upper bound is below 0. The paper then says the comparator did better on this task: retrieval with the questions
@@ -235,9 +218,6 @@ inconclusive on the margin and difference detected in retrieval's favour, and an
 reads within the margin and difference detected in retrieval's favour. No difference detected is never read as
 equivalence.
 
-A hypothesis passes when every answerer it names passes, reads contrary when any answerer reads contrary, and is
-inconclusive otherwise. Each answerer's reading is printed beside the verdict.
-
 **Secondaries (CIs, no pass claim).**
 - S7: the H4 and H5 contrasts on E, U and UA, and by condition; `rag_t` coverage by condition.
 - S8: test-retest. Claude's v2 `full_t` and `stashed_t` against v1's answers on the 53 sessions both have: A per
@@ -246,10 +226,9 @@ inconclusive otherwise. Each answerer's reading is printed beside the verdict.
   summary_m32` on E and A; and `stashed_tN − stashed_t`, what the budget costs the stash. Per session: N, P, the
   tokens `stashed_tN` recalled, and how often it hit the budget.
 - S10: `summary_m32` against v1's `summary_clin` on E and A (53 sessions; different runs and dates).
-- S11 (tier 2): Gemini answering `summary_m32`; Claude answering `summary_g32` against `summary_m32` (the
-  summarizer's family); GPT's `rag_t` against S6's `stashed_t`.
+- S11 (tier 2): GPT's `rag_t` against S6's `stashed_t` on A and E, the H4 contrast in a second family.
 - S12: H4–H6 with 98.33% CIs.
-- S13: `none` per answerer, with chance (0.20) beside it.
+- S13: `none` for Claude (v1) and GPT (v2), with chance (0.20) beside it.
 
 **Power (INFERIDO).** v1's H1 CI on A was about ±2 points and its H2 CIs on E about ±2.5 to ±5. The −5 margins of
 H4 and H5 have room if the true difference is near 0. H6's CI on E should be about ±2.7 points, so a true gain
@@ -266,7 +245,6 @@ below about 3 points will often miss it.
 | Gold seen by an arm | No arm reads `correct` or `answer_location`; only scoring and the receipts do. |
 | Summary starved by the format | It replaces only what the stash removed, keeps the same in-view reads, and gets a re-ask before any cut (V8). |
 | H6 budgets not equal | Both spends are counted on the serialized context against one base, calls and headers included; the summary is held to S ≤ N, and `stashed_tN`'s recalls to N − P by the wrapper (V4). S9 reports how often each hit N. |
-| Gemini prompt or tools differ | Frozen prompt and system text; only `recall`; additions the CLI forces are listed. |
 | Drift between v1 and v2 runs | Claude reruns `full_t` and `stashed_t` (S8); the primaries compare runs made in v2. |
 | Refusals hiding losses | Scored wrong, never dropped (V2). |
 
@@ -285,28 +263,22 @@ lock, and only one driver per route runs at a time.
 
 | route | pilot | D, tier 1 | D, tier 2 | reserve | cap |
 |---|---|---|---|---|---|
-| Claude subscription | 36 | 432 | 54 | 58 | **580** |
-| Gemini on the owner's Google login | 23 + 6 | 180 | 108 | 33 | **350** |
+| Claude subscription | 36 | 432 | 0 | 58 | **526** |
 | ChatGPT Plus (S6's runner) | 2 + 6 | 18 | 53 | 11 | **90** |
 
 - Claude pilot: on the 6 pilot-pool sessions, `rag_t` 6, `stashed_tN` 6, `summary_m32` 6 summaries + 6 answers,
   `summary_m11` 6 + 6. D tier 1: `full_t`, `stashed_t`, `stashed_tN`, `rag_t` 54 each, `summary_m32` and
-  `summary_m11` 54 summaries + 54 answers each. Tier 2: 54 answers on `summary_g32`. Claude's `none` is v1's, so it
-  costs no call.
-- Gemini: toolcheck ≤ 3, then pilot `full_t`, `stashed_t`, `rag_t` 6 each and `none` 2; the tier-2 summarizer is
-  piloted on 6 sessions. D tier 1: `none` 18, `full_t`, `stashed_t`, `rag_t` 54 each. Tier 2: `summary_m32` answers
-  54 and `summary_g32` summaries 54.
+  `summary_m11` 54 summaries + 54 answers each. Claude's `none` is v1's, so it costs no call.
 - GPT: `none` 2 in the pilot and 18 in D (tier 1); `rag_t` 6 in the pilot and 53 in D on S6's sessions (tier 2).
   GPT gets the least because the same plan carries the owner's Codex code reviews.
-- Order inside a route: every arm a primary uses (on Claude: `full_t`, `stashed_t`, `stashed_tN`, `rag_t`,
-  `summary_m32`, 324 calls; on Gemini: `none`, `full_t`, `stashed_t`, `rag_t`) finishes, retries and re-asks
-  included, before any secondary-only arm starts (`summary_m11`, then tier 2). The reserve serves primary arms first.
+- Order on Claude: every arm a primary uses (`full_t`, `stashed_t`, `stashed_tN`, `rag_t`, `summary_m32`, 324
+  calls) finishes, retries and re-asks included, before `summary_m11` starts. The reserve serves primary arms first.
 - Reserve: V2 retries and summary re-asks. A run that reaches its cap stops; what is left counts as V2 drops for
   that route, and by the order above only secondary arms can be left.
 - Tier 2 runs only after every tier-1 arm of every route is done. Tier 2 feeds secondaries only, so leaving it
   unrun changes no primary.
 - Pacing: no Claude or GPT call starts while that plan's 5-hour or weekly window is at 80% or more (v1 Amendment 3,
-  S6). Gemini stops at a quota error and resumes from cache after it clears. No driver spends a plan reset credit.
+  S6). No driver spends a plan reset credit.
 - Downloads: the two dense retrievers' weights from Hugging Face (`BAAI/bge-base-en-v1.5`, `ncbi/MedCPT` query and
   article encoders, about 1.3 GB together), into the private root.
 
@@ -316,11 +288,11 @@ lock, and only one driver per route runs at a time.
 2. The owner approves the routes, caps and downloads (dated line here). Until then nothing runs.
 3. Driver and tests in `benchmarks/research/longhealth-v2/`. The driver imports v1's frozen harness and changes none
    of it, as S6 does. Tests use fake CLIs and make no model call.
-4. Toolchecks (Gemini V4, refusal signals), retriever selection on the pilot pool, then the pilot on the 6
-   pilot-pool sessions: every new arm and runner. A pilot that shows a problem changes the design by a dated
+4. The `stashed_tN` wrapper check (V4), retriever selection on the pilot pool, then the pilot on the 6 pilot-pool
+   sessions: every new arm. A pilot that shows a problem changes the design by a dated
    amendment, before the freeze, never after.
 5. Freeze amendment: the driver's sha256, Q-R, S-clin-m and the re-ask text, the chosen retriever and its revision,
-   the Gemini CLI version and model id, and the green test log.
+   and the green test log.
 6. Receipts before any D answer: `rag-receipt-D.json` (coverage, sizes), and per session, for both values of b,
    the budgets N and M, h, and `stashed_tN`'s spend P.
 7. D, tier 1 on every route, then tier 2.
