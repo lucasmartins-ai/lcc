@@ -12,6 +12,13 @@ All notable changes to this project are documented here. The format is based on
   concept DOI [10.5281/zenodo.24038393](https://doi.org/10.5281/zenodo.24038393), which resolves to the latest
   version; 1.4.0 is [10.5281/zenodo.24038394](https://doi.org/10.5281/zenodo.24038394).
 
+- **LongHealth v2 protocol (draft, not approved).**
+  [`benchmarks/research/longhealth-v2/PROTOCOL.md`](benchmarks/research/longhealth-v2/PROTOCOL.md) pre-registers
+  three comparisons that v1 lacks: `stashed` + `recall` against retrieval (RAG) over the same records, a capped
+  stash against a clinical summary given the same token budget, and Gemini as a third answerer beside Claude and
+  S6's GPT.
+  v1's verdicts are unchanged, and nothing runs until the owner approves the routes and caps.
+
 - **Nightly timing test for recall hints.** `tests/test_recall_hints_timing.py` (`LCC_TIMING=1`,
   in the nightly workflow) stashes a session at the hint caps and one four times larger. The
   larger one must take at most 2.5x as long, and a prompt at the caps must finish within 2 s.
