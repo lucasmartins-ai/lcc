@@ -43,7 +43,6 @@ import json
 import os
 import re
 import stat
-import tempfile
 import time
 import warnings
 from bisect import bisect_left
@@ -51,21 +50,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-from lcc.relevance.transcript_lossless import (
-    _HEADER_RE,
-    duplicate_ids,
-    lossless_decisions,
-    verify_lossless,
-)
-from lcc.relevance.transcript_recoverable import (
-    DISK_MAX_BYTES,
-    _body,
-    _file_lines,
-    _numbered,
-    recoverable_decisions,
-)
-from lcc.relevance.transcript_rules import rules_decisions
-from lcc.token_budget import count_tokens
+# ponytail: the compaction modules (and tiktoken) load inside the functions that use them:
+# `lcc hint` imports this module on every prompt and needs none of them.
 
 ENV_DIR = "LCC_STASH_DIR"
 _ID = re.compile(r"^[0-9a-f]{12,64}$")
@@ -161,6 +147,8 @@ def stash_lock(root: Path, *, exclusive: bool = False) -> Iterator[bool]:
 
 
 def _write_private(path: Path, data: bytes) -> None:
+    import tempfile  # ponytail: ~7 ms to import, and `lcc hint` rarely writes
+
     fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".tmp-")  # mkstemp creates 0600 on POSIX
     try:
         with os.fdopen(fd, "wb") as handle:
@@ -442,6 +430,8 @@ def on_disk(text: str, path: str | Path) -> dict[str, Any]:
     newline cannot be told from a ``cat -n`` of a blank last line. ``compared_as`` says which
     reading was used; pass the plain file to ``lcc recall`` when that matters.
     """
+    from lcc.relevance.transcript_recoverable import DISK_MAX_BYTES, _body, _file_lines, _numbered
+
     out: dict[str, Any] = {"path": str(path)}
     try:
         info = os.stat(path)
@@ -521,6 +511,8 @@ def _printable(value: str) -> str:
 def _lean_fields(text: str, head: bool = False) -> list[str]:
     """Exit status, up to two identifiers and the first line (``head``: the opening across lines),
     by fixed rules over ``text``."""
+    from lcc.relevance.transcript_lossless import _HEADER_RE
+
     lines = text.splitlines()
     fields: list[str] = []
     # Codex prints the status in its header, Claude Code's Bash at the end: look only there,
@@ -609,6 +601,11 @@ def stashed_decisions(
 
     Writes each replaced result to the stash as a side effect, before the pointer exists.
     """
+    from lcc.relevance.transcript_lossless import duplicate_ids, lossless_decisions
+    from lcc.relevance.transcript_recoverable import recoverable_decisions
+    from lcc.relevance.transcript_rules import rules_decisions
+    from lcc.token_budget import count_tokens
+
     lossy = rules_decisions(messages, candidates, goal)
     recoverable = recoverable_decisions(
         messages, candidates, goal, root=root, disk_check=disk_check
@@ -684,6 +681,7 @@ def verify_stashed(original_payload: Any, compacted_payload: Any) -> list[str]:
     pointer whose blob is present, passes its hash and holds the original text exactly.
     """
     from lcc.relevance.transcript import parse_transcript
+    from lcc.relevance.transcript_lossless import duplicate_ids, verify_lossless
 
     duplicated = duplicate_ids(parse_transcript(original_payload))
     names: list[str] = []  # listed once, on the first pointer: one scan for the whole check
