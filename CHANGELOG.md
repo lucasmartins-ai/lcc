@@ -14,9 +14,8 @@ All notable changes to this project are documented here. The format is based on
 
 - **LongHealth v2 protocol (draft, not approved).**
   [`benchmarks/research/longhealth-v2/PROTOCOL.md`](benchmarks/research/longhealth-v2/PROTOCOL.md) pre-registers
-  three comparisons that v1 lacks: `stashed` + `recall` against retrieval (RAG) over the same records, a capped
-  stash against a clinical summary given the same token budget, and Gemini as a third answerer beside Claude and
-  S6's GPT.
+  what v1 lacks: `stashed` + `recall` against retrieval (RAG) over the same records, a capped stash against a
+  clinical summary given the same token budget, and a rerun of H1.
   v1's verdicts are unchanged, and nothing runs until the owner approves the routes and caps.
 
 - **Nightly timing test for recall hints.** `tests/test_recall_hints_timing.py` (`LCC_TIMING=1`,
