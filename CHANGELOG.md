@@ -65,6 +65,21 @@ All notable changes to this project are documented here. The format is based on
   could open a new turn on a raw-completion endpoint. All three templates now pass every
   caller-supplied field through the same neutralization.
 
+- **The test suite no longer writes to the real ledger, request log or stash.** In a shell that
+  exports `LCC_LEDGER=1` or `LCC_REQUEST_LOG=1`, each `pytest` run appended its own rows to
+  `~/.cache/lcc/ledger.jsonl` and to the request log. `tests/conftest.py` now clears both flags
+  and points `LCC_LEDGER_PATH`, `LCC_REQUEST_LOG_DIR` and `LCC_STASH_DIR` at a temporary
+  directory for every test. It also clears `LCC_AUTO_REMOTE` and redirects `LCC_TS_LEDGER`, so
+  `provider="auto"` in a test cannot reach the remote judge or its ledger. Rows already written
+  are not removed.
+
+- **A release tag is checked before anything is published.** `publish.yml` ran on any
+  `v*.*.*` tag without tests. It now runs the CI suite on the tagged commit and stops unless the
+  tag is `v` plus the `pyproject.toml` version. `tests/test_metadata.py` now also compares
+  `package.json`, `server.json`, the marketplace, both `plugins/claude-code` manifests and the
+  `lcc.__version__` fallback with `pyproject.toml`. `plugins/chatgpt/plugin.json` keeps its own
+  version.
+
 ## [1.4.0] - 2026-11-07
 
 ### Changed
