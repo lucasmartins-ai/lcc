@@ -5,6 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_call: # publish.yml runs this suite on the tagged commit before it builds
 
 permissions:
   contents: read

@@ -176,8 +176,9 @@ Before the first PyPI release, configure a trusted publisher on PyPI:
 - Workflow name: `publish.yml`
 - Environment name: `pypi`
 
-The workflow is `.github/workflows/publish.yml`. It builds distributions, runs
-`twine check`, uploads the distributions as a GitHub artifact, then publishes with
+The workflow is `.github/workflows/publish.yml`. It first runs the CI suite (`ci.yml`) on the
+tagged commit and stops unless the tag is `v` plus the `pyproject.toml` version. Then it builds
+distributions, runs `twine check`, uploads the distributions as a GitHub artifact, and publishes with
 `pypa/gh-action-pypi-publish@release/v1` using `id-token: write`. The publish job uses the
 GitHub environment `pypi`; configure that environment with reviewer protection if desired.
 
