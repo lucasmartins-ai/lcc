@@ -61,7 +61,12 @@ there verbatim (its contents are needed and re-running would not do).
 | both below `threshold` | `drop` | call and result are removed together |
 
 Defaults: `--threshold 0.5`, `--trim-head-chars 300`. A result is never left without its
-call, and a call is never dropped without its result.
+call, and a call is never dropped without its result. With `--trim-head-chars 0` a trimmed
+result is the note line alone.
+
+Both answers are needed for a `drop` or a `trim`. A result flagged `is_error` is described to
+the judge as an error and is kept whatever the answers say (`error_result_kept`); the rules
+policies have their own error rules.
 
 ## 3. Pinning (what is never touched)
 
@@ -98,7 +103,7 @@ runs requests concurrently.
 | no key / `LCC_DISABLE_NETWORK=1` | `jev` | true | `none` | every call kept, reason `jev_unavailable_fail_safe` |
 | `--provider auto` (default) / `specialist-v3` | `specialist-v3` | false | `none` | the local ranker decides; if it fails, every call kept (`specialist_v3_failed_fail_safe`, degraded) |
 | a batch fails | `degraded` when nothing was judged, `jev+partial_fail_safe` otherwise | true | `none` / `partial` | unjudged calls kept, judged calls keep their verdict |
-| answer missing / malformed / outside 0–1 | — | — | — | that call is kept and the reason is a warning (`jev_missing_answer:…`, `jev_answer_out_of_range:…`) |
+| answer missing / malformed / outside 0–1 (one of the two is enough) | as for a failed batch | true | `none` / `partial` | that call is kept (`not_judged_fail_safe`) and the reason is a warning (`jev_missing_answer:…`, `jev_answer_out_of_range:…`) |
 | nothing to score (all pinned) | `jev` | false | `none` | reason `no_candidates`; no call is claimed as judged |
 
 `mechanical` is refused (exit 2) in this mode: "is this tool output still needed"

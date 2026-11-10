@@ -1522,12 +1522,15 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     #: block id -> (cache key, decision the cache holds). Read back after the final
     #: decisions to persist restorations (I1 ratchet) and to report sticky flips.
     sticky_decisions: dict[str, tuple[str, str]] = {}
+    lexical: set[str] = set()  # reused blocks whose cached decision no judge made
     for block in scoreable:
         key = _cache_key_for(block.text, block.id)
         cached = cache.get(key) if request.decisions_cache_path is not None else None
         if cached is not None:
             reused += 1
             sticky_decisions[block.id] = (key, cached.decision)
+            if cached.provider == "mechanical":
+                lexical.add(block.id)
             chars_after: int | None = None
             if cached.decision == "trim":
                 chars_after = len(
@@ -1694,6 +1697,18 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
         warnings.append(
             "nimble_unavailable: no local Nimble checkout/weights wired; "
             "fell back to mechanical scoring (degraded)."
+        )
+
+    # A cached lexical decision (an outage's fallback, `auto` before it had a judge) is not a
+    # judge's: with a judge live it is judged, not replayed as `cache` / `judged`.
+    if lexical and (client is not None or specialist_judge is not None):
+        for block_id in lexical:
+            del decisions[block_id], sticky_decisions[block_id]
+        reused -= len(lexical)
+        pending = [block for block in scoreable if block.id not in decisions]
+        warnings.append(
+            f"cache_lexical_rejudged: {len(lexical)} cached decision(s) were made without a "
+            "judge and are judged now; bytes an earlier pass emitted may change"
         )
 
     # Which language the objective is written in, so evidence in another language is not

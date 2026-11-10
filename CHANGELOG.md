@@ -105,6 +105,32 @@ All notable changes to this project are documented here. The format is based on
   or an invalid-request error (`-32600`). `ping` returns an empty result; it returned
   `-32601` (method not found).
 
+- **Remote-judge path (`provider: jev` / `laya`, tool-call mode): four ways to lose content
+  without saying so.** The default `auto` and the `rules` modes are not affected.
+  - A result flagged `is_error` was described to the judge as `ok, N chars` and nothing kept it
+    when the judge scored it low. The note now says `error`, and a flagged failure is kept
+    whatever the answers are (`error_result_kept`).
+  - One missing answer of the pair counted as a low score, so half an answer could drop a call
+    in a pass reported as `judged`. A call now needs both answers; otherwise it is kept as
+    `not_judged_fail_safe` and the pass is `degraded`.
+  - `trim_head_chars: 0` replaced a trimmed result with an empty string. It is now the note
+    line alone.
+  - The report serialized tool input with `\uXXXX` escapes while decisions counted characters,
+    so `chars_*`, `tokens_*` and `reduction_ratio` were overstated for non-ASCII input. This
+    one applies to every provider in tool-call mode.
+
+- **Block mode: cached lexical decisions are no longer replayed as a judge's.** When the judge
+  failed and the lexical scorer stood in, or `auto` ran without a judge, the decisions were
+  cached under the requested provider. The next pass with a judge replayed them as
+  `provider_used: cache`, `judged`, not degraded. A pass with a judge now judges those blocks
+  and warns `cache_lexical_rejudged`, since bytes an earlier pass emitted may change. Without
+  a judge they stay sticky as before.
+
+- **Invariant harness covers the paths it skipped.** The adversarial corpus and the fuzz test
+  ran only `rules` in the `lossless`, `recoverable` and `stashed` modes. They now also run
+  `lossy`, `auto` (specialist-v3) and the judge path with a seeded stand-in, and check that a
+  call and its result always leave together.
+
 ## [1.4.0] - 2026-11-07
 
 ### Changed
