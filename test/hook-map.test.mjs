@@ -10,6 +10,7 @@ import {
   deriveGoal,
   expandRefs,
   hasUnsupportedContent,
+  isWrapper,
   parseToolResult,
   resolveOptions,
   toMcpMessages,
@@ -81,6 +82,30 @@ test("deriveGoal keeps the newest prompt whole and skips tag-wrapped pseudo prom
   // A session that holds nothing else still gets an objective.
   const wrapper = "<command-name>/review</command-name>";
   assert.equal(deriveGoal([{ role: "user", text: wrapper }]), wrapper);
+});
+
+test("deriveGoal reads a prompt that opens with markup, and skips Claude Code's own tags", () => {
+  const goal = (text) => deriveGoal([{ role: "user", text: "Older task." }, { role: "user", text }]);
+  for (const prompt of [
+    '<div class="row">a</div> is not centred',
+    "<T>(value: T) => value does not compile",
+    "<Button /> does not render",
+    "< 5 minutes ago this passed",
+  ]) {
+    assert.equal(isWrapper(prompt), false, prompt);
+    assert.equal(goal(prompt), `Older task.\n${prompt}`);
+  }
+  // The tags seen in real sessions: lowercase, with a hyphen or an underscore.
+  for (const wrapper of [
+    "<task-notification>\n<task-id>a1</task-id>",
+    "<bash-input>ls</bash-input>",
+    "<local-command-stdout>ok</local-command-stdout>",
+    "<user-prompt-submit-hook>checked</user-prompt-submit-hook>",
+    '<scheduled-task name="nightly">',
+  ]) {
+    assert.equal(isWrapper(wrapper), true, wrapper);
+    assert.equal(goal(wrapper), "Older task.");
+  }
 });
 
 test("hasUnsupportedContent stands down on content it cannot rebuild", () => {

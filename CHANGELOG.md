@@ -95,7 +95,10 @@ All notable changes to this project are documented here. The format is based on
   tag-wrapped messages (`<system-reminder>`, slash-command wrappers) counted as prompts. The
   newest prompt now comes first in the budget, an older one is added only when it fits whole,
   and tag-wrapped messages are used only when the session holds nothing else. The arguments
-  of a slash command sit inside such a wrapper, so they are not read as a prompt.
+  of a slash command sit inside such a wrapper, so they are not read as a prompt. A message
+  is tag-wrapped when it opens with a lowercase tag that has a hyphen or an underscore, as
+  Claude Code names its own; a prompt that opens with other markup (`<div>`, `<T>`) is a
+  prompt.
 
 - **stdio MCP server: a stray line no longer makes it stop answering.** A first line that was
   not JSON (a byte-order mark, a bare `null`, a wrapper's log line) was read as an LSP header,

@@ -19,6 +19,8 @@ import {
   sessionStartText,
 } from "../plugins/claude-code/scripts/lcc-pin.mjs";
 
+import { isWrapper } from "../plugins/claude-code/hooks/map.mjs";
+
 const SCRIPT = fileURLToPath(new URL("../plugins/claude-code/scripts/lcc-pin.mjs", import.meta.url));
 
 const user = (content, extra = {}) => ({ type: "user", message: { role: "user", content }, ...extra });
@@ -48,6 +50,24 @@ assert.equal(
   facts.objective,
   "Fix the failing parse_header test in src/lcc/parser.py.\nAlso keep the CHANGELOG entry.",
 );
+// The script keeps its own copy of hooks/map.mjs isWrapper (it imports nothing from the plugin):
+// both must agree on what is a prompt.
+const openings = [
+  ['<div class="row"> is not centred', false],
+  ["<T>(value: T) => value", false],
+  ["<Command-name>upper case", false],
+  ["<a-b/> self-closing", false],
+  ["<bash-input and no end", true],
+  ["<bash-input>ls</bash-input>", true],
+  ["<system-reminder>x</system-reminder>", true],
+  ['<pasted_content id="1">log</pasted_content>', true],
+  ['<scheduled-task name="nightly">', true],
+  ["<ide2_selection>x", true],
+];
+for (const [text, wrapper] of openings) {
+  assert.equal(isWrapper(text), wrapper, text);
+  assert.equal(extractFacts([user(text)]).objective, wrapper ? "" : text, text);
+}
 // Distinct, newest last; Write counts as an edit.
 assert.deepEqual(facts.edited, ["/repo/tests/test_parser.py", "/repo/src/lcc/parser.py"]);
 assert.deepEqual(facts.read, ["/repo/src/lcc/parser.py"]);
@@ -193,6 +213,11 @@ assert.match(serverNote("1.3.0", "lcc 1.4.0\n"), /plugin is 1\.3\.0 and the `lcc
 assert.equal(serverNote("1.4.0", "lcc 1.4.0\nUserWarning: x\n"), ""); // the version line, not the last word
 assert.match(serverNote("1.4.0", "usage: lcc [options] file\n"), /printed no version/);
 assert.match(serverNote("1.4.0", null), /did not run/);
+// A version with no patch part is still a version, on either side; the whole token is reported.
+assert.equal(serverNote("1.5.0", "lcc 1.5\n"), "");
+assert.equal(serverNote("1.5", "lcc 1.5.1\n"), "");
+assert.match(serverNote("1.4.0", "lcc 1.5rc1\n"), /plugin is 1\.4\.0 and the `lcc` command is 1\.5rc1\./);
+assert.match(serverNote("1.5.0", "lcc 1.50.0\n"), /`lcc` command is 1\.50\.0/);
 // End to end, with a stand-in `lcc` alone on the PATH and then none.
 const bin = mkdtempSync(join(tmpdir(), "lcc-bin-"));
 writeFileSync(join(bin, "lcc"), "#!/bin/sh\necho lcc 0.9.0\n", { mode: 0o755 });

@@ -18,6 +18,8 @@ import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const IDLE_MARKER = "lcc:idle"; // hooks/map.mjs IDLE_MARKER
+// hooks/map.mjs isWrapper: a slash-command wrapper, a reminder, hook or task output; not a prompt.
+const WRAPPER = /^<[a-z][a-z0-9]*[-_][a-z0-9_-]*[\s>]/;
 export const IDLE_BLOCK = {
   decision: "block",
   reason: "lcc idle stash: the built-in summary never runs for an idle compaction",
@@ -86,8 +88,7 @@ export function extractFacts(lines) {
     const content = entry?.message?.content;
     if (entry?.type === "user" && !entry.isMeta && !entry.isCompactSummary) {
       const text = blockText(content);
-      // Slash-command wrappers, reminders and hook output start with a tag, not a prompt.
-      if (text && !text.startsWith("<") && !blocks(content).some((b) => b?.type === "tool_result")) {
+      if (text && !WRAPPER.test(text) && !blocks(content).some((b) => b?.type === "tool_result")) {
         prompts.push(text);
       }
       for (const block of blocks(content)) {
@@ -279,11 +280,11 @@ export function serverNote(plugin, output) {
     return "lcc: `lcc --version` did not run, so the plugin's MCP server cannot start and compaction stays with the built-in summary. Install it (pip install local-context-compiler) and check that `lcc` is on the PATH Claude Code is launched with.";
   }
   // Other lines (a Python warning) and other programs named `lcc` print no such line.
-  const [, server, minor] = output.match(/^lcc ((\d+\.\d+)\.\S+)/m) ?? [];
+  const [, server, minor] = output.match(/^lcc ((\d+\.\d+)\S*)/m) ?? [];
   if (!server) {
     return "lcc: the `lcc` command printed no version, so it may be another program and the plugin's MCP server may not start. Check which `lcc` comes first on the PATH Claude Code is launched with.";
   }
-  if (plugin.startsWith(`${minor}.`)) return "";
+  if (`${plugin}.`.startsWith(`${minor}.`)) return ""; // "1.5" and "1.5.0" are both 1.5
   return `lcc: the plugin is ${plugin} and the \`lcc\` command is ${server}. Update the older one (/plugin, or pip install -U local-context-compiler).`;
 }
 
