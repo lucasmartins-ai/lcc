@@ -23,6 +23,15 @@ All notable changes to this project are documented here. The format is based on
   larger one must take at most 2.5x as long, and a prompt at the caps must finish within 2 s.
   It does not assert the 50 ms goal from the research notes.
 
+- **Claude Code plugin: a session start says when the `lcc` server cannot run.** The plugin's
+  MCP server is a bare `lcc` on the `PATH`. When that command was missing or broken, sessions
+  started without the server and only a short toast at compaction time said so. A new
+  `SessionStart` hook (matcher `startup`) runs `lcc --version` and shows the user one line when
+  it does not run, prints no `lcc <version>` line, or when its major.minor differs from the
+  plugin's. It prints nothing when both agree, when the command takes longer than 5 seconds,
+  and when the `server` option names another server. It runs in the hook's environment, so a
+  `PATH` that differs between hooks and MCP servers is not caught.
+
 ### Changed
 
 - **`lcc hint --hook` answers without loading the CLI, and the hints stay the same.**
@@ -79,6 +88,51 @@ All notable changes to this project are documented here. The format is based on
   `package.json`, `server.json`, the marketplace, both `plugins/claude-code` manifests and the
   `lcc.__version__` fallback with `pyproject.toml`. `plugins/chatgpt/plugin.json` keeps its own
   version.
+
+- **Claude Code plugin: the objective sent to the judge is the newest real prompt.** With no
+  `question` option and no `/compact` text, the hook joined the last three user messages and
+  kept the first 500 characters. A long older prompt pushed the newest one out, and
+  tag-wrapped messages (`<system-reminder>`, slash-command wrappers) counted as prompts. The
+  newest prompt now comes first in the budget, an older one is added only when it fits whole,
+  and tag-wrapped messages are used only when the session holds nothing else. The arguments
+  of a slash command sit inside such a wrapper, so they are not read as a prompt. A message
+  is tag-wrapped when it opens with a lowercase tag that has a hyphen or an underscore, as
+  Claude Code names its own; a prompt that opens with other markup (`<div>`, `<T>`) is a
+  prompt.
+
+- **stdio MCP server: a stray line no longer makes it stop answering.** A first line that was
+  not JSON (a byte-order mark, a bare `null`, a wrapper's log line) was read as an LSP header,
+  and every later request went unanswered while the process stayed up. Only `Content-Length`
+  and `Content-Type` start a header block now. Any other line is parsed as JSON, a leading
+  byte-order mark is skipped, and a line that is not a request gets a parse error (`-32700`)
+  or an invalid-request error (`-32600`). `ping` returns an empty result; it returned
+  `-32601` (method not found).
+
+- **Remote-judge path (`provider: jev` / `laya`, tool-call mode): four ways to lose content
+  without saying so.** The default `auto` and the `rules` modes are not affected.
+  - A result flagged `is_error` was described to the judge as `ok, N chars` and nothing kept it
+    when the judge scored it low. The note now says `error`, and a flagged failure is kept
+    whatever the answers are (`error_result_kept`).
+  - One missing answer of the pair counted as a low score, so half an answer could drop a call
+    in a pass reported as `judged`. A call now needs both answers; otherwise it is kept as
+    `not_judged_fail_safe` and the pass is `degraded`.
+  - `trim_head_chars: 0` replaced a trimmed result with an empty string. It is now the note
+    line alone.
+  - The report serialized tool input with `\uXXXX` escapes while decisions counted characters,
+    so `chars_*`, `tokens_*` and `reduction_ratio` were overstated for non-ASCII input. This
+    one applies to every provider in tool-call mode.
+
+- **Block mode: cached lexical decisions are no longer replayed as a judge's.** When the judge
+  failed and the lexical scorer stood in, or `auto` ran without a judge, the decisions were
+  cached under the requested provider. The next pass with a judge replayed them as
+  `provider_used: cache`, `judged`, not degraded. A pass with a judge now judges those blocks
+  and warns `cache_lexical_rejudged`, since bytes an earlier pass emitted may change. Without
+  a judge they stay sticky as before.
+
+- **Invariant harness covers the paths it skipped.** The adversarial corpus and the fuzz test
+  ran only `rules` in the `lossless`, `recoverable` and `stashed` modes. They now also run
+  `lossy`, `auto` (specialist-v3) and the judge path with a seeded stand-in, and check that a
+  call and its result always leave together.
 
 ## [1.4.0] - 2026-11-07
 

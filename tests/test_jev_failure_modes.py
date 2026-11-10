@@ -45,6 +45,48 @@ def test_jev_success_records_resolved_model():
     assert result.report.semantic_guarantee == "judged"
 
 
+def test_a_fallback_decision_is_not_replayed_once_the_judge_is_back(tmp_path):
+    # Regression: the lexical drops of an outage were cached under the judge's key, and the
+    # next healthy pass replayed them as `provider_used: cache`, `judged`, not degraded.
+    class Timeout:
+        model = "fake"
+
+        def evaluate(self, state, questions):
+            raise JevRequestError("network error: timed out")
+
+    cache = tmp_path / "decisions.json"
+    down = compact_context(_req(Timeout(), decisions_cache_path=cache))
+    assert down.report.provider_used == "jev+mechanical_fallback"
+    assert [d.decision for d in down.report.decisions].count("drop") == 1
+
+    healthy = _Ok(0.9)
+    back = compact_context(_req(healthy, decisions_cache_path=cache))
+    assert healthy.calls == 1, "the judge was not asked: the fallback's decisions were reused"
+    assert back.report.provider_used == "jev"
+    assert [d.decision for d in back.report.decisions].count("drop") == 0
+
+
+def test_a_cached_lexical_decision_is_judged_once_auto_has_a_judge(tmp_path):
+    # `auto` without a judge scores lexically and is no "+mechanical_fallback" pass, so its
+    # decisions are cached; they stay sticky only for as long as there is no judge.
+    def auto(client):
+        return compact_context(_req(client, provider="auto", decisions_cache_path=cache))
+
+    cache = tmp_path / "decisions.json"
+    assert [d.decision for d in auto(None).report.decisions].count("drop") == 1
+    assert auto(None).report.provider_used == "cache"
+
+    healthy = _Ok(0.9)
+    back = auto(healthy)
+    assert healthy.calls == 1, "the judge was not asked: lexical decisions were replayed as its own"
+    assert (back.report.provider_used, back.report.semantic_guarantee) == ("jev", "judged")
+    assert [d.decision for d in back.report.decisions].count("drop") == 0
+    assert any(w.startswith("cache_lexical_rejudged: 2 ") for w in back.report.warnings)
+
+    replay = auto(healthy)  # the judge's decisions replaced the lexical ones in the cache
+    assert (healthy.calls, replay.report.provider_used) == (1, "cache")
+
+
 def test_jev_timeout_falls_back_mechanically():
     class Timeout:
         model = "fake"

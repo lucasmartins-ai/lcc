@@ -23,8 +23,9 @@ claude plugin marketplace add lucasmartins-ai/lcc
 claude plugin install lcc@lcc
 ```
 
-Requirements: Claude Code **2.1.274 or newer** (function hooks), the `lcc` CLI on `PATH`
-(the plugin's `.mcp.json` starts `lcc mcp`), and a TypeSafe API key only for `provider: jev`
+Requirements: Claude Code **2.1.274 or newer** (function hooks), the `lcc` CLI on the `PATH`
+Claude Code is launched with (the plugin's `.mcp.json` starts `lcc mcp`; a desktop launcher can
+have a shorter `PATH` than your shell), and a TypeSafe API key only for `provider: jev`
 (`auto`/`specialist-v3`, `laya` and `rules` need none).
 
 For local development against a checkout:
@@ -35,16 +36,17 @@ CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude --plugin-dir plugins/claude-code
 
 ## What runs, and when
 
-The plugin registers one function hook and two classic hooks:
+The plugin registers one function hook and three classic hooks:
 
 | Event | What it does |
 | :--- | :--- |
 | `session.compact` | Sends the transcript to `compact_transcript`, replaces the conversation with the compacted one when the pass was judged and removed something, otherwise calls `next(event)` so Claude Code's own summary runs |
 | `PreCompact` (classic) | Prints the session objective, edited/read files and the last tool error, asking the built-in summary to keep them verbatim (`scripts/lcc-pin.mjs precompact`); blocks the summary for an idle-stash compaction, and for an early auto-compaction with too little tool output to stash |
 | `SessionStart`, matcher `compact` (classic) | Re-pins the same facts after the summary (`scripts/lcc-pin.mjs sessionstart`) |
+| `SessionStart`, matcher `startup` (classic) | Runs `lcc --version` and shows one line when it does not run, or when its major.minor differs from the plugin's (`scripts/lcc-pin.mjs startup`). Silent when both agree, and when the `server` option names another server |
 | `turn.complete`, `session.start` | Only with `idleStash: true` (off by default): record the last turn's time / run the idle stash on a session resumed after the cache expired (see "Idle stash" below) |
 
-The two classic hooks need neither the function-hook flag nor a key: without the flag they are
+The classic hooks need neither the function-hook flag nor a key: without the flag they are
 the whole plugin, and the built-in summary keeps paths, identifiers and the last error verbatim.
 
 Every outcome is reported in one toast and one log line, and each per-call decision is in

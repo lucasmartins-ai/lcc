@@ -41,10 +41,10 @@ CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude --plugin-dir plugins/claude-code
 | `plugins/claude-code/.claude-plugin/plugin.json` | the plugin manifest and its configurable options |
 | `plugins/claude-code/.codex-plugin/plugin.json` | Codex's manifest: same name and version, `"hooks": {}` so Codex skips `hooks/hooks.json` (see the hooks README) |
 | `plugins/claude-code/.mcp.json` | starts the plugin's own `lcc mcp` server |
-| `plugins/claude-code/hooks/hooks.json` | registers the hook module and the two classic hooks |
+| `plugins/claude-code/hooks/hooks.json` | registers the hook module and the classic hooks |
 | `plugins/claude-code/hooks/lcc-compact.mjs` | the adapter: `session.compact` → `compact_transcript` → messages |
 | `plugins/claude-code/hooks/map.mjs` | the pure mapping helpers, unit-tested on their own |
-| `plugins/claude-code/scripts/lcc-pin.mjs` | the classic-hook fallback: `PreCompact` instructions and `SessionStart` (`compact`) re-pin |
+| `plugins/claude-code/scripts/lcc-pin.mjs` | the classic hooks: `PreCompact` instructions, `SessionStart` (`compact`) re-pin and the `SessionStart` (`startup`) server check |
 | `plugins/claude-code/hooks/README.md` | operator guide: what runs, what falls back, what is limited |
 
 The hook is plain ESM with no build step and no dependencies: the Python package does the
@@ -374,6 +374,13 @@ Both read the facts from the hook's `transcript_path` (the session JSONL, which 
 appends to and does not rewrite), so they agree and nothing is stored between them. Lists are
 capped at 20 files and the error at 400 characters. Anything unreadable prints nothing and exits
 0, so compaction runs exactly as before. Covered by `node test/hook-pin.test.mjs`.
+
+A third classic hook (`SessionStart`, matcher `startup`) checks the server the plugin starts.
+`.mcp.json` runs a bare `lcc`, so the hook runs `lcc --version` and shows the user one line when
+the command does not run (not on the `PATH` Claude Code was launched with, or a virtualenv that
+moved) or when its major.minor differs from the plugin's. It prints nothing when both agree, and
+nothing when the `server` option names another server. It runs in the hook's environment, so a
+`PATH` that differs between hooks and MCP servers is not caught.
 
 ## Fallback: the built-in summary runs whenever anything is off
 

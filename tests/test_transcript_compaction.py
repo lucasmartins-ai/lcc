@@ -306,6 +306,68 @@ def test_a_failed_batch_keeps_what_it_could_not_judge():
     assert result.report["semantic_guarantee"] == "none"
 
 
+@pytest.mark.parametrize("answered", ["keep_call_", "keep_result_"])
+def test_one_missing_answer_keeps_the_call_unjudged(answered):
+    # Regression: the missing half was read as "low", so half an answer could drop a call
+    # while the pass reported itself as fully judged.
+    class Half(ScoreMap):
+        def evaluate(self, state, questions):
+            response = super().evaluate(state, questions)
+            response["answers"] = {
+                qid: answer for qid, answer in response["answers"].items()
+                if qid.startswith(answered)
+            }
+            return response
+
+    result = run(build(("Read", {"file": "a.py"}), result_chars=400), Half(default=(0.0, 0.0)))
+    entry = next(d for d in result.decisions if d["id"] == "toolu_1")
+    assert (entry["decision"], entry["source"]) == ("keep", "fail_safe")
+    assert result.report["degraded"] is True
+    assert result.report["semantic_guarantee"] != "judged"
+
+
+def test_a_failed_result_is_shown_to_the_judge_as_an_error_and_kept():
+    # Regression: every result was described as "ok, N chars" and nothing kept a failure
+    # the judge scored low, so a traceback could be dropped.
+    payload = build(("Bash", {"cmd": "pytest"}), result_chars=400)
+    payload["messages"][2]["toolResults"][0]["is_error"] = True
+    client = ScoreMap(default=(0.0, 0.0))
+    result = run(payload, client)
+    entry = next(d for d in result.decisions if d["id"] == "toolu_1")
+    assert (entry["decision"], entry["reason"]) == ("keep", "error_result_kept")
+    assert entry["chars_after"] == entry["chars"]
+    notes = [
+        shown["note"]
+        for message in client.states[0]["conversation"]
+        for shown in message.get("tool_results", [])
+    ]
+    assert notes == ["error, 400 chars"]
+
+
+def test_a_trim_with_no_head_leaves_the_note():
+    # Regression: trim_head_chars=0 replaced the result with an empty string and no note.
+    result = run(
+        build(("Bash", {"cmd": "pytest"}), result_chars=400),
+        ScoreMap(default=(0.9, 0.0)),
+        trim_head_chars=0,
+    )
+    assert decisions_of(result) == {"toolu_1": "trim"}
+    call = next(call for message in result.messages for call in message.tool_calls)
+    assert call.result.text == (
+        "[... lcc: 400 chars of this tool result dropped; re-run Bash for the rest ...]"
+    )
+
+
+def test_the_report_counts_characters_not_json_escapes():
+    # Regression: the report serialized tool input with \uXXXX escapes while decisions counted
+    # characters, so dropping a call with non-ASCII input overstated the reduction.
+    plain = run(build(("Read", {"file": "a" * 200})), ScoreMap(default=(0.0, 0.0)))
+    accented = run(build(("Read", {"file": "\u00e9" * 200})), ScoreMap(default=(0.0, 0.0)))
+    assert decisions_of(accented) == decisions_of(plain) == {"toolu_1": "drop"}
+    for field in ("chars_before", "chars_after", "reduction_ratio"):
+        assert accented.report[field] == plain.report[field], field
+
+
 def test_out_of_range_answers_are_rejected_not_clamped():
     class Wild(ScoreMap):
         def evaluate(self, state, questions):

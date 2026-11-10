@@ -23,6 +23,11 @@ The seven invariants, over the product modes (``rules`` with ``lossless``, ``rec
    tool ids, which output verification cannot pair). A broken pointer that the runtime check
    catches is safe for the user's bytes but silently removes nothing, so it fails here.
 
+Pairing (a call and its result leave together) is checked in every mode. The paths outside the
+product modes (``lossy``, ``auto``, the remote judge with a seeded stand-in) go through
+:func:`check_other_paths`: verbatim and accounting (2, 6), pairing, no corruption, determinism,
+and on the judge path the two fail-safes: a failed result and a half-answered call stay.
+
 Run as a script, it prints one sha256 over the stashed output of every corpus case; the
 hash-seed test compares that digest across interpreters.
 """
@@ -57,17 +62,61 @@ class Rejected(Exception):
     """The input was refused the documented way (invariant 7 holds; nothing else to check)."""
 
 
-def compact(payload: Any, mode: str, goal: str) -> Any:
-    """One ``rules`` pass; invariant 7 (fail-closed) is checked here."""
+class HashJudge:
+    """Deterministic stand-in for the remote judge in tool-call mode: scores hash the question.
+
+    With ``gaps`` it leaves about one question in ten unanswered, as a real judge can.
+    """
+
+    model = "hash-jev"
+    last_resolved_model = "hash-jev-1"
+
+    def __init__(self, gaps: bool = False) -> None:
+        self.gaps = gaps
+
+    def unanswered(self, question: str) -> bool:
+        return self.gaps and hashlib.sha256(question.encode()).digest()[-1] % 10 == 0
+
+    def evaluate(self, state: dict[str, Any], questions: dict[str, Any]) -> dict[str, Any]:
+        def score(name: str) -> float:
+            return int(hashlib.sha256(name.encode()).hexdigest()[:4], 16) / 0xFFFF
+
+        return {
+            "answers": {
+                q: {"noul": score(q), "confidence": 0.9}
+                for q in questions
+                if not self.unanswered(q)
+            }
+        }
+
+
+#: The paths outside the product modes: the lossy rules policy, the hook default (``auto`` is
+#: specialist-v3) and the remote-judge path. They remove content by design, so idempotence,
+#: recall and stable placeholders do not apply. What no pass may do still does.
+OTHER_PATHS: tuple[dict[str, Any], ...] = (
+    {"provider": "rules", "rules_mode": "lossy"},
+    {"provider": "auto"},
+    {"provider": "jev", "client": HashJudge(gaps=True), "max_workers": 1},
+)
+
+
+def compact_with(payload: Any, goal: str, **options: Any) -> Any:
+    """One pass with the given options; invariant 7 (fail-closed) is checked here."""
     request = TranscriptCompactionRequest(
-        payload=copy.deepcopy(payload), question=goal, provider="rules", rules_mode=mode
+        payload=copy.deepcopy(payload), question=goal, **options
     )
+    name = options.get("rules_mode") or options["provider"]
     try:
         return compact_transcript(request)
     except (ValueError, TranscriptError) as exc:
         raise Rejected(str(exc)) from exc
     except Exception as exc:  # noqa: BLE001 - anything else breaks invariant 7
-        raise AssertionError(f"fail-closed: {mode} raised {type(exc).__name__}: {exc}") from exc
+        raise AssertionError(f"fail-closed: {name} raised {type(exc).__name__}: {exc}") from exc
+
+
+def compact(payload: Any, mode: str, goal: str) -> Any:
+    """One ``rules`` pass in a product mode."""
+    return compact_with(payload, goal, provider="rules", rules_mode=mode)
 
 
 def assert_transcript_invariants(payload: list[dict[str, Any]], result: Any, options: dict):
@@ -229,6 +278,49 @@ def check_stable_placeholders(payload: Any, result: Any, mode: str, goal: str) -
     )
 
 
+def check_pairing(payload: Any, result: Any, name: str) -> None:
+    """A call and its result leave together: neither is ever left without the other."""
+    before = parse_transcript(copy.deepcopy(payload))
+    had_call = {c.id for m in before for c in m.tool_calls}
+    had_result = {r.id for m in before for r in m.tool_results}
+    calls = {c.id for m in result.messages for c in m.tool_calls}
+    results = {r.id for m in result.messages for r in m.tool_results}
+    assert not (results & had_call) - calls, f"pairing: {name} left a result without its call"
+    assert not (calls & had_result) - results, f"pairing: {name} left a call without its result"
+
+
+def check_judge_fail_safes(payload: Any, result: Any, judge: HashJudge) -> None:
+    """Judge path: nothing is removed that was not judged, and a failed result never is."""
+    before = [r for m in parse_transcript(copy.deepcopy(payload)) for r in m.tool_results]
+    after = {r.id: r.text for m in result.messages for r in m.tool_results}
+    repeated = {r.id for r in before if sum(o.id == r.id for o in before) > 1}
+    for original in before:
+        half = any(judge.unanswered(f"{q}_{original.id}") for q in ("keep_call", "keep_result"))
+        if original.id not in repeated and (original.is_error or half):
+            why = "failed" if original.is_error else "half-judged"
+            assert after.get(original.id) == original.text, (
+                f"judge fail-safe: {why} result {original.id} was removed or changed"
+            )
+
+
+def check_other_paths(payload: Any, goal: str) -> None:
+    for options in OTHER_PATHS:
+        name = options.get("rules_mode") or options["provider"]
+        try:
+            result = compact_with(payload, goal, **options)
+        except Rejected:
+            continue  # refused the documented way (a history over the judge's state budget)
+        assert_transcript_invariants(payload, result, {"preserve_recent": 6})  # 2 and 6
+        check_pairing(payload, result, name)
+        check_no_corruption(result)
+        if "client" in options:
+            check_judge_fail_safes(payload, result, options["client"])
+        again = compact_with(payload, goal, **options)
+        assert messages_to_payload(again.messages) == messages_to_payload(result.messages), (
+            f"determinism: a second {name} pass over the same input gave other output"
+        )
+
+
 def check_transcript(payload: Any, goal: str) -> None:
     """All seven invariants, every product mode. Raises AssertionError naming the one broken."""
     for mode in PRODUCT_MODES:
@@ -239,11 +331,13 @@ def check_transcript(payload: Any, goal: str) -> None:
         check_degraded_only_for_a_reason(payload, result, mode)  # 7
         assert_transcript_invariants(payload, result, {"preserve_recent": 6})  # 2 and 6
         check_verbatim(payload, result)
+        check_pairing(payload, result, mode)
         if mode == "stashed":
             check_recall_round_trip(payload, result)
         check_no_corruption(result)
         check_stable_placeholders(payload, result, mode, goal)
         check_idempotence(result, mode, goal)
+    check_other_paths(payload, goal)
 
 
 def corpus_cases() -> list[Path]:

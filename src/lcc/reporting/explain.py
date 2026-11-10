@@ -70,7 +70,10 @@ REASON_EXPLANATIONS: dict[str, str] = {
     "call_and_result_not_needed": "the judge says this call and its output are spent",
     "pinned_first_message": "the first message is never scored",
     "pinned_recent": "inside the newest messages, which are never scored",
-    "not_judged_fail_safe": "the judge was unavailable, so this call was kept unjudged",
+    "not_judged_fail_safe": (
+        "the judge gave no complete answer for this call, so it was kept unjudged"
+    ),
+    "error_result_kept": "a failed tool result is never removed on the judge's word",
     # provider="rules" (offline policy, docs/TOOL_CALLS.md)
     "not_stash_eligible": "no stash rule applies to this call (kept as is)",
     "identical_output_kept_later": "the same output is kept unchanged later in the session",

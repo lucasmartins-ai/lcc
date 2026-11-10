@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import shutil
@@ -11,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from lcc.mcp_server import TOOLS, handle_message
+from lcc.mcp_server import TOOLS, _read_message, handle_message
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -384,6 +385,42 @@ def test_stdio_survives_malformed_messages():
     assert [(r["id"], r.get("error", {}).get("code")) for r in responses] == [
         (None, -32700), (None, -32600), (3, -32602), (4, -32602), (5, None),
     ]
+
+
+def test_stdio_answers_a_line_that_is_neither_json_nor_a_header():
+    """A stray line is a parse error, not the start of LSP headers, and ``ping`` is answered.
+
+    Regression: any line not starting with ``{`` or ``[`` (a BOM, a bare ``null``, a wrapper's
+    log line) was read as a header. Newline-delimited clients send no blank line to end the
+    headers, so every later request was swallowed while the process stayed up.
+    """
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
+    lines = [
+        b"\xef\xbb\xbf" + json.dumps({"jsonrpc": "2.0", "id": 1, "method": "ping"}).encode(),
+        b"null",
+        b"INFO: wrapper starting",
+        json.dumps({"jsonrpc": "2.0", "method": "ping"}).encode(),  # a notification: no reply
+        json.dumps({"jsonrpc": "2.0", "id": 2, "method": "ping"}).encode(),
+    ]
+    proc = subprocess.run(
+        [sys.executable, "-m", "lcc.mcp_server"],
+        input=b"\n".join(lines) + b"\n",
+        capture_output=True, timeout=60, cwd=str(ROOT), env=env,
+    )
+    assert proc.returncode == 0, proc.stderr.decode()[-2000:]
+    responses = [json.loads(line) for line in proc.stdout.splitlines() if line.strip()]
+    assert responses == [
+        {"jsonrpc": "2.0", "id": 1, "result": {}},
+        {"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "parse error"}},
+        {"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "parse error"}},
+        {"jsonrpc": "2.0", "id": 2, "result": {}},
+    ]
+
+
+def test_a_null_body_in_lsp_framing_is_a_parse_error_not_eof():
+    with pytest.raises(ValueError):
+        _read_message(io.BytesIO(b"Content-Length: 4\r\n\r\nnull"))
 
 
 def test_compact_transcript_runs_the_offline_rules_policy():

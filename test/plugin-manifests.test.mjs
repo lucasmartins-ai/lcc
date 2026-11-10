@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = fileURLToPath(new URL("../plugins/claude-code/", import.meta.url));
 const json = (...parts) => JSON.parse(readFileSync(join(ROOT, ...parts), "utf8"));
 
-// Claude Code: the function hook and both classic hooks stay registered.
+// Claude Code: the function hook and the classic hooks stay registered.
 const claude = json("hooks", "hooks.json");
 assert.deepEqual(claude.modules, ["./lcc-compact.mjs"]);
 assert.ok(existsSync(resolve(ROOT, "hooks", claude.modules[0])), "modules entry exists");

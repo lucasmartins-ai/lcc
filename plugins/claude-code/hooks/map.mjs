@@ -157,16 +157,35 @@ export function idleDecision({ options, lastEnd, passedEnd, now, passes, removab
   return { fire: true, gapSeconds };
 }
 
+/**
+ * A user message Claude Code wrote, not the user: a slash-command wrapper, a reminder, hook or
+ * task output. Those open with a lowercase tag that has a hyphen or an underscore
+ * (`<system-reminder>`, `<bash-input>`, `<task-notification>`); pasted HTML, JSX or a generic
+ * (`<div>`, `<Button />`, `<T>`) is a prompt. scripts/lcc-pin.mjs keeps a copy.
+ *
+ * ponytail: the tag's shape, not a list of names, so a new wrapper needs no release. A prompt
+ * that opens with a custom element (`<my-widget>`) reads as a wrapper; list the names if that
+ * ever costs an objective.
+ */
+export const isWrapper = (text) => /^<[a-z][a-z0-9]*[-_][a-z0-9_-]*[\s>]/.test(text);
+
 /** The objective the judge is asked about: the explicit option or the `/compact` text when
  * there is one, otherwise the newest **user** prompts (the task the session is on). */
 export function deriveGoal(messages, limit = 500) {
-  const texts = [];
-  for (let index = messages.length - 1; index >= 0 && texts.length < 3; index -= 1) {
-    if (messages[index]?.role !== "user") continue;
-    const text = typeof messages[index]?.text === "string" ? messages[index].text.trim() : "";
-    if (text) texts.unshift(text);
+  const texts = messages
+    .filter((message) => message?.role === "user" && typeof message.text === "string")
+    .map((message) => message.text.trim())
+    .filter(Boolean);
+  // Wrappers are not prompts: they count only when the session holds nothing else.
+  const prompts = texts.filter((text) => !isWrapper(text));
+  let goal = "";
+  // Newest first: the newest prompt always leads the budget, an older one joins only whole.
+  for (const text of (prompts.length ? prompts : texts).slice(-3).reverse()) {
+    const next = goal ? `${text}\n${goal}` : text.slice(0, limit);
+    if (next.length > limit) break;
+    goal = next;
   }
-  return texts.join("\n").slice(0, limit);
+  return goal;
 }
 
 /**
