@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import random
+import stat
 import threading
 import time
 from pathlib import Path
@@ -217,6 +218,76 @@ def test_cli_gc_dry_run_deletes_nothing(_stash: Path, tmp_path: Path) -> None:
     result = CliRunner().invoke(app, ["stash", "gc", "--root", str(tmp_path / "projects")])
     assert result.exit_code == 0, result.output
     assert f"would remove {digest[:12]}" in result.stdout and (_stash / digest).exists()
+    assert f"scanned {tmp_path / 'projects'}\n" in result.stdout
+
+
+def test_default_roots_follow_a_relocated_config_dir(_stash: Path, tmp_path: Path, monkeypatch) -> None:
+    # gc scanned only ~/.claude/projects and ~/.codex/sessions: with the config directory
+    # moved, every blob looked unreferenced and --apply deleted what transcripts point to.
+    claude, codex = tmp_path / "claude-config", tmp_path / "codex-home"
+    digest = old_blob(_stash, "referenced from a relocated config dir\n" * 9)
+    transcript(claude / "projects" / "p" / "s.jsonl", [digest])
+    (codex / "sessions").mkdir(parents=True)
+    monkeypatch.setattr(stash_lifecycle, "DEFAULT_ROOTS", ())
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(claude))
+    monkeypatch.setenv("CODEX_HOME", str(codex))
+    roots = stash_lifecycle.resolve_roots(None)
+    assert roots == [claude / "projects", codex / "sessions"]
+    report = gc(roots, parse_age("1d"))
+    assert (report["candidates"], report["roots"]) == ([], [str(root) for root in roots])
+
+
+def test_lines_end_at_newline_only() -> None:
+    # str.splitlines also breaks at \r, form feed and U+2028. The note said 6 lines here and
+    # --lines 2-2 returned "b\n", not the line `grep -n` and `sed -n` call the second.
+    text = "a\rb\nc\x0cd\ne\u2028f\n"
+    digest = put(text)
+    assert stash_note(text, digest).startswith("[removed: 3 lines, ")
+    assert recall(digest[:12], lines=(2, 2)) == "c\x0cd\n"
+    assert recall(digest[:12], lines="3-9") == "e\u2028f\n"
+    with pytest.raises(StashError, match="outside 1-3"):
+        recall(digest[:12], lines=(4, 4))
+    assert [row["lines"] for row in ls(None)] == [3]
+    assert stash_note("no newline", "0" * 64).startswith("[removed: 1 line, ")
+
+
+def test_a_blob_is_synced_before_and_after_its_rename(monkeypatch) -> None:
+    # The session index is fsynced and then the blob is written: without these a crash could
+    # keep the record of a pointer and lose the bytes it names.
+    events: list[str] = []
+    real_fsync, real_replace = os.fsync, os.replace
+
+    def fsync(fd: int) -> None:
+        events.append("fsync dir" if stat.S_ISDIR(os.fstat(fd).st_mode) else "fsync file")
+        real_fsync(fd)
+
+    def replace(src: str, dst: Path) -> None:
+        events.append(f"rename {Path(dst).suffix or 'blob'}")
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "fsync", fsync)
+    monkeypatch.setattr(os, "replace", replace)
+    put("kept across a crash\n" * 9)
+    assert events[:2] == ["fsync file", "rename blob"]
+    if os.name != "nt":  # no directory handles there
+        assert events[2] == "fsync dir"
+
+
+def test_a_directory_that_cannot_be_synced_does_not_fail_the_put(_stash: Path, monkeypatch) -> None:
+    # Some FUSE and network mounts refuse fsync on a directory. The blob's bytes are synced,
+    # and a put that raised here left a blob without a sidecar and stashed nothing.
+    real_fsync = os.fsync
+
+    def fsync(fd: int) -> None:
+        if stat.S_ISDIR(os.fstat(fd).st_mode):
+            raise OSError(22, "Invalid argument")
+        real_fsync(fd)
+
+    monkeypatch.setattr(os, "fsync", fsync)
+    text = "kept on a mount without directory fsync\n" * 9
+    digest = put(text)
+    assert recall(digest[:12]) == text
+    assert (_stash / f"{digest}.json").is_file()
 
 
 # --- hardening (security review of #112): each test failed before its fix ---------------
@@ -237,10 +308,63 @@ def test_a_missing_explicit_root_aborts_gc(_stash: Path, tmp_path: Path) -> None
     assert (_stash / digest).exists()
 
 
+def test_a_relocated_config_dir_that_is_missing_stops_gc(
+    _stash: Path, tmp_path: Path, monkeypatch
+) -> None:
+    # CODEX_HOME on a disk that is not mounted: its transcripts cannot vouch for their blobs.
+    home = tmp_path / "home-projects"
+    home.mkdir()
+    monkeypatch.setattr(stash_lifecycle, "DEFAULT_ROOTS", (home,))
+    monkeypatch.delenv("CLAUDE_CONFIG_DIR", raising=False)
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "unmounted"))
+    digest = old_blob(_stash, "referenced only from the disk that is not mounted\n" * 9)
+    with pytest.raises(StashError, match="does not exist"):
+        gc(stash_lifecycle.resolve_roots(None), parse_age("1d"), apply=True)
+    assert (_stash / digest).exists()
+
+    (tmp_path / "unmounted").mkdir()  # the tool's directory, with no session in it yet
+    assert stash_lifecycle.resolve_roots(None) == [home]
+
+
+@pytest.mark.skipif(os.name == "nt", reason="symlinks need a privilege there")
+def test_a_root_reached_by_two_names_is_scanned_once(tmp_path: Path, monkeypatch) -> None:
+    real = tmp_path / "claude"
+    (real / "projects").mkdir(parents=True)
+    (tmp_path / "link").symlink_to(real)
+    monkeypatch.setattr(stash_lifecycle, "DEFAULT_ROOTS", (real / "projects",))
+    monkeypatch.delenv("CODEX_HOME", raising=False)
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path / "link"))
+    assert stash_lifecycle.resolve_roots(None) == [real / "projects"]
+
+
+@pytest.mark.skipif(os.name == "nt", reason="symlinks need a privilege there")
+def test_a_config_dir_that_cannot_be_resolved_stops_gc_with_its_own_error(
+    tmp_path: Path, monkeypatch
+) -> None:
+    # Path.resolve raises RuntimeError on a symlink loop before Python 3.13 and Path.expanduser
+    # raises it for an unknown user; the CLI reports StashError and OSError only.
+    home = tmp_path / "home-projects"
+    home.mkdir()
+    loop = tmp_path / "loop"
+    loop.symlink_to(loop)
+    for relocated in ("CLAUDE_CONFIG_DIR", "CODEX_HOME"):
+        monkeypatch.delenv(relocated, raising=False)
+    monkeypatch.setattr(stash_lifecycle, "DEFAULT_ROOTS", (home, loop / "sessions"))
+    assert stash_lifecycle.resolve_roots(None) == [home]  # a home root that loops is absent
+
+    monkeypatch.setattr(stash_lifecycle, "DEFAULT_ROOTS", (home,))
+    for value in (str(loop), "~lcc-no-such-user/codex"):
+        monkeypatch.setenv("CODEX_HOME", value)
+        with pytest.raises(StashError, match="does not exist"):
+            stash_lifecycle.referenced_ids(stash_lifecycle.resolve_roots(None))
+
+
 def test_only_default_roots_may_be_absent(tmp_path: Path, monkeypatch) -> None:
     assert Path.home() / ".codex" / "sessions" in stash_lifecycle.DEFAULT_ROOTS
     here, gone = tmp_path / "claude", tmp_path / "codex"
     here.mkdir()
+    for relocated in ("CLAUDE_CONFIG_DIR", "CODEX_HOME"):
+        monkeypatch.delenv(relocated, raising=False)
     monkeypatch.setattr(stash_lifecycle, "DEFAULT_ROOTS", (here, gone))
     assert stash_lifecycle.resolve_roots(None) == [here]
     assert stash_lifecycle.resolve_roots([gone]) == [gone]  # explicit: kept, gc then refuses

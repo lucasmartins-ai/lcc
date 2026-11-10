@@ -146,17 +146,36 @@ def stash_lock(root: Path, *, exclusive: bool = False) -> Iterator[bool]:
         os.close(fd)  # closing releases the lock
 
 
-def _write_private(path: Path, data: bytes) -> None:
+def _write_private(path: Path, data: bytes, *, durable: bool = False) -> None:
+    """Write ``data`` to ``path`` atomically, owner-only. ``durable`` also syncs the file and
+    its directory, for bytes that exist nowhere else (a blob); a cache is rebuilt and a sidecar
+    is advisory.
+
+    ponytail: fsync, not macOS's F_FULLFSYNC, as ``append_index``: enough for a crash or a
+    panic, not for a power cut.
+    """
     import tempfile  # ponytail: ~7 ms to import, and `lcc hint` rarely writes
 
     fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".tmp-")  # mkstemp creates 0600 on POSIX
     try:
         with os.fdopen(fd, "wb") as handle:
             handle.write(data)
+            if durable:
+                handle.flush()
+                os.fsync(handle.fileno())
         os.replace(tmp, path)
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
         raise
+    if durable and not _is_windows():  # the rename lives in the directory; no handle on Windows
+        # Best effort: some FUSE and network mounts refuse fsync on a directory, and the bytes
+        # are synced. Raising here failed a put that had already written its blob.
+        with contextlib.suppress(OSError):
+            fd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(fd)
+            finally:
+                os.close(fd)
 
 
 def sidecar_path(blob: Path) -> Path:
@@ -303,7 +322,7 @@ def put(text: str, *, session: str | None = None) -> str:
         if target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == digest:
             os.utime(target)
         else:
-            _write_private(target, data)
+            _write_private(target, data, durable=True)  # its index record is synced
         _touch_sidecar(target, session=key, last_put_at=True)
     return digest
 
@@ -383,7 +402,7 @@ def recall(
     text = data.decode("utf-8")
     if lines is not None:
         first, last = lines
-        rows = text.splitlines(keepends=True)
+        rows = _rows(text)
         if first < 1 or last < first or first > len(rows):
             _ledger_recall(ledger, outcome="invalid")
             raise StashError(f"line range {first}-{last} outside 1-{len(rows)}")
@@ -495,9 +514,17 @@ def _size(nbytes: int) -> str:
     return f"{nbytes} B" if nbytes < 1024 else f"{nbytes / 1024:.1f} KB"
 
 
+def _rows(text: str) -> list[str]:
+    """``text`` in lines that end at ``\\n`` only, each with its newline, as ``grep -n`` and
+    ``sed -n`` number them. ``str.splitlines`` also breaks at ``\\r``, form feed and U+2028,
+    so a range taken from one of those tools named other lines."""
+    rows = text.split("\n")
+    return [row + "\n" for row in rows[:-1]] + ([rows[-1]] if rows[-1] else [])
+
+
 def stash_note(text: str, digest: str) -> str:
     """The placeholder for ``text``: line and byte counts, never a tokenizer's."""
-    count = len(text.splitlines())
+    count = len(_rows(text))
     unit = "line" if count == 1 else "lines"
     size = _size(len(text.encode("utf-8")))
     return f"[removed: {count} {unit}, {size} · lcc recall {digest[:12]}]"
