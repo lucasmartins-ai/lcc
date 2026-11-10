@@ -135,21 +135,22 @@ All notable changes to this project are documented here. The format is based on
 
 - **`recoverable` / `stashed`: a deep path no longer makes the pass quadratic.** The check
   for later writes kept every ancestor of every path a call names and followed a path for
-  as long as later text repeated it, so its cost grew with the square of the path length:
-  on one Mac, 1.0 s for a 5 KB path and 4.2 s for a 10 KB one. A path longer than 1024
-  characters is now left out of that check, and `recoverable` keeps the call that names it
-  (`path_too_long`); `stashed` stashes it only where the lossy rules would drop or trim it.
-  The same two transcripts take under 0.05 s. The nightly timing test has the shape. A path
-  at the limit that a later command repeats many times is still slow, in proportion to the
-  transcript (30 to 60 ms per KB of such text on the same Mac).
+  as long as later text repeated it, so its cost grew with the square of the path length.
+  A path longer than 1024 characters is now left out of that check, and `recoverable` keeps
+  the call that names it (`path_too_long`); `stashed` stashes it only where the lossy rules
+  would drop or trim it. The nightly timing test has the shape and fails on the code before
+  this change. A path just under the limit that a later command repeats many times is still
+  slow, in proportion to that command: about 55 ms per KB in the one shape timed on one Mac
+  (4.3 to 4.7 s for 80 KB).
 
 - **HTTP server: a request body the server did not read is no longer answered as a second
   request.** A reply sent before the body was read (`413`, an invalid `Content-Length`,
   `401`, an unknown path, a chunked body, `GET` / `PUT` / `DELETE` with a body) left the
   connection open with the body still on it, and the server parsed those bytes as the next
-  request. Behind a proxy that reuses connections, that reply could reach another caller.
-  Such a reply now carries `Connection: close`, and a `POST` with `Transfer-Encoding` or two
-  `Content-Length` headers is refused with `400`.
+  request: each of the 11 request shapes tested was answered twice. Behind a proxy that
+  reuses connections, that second reply could reach another caller. Such a reply now carries
+  `Connection: close` and the same 11 shapes are answered once; a `POST` with
+  `Transfer-Encoding` or two `Content-Length` headers is refused with `400`.
 
 - **Invariant harness covers the paths it skipped.** The adversarial corpus and the fuzz test
   ran only `rules` in the `lossless`, `recoverable` and `stashed` modes. They now also run

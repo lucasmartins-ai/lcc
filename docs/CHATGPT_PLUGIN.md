@@ -72,8 +72,8 @@ Set `LCC_HTTP_TOKEN` to require `Authorization: Bearer <token>` on `POST /mcp`. 
 without it get `401`; authenticated callers may pick any provider. `GET /health` and the
 domain-verification path stay open. Each request has a 30 s socket timeout, and a body over
 8 MiB is refused with `413` before it is read. Any reply sent without reading the body a
-request declared carries `Connection: close`, so those bytes are never parsed as a request;
-a `POST` with `Transfer-Encoding` or two `Content-Length` headers is refused with `400`.
+request declared carries `Connection: close`: the connection ends there with those bytes
+unread. A `POST` with `Transfer-Encoding` or two `Content-Length` headers is refused with `400`.
 
 ### Domain verification
 
