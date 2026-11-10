@@ -61,8 +61,9 @@ __all__ = [
 
 # Requests larger than this are refused rather than buffered; the hosted use case is
 # a pasted document or transcript, not multi-megabyte uploads. Raising it means a
-# larger Content-Length body is read into memory before any handler runs.
-MAX_BODY_BYTES = 32 * 1024 * 1024
+# larger Content-Length body is read into memory before any handler runs, and more CPU
+# for one worker thread: a million-token transcript is about 4 MB of JSON.
+MAX_BODY_BYTES = 8 * 1024 * 1024
 
 # Socket timeout per request: a client that stalls mid-body (or lies about
 # Content-Length) releases its worker thread instead of pinning it forever.
@@ -74,6 +75,9 @@ REQUEST_TIMEOUT_SECONDS = 30
 # key and ``laya`` loads model weights on the host.
 TOKEN_ENV = "LCC_HTTP_TOKEN"
 _ANONYMOUS_PROVIDERS = frozenset({"mechanical", "rules"})
+# The one ``rules_mode`` anonymous callers get, the default. ``recoverable`` analyses every
+# path a transcript names, at a far higher CPU cost per byte; ``lossy`` is experimental.
+_ANONYMOUS_RULES_MODES = frozenset({"lossless"})
 
 # Tools that take a ``provider`` argument, with the default each applies when it is absent.
 _PROVIDER_DEFAULTS = {"compact": "mechanical", "compact_transcript": "auto"}
@@ -156,8 +160,9 @@ def _tools_list() -> list[dict[str, Any]]:
     return tools
 
 
-def _anonymous_provider_refusal(payload: dict[str, Any]) -> dict[str, Any] | None:
-    """Refuse a judge provider for anonymous callers; ``None`` when the call may proceed."""
+def _anonymous_refusal(payload: dict[str, Any]) -> dict[str, Any] | None:
+    """Refuse a judge provider, or a ``rules_mode`` other than the default, for anonymous
+    callers; ``None`` when the call may proceed."""
     if os.environ.get(TOKEN_ENV) or payload.get("method") != "tools/call":
         return None
     params = payload.get("params")
@@ -167,15 +172,23 @@ def _anonymous_provider_refusal(payload: dict[str, Any]) -> dict[str, Any] | Non
     if not isinstance(arguments, dict):
         return None  # handle_message rejects the shape itself
     provider = arguments.get("provider", _PROVIDER_DEFAULTS[params["name"]])
-    if provider in _ANONYMOUS_PROVIDERS:
-        return None
-    return _error_response(
-        payload.get("id"),
-        -32602,
-        f"provider {provider!r} is disabled for anonymous callers; use 'mechanical' "
-        f"(compact) or 'rules' (compact_transcript), or have the operator set {TOKEN_ENV} "
-        "and send it as a Bearer token",
-    )
+    if provider not in _ANONYMOUS_PROVIDERS:
+        return _error_response(
+            payload.get("id"),
+            -32602,
+            f"provider {provider!r} is disabled for anonymous callers; use 'mechanical' "
+            f"(compact) or 'rules' (compact_transcript), or have the operator set {TOKEN_ENV} "
+            "and send it as a Bearer token",
+        )
+    rules_mode = str(arguments.get("rules_mode", "lossless"))  # as the tool reads it
+    if params["name"] == "compact_transcript" and rules_mode not in _ANONYMOUS_RULES_MODES:
+        return _error_response(
+            payload.get("id"),
+            -32602,
+            f"rules_mode {rules_mode!r} is disabled for anonymous callers; use 'lossless', or "
+            f"have the operator set {TOKEN_ENV} and send it as a Bearer token",
+        )
+    return None
 
 
 #: Tools that read the server's local disk: never exposed over HTTP.
@@ -232,7 +245,7 @@ def _handle(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, bool]:
     """
     is_notification = "id" not in payload
     try:
-        response = _local_only_refusal(payload) or _anonymous_provider_refusal(payload)
+        response = _local_only_refusal(payload) or _anonymous_refusal(payload)
         if response is None:
             _no_ledger(payload)
             response = handle_message(payload, echo_errors=False)
@@ -277,8 +290,29 @@ class _Handler(BaseHTTPRequestHandler):
         """Route access logs to logging instead of stderr noise."""
         LOGGER.info("%s - %s", self.address_string(), format % args)
 
-    def _send(self, status: int, body: bytes, content_type: str) -> None:
+    _consumed: Any = None  # the headers of the request whose body `_read_body` read
+
+    def _begin(self, status: int) -> None:
+        """Start a reply. A body the request declared and nobody read is not left on a
+        kept-alive connection: its bytes would be parsed as the next request, and a proxy
+        that pools connections would hand that reply to another caller."""
         self.send_response(status)
+        unread = self._consumed is not self.headers and any(
+            length.strip() != "0" for length in self.headers.get_all("Content-Length", [])
+        )
+        if unread or self._ambiguous_length():
+            self.send_header("Connection", "close")  # the stdlib closes after this reply
+
+    def _ambiguous_length(self) -> bool:
+        """Two ``Content-Length`` headers, or ``Transfer-Encoding`` (chunked is not read here):
+        a proxy in front may have framed the body by the other one."""
+        return (
+            "Transfer-Encoding" in self.headers
+            or len(self.headers.get_all("Content-Length", [])) > 1
+        )
+
+    def _send(self, status: int, body: bytes, content_type: str) -> None:
+        self._begin(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
@@ -295,6 +329,14 @@ class _Handler(BaseHTTPRequestHandler):
         self._send(200, body, "text/event-stream")
 
     def _read_body(self) -> bytes | None:
+        if self._ambiguous_length():
+            self._send_json(
+                400,
+                _error_response(
+                    None, -32700, "send one Content-Length and no Transfer-Encoding"
+                ),
+            )
+            return None
         raw_length = self.headers.get("Content-Length")
         if raw_length is None:
             return b""
@@ -310,10 +352,12 @@ class _Handler(BaseHTTPRequestHandler):
             )
             return None
         try:
-            return self.rfile.read(length)
+            body = self.rfile.read(length)
         except TimeoutError:
             self.close_connection = True
             return None
+        self._consumed = self.headers
+        return body
 
     def _authorized(self) -> bool:
         """True when no token is configured or the request carries the right one."""
@@ -324,7 +368,7 @@ class _Handler(BaseHTTPRequestHandler):
         if hmac.compare_digest(sent.encode("utf-8"), f"Bearer {token}".encode()):
             return True
         body = json.dumps(_error_response(None, -32001, "unauthorized")).encode("utf-8")
-        self.send_response(401)
+        self._begin(401)
         self.send_header("WWW-Authenticate", "Bearer")
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))

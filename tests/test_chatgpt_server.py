@@ -386,6 +386,112 @@ def test_anonymous_caller_may_use_the_offline_rules_policy(mcp_url, monkeypatch)
     assert "error" not in result and result["result"].get("isError") is not True
 
 
+_ONE_READ = [
+    {"role": "user", "text": "fix it"},
+    {"role": "assistant", "text": "", "toolUses": [
+        {"tool_use_id": "a", "tool": "Read", "input": {"file_path": "x.py"}}]},
+    {"role": "user", "text": "", "toolResults": [{"tool_use_id": "a", "text": "body"}]},
+]
+
+
+@pytest.mark.parametrize("rules_mode", ["recoverable", "lossy"])
+def test_anonymous_caller_gets_only_the_lossless_rules_mode(mcp_url, monkeypatch, rules_mode):
+    """`recoverable` analyses every path the transcript names, at a far higher CPU cost per
+    byte than `lossless`: an anonymous caller could pin a worker with one request."""
+    monkeypatch.delenv("LCC_HTTP_TOKEN", raising=False)
+    status, body = _post(mcp_url, _call("compact_transcript", {
+        "messages": _ONE_READ, "question": "fix it", "provider": "rules",
+        "rules_mode": rules_mode}))
+    assert status == 200
+    error = _sse_payload(body)["error"]
+    assert error["code"] == -32602 and "LCC_HTTP_TOKEN" in error["message"]
+    assert "rules_mode" in error["message"]
+
+
+def test_authenticated_caller_may_use_the_recoverable_rules_mode(mcp_url, monkeypatch):
+    monkeypatch.setenv("LCC_HTTP_TOKEN", "s3cret")
+    payload = _call("compact_transcript", {
+        "messages": _ONE_READ, "question": "fix it", "provider": "rules",
+        "rules_mode": "recoverable"})
+    request = urllib.request.Request(
+        mcp_url,
+        data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json", "Authorization": "Bearer s3cret"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
+        result = _sse_payload(response.read().decode())
+    assert "error" not in result and result["result"].get("isError") is not True
+
+
+def _raw(mcp_url: str, data: bytes) -> bytes:
+    """Everything the server sends for ``data`` on one connection, up to its close."""
+    import socket
+    from urllib.parse import urlsplit
+
+    url = urlsplit(mcp_url)
+    received = b""
+    with socket.create_connection((url.hostname, url.port), timeout=3) as sock:
+        sock.sendall(data)
+        while chunk := sock.recv(65536):
+            received += chunk
+    return received
+
+
+_SMUGGLED = b"{}GET /health HTTP/1.1\r\nHost: x\r\n\r\n"  # a 2-byte body, then a request
+
+
+def test_the_body_cap_is_the_documented_8_mib():
+    from lcc import chatgpt_server
+
+    assert chatgpt_server.MAX_BODY_BYTES == 8 * 1024 * 1024  # one worker thread per request
+
+
+@pytest.mark.parametrize(
+    ("head", "status"),
+    [
+        ("POST /mcp HTTP/1.1\r\nContent-Length: {over}", 413),
+        ("POST /mcp HTTP/1.1\r\nContent-Length: abc", 400),
+        ("POST /mcp HTTP/1.1\r\nTransfer-Encoding: chunked", 400),
+        ("POST /mcp HTTP/1.1\r\nAuthorization: Bearer wrong\r\nContent-Length: {n}", 401),
+        ("POST /nope HTTP/1.1\r\nContent-Length: {n}", 404),
+        ("GET /mcp HTTP/1.1\r\nContent-Length: {n}", 405),
+        ("PUT /mcp HTTP/1.1\r\nContent-Length: {n}", 405),
+        ("DELETE /mcp HTTP/1.1\r\nContent-Length: {n}", 200),
+        # A length the server could read, beside another one a proxy may have framed by.
+        ("POST /mcp HTTP/1.1\r\nTransfer-Encoding: chunked\r\nContent-Length: 2", 400),
+        ("POST /mcp HTTP/1.1\r\nContent-Length: 2\r\nContent-Length: {n}", 400),
+        ("GET /mcp HTTP/1.1\r\nContent-Length: 0\r\nContent-Length: {n}", 405),
+    ],
+    ids=[
+        "over_cap", "bad_length", "chunked", "unauthorized", "no_endpoint", "get", "put",
+        "delete", "length_and_chunked", "two_lengths", "get_two_lengths",
+    ],
+)
+def test_an_unread_body_is_never_parsed_as_the_next_request(mcp_url, monkeypatch, head, status):
+    # Regression: the reply left the connection open with the body still on it, so the body's
+    # bytes were answered as a second request (behind a pooling proxy, to another caller).
+    from lcc import chatgpt_server
+
+    if status == 401:
+        monkeypatch.setenv("LCC_HTTP_TOKEN", "s3cret")
+    head = head.format(over=chatgpt_server.MAX_BODY_BYTES + 1, n=len(_SMUGGLED))
+    received = _raw(mcp_url, f"{head}\r\nHost: x\r\n\r\n".encode() + _SMUGGLED)
+    assert received.split(b" ", 2)[1] == str(status).encode()
+    assert received.count(b"HTTP/1.1 ") == 1, "the unread body was answered as a request"
+    assert b"\r\nConnection: close\r\n" in received
+
+
+def test_a_read_body_keeps_the_connection_alive(mcp_url):
+    body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "ping"}).encode()
+    request = (
+        b"POST /mcp HTTP/1.1\r\nHost: x\r\nContent-Type: application/json\r\n"
+        b"Content-Length: " + str(len(body)).encode() + b"\r\n\r\n" + body
+    )
+    last = request.replace(b"Host: x", b"Host: x\r\nConnection: close")
+    assert _raw(mcp_url, request + last).count(b"HTTP/1.1 200 ") == 2
+
+
 def test_stash_is_stdio_only(mcp_url):
     """recall and rules_mode 'stashed' touch the server's disk: refused over HTTP."""
     for params in (

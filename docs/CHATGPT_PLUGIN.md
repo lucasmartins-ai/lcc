@@ -58,6 +58,10 @@ or `laya` (including `compact_transcript` with no provider, which defaults to `a
 refused with JSON-RPC error `-32602`. This stops anyone who reaches the
 URL from spending your TypeSafe key or loading Laya weights on the host.
 
+Anonymous callers also get only the default `rules_mode`, `lossless`. `recoverable` and
+`lossy` are refused with `-32602`: `recoverable` analyses every path a transcript names, which
+costs far more CPU per byte, and each request holds a worker thread.
+
 Whatever the token, the server's disk is never reachable over HTTP: `rules_mode: "stashed"`,
 the `recall` tool, `workspace_root` (the recoverable disk check, which would read files a
 caller's transcript names and so confirm their existence and contents) and `laya_model` (a
@@ -66,7 +70,10 @@ as a bare `internal error`; the detail goes to the server log only.
 
 Set `LCC_HTTP_TOKEN` to require `Authorization: Bearer <token>` on `POST /mcp`. Requests
 without it get `401`; authenticated callers may pick any provider. `GET /health` and the
-domain-verification path stay open. Each request has a 30 s socket timeout.
+domain-verification path stay open. Each request has a 30 s socket timeout, and a body over
+8 MiB is refused with `413` before it is read. Any reply sent without reading the body a
+request declared carries `Connection: close`: the connection ends there with those bytes
+unread. A `POST` with `Transfer-Encoding` or two `Content-Length` headers is refused with `400`.
 
 ### Domain verification
 

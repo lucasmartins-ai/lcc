@@ -4,7 +4,8 @@ PR #103 fixed a quadratic regex that no output invariant could see. This doubles
 shape and requires at most ``LIMIT`` times the time (best of ``REPEATS`` runs, so a noisy
 machine does not fail it). The shapes are the ones that hurt before or can: one long run of
 word characters with no separator in a result, in the goal and in a command, and a long
-transcript with many calls on the same files.
+transcript with many calls on the same files, and one read of a deep path that a later
+command repeats.
 """
 
 from __future__ import annotations
@@ -70,8 +71,15 @@ def many_calls(size: int) -> tuple[list[dict[str, Any]], str]:
     return [*messages, *_tail()], "a.py"
 
 
+def deep_path(size: int) -> tuple[list[dict[str, Any]], str]:
+    path = "a/" * (size // 2) + "f.py"
+    return [{"role": "user", "text": "fix"}, *_call(0, "Read", {"file_path": path}, "x\n" * 99),
+            *_call(1, "Bash", {"command": f"cat {path}"}, "ok\n" * 99), *_tail()], "parser"
+
+
 SHAPES = {"result": (run_in_result, 20_000), "goal": (run_in_goal, 20_000),
-          "command": (run_in_command, 20_000), "calls": (many_calls, 80_000)}
+          "command": (run_in_command, 20_000), "calls": (many_calls, 80_000),
+          "deep_path": (deep_path, 5_000)}
 
 
 def best_of(payload: list[dict[str, Any]], goal: str, mode: str) -> float:

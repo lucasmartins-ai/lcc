@@ -177,6 +177,27 @@ def test_file_written_later_is_kept(later):
     assert text_of(compacted, "c1") == NUMBERED
 
 
+@pytest.mark.parametrize(
+    ("extra", "expected"),
+    [(0, ("replace", "recoverable_file_read")), (1, ("keep", "path_too_long"))],
+)
+def test_a_path_longer_than_the_bound_is_kept(extra, expected):
+    # The later-write analysis costs (path length)^2, so a longer path is not analysed:
+    # nothing vouches for its file, and the read stays.
+    path = "/r/" + "d" * (recoverable_module.MAX_REF_CHARS + extra - 8) + "/p.py"
+    assert len(path) == recoverable_module.MAX_REF_CHARS + extra
+    _r, _c, d = run(convo(("Read", {"file_path": path}, NUMBERED), *filler()))
+    assert (d["c1"]["decision"], d["c1"]["reason"]) == expected
+
+
+def test_a_command_on_a_path_longer_than_the_bound_is_kept():
+    path = "/r/" + "d/" * recoverable_module.MAX_REF_CHARS + "p.py"
+    _r, compacted, d = run(convo(("Bash", {"command": f"wc -l {path}"}, LISTING * 9),
+                                 *filler()), **CMD)
+    assert (d["c1"]["decision"], d["c1"]["reason"]) == ("keep", "path_too_long")
+    assert text_of(compacted, "c1") == LISTING * 9
+
+
 def test_failed_read_is_kept():
     _r, _c, d = run(convo(("Read", {"file_path": "p.py"}, "File does not exist." * 5, True),
                           *filler(), *filler(2)))
