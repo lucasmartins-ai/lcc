@@ -152,6 +152,33 @@ All notable changes to this project are documented here. The format is based on
   `Connection: close` and the same 11 shapes are answered once; a `POST` with
   `Transfer-Encoding` or two `Content-Length` headers is refused with `400`.
 
+- **Stash: a blob is synced to disk before its pointer is written.** `put` wrote a new blob
+  with a rename and no `fsync`, while the session index record beside it was synced, so
+  after a crash or a kernel panic a pointer could outlive the bytes it names, and a removed
+  output cannot be rebuilt. `put` now syncs a blob it writes before it returns, and then its
+  directory entry where the mount allows it: one `fsync` of the file and one of the directory
+  for each new blob. A sidecar is advisory and the `lcc hint` caches are rebuilt, so neither
+  is synced. `fsync` on macOS does not force the drive's own cache, so a power cut can still
+  lose the newest blobs.
+
+- **`recall --lines` and a pointer's line count end a line at `\n` only.** Both split with
+  `str.splitlines`, which also breaks at a bare `\r`, a form feed, U+2028 and a few more
+  characters. Output with a progress bar or a form feed had more lines than `grep -n` or
+  `sed -n` number, so a range read off one of those tools returned other lines. `recall`,
+  the pointer's `N lines` and `lcc stash ls` now number lines as those tools do. A pointer
+  written earlier keeps its count and still recalls; a pass run again over the uncompacted
+  transcript writes the new count for such output, which changes those pointers once.
+
+- **`lcc stash gc` and `ls` follow a relocated config directory, and `gc` prints what it
+  scanned.** The default roots were `~/.claude/projects` and `~/.codex/sessions` only. With
+  `CLAUDE_CONFIG_DIR` or `CODEX_HOME` set, the transcripts are elsewhere, every blob they
+  reference looked unreferenced, and `gc --apply` would delete it once older than
+  `--older-than`. The default roots now include `$CLAUDE_CONFIG_DIR/projects` and
+  `$CODEX_HOME/sessions`, and `gc` prints a `scanned <root>` line per root before the blobs.
+  When such a variable names a directory that is not there (a disk not mounted, a tool since
+  removed), `gc` and `ls` refuse as they do for a missing `--root`, and name the variables;
+  `ls --no-scan` still lists.
+
 - **Invariant harness covers the paths it skipped.** The adversarial corpus and the fuzz test
   ran only `rules` in the `lossless`, `recoverable` and `stashed` modes. They now also run
   `lossy`, `auto` (specialist-v3) and the judge path with a seeded stand-in, and check that a

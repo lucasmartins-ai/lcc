@@ -232,6 +232,9 @@ lcc recall 3f9a1c0b2d4e --file src/api.py
 # stdout: the exact bytes; stderr: lcc: src/api.py differs from this output (3 of 120 lines)
 ```
 
+`--lines` and the pointer's `N lines` number lines as `grep -n` and `sed -n` do: a line ends
+at `\n` only, never at a bare `\r`, a form feed or U+2028.
+
 A recalled file read is what the file held then. `--file` compares it with the file now: a
 numbered read (Claude Code `Read`, `cat -n`: every line numbered, consecutively) line by line,
 other output (`cat`, `sed -n`) as whole consecutive lines. A Codex exec header is skipped.
@@ -265,7 +268,11 @@ lcc stash gc --apply --older-than 30d --root ~/.claude/projects --root ~/other/t
 `gc` treats the transcripts as the only source of truth. It scans every regular file under each
 `--root` for `recall <sha12>`, following directory symlinks (each directory once, so a loop ends)
 and skipping FIFOs, sockets, devices and dangling symlinks. Without `--root` it scans
-`~/.claude/projects` and `~/.codex/sessions`, whichever exist; every `--root` you pass must exist.
+`~/.claude/projects` and `~/.codex/sessions`, plus `$CLAUDE_CONFIG_DIR/projects` and
+`$CODEX_HOME/sessions` when those variables are set, whichever exist; every `--root` you pass
+must exist, and so must the directory such a variable names (a disk that is not mounted stops
+`gc` and `ls`; `ls --no-scan` still lists). It prints each root it scanned (`scanned <root>`)
+before the blobs.
 It deletes a blob only when no file names it **and** it was not put or recalled within
 `--older-than` (default `30d`, at least `1h`). It fails closed: a missing `--root`, an unreadable
 file or directory, or a stash lock it cannot take aborts it before anything is deleted. Only
@@ -273,7 +280,11 @@ regular files are touched in the stash: a directory or symlink named like a blob
 and of the temp files only those `put` creates (`.tmp-` plus 8 characters) are cleaned. `put`
 refreshes a blob's mtime under a shared `flock` before any pointer to it exists, and `gc --apply`
 re-checks each blob's age under an exclusive lock just before deleting it, so a concurrent
-compaction cannot lose a blob. Where `flock` is unavailable (some network filesystems) `put` warns
+compaction cannot lose a blob. `put` also syncs a blob it writes (`fsync`) before it returns,
+so the pointer to it is not written ahead of its bytes, and then its directory entry, as far
+as the mount allows. `fsync` on macOS does not force the drive's own cache, so a power cut can
+still lose them. A sidecar is advisory and the `lcc hint` caches are rebuilt, so neither is
+synced. Where `flock` is unavailable (some network filesystems) `put` warns
 and writes unlocked, `recall` still answers, and `gc --apply` refuses; it also refuses on Windows.
 A transcript stored outside every `--root` does not protect its blobs: pass its directory too.
 

@@ -2124,7 +2124,8 @@ app.add_typer(stash_app, name="stash")
 
 _ROOT_HELP = (
     "A transcript file or directory to scan for `lcc recall` pointers (repeatable; each "
-    "must exist). Default: ~/.claude/projects and ~/.codex/sessions, whichever exist."
+    "must exist). Default: ~/.claude/projects, ~/.codex/sessions and the same folders "
+    "under $CLAUDE_CONFIG_DIR and $CODEX_HOME, whichever exist."
 )
 
 
@@ -2184,6 +2185,8 @@ def stash_gc_cmd(
         _fail(str(exc), code=2)
     names = report["removed"] if apply else report["candidates"]
     verb = "removed" if apply else "would remove"
+    for scanned in report["roots"]:  # a blob referenced from anywhere else looks unreferenced
+        sys.stdout.write(f"scanned {scanned}\n")
     for name in names:
         sys.stdout.write(f"{verb} {name[:12]}\n")
     sys.stdout.write(

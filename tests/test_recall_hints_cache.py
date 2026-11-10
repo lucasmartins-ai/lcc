@@ -220,11 +220,11 @@ def test_a_rebuild_waits_for_a_put_whose_record_failed(stash: Path) -> None:
     def full_disk(*_: object, **__: object) -> None:
         raise OSError(28, "No space left on device")
 
-    def blob_write(path: Path, data: bytes) -> None:
+    def blob_write(path: Path, data: bytes, **how: bool) -> None:
         if hint.ident is None:  # the blob's write, after the index was dropped
             hint.start()
             hint.join(timeout=0.5)  # unlocked, the hint scans and vouches here
-        write_private(path, data)
+        write_private(path, data, **how)
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(ts, "append_index", full_disk)

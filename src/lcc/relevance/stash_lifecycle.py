@@ -28,6 +28,7 @@ from lcc.relevance.transcript_stash import (
     StashMissing,
     _blob,
     _is_windows,
+    _rows,
     read_sidecar,
     sidecar_path,
     stash_dir,
@@ -42,6 +43,8 @@ _AGE = re.compile(r"^(\d+)([dhm]?)$")
 _TMP = re.compile(r"^\.tmp-[a-z0-9_]{8}$")
 _IDS = re.compile(r"^[0-9a-f]{16}\.ids$")  # transcript_stash.index_path of a session_hash
 DEFAULT_ROOTS = (Path.home() / ".claude" / "projects", Path.home() / ".codex" / "sessions")
+# The variable that moves a tool's config directory, and its transcript folder there.
+_RELOCATED = (("CLAUDE_CONFIG_DIR", "projects"), ("CODEX_HOME", "sessions"))
 DEFAULT_OLDER_THAN = "30d"
 MIN_AGE = 3600  # a younger threshold races a compaction whose pointer is not on disk yet
 
@@ -62,10 +65,29 @@ def _floor(seconds: float) -> float:
 
 
 def resolve_roots(explicit: list[Path] | None) -> list[Path]:
-    """``explicit`` as given (each must then exist), or the default roots that exist."""
+    """``explicit`` as given (each must then exist), or the default roots that exist: the home
+    ones and those of a relocated config directory.
+
+    A variable that names a directory that is not there (a disk not mounted, a typo) keeps its
+    root, so gc refuses as for a mistyped ``--root``; a config directory without a transcripts
+    folder is a tool with no session yet, and is skipped like an absent home root.
+    """
     if explicit:
         return list(explicit)
-    return [root for root in DEFAULT_ROOTS if root.exists()] or list(DEFAULT_ROOTS)
+    # os.path, not Path.expanduser / Path.resolve: those raise RuntimeError for an unknown
+    # ``~user`` and, before Python 3.13, on a symlink loop. Left as written, such a path does
+    # not exist, and gc refuses it by name.
+    relocated = [
+        Path(os.path.expanduser(os.environ[env])) / sub
+        for env, sub in _RELOCATED
+        if os.environ.get(env)
+    ]
+    roots: dict[str, Path] = {}
+    for root in (*DEFAULT_ROOTS, *relocated):
+        roots.setdefault(os.path.realpath(root), root)  # one scan of a directory with two names
+    unreachable = {os.path.realpath(root) for root in relocated if not root.parent.exists()}
+    found = [root for real, root in roots.items() if root.exists() or real in unreachable]
+    return found or list(roots.values())
 
 
 def _is_plain_file(path: Path) -> bool:
@@ -107,8 +129,8 @@ def referenced_ids(roots: list[Path]) -> Counter[str]:
     for root in roots:
         if not root.exists():
             raise StashError(
-                f"transcript root {root} does not exist; fix or drop that --root. "
-                "Nothing was deleted."
+                f"transcript root {root} does not exist; fix or drop the --root, "
+                "CLAUDE_CONFIG_DIR or CODEX_HOME that names it. Nothing was deleted."
             )
 
     counts: Counter[str] = Counter()
@@ -156,7 +178,7 @@ def ls(roots: list[Path] | None) -> list[dict[str, Any]]:
         rows.append({
             "id": blob.name[:12],
             "bytes": len(data),
-            "lines": len(data.decode("utf-8", "replace").splitlines()),
+            "lines": len(_rows(data.decode("utf-8", "replace"))),
             "created_at": meta.get("created_at", blob.stat().st_mtime),
             "last_recalled_at": meta.get("last_recalled_at"),
             "sessions": len(meta.get("sessions", [])),
@@ -202,6 +224,7 @@ def gc(
         return path.name.endswith(".terms") or expired(path)
 
     report: dict[str, Any] = {
+        "roots": [str(scanned) for scanned in roots],
         "blobs": len(blobs),
         "referenced": len(blobs) - len(unreferenced),
         "candidates": [b.name for b in unreferenced if expired(b)],
