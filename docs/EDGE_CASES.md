@@ -31,7 +31,11 @@ verifier).
 (`rules` with `lossless`, `recoverable`, `stashed`): idempotence, verbatim, recall round-trip,
 no corruption, stable placeholders (also across `PYTHONHASHSEED`), accounting, and fail-closed,
 which includes falling back to the keep-everything fail-safe only for a documented reason
-(today: duplicate tool ids). Three things call them:
+(today: duplicate tool ids). Pairing (a call and its result leave together) is checked in every
+mode. The paths outside the product modes (`lossy`, `auto`, and the remote-judge path with a
+seeded stand-in that leaves some questions unanswered) go through `check_other_paths`:
+verbatim, accounting, pairing, no corruption, determinism, and on the judge path the two
+fail-safes (a failed result and a half-answered call stay). Three things call them:
 
 - [`test_invariants_fuzz.py`](../tests/test_invariants_fuzz.py): hypothesis-generated
   transcripts for `LCC_FUZZ_SECONDS` (one fixed-seed batch when unset; 60 s in PR CI; 600 s in
@@ -133,6 +137,10 @@ en); tests in [`test_intake_corpus.py`](../tests/test_intake_corpus.py) (K).
 | `tool_use` without a result, result without a call | Never a candidate. Both are kept byte-exact. | T `test_tool_use_without_result_and_orphan_result_are_untouched` |
 | Duplicate tool ids | Kept by every provider (`duplicate_tool_use_id`). Before, a drop decided for one call also removed its namesake, even in a pinned message. | T `test_duplicate_ids_never_drop_the_pinned_namesake` |
 | Call outside the recent window, result inside it | Kept whole by every provider (`pinned_recent_result`). | T `test_pins_and_latest_user_message_hold_at_every_window` |
+| Failed result (`is_error`) on the judge path (`jev`, `laya`) | Shown to the judge as `error, N chars` and kept whatever it answers (`error_result_kept`). Before, it was shown as `ok` and could be dropped. | `test_transcript_compaction.py::test_a_failed_result_is_shown_to_the_judge_as_an_error_and_kept` |
+| Judge answers one of the two questions for a call | Kept unjudged, and the pass is `degraded`. Before, the missing half counted as a low score. | `test_transcript_compaction.py::test_one_missing_answer_keeps_the_call_unjudged` |
+| `trim_head_chars` 0 in tool-call mode | A trimmed result is the note line alone. Before, it was an empty string with no note. | `test_transcript_compaction.py::test_a_trim_with_no_head_leaves_the_note` |
+| Non-ASCII tool input | `chars_*`, `tokens_*` and `reduction_ratio` count the characters, as the decisions do. Before, the report counted `\uXXXX` escapes and overstated the reduction. | `test_transcript_compaction.py::test_the_report_counts_characters_not_json_escapes` |
 | Interleaved parallel tool calls | Paired by id. Each result stays in its own message, in its original order. | T `test_interleaved_parallel_tool_calls_pair_by_id` |
 | Huge tool output (2 MB) | Handled. A trim keeps a byte-exact head; the stashed mode replaces it with a `lcc recall` pointer. | T `test_huge_tool_output_is_handled_in_bounded_time` |
 | Codex rollout items (no `role`) | Rejected (`has no string 'role'`). Codex sessions converted to the hook shape are supported by the rules policy. | T malformed-payload table |
@@ -150,6 +158,7 @@ en); tests in [`test_intake_corpus.py`](../tests/test_intake_corpus.py) (K).
 | Graph cycles | Closure keeps a seen set, so it terminates on any cycle at any hop count. | C `test_graph_closure_terminates_on_cycles` |
 | Restoration budgets (ADR 0018) | Structural restorations are at most `max_restorations` (0 allowed). Verifier restorations are at most `verifier_max_restorations`, and only on FAIL. | C `test_structural_restorations_never_exceed_their_budget`, `test_verifier_boundaries_and_restoration_budget` |
 | Verifier boundaries | PASS needs sufficiency ≥ 0.5 and confidence ≥ 0.5. Sufficiency < 0.5 gives FAIL at confidence ≥ 0.7 and REVIEW below that. Contradiction ≥ 0.7 gives REVIEW. | C `test_verifier_boundaries_and_restoration_budget` |
+| Lexical decisions in the decisions cache, then a judge (block mode) | A decision cached without a judge (an outage's fallback, `auto` with no judge) stays sticky only while there is no judge. A pass with a judge judges those blocks and warns `cache_lexical_rejudged`. Before, they were replayed as `provider_used: cache`, `judged`. | `test_jev_failure_modes.py::test_a_fallback_decision_is_not_replayed_once_the_judge_is_back`, `::test_a_cached_lexical_decision_is_judged_once_auto_has_a_judge` |
 | Trim budgets | `trim_head_chars` 0, or a block within 200 chars of the head, keeps the block whole. Otherwise the head is a byte-exact prefix no longer than the budget. CRLF tables and logs keep their own line endings. | C `test_trim_budget_edges`, `test_trimmed_crlf_table_keeps_its_bytes`, `test_trimmed_crlf_logs_keep_their_bytes` |
 | Block bigger than `max_block_chars` | Split at line boundaries, never lost. | C `test_single_block_bigger_than_the_block_budget_is_split_not_lost` |
 | `preserve_tail_blocks` / `protect_prefix_chars` larger than the input | Everything kept. | C `test_preserve_tail_and_prefix_larger_than_the_input_keep_everything` |

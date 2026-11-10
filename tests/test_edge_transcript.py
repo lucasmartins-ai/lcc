@@ -10,13 +10,12 @@ counters reconcile with the decisions.
 from __future__ import annotations
 
 import copy
-import hashlib
 import json
 from typing import Any
 
 import pytest
 
-from invariants import assert_transcript_invariants
+from invariants import HashJudge, assert_transcript_invariants
 from lcc.relevance.transcript import (
     TranscriptCompactionRequest,
     TranscriptError,
@@ -27,19 +26,6 @@ from lcc.relevance.transcript import (
 from specialist_synthetic import synthetic_payload
 
 GOAL = "fix the tenant import crash in jobs/tenant_import.py"
-
-
-class HashJev:
-    """Deterministic stand-in for Jev in tool-call mode (scores hash the call id)."""
-
-    model = "hash-jev"
-    last_resolved_model = "hash-jev-1"
-
-    def evaluate(self, state: dict[str, Any], questions: dict[str, Any]) -> dict[str, Any]:
-        def score(name: str) -> float:
-            return int(hashlib.sha256(name.encode()).hexdigest()[:4], 16) / 0xFFFF
-
-        return {"answers": {q: {"noul": score(q), "confidence": 0.9} for q in questions}}
 
 
 def call(cid: str, tool: str, args: dict[str, Any], output: str, *, error: bool = False):
@@ -66,7 +52,7 @@ PROVIDERS: tuple[dict[str, Any], ...] = (
     {"provider": "rules", "rules_mode": "recoverable"},
     {"provider": "rules", "rules_mode": "stashed"},
     {"provider": "auto"},
-    {"provider": "jev", "client": HashJev(), "max_workers": 1},
+    {"provider": "jev", "client": HashJudge(), "max_workers": 1},
 )
 PROVIDER_IDS = ["lossless", "lossy", "recoverable", "stashed", "auto", "jev"]
 

@@ -15,6 +15,9 @@ Decisions per non-pinned call (``keep_call`` / ``keep_result`` are Jev keep-prob
   matters, the payload is not).
 - otherwise: call and result are removed together. A result is never left without its call.
 
+Both answers are needed for any of these: with one missing the call is kept unjudged. A
+result flagged ``is_error`` is shown to the judge as an error and is kept whatever it says.
+
 Fail-safe direction, unchanged from ADR 0013: **nothing is dropped that was not judged.**
 A missing key, a failed batch, a malformed answer, or a history that cannot fit the state
 budget leaves the call alone and is reported with a typed reason and ``degraded: true``.
@@ -407,7 +410,9 @@ def parse_transcript(payload: Any) -> list[TranscriptMessage]:
 def _line_for_call(call: ToolCall) -> str:
     """One line standing in for a call whose input is not worth sending: what happened."""
     keys = ", ".join(f"{key}={value}" for key, value in list(call.input.items())[:2])
-    outcome = f"ok {len(call.result.text)}ch" if call.result is not None else "pending"
+    outcome = "pending"
+    if call.result is not None:
+        outcome = f"{'error' if call.result.is_error else 'ok'} {len(call.result.text)}ch"
     return f"{call.id} {call.tool} {keys} -> {outcome}".strip()
 
 
@@ -480,7 +485,8 @@ def _render_state(
         results_payload = [
             {
                 "id": result.id,
-                "note": f"ok, {len(result.text)} chars" + ("" if result.text else " (empty)"),
+                "note": f"{'error' if result.is_error else 'ok'}, {len(result.text)} chars"
+                + ("" if result.text else " (empty)"),
             }
             for result in message.tool_results
         ]
@@ -735,13 +741,14 @@ def _decide(
     """Map one candidate's probabilities onto keep/trim/drop, failing safe when unjudged."""
     keep_call, keep_result = answers.get(call.id, (None, None))
     chars = call.chars
-    if keep_call is None and keep_result is None:
+    # Half an answer is not a judgment: reading the missing half as "low" dropped calls.
+    if keep_call is None or keep_result is None:
         return {
             "id": call.id,
             "decision": "keep",
             "score": None,
-            "keep_call": None,
-            "keep_result": None,
+            "keep_call": keep_call,
+            "keep_result": keep_result,
             "chars": chars,
             "chars_after": chars,
             "source": "fail_safe",
@@ -750,10 +757,9 @@ def _decide(
             "tool": call.tool,
         }
 
-    effective_result = keep_result if keep_result is not None else keep_call
-    if effective_result is not None and effective_result >= threshold:
+    if keep_result >= threshold:
         decision, reason = "keep", "result_still_needed"
-    elif keep_call is not None and keep_call >= threshold:
+    elif keep_call >= threshold:
         # The call is worth remembering, its payload is not — but only trim when trimming
         # actually removes characters. A result shorter than the head would grow the
         # transcript once the audit note is appended, and a trim that adds bytes is not a
@@ -781,7 +787,7 @@ def _decide(
     return {
         "id": call.id,
         "decision": decision,
-        "score": effective_result,
+        "score": keep_result,
         "keep_call": keep_call,
         "keep_result": keep_result,
         "chars": chars,
@@ -821,12 +827,11 @@ def _with_chars(
 
 
 def _trimmed_result_text(text: str, *, head_chars: int, tool: str, tail_chars: int = 0) -> str:
-    if head_chars <= 0:
-        return ""
+    head_chars = max(head_chars, 0)  # 0 is allowed: the note alone, never an empty result
     tail = text[-tail_chars:] if tail_chars > 0 and len(text) > head_chars + tail_chars else ""
     removed = len(text) - head_chars - len(tail)
     note = f"[... lcc: {removed} chars of this tool result dropped; re-run {tool} for the rest ...]"
-    return f"{text[:head_chars]}\n{note}" + (f"\n{tail}" if tail else "")
+    return (f"{text[:head_chars]}\n" if head_chars else "") + note + (f"\n{tail}" if tail else "")
 
 
 def _apply(
@@ -1009,7 +1014,8 @@ def _text_of(messages: list[TranscriptMessage]) -> str:
     for message in messages:
         parts.append(message.text)
         for call in message.tool_calls:
-            parts.append(f"{call.id} {call.tool} {json.dumps(call.input, default=str)}")
+            payload = json.dumps(call.input, ensure_ascii=False, default=str)  # as ToolCall.chars
+            parts.append(f"{call.id} {call.tool} {payload}")
         for result in message.tool_results:
             parts.append(result.text)
     return "\n".join(parts)
@@ -1233,8 +1239,19 @@ def compact_transcript(request: TranscriptCompactionRequest) -> TranscriptCompac
         for call in candidates
         if call.result is not None and call.result.message_index in pinned_indices
     }
-    forced = dict.fromkeys(straddling, "pinned_recent_result") | dict.fromkeys(
-        duplicated, "duplicate_tool_use_id"
+    # The judge reads a result as a one-line note, so a failure is not its to remove. The
+    # rules policies have their own error rules and are left alone.
+    # ponytail: every flagged failure stays, not only the newest; narrow it to the newest
+    # (as `latest_error_result` does) if old failures turn out to cost too much.
+    failed = (
+        set()
+        if rules or specialist
+        else {c.id for c in candidates if c.result is not None and c.result.is_error}
+    )
+    forced = (
+        dict.fromkeys(failed, "error_result_kept")
+        | dict.fromkeys(straddling, "pinned_recent_result")
+        | dict.fromkeys(duplicated, "duplicate_tool_use_id")
     )
     if forced:
         decisions = [

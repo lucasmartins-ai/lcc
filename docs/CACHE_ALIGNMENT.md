@@ -214,6 +214,8 @@ is about 80 % cheaper even on a warm cache.
 - **epoch_opened** is true when the pass does not keep the whole baseline as a prefix.
   `sticky_flips` names reused decisions a restoration flipped to keep in this pass (with a
   `cache_epoch_opened` warning). A flip is persisted and does not repeat.
+  A decision cached without a judge is judged by the first pass that has one (warning
+  `cache_lexical_rejudged`), which can change emitted bytes too.
 
 The idle stash is a deliberate epoch: it runs only once the cache is cold, sends
 `cache_state: "cold"`, and rewrites early history by design. What it promises is I2: a second
