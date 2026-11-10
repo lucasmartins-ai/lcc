@@ -507,14 +507,26 @@ def _ancestors(path: str) -> list[str]:
     return [a for a in ("/".join(parts[:i]) for i in range(1, len(parts))) if a.strip("./~")]
 
 
+#: A longer path is left out of the later-write analysis and its call is kept. The trie of
+#: asked paths holds every ancestor, and the walk follows a path for as long as the text
+#: repeats it: both cost (path length)^2, 4 s for one 10 KB path before this bound.
+# ponytail: a path at the bound still costs ~bound^2/4 trie steps and up to `bound` walk steps
+# per word start. Mark ancestors as terminals of one inserted path if that shows in a profile.
+MAX_REF_CHARS = 1024
+
+
+def _asked_paths(read: tuple[str, Any] | None, cmd: str | None) -> list[str]:
+    """The paths the later-write checks ask about for one call: its file, its command's."""
+    return ([read[0]] if read else []) + ((_command_paths(cmd) or []) if cmd else [])
+
+
 def _refs_asked(candidates: list[Any]) -> set[str]:
     """Every path and file name the later-write checks will ask about (see ``_names_file``)."""
     refs: set[str] = set()
     for call in candidates:
-        read = _file_read(call)
-        cmd = shell_command(call)
-        paths = ([read[0]] if read else []) + ((_command_paths(cmd) or []) if cmd else [])
-        for path in paths:
+        for path in _asked_paths(_file_read(call), shell_command(call)):
+            if len(path) > MAX_REF_CHARS:
+                continue  # its call is kept (`path_too_long`), so nothing asks about it
             for ref in (path, *_ancestors(path)):
                 refs.update((ref, ref.rstrip("/").rsplit("/", 1)[-1]))
     refs.discard("")
@@ -650,6 +662,8 @@ def recoverable_decisions(
             reason = "failed_result"
         cmd = shell_command(call)
         read = _file_read(call)
+        if reason is None and any(len(p) > MAX_REF_CHARS for p in _asked_paths(read, cmd)):
+            reason = "path_too_long"  # left out of the trie: no later write would be seen
         if reason is None and (
             (read and _names_file(named_text, read[0])) or (cmd and _command_named(cmd, named_text))
         ):

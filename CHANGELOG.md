@@ -34,6 +34,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- **HTTP server: anonymous callers get `rules_mode: lossless` only, and a request body is
+  capped at 8 MiB (was 32 MiB).** Without `LCC_HTTP_TOKEN`, `compact_transcript` with
+  `rules_mode` `recoverable` or `lossy` is refused with `-32602`, as the judge providers
+  already were. `recoverable` analyses every path a transcript names, at a far higher CPU
+  cost per byte than `lossless`, and each request holds a worker thread. Callers that send
+  the token keep every mode, and the stdio server is not affected.
+
 - **`lcc hint --hook` answers without loading the CLI, and the hints stay the same.**
   - **Entry point:** the `lcc` console script now starts at `lcc.entry:main`. When the command
     line is exactly `lcc hint --hook` it runs the hook there; anything else goes to
@@ -125,6 +132,24 @@ All notable changes to this project are documented here. The format is based on
   `provider_used: cache`, `judged`, not degraded. A pass with a judge now judges those blocks
   and warns `cache_lexical_rejudged`, since bytes an earlier pass emitted may change. Without
   a judge they stay sticky as before.
+
+- **`recoverable` / `stashed`: a deep path no longer makes the pass quadratic.** The check
+  for later writes kept every ancestor of every path a call names and followed a path for
+  as long as later text repeated it, so its cost grew with the square of the path length:
+  on one Mac, 1.0 s for a 5 KB path and 4.2 s for a 10 KB one. A path longer than 1024
+  characters is now left out of that check, and `recoverable` keeps the call that names it
+  (`path_too_long`); `stashed` stashes it only where the lossy rules would drop or trim it.
+  The same two transcripts take under 0.05 s. The nightly timing test has the shape. A path
+  at the limit that a later command repeats many times is still slow, in proportion to the
+  transcript (30 to 60 ms per KB of such text on the same Mac).
+
+- **HTTP server: a request body the server did not read is no longer answered as a second
+  request.** A reply sent before the body was read (`413`, an invalid `Content-Length`,
+  `401`, an unknown path, a chunked body, `GET` / `PUT` / `DELETE` with a body) left the
+  connection open with the body still on it, and the server parsed those bytes as the next
+  request. Behind a proxy that reuses connections, that reply could reach another caller.
+  Such a reply now carries `Connection: close`, and a `POST` with `Transfer-Encoding` or two
+  `Content-Length` headers is refused with `400`.
 
 - **Invariant harness covers the paths it skipped.** The adversarial corpus and the fuzz test
   ran only `rules` in the `lossless`, `recoverable` and `stashed` modes. They now also run
