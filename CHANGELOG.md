@@ -23,6 +23,15 @@ All notable changes to this project are documented here. The format is based on
   larger one must take at most 2.5x as long, and a prompt at the caps must finish within 2 s.
   It does not assert the 50 ms goal from the research notes.
 
+- **Claude Code plugin: a session start says when the `lcc` server cannot run.** The plugin's
+  MCP server is a bare `lcc` on the `PATH`. When that command was missing or broken, sessions
+  started without the server and only a short toast at compaction time said so. A new
+  `SessionStart` hook (matcher `startup`) runs `lcc --version` and shows the user one line when
+  it does not run, prints no `lcc <version>` line, or when its major.minor differs from the
+  plugin's. It prints nothing when both agree, when the command takes longer than 5 seconds,
+  and when the `server` option names another server. It runs in the hook's environment, so a
+  `PATH` that differs between hooks and MCP servers is not caught.
+
 ### Changed
 
 - **`lcc hint --hook` answers without loading the CLI, and the hints stay the same.**
@@ -79,6 +88,22 @@ All notable changes to this project are documented here. The format is based on
   `package.json`, `server.json`, the marketplace, both `plugins/claude-code` manifests and the
   `lcc.__version__` fallback with `pyproject.toml`. `plugins/chatgpt/plugin.json` keeps its own
   version.
+
+- **Claude Code plugin: the objective sent to the judge is the newest real prompt.** With no
+  `question` option and no `/compact` text, the hook joined the last three user messages and
+  kept the first 500 characters. A long older prompt pushed the newest one out, and
+  tag-wrapped messages (`<system-reminder>`, slash-command wrappers) counted as prompts. The
+  newest prompt now comes first in the budget, an older one is added only when it fits whole,
+  and tag-wrapped messages are used only when the session holds nothing else. The arguments
+  of a slash command sit inside such a wrapper, so they are not read as a prompt.
+
+- **stdio MCP server: a stray line no longer makes it stop answering.** A first line that was
+  not JSON (a byte-order mark, a bare `null`, a wrapper's log line) was read as an LSP header,
+  and every later request went unanswered while the process stayed up. Only `Content-Length`
+  and `Content-Type` start a header block now. Any other line is parsed as JSON, a leading
+  byte-order mark is skipped, and a line that is not a request gets a parse error (`-32700`)
+  or an invalid-request error (`-32600`). `ping` returns an empty result; it returned
+  `-32601` (method not found).
 
 ## [1.4.0] - 2026-11-07
 

@@ -5,11 +5,15 @@
 //                                   instructions, so the summary keeps the facts below verbatim.
 //   node lcc-pin.mjs sessionstart   SessionStart (matcher "compact"): stdout is added to the
 //                                   fresh context, re-pinning the same facts after the summary.
+//   node lcc-pin.mjs startup        SessionStart (matcher "startup"): one line for the user when
+//                                   the `lcc` command the plugin's MCP server runs is missing,
+//                                   broken or another release than the plugin. Silent otherwise.
 //
-// Both read the hook's JSON on stdin and take the facts from `transcript_path` (the session
-// JSONL, which compaction appends to and never rewrites), so the two calls agree and nothing
-// is stored between them. Any failure prints nothing and exits 0: compaction runs as before.
+// The first two read the hook's JSON on stdin and take the facts from `transcript_path` (the
+// session JSONL, which compaction appends to and never rewrites), so the two calls agree and
+// nothing is stored between them. Any failure prints nothing and exits 0: compaction runs as before.
 
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
@@ -265,8 +269,47 @@ export function sessionStartText(facts) {
   return ["lcc: facts pinned from before compaction (taken verbatim from the transcript):", ...lines].join("\n\n");
 }
 
+/**
+ * SessionStart(startup): what to tell the user about the plugin's MCP server, "" when it is
+ * fine. `.mcp.json` runs a bare `lcc`, so `output` is what `lcc --version` printed here, or
+ * null when it did not run. A patch release keeps the same tools: only major.minor is compared.
+ */
+export function serverNote(plugin, output) {
+  if (output === null) {
+    return "lcc: `lcc --version` did not run, so the plugin's MCP server cannot start and compaction stays with the built-in summary. Install it (pip install local-context-compiler) and check that `lcc` is on the PATH Claude Code is launched with.";
+  }
+  // Other lines (a Python warning) and other programs named `lcc` print no such line.
+  const [, server, minor] = output.match(/^lcc ((\d+\.\d+)\.\S+)/m) ?? [];
+  if (!server) {
+    return "lcc: the `lcc` command printed no version, so it may be another program and the plugin's MCP server may not start. Check which `lcc` comes first on the PATH Claude Code is launched with.";
+  }
+  if (plugin.startsWith(`${minor}.`)) return "";
+  return `lcc: the plugin is ${plugin} and the \`lcc\` command is ${server}. Update the older one (/plugin, or pip install -U local-context-compiler).`;
+}
+
+function startupNote() {
+  // A server the user named themselves (the `server` option) may not run a local `lcc` at all.
+  const configured = process.env.CLAUDE_PLUGIN_OPTION_SERVER;
+  if (configured && configured !== "plugin:lcc:lcc") return "";
+  const manifest = new URL("../.claude-plugin/plugin.json", import.meta.url);
+  let output = null;
+  try {
+    output = execFileSync("lcc", ["--version"], { encoding: "utf8", timeout: 5000, stdio: ["ignore", "pipe", "ignore"] });
+  } catch (error) {
+    // Not on the PATH, or it exits non-zero (a venv that moved): both mean no server.
+    if (error?.code === "ETIMEDOUT") return ""; // slow is not broken: say nothing
+  }
+  return serverNote(JSON.parse(readFileSync(manifest, "utf8")).version, output);
+}
+
 function main(mode) {
   try {
+    if (mode === "startup") {
+      // `systemMessage` is shown to the user; plain stdout would go into the model's context.
+      const note = startupNote();
+      if (note) process.stdout.write(`${JSON.stringify({ systemMessage: note })}\n`);
+      return;
+    }
     const input = JSON.parse(readFileSync(0, "utf8"));
     // Backstop for the opt-in idle stash: its compactions must never become the built-in
     // summary (the costliest thing on a cold cache). Claude Code only reaches PreCompact on

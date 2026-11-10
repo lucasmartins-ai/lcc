@@ -57,7 +57,7 @@ test("deriveGoal uses the newest user prompts, not the assistant's chatter", () 
   assert.equal(goal, "Fix the failing parser test. Never edit src/generated.");
 });
 
-test("deriveGoal joins up to three user prompts and caps the length", () => {
+test("deriveGoal cuts a newest prompt that is longer than the limit", () => {
   const messages = [
     { role: "user", text: "one" },
     { role: "assistant", text: "sure" },
@@ -65,8 +65,22 @@ test("deriveGoal joins up to three user prompts and caps the length", () => {
     { role: "user", text: "three" },
     { role: "user", text: "x".repeat(600) },
   ];
-  const goal = deriveGoal(messages, 50);
-  assert.equal(goal.length, 50);
+  assert.equal(deriveGoal(messages, 50), "x".repeat(50));
+});
+
+test("deriveGoal keeps the newest prompt whole and skips tag-wrapped pseudo prompts", () => {
+  const messages = [
+    { role: "user", text: "old ".repeat(200) },
+    { role: "user", text: "<system-reminder>not a prompt</system-reminder>" },
+    { role: "user", text: "Fix the parser." },
+    { role: "user", text: "<command-name>/compact</command-name>" },
+  ];
+  // The 800-char older prompt does not fit beside the newest one, so it is left out whole.
+  assert.equal(deriveGoal(messages), "Fix the parser.");
+  assert.equal(deriveGoal(messages, 1000), `${"old ".repeat(200).trim()}\nFix the parser.`);
+  // A session that holds nothing else still gets an objective.
+  const wrapper = "<command-name>/review</command-name>";
+  assert.equal(deriveGoal([{ role: "user", text: wrapper }]), wrapper);
 });
 
 test("hasUnsupportedContent stands down on content it cannot rebuild", () => {

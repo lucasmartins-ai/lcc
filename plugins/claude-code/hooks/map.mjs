@@ -160,13 +160,21 @@ export function idleDecision({ options, lastEnd, passedEnd, now, passes, removab
 /** The objective the judge is asked about: the explicit option or the `/compact` text when
  * there is one, otherwise the newest **user** prompts (the task the session is on). */
 export function deriveGoal(messages, limit = 500) {
-  const texts = [];
-  for (let index = messages.length - 1; index >= 0 && texts.length < 3; index -= 1) {
-    if (messages[index]?.role !== "user") continue;
-    const text = typeof messages[index]?.text === "string" ? messages[index].text.trim() : "";
-    if (text) texts.unshift(text);
+  const texts = messages
+    .filter((message) => message?.role === "user" && typeof message.text === "string")
+    .map((message) => message.text.trim())
+    .filter(Boolean);
+  // Slash-command wrappers, reminders and hook output start with a tag, not a prompt
+  // (scripts/lcc-pin.mjs skips them too). They count only when the session holds nothing else.
+  const prompts = texts.filter((text) => !text.startsWith("<"));
+  let goal = "";
+  // Newest first: the newest prompt always leads the budget, an older one joins only whole.
+  for (const text of (prompts.length ? prompts : texts).slice(-3).reverse()) {
+    const next = goal ? `${text}\n${goal}` : text.slice(0, limit);
+    if (next.length > limit) break;
+    goal = next;
   }
-  return texts.join("\n").slice(0, limit);
+  return goal;
 }
 
 /**

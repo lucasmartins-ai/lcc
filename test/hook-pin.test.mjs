@@ -1,10 +1,10 @@
-// The classic-hook fallback: PreCompact instructions and SessionStart(compact) re-pin.
+// The classic hooks: PreCompact instructions, SessionStart(compact) re-pin, SessionStart(startup) check.
 //
 //   node test/hook-pin.test.mjs
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +15,7 @@ import {
   extractFacts,
   precompactText,
   quoted,
+  serverNote,
   sessionStartText,
 } from "../plugins/claude-code/scripts/lcc-pin.mjs";
 
@@ -184,4 +185,22 @@ const guarded = execFileSync("node", [SCRIPT, "precompact"], {
   env: { ...process.env, ...EARLY },
 });
 assert.equal(JSON.parse(guarded).decision, "block");
+
+// SessionStart(startup): the user is told when the plugin's server cannot start as shipped.
+assert.equal(serverNote("1.4.0", "lcc 1.4.0\n"), "");
+assert.equal(serverNote("1.4.0", "lcc 1.4.2\n"), ""); // a patch release keeps the same tools
+assert.match(serverNote("1.3.0", "lcc 1.4.0\n"), /plugin is 1\.3\.0 and the `lcc` command is 1\.4\.0/);
+assert.equal(serverNote("1.4.0", "lcc 1.4.0\nUserWarning: x\n"), ""); // the version line, not the last word
+assert.match(serverNote("1.4.0", "usage: lcc [options] file\n"), /printed no version/);
+assert.match(serverNote("1.4.0", null), /did not run/);
+// End to end, with a stand-in `lcc` alone on the PATH and then none.
+const bin = mkdtempSync(join(tmpdir(), "lcc-bin-"));
+writeFileSync(join(bin, "lcc"), "#!/bin/sh\necho lcc 0.9.0\n", { mode: 0o755 });
+const startup = (env) => execFileSync(process.execPath, [SCRIPT, "startup"], { input: "{}", encoding: "utf8", env });
+assert.match(JSON.parse(startup({ PATH: bin })).systemMessage, /`lcc` command is 0\.9\.0/);
+const noLcc = mkdtempSync(join(tmpdir(), "lcc-empty-"));
+assert.match(JSON.parse(startup({ PATH: noLcc })).systemMessage, /did not run/);
+// A server the user configured themselves may not need a local `lcc`.
+assert.equal(startup({ PATH: bin, CLAUDE_PLUGIN_OPTION_SERVER: "my-lcc" }), "");
+for (const made of [bin, noLcc]) rmSync(made, { recursive: true });
 console.log("hook-pin: ok");

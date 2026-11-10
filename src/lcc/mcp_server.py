@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sys
 from typing import Any
 
@@ -744,6 +745,8 @@ def handle_message(
                 "serverInfo": {"name": SERVER_NAME, "version": __version__},
             },
         )
+    if method == "ping" and request_id is not None:  # a notification is never answered
+        return _result(request_id, {})
     if method == "tools/list":
         return _result(request_id, {"tools": _tools_list()})
     if method == "tools/call":
@@ -805,6 +808,16 @@ def handle_message(
     return _error(request_id, -32601, f"method not found: {method!r}")
 
 
+_LSP_HEADER = re.compile(rb"content-(length|type)\s*:", re.IGNORECASE)
+
+
+def _loads(raw: bytes) -> Any:
+    message = json.loads(raw.decode("utf-8-sig"))  # -sig: some wrappers prepend a BOM
+    if message is None:  # None is _read_message's EOF, and `null` is not a request
+        raise ValueError("null is not a request")
+    return message
+
+
 def _read_message(buffer: Any) -> tuple[dict[str, Any] | None, bool]:
     """Read one message; return (message, ndjson). Message is None on clean EOF.
 
@@ -821,8 +834,10 @@ def _read_message(buffer: Any) -> tuple[dict[str, Any] | None, bool]:
             if headers:
                 break
             continue
-        if not headers and line.startswith((b"{", b"[")):
-            return json.loads(line.decode("utf-8")), True
+        # Only the two LSP headers start a header block. Anything else is one JSON line: read
+        # as a header it would swallow every later request, since no blank line ever ends it.
+        if not headers and not _LSP_HEADER.match(line):
+            return _loads(line), True
         name, _, value = line.decode("utf-8", "replace").partition(":")
         headers[name.strip().lower()] = value.strip()
     try:
@@ -834,7 +849,7 @@ def _read_message(buffer: Any) -> tuple[dict[str, Any] | None, bool]:
     body = buffer.read(length)
     if not body:
         return None, False
-    return json.loads(body.decode("utf-8")), False
+    return _loads(body), False
 
 
 def _write_message(buffer: Any, payload: dict[str, Any], ndjson: bool = True) -> None:
