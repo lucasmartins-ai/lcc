@@ -174,6 +174,9 @@ export function contextEstimate(lines) {
       continue;
     }
     if (entry?.type !== "user" && entry?.type !== "attachment") continue;
+    // A prompt_snapshot copies the system prompt and tool list (230 KB measured) that every
+    // request already carries in its usage: counting it again stood the guard down at 347k.
+    if (entry.type === "attachment" && entry.attachment?.type === "prompt_snapshot") continue;
     // UTF-8 bytes of what the model sees, not chars/4: a byte-level tokenizer never makes more
     // tokens than bytes, so CJK or emoji cannot undercount and let the guard block near the
     // window. The record's own copy of a tool result (`toolUseResult`) is not sent: skipped.

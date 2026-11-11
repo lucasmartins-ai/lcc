@@ -2265,8 +2265,9 @@ def setup_cmd(
         "--compact-at",
         min=1,
         max=100,
-        help="Percent of the auto-compact window at which Claude Code compacts on its own "
-        "(30-40 suggested). Default: the value already in the file, else 40.",
+        help="Percent of the auto-compact window (CLAUDE_CODE_AUTO_COMPACT_WINDOW, else 200k) "
+        "at which Claude Code compacts on its own. Refused under 150k tokens. Default: none "
+        "written; one already in the file stays unless it is under 150k tokens.",
     ),
     settings: Path | None = typer.Option(
         None,
@@ -2278,15 +2279,15 @@ def setup_cmd(
         False, "--apply", help="Write. Without it setup only lists what it would change."
     ),
 ) -> None:
-    """Set Claude Code up so lcc runs on its own: compaction at 40 % of the window, removed
-    outputs stashed, recall hints on each prompt and the previous session offered at start."""
+    """Set Claude Code up so lcc runs on its own: verbatim compaction, removed outputs stashed,
+    recall hints on each prompt and the previous session offered at start."""
     from lcc.claude_setup import SetupError, load, plan, plugin_enabled, write
 
     home = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
     path = settings or home / "settings.json"
     try:
         current, raw = load(path)
-        new, changes = plan(current, compact_at)
+        new, changes = plan(current, compact_at, dict(os.environ))
         if not plugin_enabled(current):
             sys.stderr.write(
                 "note: the lcc plugin is not enabled here. Install it with\n"

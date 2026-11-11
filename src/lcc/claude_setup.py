@@ -3,8 +3,9 @@
 One command for what the guide otherwise asks the user to write by hand in
 ``~/.claude/settings.json``, none of which a plugin can set for itself:
 
-- ``env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE``: Claude Code compacts on its own at that share of the
-  auto-compact window (40 unless the file already holds a value or ``compact_at`` is given);
+- ``env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE``: only when ``compact_at`` is given, and only when that
+  share of the auto-compact window is at least :data:`MIN_COMPACT_TOKENS`; an override already
+  in the file that compacts under it is removed (see :func:`too_early`);
 - ``env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS``: lets the plugin answer that compaction verbatim;
 - the plugin's ``provider: rules`` and ``rulesMode: stashed``: every output a pass removes goes
   to the local stash, one ``recall`` away;
@@ -20,6 +21,7 @@ from __future__ import annotations
 import contextlib
 import copy
 import json
+import math
 import os
 import re
 import stat
@@ -29,7 +31,15 @@ from typing import Any
 
 PLUGIN = "lcc@lcc"
 THRESHOLD = "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"
-DEFAULT_COMPACT_AT = 40
+WINDOW = "CLAUDE_CODE_AUTO_COMPACT_WINDOW"
+DEFAULT_WINDOW = 200_000  # Claude Code's auto-compact window when WINDOW is unset (200k models)
+# ponytail: a session's fixed load (memory files, tools, MCP and skill listings) measured ~110k
+# input tokens per request; 40 % of a 300k window (120k) compacted 8 times in 10 minutes. 150k
+# leaves room for work above that load. A leaner setup could go lower; raise it if loads grow.
+MIN_COMPACT_TOKENS = 150_000
+# ponytail: Claude Code is reported to cap the window variable at 1M (not verified here); capping
+# can only make setup stricter, never let a threshold under the floor through.
+MAX_WINDOW = 1_000_000
 TOOLS = ("mcp__plugin_lcc_lcc__compact_transcript", "mcp__plugin_lcc_lcc__recall")
 HINT = "lcc hint --hook"  # exactly the command line lcc.entry answers without loading the CLI
 OFFER = "lcc handoff --hook"
@@ -69,11 +79,48 @@ def _covers(group: dict[str, Any], source: str) -> bool:
         return False
 
 
+def window(settings: dict[str, Any], environ: dict[str, str] | None = None) -> int:
+    """The auto-compact window sessions get: a key in the settings file's ``env`` wins over
+    ``environ`` (even when empty), capped at :data:`MAX_WINDOW`. A value that is not a positive
+    integer counts as unset: :data:`DEFAULT_WINDOW`, the strictest guess."""
+    env = settings.get("env")
+    source = env if isinstance(env, dict) and WINDOW in env else environ or {}
+    raw = str(source.get(WINDOW, "")).strip()
+    return min(int(raw), MAX_WINDOW) if raw.isdigit() and int(raw) > 0 else DEFAULT_WINDOW
+
+
+def _percent(value: Any) -> float | None:
+    """A threshold as Claude Code reads it (``"40"``, ``"40.0"``), or None when not a number."""
+    try:
+        number = float(str(value).strip())
+    except ValueError:
+        return None
+    return number if math.isfinite(number) else None
+
+
+def too_early(percent: float, tokens: int) -> str | None:
+    """Why compacting at ``percent`` of a ``tokens`` window thrashes, or None when it does not."""
+    at = int(percent * tokens // 100)
+    if at >= MIN_COMPACT_TOKENS:
+        return None
+    least = -(-MIN_COMPACT_TOKENS * 100 // tokens)  # ceiling division
+    hint = f"use {least} or more" if least <= 100 else "leave it unset"
+    return (
+        f"{percent:g} % of the {tokens}-token auto-compact window is {at} tokens, under the "
+        f"{MIN_COMPACT_TOKENS} a session needs above its fixed load; Claude Code would compact "
+        f"again right after each compaction ({hint})"
+    )
+
+
 def plan(
-    settings: dict[str, Any], compact_at: int | None = None
+    settings: dict[str, Any],
+    compact_at: int | None = None,
+    environ: dict[str, str] | None = None,
 ) -> tuple[dict[str, Any], list[str]]:
     """``settings`` with lcc set up, and one line per value that differs. ``settings`` is not
-    mutated. Raises :class:`SetupError` when a section has the wrong type, rather than replace it.
+    mutated. ``environ`` supplies the auto-compact window when the file does not. Raises
+    :class:`SetupError` when a section has the wrong type, rather than replace it, and when
+    ``compact_at`` would compact too early (:func:`too_early`).
     """
     new = copy.deepcopy(settings)
     changes: list[str] = []
@@ -85,9 +132,18 @@ def plan(
             target[key] = value
 
     env = _child(new, "env", dict, "settings")
-    # A threshold the user already chose stands unless this run names another.
-    threshold = str(compact_at) if compact_at else env.get(THRESHOLD, str(DEFAULT_COMPACT_AT))
-    put(env, THRESHOLD, threshold, f"env.{THRESHOLD}")
+    tokens = window(new, environ)
+    if compact_at:
+        if reason := too_early(compact_at, tokens):
+            raise SetupError(f"--compact-at {compact_at}: {reason}")
+        put(env, THRESHOLD, str(compact_at), f"env.{THRESHOLD}")
+    elif THRESHOLD in env:
+        # A threshold already in the file stands, unless it thrashes: an earlier setup wrote 40
+        # next to a 300k window. One that is not a number is the user's business: left alone.
+        current = _percent(env[THRESHOLD])
+        if current is not None and (reason := too_early(current, tokens)):
+            old = json.dumps(env.pop(THRESHOLD))
+            changes.append(f"env.{THRESHOLD}: {old} -> unset ({reason})")
     put(env, "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS", "1", "env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS")
 
     configs = _child(new, "pluginConfigs", dict, "settings")

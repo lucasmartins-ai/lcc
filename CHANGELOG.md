@@ -9,13 +9,16 @@ All notable changes to this project are documented here. The format is based on
 ### Added
 
 - **`lcc setup`: Claude Code runs lcc on its own.** One command writes what the guide asked
-  for by hand in `~/.claude/settings.json`: compaction at 40 % of the auto-compact window
-  (`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`, `--compact-at` for another value), the function-hook flag,
+  for by hand in `~/.claude/settings.json`: the function-hook flag,
   the plugin's `provider: rules` with `rulesMode: stashed`, permission for its two tools, the
   recall-hint hook and the handoff offer below. Without `--apply` it only lists the changes.
   It keeps every other setting, leaves the original at `settings.json.before-lcc-setup`, and
-  refuses a file that is not a JSON object or that changed while it ran.
-  [Guide](docs/CLAUDE_CODE.md#one-command-lcc-setup).
+  refuses a file that is not a JSON object or that changed while it ran. It writes no
+  compaction threshold unless `--compact-at N` names one, and refuses N when N % of the
+  auto-compact window (`CLAUDE_CODE_AUTO_COMPACT_WINDOW`, else 200k) is under 150k tokens. An
+  override already in the file under 150k is removed. An earlier build wrote 40 by default:
+  next to a 300k window that is 120k, about a session's fixed load, and Claude Code compacted
+  8 times in 10 minutes. [Guide](docs/CLAUDE_CODE.md#one-command-lcc-setup).
 
 - **`lcc handoff --latest` and the offer at session start.** `--latest` hands off the most
   recently written Claude Code session or Codex rollout of the current directory, so the path
@@ -88,6 +91,12 @@ All notable changes to this project are documented here. The format is based on
     included.
 
 ### Fixed
+
+- **Claude Code plugin: the early-compaction guard no longer counts `prompt_snapshot`
+  records.** Claude Code writes the system prompt and tool list to the transcript as a
+  `prompt_snapshot` attachment (230 KB measured), which the last request's usage already
+  covers. The guard added those bytes again, estimated 347k tokens in a 115k context, took
+  it as past 75 % of the window and let every early compaction through.
 
 - **Llama 3.3 and DeepSeek templates: `task_type` and `format_requirements` are neutralized
   too** (#83). They went into the prompt raw, so a value holding `<|eot_id|>` or `<｜User｜>`
