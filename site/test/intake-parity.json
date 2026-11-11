@@ -1,0 +1,878 @@
+[
+ {
+  "prompt": "commit and push",
+  "expected": {
+   "top": "git_ship",
+   "probability": 0.9649469690612764,
+   "category": "git_ship",
+   "probabilities": [
+    0.002998357662852752,
+    0.0015806937247333445,
+    0.011607453714856773,
+    0.0024608968355185495,
+    0.0008702852221269422,
+    0.0017217196412937193,
+    0.9649469690612764,
+    0.0010484315885710086,
+    0.002401417752074935,
+    0.00034089647984248496,
+    0.0007727276234133718,
+    0.0005683527933559587,
+    0.0016396489877229638,
+    0.007042148912360725
+   ]
+  }
+ },
+ {
+  "prompt": "faz o commit e push",
+  "expected": {
+   "top": "git_ship",
+   "probability": 0.9781787990000003,
+   "category": "git_ship",
+   "probabilities": [
+    0.0014917259386669141,
+    0.0009863767891563275,
+    0.01304218879062665,
+    0.0006316124254842138,
+    0.0006754339856724672,
+    0.0007722376147794895,
+    0.9781787990000003,
+    0.00030734664749367544,
+    0.0007736359131631414,
+    8.801032472190864e-05,
+    0.0006615723471439433,
+    0.00016274609947848043,
+    0.0006380931308696541,
+    0.0015902209927429007
+   ]
+  }
+ },
+ {
+  "prompt": "ship it: open the PR and merge when CI is green",
+  "expected": {
+   "top": "git_ship",
+   "probability": 0.4186942390465647,
+   "category": null,
+   "probabilities": [
+    0.032758000737214986,
+    0.047669421247443625,
+    0.08904943990276976,
+    0.02761711702150726,
+    0.0663504613804326,
+    0.04068220154893853,
+    0.4186942390465647,
+    0.011733378405483377,
+    0.028558175401657126,
+    0.019734188317639196,
+    0.04566138170950965,
+    0.032461919223868485,
+    0.06592826527424252,
+    0.07310181078272819
+   ]
+  }
+ },
+ {
+  "prompt": "the build fails with TypeError: cannot read properties of undefined (reading 'map') in src/app.tsx:42",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.2048842688872997,
+   "category": null,
+   "probabilities": [
+    0.09695445756394155,
+    0.05296141433142726,
+    0.07083156476876401,
+    0.06403333550859204,
+    0.08240785794520818,
+    0.10281534440257484,
+    0.034735572731356586,
+    0.023532743257624403,
+    0.11470728209348072,
+    0.018486721598868456,
+    0.04546118597230008,
+    0.04661353984300267,
+    0.04157471109555959,
+    0.2048842688872997
+   ]
+  }
+ },
+ {
+  "prompt": "deu erro de novo no deploy, olha o log: Error: ECONNREFUSED 127.0.0.1:5432",
+  "expected": {
+   "top": "failure_report",
+   "probability": 0.3623804201154145,
+   "category": null,
+   "probabilities": [
+    0.06975842478220219,
+    0.1091510986701002,
+    0.06149573854635607,
+    0.025286148032424894,
+    0.059479995748253835,
+    0.3623804201154145,
+    0.024686837777885426,
+    0.006413093926381908,
+    0.015547098333376516,
+    0.01206804171080289,
+    0.04688654194515168,
+    0.022473538219075384,
+    0.04643973170905495,
+    0.13793329048351963
+   ]
+  }
+ },
+ {
+  "prompt": "option 2",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.3550937937235725,
+   "category": null,
+   "probabilities": [
+    0.16982010924981136,
+    0.22621175284734418,
+    0.046285028944347904,
+    0.021786493060108807,
+    0.01403035416521856,
+    0.03277079400926695,
+    0.008745613245808427,
+    0.009042922115970211,
+    0.03289327872110024,
+    0.006920052037577019,
+    0.060766007642797326,
+    0.005697854639361094,
+    0.009935945597715405,
+    0.3550937937235725
+   ]
+  }
+ },
+ {
+  "prompt": "yes, go with the second approach",
+  "expected": {
+   "top": "approve_or_pick",
+   "probability": 0.4369427234603226,
+   "category": null,
+   "probabilities": [
+    0.4369427234603226,
+    0.07276173201454997,
+    0.0784962976770237,
+    0.03215437620342345,
+    0.02933873312561751,
+    0.013515794686547325,
+    0.03660564553685723,
+    0.011737484850640313,
+    0.04516304313527695,
+    0.009730058141901447,
+    0.03760422177274917,
+    0.012914185518345143,
+    0.047039349694996346,
+    0.13599635418174888
+   ]
+  }
+ },
+ {
+  "prompt": "sim, pode seguir",
+  "expected": {
+   "top": "approve_or_pick",
+   "probability": 0.9768438606803952,
+   "category": "approve_or_pick",
+   "probabilities": [
+    0.9768438606803952,
+    0.0016620724372087095,
+    0.009341793723138163,
+    0.002459580880834618,
+    0.0010287957545839005,
+    0.00026335887618862317,
+    0.003821368038071501,
+    0.00019156969687797597,
+    0.0003979019947108509,
+    0.00027419378623000097,
+    0.0014490515279138715,
+    0.00035597887086537765,
+    0.0009234098304940051,
+    0.0009870639024872336
+   ]
+  }
+ },
+ {
+  "prompt": "what's the status? are you still running the tests?",
+  "expected": {
+   "top": "task_status_or_control",
+   "probability": 0.33038736744082664,
+   "category": null,
+   "probabilities": [
+    0.06550860267366419,
+    0.050218995491609186,
+    0.33038736744082664,
+    0.02006700801162717,
+    0.027543862966565757,
+    0.031109788282904668,
+    0.00835181399071978,
+    0.008545763500385252,
+    0.049211613203322305,
+    0.009621806377251052,
+    0.028159206918584857,
+    0.02292917079866917,
+    0.09707037475575689,
+    0.25127462558811303
+   ]
+  }
+ },
+ {
+  "prompt": "stop, wait",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.43650608812472513,
+   "category": null,
+   "probabilities": [
+    0.11807403117678844,
+    0.15237537634861753,
+    0.05766161794674952,
+    0.028818398150312285,
+    0.034998079636523155,
+    0.023466044831171443,
+    0.049103082646359805,
+    0.008165228332298755,
+    0.0215377271425506,
+    0.011156750588785583,
+    0.020923589094886823,
+    0.01351847175853971,
+    0.023695514221691118,
+    0.43650608812472513
+   ]
+  }
+ },
+ {
+  "prompt": "the tests passed on my machine, I already ran the migration",
+  "expected": {
+   "top": "supply_fact_or_step_done",
+   "probability": 0.29104418377072416,
+   "category": null,
+   "probabilities": [
+    0.04543430875154694,
+    0.29104418377072416,
+    0.08920215811152717,
+    0.04761028727446718,
+    0.03611083175029547,
+    0.0820503405223379,
+    0.013267181983021422,
+    0.02419220432371412,
+    0.05856516698498332,
+    0.028043661212820103,
+    0.06667026112888147,
+    0.045389113113647676,
+    0.024957594384327302,
+    0.14746270668770578
+   ]
+  }
+ },
+ {
+  "prompt": "redo the last table, the columns are in the wrong order",
+  "expected": {
+   "top": "task_status_or_control",
+   "probability": 0.15830540074455754,
+   "category": null,
+   "probabilities": [
+    0.08083584921136512,
+    0.10043448343228814,
+    0.15830540074455754,
+    0.05338172151466435,
+    0.04403789090176591,
+    0.10350871708514849,
+    0.023277839310981555,
+    0.010096598691391847,
+    0.040289474330752556,
+    0.014648963980249377,
+    0.13607798929991102,
+    0.028303139669557914,
+    0.10077182658673003,
+    0.1060301052406361
+   ]
+  }
+ },
+ {
+  "prompt": "no, don't use a regex here, use the parser we already have",
+  "expected": {
+   "top": "supply_fact_or_step_done",
+   "probability": 0.13770622900976578,
+   "category": null,
+   "probabilities": [
+    0.07145477442700732,
+    0.13770622900976578,
+    0.04445790563599731,
+    0.03143471256317364,
+    0.10407601731121915,
+    0.09308640952820152,
+    0.0373651642552873,
+    0.02347006772119973,
+    0.057057593161197774,
+    0.0201717190945731,
+    0.13755450582099146,
+    0.054936790234506594,
+    0.11065039528033883,
+    0.0765777159565404
+   ]
+  }
+ },
+ {
+  "prompt": "write a handoff prompt for the next session with everything we learned",
+  "expected": {
+   "top": "handoff_prompt",
+   "probability": 0.45324406921460747,
+   "category": "handoff_prompt",
+   "probabilities": [
+    0.03889374663392815,
+    0.06292167747285063,
+    0.06579404719596106,
+    0.044914534431815395,
+    0.033391511435922984,
+    0.026157751768700863,
+    0.02172684985814884,
+    0.45324406921460747,
+    0.05549700220786179,
+    0.034835498802609624,
+    0.027372385853715382,
+    0.03618373166735306,
+    0.01690402248767223,
+    0.08216317096885263
+   ]
+  }
+ },
+ {
+  "prompt": "add a --json flag to the export command that prints the report as JSON and update the docs",
+  "expected": {
+   "top": "specified_task",
+   "probability": 0.2096958082855601,
+   "category": null,
+   "probabilities": [
+    0.038840484414078766,
+    0.055500812803555656,
+    0.16159799504373118,
+    0.06268003578051261,
+    0.04487431051289326,
+    0.032205932458092126,
+    0.08227960052403818,
+    0.0339642652549243,
+    0.2096958082855601,
+    0.026259282635145525,
+    0.08021436001439755,
+    0.041286683952318055,
+    0.04770470978269887,
+    0.08289571853805384
+   ]
+  }
+ },
+ {
+  "prompt": "audit the whole repo and tell me what to cut before the 2.0 release",
+  "expected": {
+   "top": "general_question",
+   "probability": 0.19973613147639258,
+   "category": null,
+   "probabilities": [
+    0.05327724960049222,
+    0.02512309989844425,
+    0.05161789049224339,
+    0.02929266204939344,
+    0.02318594297291037,
+    0.03877326493369428,
+    0.0347422607127725,
+    0.007443999057031098,
+    0.15281853782178342,
+    0.10015510525616404,
+    0.02454581842450745,
+    0.08708149530478128,
+    0.19973613147639258,
+    0.17220654199938965
+   ]
+  }
+ },
+ {
+  "prompt": "set up a Cloudflare Worker with wrangler and point the subdomain at it",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.22299965899311452,
+   "category": null,
+   "probabilities": [
+    0.07404683610075882,
+    0.04098913530884172,
+    0.04811369652869884,
+    0.047103319753641765,
+    0.04472714418259822,
+    0.03656213066837436,
+    0.04503149890045005,
+    0.01242769366567155,
+    0.08172496502876256,
+    0.026778896742126232,
+    0.1708232105140834,
+    0.024235962822845333,
+    0.12443585079003269,
+    0.22299965899311452
+   ]
+  }
+ },
+ {
+  "prompt": "reply to the client email about the invoice and schedule a call for Tuesday",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.23934017231858562,
+   "category": null,
+   "probabilities": [
+    0.05814500876880206,
+    0.07294104712652645,
+    0.0704292254595375,
+    0.050991415494674085,
+    0.09435464302456467,
+    0.0321022129618376,
+    0.02496069497087386,
+    0.015095146194524454,
+    0.0628333615924366,
+    0.025213759905905426,
+    0.035428270636270326,
+    0.12412347773698636,
+    0.09404156380847509,
+    0.23934017231858562
+   ]
+  }
+ },
+ {
+  "prompt": "what is the difference between a mutex and a semaphore?",
+  "expected": {
+   "top": "general_question",
+   "probability": 0.2441998686264647,
+   "category": null,
+   "probabilities": [
+    0.04250988411145315,
+    0.03817564623878866,
+    0.11241064426089291,
+    0.06772469431904218,
+    0.05653919146146276,
+    0.02714647620436361,
+    0.011216416908157922,
+    0.008051744776877702,
+    0.05087580465363692,
+    0.03232682642869935,
+    0.04015688358084116,
+    0.040800840215445514,
+    0.2441998686264647,
+    0.2278650782138734
+   ]
+  }
+ },
+ {
+  "prompt": "hmm",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.48647238887666566,
+   "category": null,
+   "probabilities": [
+    0.1626061728207215,
+    0.13762311569062183,
+    0.07133457014074247,
+    0.015143792149846685,
+    0.01294720332131751,
+    0.026228737719595267,
+    0.014742423859832912,
+    0.004665745528289671,
+    0.01083278905557396,
+    0.0036493475149091876,
+    0.025903008217548776,
+    0.009006754048502128,
+    0.018843951055832395,
+    0.48647238887666566
+   ]
+  }
+ },
+ {
+  "prompt": "ok",
+  "expected": {
+   "top": "approve_or_pick",
+   "probability": 0.538694566768705,
+   "category": "approve_or_pick",
+   "probabilities": [
+    0.538694566768705,
+    0.029334373082336163,
+    0.025543258586567807,
+    0.0025909167461878177,
+    0.005702244333365392,
+    0.002925613875918287,
+    0.003021186627422434,
+    0.0012566392191981771,
+    0.003076023823625328,
+    0.0014704608223366125,
+    0.008985516609887242,
+    0.0029701720830031535,
+    0.0069836421672331605,
+    0.3674453852542135
+   ]
+  }
+ },
+ {
+  "prompt": "?",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.7883340066416449,
+   "category": null,
+   "probabilities": [
+    0.06202901484664445,
+    0.05788429027293624,
+    0.03890033758437997,
+    0.004444271571593146,
+    0.006085045110380359,
+    0.006908466541931256,
+    0.0055368788858939175,
+    0.0013234443451922635,
+    0.0036672951792863055,
+    0.0026760119726714437,
+    0.0040635722540399,
+    0.0027447506998601787,
+    0.015402614093545685,
+    0.7883340066416449
+   ]
+  }
+ },
+ {
+  "prompt": "",
+  "expected": null
+ },
+ {
+  "prompt": "   \n\t ",
+  "expected": null
+ },
+ {
+  "prompt": "﻿",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.7883340066416449,
+   "category": null,
+   "probabilities": [
+    0.06202901484664445,
+    0.05788429027293624,
+    0.03890033758437997,
+    0.004444271571593146,
+    0.006085045110380359,
+    0.006908466541931256,
+    0.0055368788858939175,
+    0.0013234443451922635,
+    0.0036672951792863055,
+    0.0026760119726714437,
+    0.0040635722540399,
+    0.0027447506998601787,
+    0.015402614093545685,
+    0.7883340066416449
+   ]
+  }
+ },
+ {
+  "prompt": "\u001c\u001d",
+  "expected": null
+ },
+ {
+  "prompt": "Quero que você refatore o módulo de autenticação, separando a validação de sessão do middleware",
+  "expected": {
+   "top": "specified_task",
+   "probability": 0.18634963875435273,
+   "category": null,
+   "probabilities": [
+    0.07733872456477901,
+    0.04893438988330081,
+    0.0998989930768775,
+    0.06456047721528219,
+    0.058233441578143266,
+    0.07512119160730094,
+    0.02193537889306876,
+    0.015235922170677246,
+    0.18634963875435273,
+    0.05177524707861075,
+    0.08980615612786733,
+    0.04666697464483902,
+    0.10529881790695568,
+    0.0588446464979448
+   ]
+  }
+ },
+ {
+  "prompt": "ΟΔΟΣ ΚΑΙ ΣΟΦΟΣ: the Greek final sigma check",
+  "expected": {
+   "top": "task_status_or_control",
+   "probability": 0.27363146012004885,
+   "category": null,
+   "probabilities": [
+    0.13074827842165176,
+    0.15107033215478854,
+    0.27363146012004885,
+    0.038784651482266404,
+    0.049528320970295046,
+    0.024323454392208517,
+    0.0062538275970601765,
+    0.00836192715300087,
+    0.04155291345418766,
+    0.005974019321655747,
+    0.025948850572938293,
+    0.006534311159914393,
+    0.033933772795483846,
+    0.20335388040449992
+   ]
+  }
+ },
+ {
+  "prompt": "修复登录页面的错误",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.5397724803363804,
+   "category": null,
+   "probabilities": [
+    0.1312901379845607,
+    0.14219545153389782,
+    0.08806999486334784,
+    0.012916185306658527,
+    0.012322530958350982,
+    0.018266875085662382,
+    0.013314608332209266,
+    0.003003298062050276,
+    0.008358622970341803,
+    0.005167330668587122,
+    0.008553775613138958,
+    0.004354674711404519,
+    0.012414033573409386,
+    0.5397724803363804
+   ]
+  }
+ },
+ {
+  "prompt": "हिन्दी में त्रुटि संदेश ठीक करो",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.4363633595221055,
+   "category": null,
+   "probabilities": [
+    0.17106905162198224,
+    0.19594742885922703,
+    0.0827955954075107,
+    0.01114946959653615,
+    0.016893174304719216,
+    0.019698745558971237,
+    0.010446154125787479,
+    0.003760237926923845,
+    0.011068098511499088,
+    0.005206716688726727,
+    0.010031892859005145,
+    0.010272244313824869,
+    0.015297830703180788,
+    0.4363633595221055
+   ]
+  }
+ },
+ {
+  "prompt": "ﬁx the ﬂaky test in ｆｕｌｌｗｉｄｔｈ mode",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.16848191220072345,
+   "category": null,
+   "probabilities": [
+    0.13672388337158375,
+    0.12038546536070834,
+    0.13933394541699157,
+    0.05180596374367456,
+    0.027898680159162345,
+    0.034545578842475985,
+    0.014051862737647795,
+    0.009728548689282973,
+    0.10563678755028198,
+    0.005249786667377949,
+    0.09449835697599408,
+    0.010942704743894444,
+    0.08071652354020073,
+    0.16848191220072345
+   ]
+  }
+ },
+ {
+  "prompt": "𝐟𝐢𝐱 the bold-math letters 𝟏𝟐𝟑",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.2818446653789289,
+   "category": null,
+   "probabilities": [
+    0.12939554000130185,
+    0.16279253324355503,
+    0.09812421937901311,
+    0.06484001761667338,
+    0.02843694354408829,
+    0.030327554001121443,
+    0.01570134322752732,
+    0.009161395556995768,
+    0.04779297246663748,
+    0.010712943250474807,
+    0.038724695122560576,
+    0.03951014222651727,
+    0.04263503498460488,
+    0.2818446653789289
+   ]
+  }
+ },
+ {
+  "prompt": "🚀 deploy to staging please 🙏",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.2814544547036289,
+   "category": null,
+   "probabilities": [
+    0.1653488626495686,
+    0.04949409278780467,
+    0.11956629437917614,
+    0.03901850223605171,
+    0.042671734593760745,
+    0.045425367913591135,
+    0.09757915937693762,
+    0.009374173224421366,
+    0.033824099523618145,
+    0.010598796163581482,
+    0.06382728725134228,
+    0.020699235077008753,
+    0.02111794011950844,
+    0.2814544547036289
+   ]
+  }
+ },
+ {
+  "prompt": "def parse_args(argv):\n    return argparse.ArgumentParser().parse_args(argv)\n\nwhy does this exit with code 2?",
+  "expected": {
+   "top": "task_status_or_control",
+   "probability": 0.12429955563671499,
+   "category": null,
+   "probabilities": [
+    0.11690383631769843,
+    0.07293836928018205,
+    0.12429955563671499,
+    0.0410249094550267,
+    0.03313542169367382,
+    0.04096068689133794,
+    0.05610605621803191,
+    0.03325244509684815,
+    0.10130101432140524,
+    0.031915642582626996,
+    0.09538033472925125,
+    0.024775829861565096,
+    0.10637203332025191,
+    0.1216338645953854
+   ]
+  }
+ },
+ {
+  "prompt": "snake_case_identifier and CamelCaseIdentifier and kebab-case-name",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.22353894856208656,
+   "category": null,
+   "probabilities": [
+    0.17255268536661336,
+    0.11415200191852044,
+    0.08734032347063403,
+    0.04331212921424047,
+    0.05627484604015063,
+    0.04880286468708344,
+    0.022136310342269067,
+    0.008525167031940317,
+    0.09512818170992722,
+    0.02279616235208922,
+    0.0391050279939442,
+    0.01884241509119673,
+    0.047492936219304366,
+    0.22353894856208656
+   ]
+  }
+ },
+ {
+  "prompt": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.4708640898614962,
+   "category": null,
+   "probabilities": [
+    0.14784571426010593,
+    0.20607891640238413,
+    0.07130654299380183,
+    0.009732164557099918,
+    0.013661130660498243,
+    0.014584620057706629,
+    0.01015518545326535,
+    0.0026849001435754155,
+    0.009217882921149653,
+    0.004441336862937285,
+    0.012876542907356436,
+    0.00507799440546891,
+    0.021472978513154016,
+    0.4708640898614962
+   ]
+  }
+ },
+ {
+  "prompt": "fix the flaky retry test in the payment worker. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log. context line from a pasted log.  now commit and push everything to main",
+  "expected": {
+   "top": "supply_fact_or_step_done",
+   "probability": 0.1617477406954377,
+   "category": null,
+   "probabilities": [
+    0.10764423830826542,
+    0.1617477406954377,
+    0.08097173711587777,
+    0.08396999005238133,
+    0.027057171737110225,
+    0.08280846094417911,
+    0.012836774138184978,
+    0.030785926257377305,
+    0.10579284522897983,
+    0.009550668084017349,
+    0.07897579270495796,
+    0.028492824837522166,
+    0.03714839318379512,
+    0.1522174367119138
+   ]
+  }
+ },
+ {
+  "prompt": "İstanbul ÇALIŞMA DİZİNİ: git status shows nothing",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.28283649565532554,
+   "category": null,
+   "probabilities": [
+    0.05552493603169968,
+    0.22331033849630755,
+    0.12075953055367072,
+    0.04070972155793551,
+    0.03313506083351102,
+    0.061617135852596684,
+    0.027015802721087407,
+    0.011249034871411238,
+    0.04681568561871981,
+    0.019852311141086484,
+    0.021734666918033326,
+    0.018252902935673332,
+    0.03718637681294169,
+    0.28283649565532554
+   ]
+  }
+ },
+ {
+  "prompt": "café naïve coöperate résumé",
+  "expected": {
+   "top": "UNKNOWN",
+   "probability": 0.2354886875781554,
+   "category": null,
+   "probabilities": [
+    0.08404335387223223,
+    0.177726286270303,
+    0.15463565149182346,
+    0.030846126189687136,
+    0.07949690224373816,
+    0.05860796944604193,
+    0.021705320423171436,
+    0.010138116926362614,
+    0.032746263496268774,
+    0.01992048878840611,
+    0.05317131474888525,
+    0.006829188876519755,
+    0.03464432964840467,
+    0.2354886875781554
+   ]
+  }
+ }
+]

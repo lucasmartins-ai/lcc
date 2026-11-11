@@ -1,0 +1,15 @@
+---
+import Base from "../layouts/Base.astro";
+import { href } from "../lib/sources.ts";
+---
+
+<Base title="Not found">
+  <div class="mx-auto max-w-3xl px-4 py-24 sm:px-6">
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-faint">404</p>
+    <h1 class="mt-4 text-3xl font-semibold tracking-tight">No page here</h1>
+    <p class="mt-4 text-dim">
+      Try the <a class="text-accent underline" href={href()}>home page</a> or the
+      <a class="text-accent underline" href={href("QUICKSTART")}>quickstart</a>.
+    </p>
+  </div>
+</Base>
