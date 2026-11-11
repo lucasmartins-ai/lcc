@@ -12,6 +12,28 @@ lcc handoff ~/.claude/projects/<project>/<session>.jsonl
 
 Then tell the next agent: "read `.lcc/handoff/3f9a1c0d8e7b.md` and continue".
 
+`lcc handoff --latest` finds the session for you: the most recently written Claude Code
+session or Codex rollout of the current directory. Run it after you quit one agent and before
+you start the next. From inside a running session the newest session is that session, so
+there pass the path instead. It prints the chosen path on stderr. Codex runs nobody sat in
+(`codex exec`, `codex review` and their subagents) are skipped, and so is a session of another
+directory that shares the Claude Code project folder (`/r/a-b` and `/r/a_b` do).
+
+## The next session is offered the previous one
+
+With the `SessionStart` hook that [`lcc setup`](CLAUDE_CODE.md#one-command-lcc-setup) adds
+(`lcc handoff --hook`, matcher `startup`), a new Claude Code session gets one line when the
+directory has an earlier session, from Claude Code or Codex, written in the last 7 days:
+
+```text
+lcc handoff: a Codex session in this directory was last written 3 h ago. If the user wants to continue that work, run `lcc handoff <path> --stdout` for its requests, edited files, last error and stashed outputs. Otherwise ignore this line.
+```
+
+It is an offer. No packet is built and nothing else enters the context, because the new
+session may be unrelated work. Resumed, cleared and compacted sessions get no line, and any
+error prints nothing, so the session always starts. Codex does not load this hook: there, run
+`lcc handoff --latest` first.
+
 ## What the packet holds
 
 | Section | Source |

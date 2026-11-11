@@ -11,9 +11,14 @@ request-log secret rules; paths are kept, since the next agent needs them.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
+import os
 import re
+import shlex
+import sys
+import time
 import unicodedata
 from bisect import bisect_left
 from dataclasses import dataclass
@@ -354,3 +359,113 @@ def write(packet: str, root: Path) -> Path:
     path = root / f"{hashlib.sha256(packet.encode('utf-8')).hexdigest()[:12]}.md"
     _write_private(path, packet.encode("utf-8"))
     return path
+
+
+def _recorded_cwd(session: Path) -> str | None:
+    """The working directory a session names in its first records: Claude Code writes ``cwd``
+    on each record, Codex in the ``session_meta`` payload. ``None`` too for a Codex run nobody
+    sat in (``codex exec``, ``codex review`` and their subagents): on the machine this was
+    written on, all 506 rollouts were such runs, and none is work to continue."""
+    try:
+        with session.open("rb") as handle:
+            for _ in range(50):
+                try:
+                    record = json.loads(handle.readline(1 << 20))
+                except ValueError:
+                    continue  # a blank line, or a record over the read limit
+                if not isinstance(record, dict):
+                    continue
+                payload = record.get("payload")
+                if isinstance(payload, dict) and payload.get("originator") == "codex_exec":
+                    return None
+                cwd = record.get("cwd") or (isinstance(payload, dict) and payload.get("cwd"))
+                if isinstance(cwd, str) and cwd:
+                    return cwd
+    except OSError:
+        pass
+    return None
+
+
+def _same_dir(recorded: str, cwd: Path) -> bool:
+    if recorded == str(cwd):
+        return True
+    try:
+        return os.path.samefile(recorded, cwd)  # a case-insensitive disk, a symlinked checkout
+    except OSError:
+        return False
+
+
+def latest_session(cwd: Path, *, exclude: Path | None = None) -> Path | None:
+    """The most recently written session of ``cwd``: a Claude Code session in its project
+    folder, or a Codex rollout whose ``session_meta`` names ``cwd``. ``exclude`` is skipped.
+
+    Run from inside a live session, the newest one is that session: pass it as ``exclude``.
+    """
+    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
+    codex = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
+    # Claude Code names a project folder after the directory, every other character as "-",
+    # so /r/a-b, /r/a_b and /r/a/b share one folder: the cwd each session records decides.
+    project = claude / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
+    rollouts = (codex / "sessions").glob("**/rollout-*.jsonl")
+    found: list[tuple[float, Path]] = []
+    for path in [*project.glob("*.jsonl"), *rollouts]:
+        try:
+            # A session that just started may have no file yet: then it is not among these.
+            if exclude is None or not exclude.exists() or not path.samefile(exclude):
+                found.append((path.stat().st_mtime, path))
+        except OSError:
+            continue
+    # ponytail: sessions are opened newest first until one matches, so a directory no agent
+    # ever worked in reads the head of every rollout (0.3 s for 506). Index by cwd if slow.
+    for _, path in sorted(found, reverse=True):
+        recorded = _recorded_cwd(path)
+        # A Claude Code transcript with no cwd in its head is taken on its folder's word.
+        if (recorded is None and path.parent == project) or (
+            recorded is not None and _same_dir(recorded, cwd)
+        ):
+            return path
+    return None
+
+
+OFFER_MAX_AGE = 7 * 86400  # an older session is not what a new one continues
+
+
+def offer(event: Any, now: float) -> str:
+    """One line for a session that just started, naming the previous session of its directory,
+    or ``""``. It offers the packet and builds nothing: the new session may be unrelated work.
+    """
+    if not isinstance(event, dict) or event.get("source") != "startup":
+        return ""  # a resumed, cleared or compacted session continues itself
+    cwd, current = event.get("cwd"), event.get("transcript_path")
+    if not isinstance(cwd, str) or not cwd:
+        return ""
+    started = Path(current) if isinstance(current, str) else None
+    previous = latest_session(Path(cwd), exclude=started)
+    if previous is None or not str(previous).isprintable() or "`" in str(previous):
+        return ""  # the line quotes the path in backticks: one it could close is not offered
+    age = now - previous.stat().st_mtime
+    if not 0 <= age <= OFFER_MAX_AGE:
+        return ""
+    tool = "Codex" if previous.name.startswith("rollout-") else "Claude Code"
+    unit, name = (86400, "d") if age >= 86400 else (3600, "h") if age >= 3600 else (60, "min")
+    ago = f"{age / unit:.0f} {name}"
+    return (
+        f"lcc handoff: a {tool} session in this directory was last written {ago} ago. If the "
+        f"user wants to continue that work, run `lcc handoff {shlex.quote(str(previous))} "
+        "--stdout` for its requests, edited files, last error and stashed outputs. Otherwise "
+        "ignore this line."
+    )
+
+
+def offer_hook() -> None:
+    """Answer a Claude Code SessionStart event on stdin; its stdout is added to the context.
+    A session must start whatever happens here: any error prints nothing."""
+    try:
+        line = offer(json.loads(sys.stdin.read() or "null"), time.time())
+        if line:
+            sys.stdout.write(line + "\n")
+            sys.stdout.flush()
+    except Exception:  # noqa: BLE001 - an offer is never worth a failed session start
+        # As in lcc.entry.hint_hook: a closed pipe would fail the flush again at exit.
+        with contextlib.suppress(Exception):
+            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
