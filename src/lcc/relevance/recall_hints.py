@@ -213,25 +213,27 @@ def _unique(ids: Iterable[str]) -> list[str]:
     return list(seen)
 
 
-def find_hints(
+def _scores(
     prompt: str,
     ids: Iterable[str],
     *,
-    muted: Iterable[str] = (),
-    max_hints: int = MAX_HINTS,
-) -> list[Hint]:
-    """The stashed outputs among ``ids`` that ``prompt`` clearly names, best first."""
+    skip: Iterable[str] = (),
+    capped: bool = True,
+) -> tuple[dict[str, int], dict[str, set[str]], dict[str, Fraction], dict[str, bytes]]:
+    """The prompt's term weights and, per stashed output among ``ids`` that holds one of them:
+    the terms it holds, its score, and its bytes. ``capped`` applies ``MAX_BLOBS`` and
+    ``MAX_BYTES``, which keep a per-prompt hint fast."""
     weights = terms(prompt)
     if not weights:
-        return []
-    skip = set(muted)
+        return {}, {}, {}, {}
+    skip = set(skip)
     names = _stash_names()
     root = stash_dir()
     matched: dict[str, set[str]] = {}
     openings: dict[str, bytes] = {}
     fresh: dict[Path, list[str]] = {}
-    budget = MAX_BYTES
-    for stash_id in _unique(ids)[:MAX_BLOBS]:
+    budget = MAX_BYTES if capped else float("inf")
+    for stash_id in _unique(ids)[: MAX_BLOBS if capped else None]:
         if stash_id in skip:
             continue
         # The blob _blob would read: exactly one stash name with this prefix (12-64 hex chars).
@@ -275,6 +277,46 @@ def find_hints(
         stash_id: sum((Fraction(weights[key], df[key]) for key in found), Fraction(0))
         for stash_id, found in matched.items()
     }
+    return weights, matched, scores, openings
+
+
+def _hint(
+    stash_id: str,
+    weights: dict[str, int],
+    matched: dict[str, set[str]],
+    scores: dict[str, Fraction],
+    openings: dict[str, bytes],
+) -> Hint:
+    return Hint(
+        stash_id,
+        round(float(scores[stash_id]), 4),
+        tuple(sorted(matched[stash_id], key=lambda key: (-weights[key], key))),
+        _snippet(openings[stash_id].decode("utf-8", errors="replace")),
+    )
+
+
+def search(query: str, limit: int = 10) -> list[Hint]:
+    """Every stashed output that holds a term of ``query``, best first: the same scoring as the
+    hints, over the whole stash and without their threshold. For a person or an agent looking
+    for an output of an earlier session.
+
+    ponytail: reads and hash-checks every blob (measured: 0.8 s for the whole command on a stash
+    of 850 blobs, 4.5 MB); an inverted index over the ``.terms`` files if a stash outgrows that.
+    """
+    found = _scores(query, [n[:12] for n in _stash_names()], capped=False)
+    order = sorted(found[2], key=lambda stash_id: (-found[2][stash_id], stash_id))
+    return [_hint(stash_id, *found) for stash_id in order[: max(0, limit)]]
+
+
+def find_hints(
+    prompt: str,
+    ids: Iterable[str],
+    *,
+    muted: Iterable[str] = (),
+    max_hints: int = MAX_HINTS,
+) -> list[Hint]:
+    """The stashed outputs among ``ids`` that ``prompt`` clearly names, best first."""
+    weights, matched, scores, openings = _scores(prompt, ids, skip=muted)
     order = sorted(scores, key=lambda stash_id: (-scores[stash_id], stash_id))
 
     def eligible(stash_id: str) -> bool:
@@ -289,15 +331,7 @@ def find_hints(
         if all(eligible(s) for s in order[:k]) and scores[order[k - 1]] >= GAP * left_out:
             shown = k
             break
-    return [
-        Hint(
-            stash_id,
-            round(float(scores[stash_id]), 4),
-            tuple(sorted(matched[stash_id], key=lambda key: (-weights[key], key))),
-            _snippet(openings[stash_id].decode("utf-8", errors="replace")),
-        )
-        for stash_id in order[:shown]
-    ]
+    return [_hint(stash_id, weights, matched, scores, openings) for stash_id in order[:shown]]
 
 
 def _has(sorted_terms: list[str], key: str) -> bool:

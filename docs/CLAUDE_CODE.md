@@ -33,6 +33,38 @@ Against a checkout, without installing:
 CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude --plugin-dir plugins/claude-code
 ```
 
+## One command: `lcc setup`
+
+Installed like that, the plugin waits for Claude Code's own threshold, drops what its ranker
+marks spent, and gives no hint. `lcc setup` writes the settings that make it run on its own.
+A plugin cannot set any of them for itself, so they go in `~/.claude/settings.json` (under
+`CLAUDE_CONFIG_DIR` when that is set; `--settings` names another file):
+
+```bash
+lcc setup            # lists what it would change, writes nothing
+lcc setup --apply    # writes; the original stays at settings.json.before-lcc-setup
+```
+
+| It sets | Effect |
+| :--- | :--- |
+| `env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` = `40` | Claude Code compacts on its own at 40 % of the auto-compact window. A value already in the file stands; `--compact-at 30` names another (1 to 100, 30 to 40 suggested) |
+| `env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` = `1` | the plugin answers that compaction verbatim |
+| plugin options `provider: rules`, `rulesMode: stashed` | every output a pass removes goes to the local stash, one `recall` away |
+| `permissions.allow` | `mcp__plugin_lcc_lcc__compact_transcript` and `mcp__plugin_lcc_lcc__recall` |
+| `UserPromptSubmit` hook `lcc hint --hook` | [recall hints](#recall-hints-opt-in) on each prompt |
+| `SessionStart` hook `lcc handoff --hook` (matcher `startup`) | a new session is told in one line that an earlier session of the directory exists ([HANDOFF.md](HANDOFF.md#the-next-session-is-offered-the-previous-one)) |
+
+- It only adds or sets these keys. Every other setting, hook and permission stays, and a section
+  of an unexpected type stops the run instead of being replaced.
+- A second run prints `already set up`. To undo, restore `settings.json.before-lcc-setup`.
+- It refuses to write when the file changed between its read and its write.
+- A stashed pass that removes less than `minReductionRatio` (25 %) still falls back to Claude
+  Code's summary; the [early-compaction guard](#receipt-ledger-and-statusline) blocks that
+  summary while the window has room.
+- The plugin options are written where Claude Code 2.1.322 keeps them
+  (`pluginConfigs["lcc@lcc"].options`). The statusline, the ledger and the idle stash are not
+  touched: set those yourself.
+
 ## Layout
 
 | Path | What it is |
@@ -148,7 +180,8 @@ in `test/fixtures/ledger.jsonl` (`node test/statusline.test.mjs`).
 **Compacting earlier.** `/compact suggested` appears once the context is 30 % full. Set
 `LCC_SUGGEST_COMPACT_AT` to another percentage, or to `0` to turn the hint off. The
 statusline only suggests: nothing it runs compacts the session. To have Claude Code compact
-on its own at 40 %, add this to `~/.claude/settings.json` (a plugin cannot set it for you):
+on its own at 40 %, run [`lcc setup --apply`](#one-command-lcc-setup) or add this to
+`~/.claude/settings.json` (a plugin cannot set it for you):
 
 ```json
 { "env": { "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "40", "LCC_SUGGEST_COMPACT_AT": "30" } }
@@ -209,7 +242,8 @@ id, a date, a name), the agent gets one line before it answers:
 lcc hint: your prompt names a stashed output (test_refund_77): "pytest output: FAILED tests/test_api.py::test_refund_77" · lcc recall 3ba2ab04a8dc
 ```
 
-Turn it on with a `UserPromptSubmit` hook in `~/.claude/settings.json`:
+`lcc setup --apply` turns it on, or add the `UserPromptSubmit` hook to `~/.claude/settings.json`
+yourself:
 
 ```json
 { "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command", "command": "lcc hint --hook", "timeout": 5 } ] } ] } }

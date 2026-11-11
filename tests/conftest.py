@@ -16,7 +16,8 @@ def _isolated_lcc_state(
     monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory
 ) -> None:
     state = tmp_path_factory.mktemp("lcc-state")
-    for flag in ("LCC_LEDGER", "LCC_REQUEST_LOG", "LCC_AUTO_REMOTE"):
+    # CLAUDE_CONFIG_DIR and CODEX_HOME move the agents' session folders (`lcc handoff --latest`).
+    for flag in ("LCC_LEDGER", "LCC_REQUEST_LOG", "LCC_AUTO_REMOTE", "CLAUDE_CONFIG_DIR", "CODEX_HOME"):
         monkeypatch.delenv(flag, raising=False)
     monkeypatch.setenv("LCC_LEDGER_PATH", str(state / "ledger.jsonl"))
     monkeypatch.setenv("LCC_REQUEST_LOG_DIR", str(state / "request-log"))

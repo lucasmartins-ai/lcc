@@ -28,6 +28,10 @@ Claude Code is launched with (the plugin's `.mcp.json` starts `lcc mcp`; a deskt
 have a shorter `PATH` than your shell), and a TypeSafe API key only for `provider: jev`
 (`auto`/`specialist-v3`, `laya` and `rules` need none).
 
+`lcc setup --apply` then writes the settings a plugin cannot set for itself: compaction at
+40 % of the window, removed outputs stashed, recall hints and the handoff offer
+([guide](../../../docs/CLAUDE_CODE.md#one-command-lcc-setup)).
+
 For local development against a checkout:
 
 ```bash

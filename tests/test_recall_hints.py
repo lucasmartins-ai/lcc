@@ -14,6 +14,7 @@ from lcc.relevance.recall_hints import (
     hint_line,
     hints_for,
     refs_in,
+    search,
     session_blobs,
     terms,
 )
@@ -272,3 +273,25 @@ def test_hook_mode_exits_0_when_claude_code_closes_the_pipe(stash: Path, tmp_pat
     proc.stdin.close()
     err = proc.stderr.read()
     assert proc.wait(timeout=60) == 0, err.decode()
+
+
+# --- search: the whole stash, every session ---------------------------------------------
+
+
+def test_search_ranks_outputs_of_any_session_without_the_hint_threshold(stash: Path) -> None:
+    refund = put("FAILED tests/test_api.py::test_refund_77\n", session="yesterday")
+    other = put("refund policy notes\n", session="another")
+    put("unrelated build log\n")
+    found = search("why did test_refund_77 fail on refund")
+    assert [hit.id for hit in found] == [refund[:12], other[:12]]
+    assert "test_refund_77" in found[0].terms and found[0].opening.startswith("FAILED")
+    assert find_hints("refund", [other[:12]]) == []  # one weight-1 term: below a hint, found here
+    assert [hit.id for hit in search("refund", limit=1)] in ([refund[:12]], [other[:12]])
+    assert search("nothing_like_this_9") == [] and search("") == []
+
+
+def test_cli_stash_search_prints_ids_to_recall(stash: Path) -> None:
+    digest = put("curl output for order_5521: 502 Bad Gateway\n")
+    out = CliRunner().invoke(app, ["stash", "search", "order_5521"])
+    assert out.exit_code == 0 and out.output.startswith(digest[:12])
+    assert CliRunner().invoke(app, ["stash", "search", "absent_term_1"]).exit_code == 1

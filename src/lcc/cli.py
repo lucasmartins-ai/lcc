@@ -2088,19 +2088,42 @@ def hint_cmd(
 
 @app.command(name="handoff")
 def handoff_cmd(
-    transcript: Path = typer.Argument(
-        ..., help="The session: Claude Code JSONL, Codex rollout, or a JSON transcript."
+    transcript: Path | None = typer.Argument(
+        None, help="The session: Claude Code JSONL, Codex rollout, or a JSON transcript."
     ),
     out: Path = typer.Option(
         Path(".lcc/handoff"), "--out", help="Directory for the packet (gets a .gitignore)."
     ),
     stdout: bool = typer.Option(False, "--stdout", help="Print the packet instead of writing it."),
+    latest: bool = typer.Option(
+        False,
+        "--latest",
+        help="Hand off the most recently written Claude Code or Codex session of this "
+        "directory. Run it before the next agent starts: from inside a session, the newest "
+        "one is that session.",
+    ),
+    hook: bool = typer.Option(
+        False,
+        "--hook",
+        help="Read a Claude Code SessionStart event on stdin and offer the previous session of "
+        "its directory in one line. Builds no packet and never fails the session start.",
+    ),
 ) -> None:
     """Write what the next agent needs to pick up this session: requests, files, last error and
     stashed ids, verbatim. Prints the packet's path (`<sha12>.md`)."""
-    from lcc.handoff import build, load, write
+    from lcc.handoff import build, latest_session, load, offer_hook, write
     from lcc.relevance.transcript import TranscriptError
 
+    if (transcript is not None) + latest + hook != 1 or (hook and stdout):
+        _fail("handoff: give one of a transcript, --latest or --hook (alone)", code=2)
+    if hook:
+        offer_hook()
+        return
+    if transcript is None:
+        transcript = latest_session(Path.cwd())
+        if transcript is None:
+            _fail(f"handoff: no Claude Code or Codex session of {Path.cwd()}", code=2)
+        sys.stderr.write(f"lcc: handing off {terminal_safe(str(transcript))}\n")
     try:
         raw, source = load(transcript.resolve())
         packet = build(raw, source)
@@ -2162,6 +2185,28 @@ def stash_ls_cmd(
         )
 
 
+@stash_app.command("search")
+def stash_search_cmd(
+    query: str = typer.Argument(..., help="Words, identifiers or paths the output holds."),
+    limit: int = typer.Option(10, "--limit", min=1, help="Most results to print."),
+) -> None:
+    """Find stashed outputs of any session by what they hold, best match first: id, score,
+    opening and the matched terms. `lcc recall <id>` returns the output."""
+    from lcc.relevance.recall_hints import search
+    from lcc.relevance.transcript_stash import StashError
+
+    try:
+        found = search(query, limit)
+    except (StashError, OSError) as exc:
+        _fail(str(exc), code=2)
+    for hit in found:
+        line = f'{hit.id}  {hit.score:>6.2f}  "{hit.opening}"  ({", ".join(hit.terms[:5])})'
+        sys.stdout.write(terminal_safe(line) + "\n")
+    if not found:
+        sys.stderr.write("no stashed output holds a term of that query\n")
+        raise typer.Exit(code=1)
+
+
 @stash_app.command("gc")
 def stash_gc_cmd(
     root: list[Path] | None = typer.Option(None, "--root", help=_ROOT_HELP),
@@ -2211,6 +2256,56 @@ def stash_verify_cmd(
         err_console.print(f"{len(problems)} dangling pointer(s). {RECOVERY_HINT}")
         raise typer.Exit(code=1)
     sys.stdout.write("every stash pointer resolves and passes its hash\n")
+
+
+@app.command(name="setup")
+def setup_cmd(
+    compact_at: int | None = typer.Option(
+        None,
+        "--compact-at",
+        min=1,
+        max=100,
+        help="Percent of the auto-compact window at which Claude Code compacts on its own "
+        "(30-40 suggested). Default: the value already in the file, else 40.",
+    ),
+    settings: Path | None = typer.Option(
+        None,
+        "--settings",
+        help="Claude Code settings file. Default: settings.json in CLAUDE_CONFIG_DIR, else "
+        "in ~/.claude.",
+    ),
+    apply: bool = typer.Option(
+        False, "--apply", help="Write. Without it setup only lists what it would change."
+    ),
+) -> None:
+    """Set Claude Code up so lcc runs on its own: compaction at 40 % of the window, removed
+    outputs stashed, recall hints on each prompt and the previous session offered at start."""
+    from lcc.claude_setup import SetupError, load, plan, plugin_enabled, write
+
+    home = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
+    path = settings or home / "settings.json"
+    try:
+        current, raw = load(path)
+        new, changes = plan(current, compact_at)
+        if not plugin_enabled(current):
+            sys.stderr.write(
+                "note: the lcc plugin is not enabled here. Install it with\n"
+                "  claude plugin marketplace add lucasmartins-ai/lcc && "
+                "claude plugin install lcc@lcc\n"
+            )
+        if not changes:
+            sys.stdout.write(f"already set up: nothing to change in {path}\n")
+            return
+        backup = write(path, new, raw) if apply else None
+    except (SetupError, OSError) as exc:
+        _fail(f"setup: {exc}; nothing was changed", code=2)
+    for change in changes:
+        sys.stdout.write(terminal_safe(("set " if apply else "would set ") + change) + "\n")
+    if not apply:
+        sys.stdout.write(f"{len(changes)} change(s). Re-run with --apply to write {path}\n")
+        return
+    kept = f" (original kept at {backup})" if backup else ""
+    sys.stdout.write(f"wrote {path}{kept}. Sessions started from now on use it.\n")
 
 
 @app.command(name="fetch-tokenizer")

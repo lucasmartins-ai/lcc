@@ -257,6 +257,7 @@ hint rebuilds the index).
 
 ```bash
 lcc stash ls                         # id, bytes, lines, dates, sessions, files referencing it
+lcc stash search "test_refund_77"    # outputs of any session that hold these terms, best first
 lcc stash verify session.jsonl       # pointers whose blob is missing or fails its hash; exit 1 if any
 lcc stash gc                         # dry run: what --apply would delete
 lcc stash gc --apply --older-than 30d --root ~/.claude/projects --root ~/other/transcripts

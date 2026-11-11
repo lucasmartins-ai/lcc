@@ -8,6 +8,26 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc setup`: Claude Code runs lcc on its own.** One command writes what the guide asked
+  for by hand in `~/.claude/settings.json`: compaction at 40 % of the auto-compact window
+  (`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`, `--compact-at` for another value), the function-hook flag,
+  the plugin's `provider: rules` with `rulesMode: stashed`, permission for its two tools, the
+  recall-hint hook and the handoff offer below. Without `--apply` it only lists the changes.
+  It keeps every other setting, leaves the original at `settings.json.before-lcc-setup`, and
+  refuses a file that is not a JSON object or that changed while it ran.
+  [Guide](docs/CLAUDE_CODE.md#one-command-lcc-setup).
+
+- **`lcc handoff --latest` and the offer at session start.** `--latest` hands off the most
+  recently written Claude Code session or Codex rollout of the current directory, so the path
+  no longer has to be found by hand. `lcc handoff --hook` answers a `SessionStart` event with
+  one line naming the previous session of the directory (last 7 days) and the command that
+  prints its packet. It builds nothing, and any error prints nothing.
+  [HANDOFF.md](docs/HANDOFF.md#the-next-session-is-offered-the-previous-one).
+
+- **`lcc stash search "<terms>"`.** Lists stashed outputs of any session that hold the terms,
+  best first, with the id to `recall`. It uses the hint matcher's scoring without its
+  threshold, and reads the whole stash on each run.
+
 - **DOI.** Zenodo archives each GitHub release. `CITATION.cff` and the README badge carry the
   concept DOI [10.5281/zenodo.24038393](https://doi.org/10.5281/zenodo.24038393), which resolves to the latest
   version; 1.4.0 is [10.5281/zenodo.24038394](https://doi.org/10.5281/zenodo.24038394).
