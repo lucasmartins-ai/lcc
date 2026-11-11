@@ -47,8 +47,8 @@ lcc setup --apply    # writes; the original stays at settings.json.before-lcc-se
 
 | It sets | Effect |
 | :--- | :--- |
-| `env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` = `40` | Claude Code compacts on its own at 40 % of the auto-compact window. A value already in the file stands; `--compact-at 30` names another (1 to 100, 30 to 40 suggested) |
-| `env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` = `1` | the plugin answers that compaction verbatim |
+| `env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`, only with `--compact-at N` | Claude Code compacts on its own at N % of the auto-compact window. Without the option nothing is written. See [the 150k floor](#compacting-earlier-has-a-floor) |
+| `env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` = `1` | the plugin answers Claude Code's compactions verbatim |
 | plugin options `provider: rules`, `rulesMode: stashed` | every output a pass removes goes to the local stash, one `recall` away |
 | `permissions.allow` | `mcp__plugin_lcc_lcc__compact_transcript` and `mcp__plugin_lcc_lcc__recall` |
 | `UserPromptSubmit` hook `lcc hint --hook` | [recall hints](#recall-hints-opt-in) on each prompt |
@@ -58,6 +58,17 @@ lcc setup --apply    # writes; the original stays at settings.json.before-lcc-se
   of an unexpected type stops the run instead of being replaced.
 - A second run prints `already set up`. To undo, restore `settings.json.before-lcc-setup`.
 - It refuses to write when the file changed between its read and its write.
+- <a id="compacting-earlier-has-a-floor"></a>**Compacting earlier has a floor: 150k tokens.**
+  The window is `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (the settings file's `env`, then the
+  environment), else 200k. A session's fixed load (memory files, tools, MCP and skill listings)
+  can reach ~110k tokens per request. A threshold near it makes Claude Code compact again right
+  after each compaction: 40 % of a 300k window (120k) compacted 8 times in 10 minutes and
+  Claude Code reported `Autocompact is thrashing`. So `--compact-at` is refused when N % of the
+  window is under 150k (on a 200k window, anything under 75; on 300k, under 50; on 1M, under
+  15), and an override already in the file that is under 150k is removed (listed first, written
+  only with `--apply`). An override that is not a number is left alone. setup cannot see the
+  model, so on a 1M-token model set `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (for example to
+  `1000000`) first, or it judges against 200k.
 - A stashed pass that removes less than `minReductionRatio` (25 %) still falls back to Claude
   Code's summary; the [early-compaction guard](#receipt-ledger-and-statusline) blocks that
   summary while the window has room.
@@ -180,8 +191,8 @@ in `test/fixtures/ledger.jsonl` (`node test/statusline.test.mjs`).
 **Compacting earlier.** `/compact suggested` appears once the context is 30 % full. Set
 `LCC_SUGGEST_COMPACT_AT` to another percentage, or to `0` to turn the hint off. The
 statusline only suggests: nothing it runs compacts the session. To have Claude Code compact
-on its own at 40 %, run [`lcc setup --apply`](#one-command-lcc-setup) or add this to
-`~/.claude/settings.json` (a plugin cannot set it for you):
+on its own earlier, run [`lcc setup --apply --compact-at N`](#one-command-lcc-setup) or add
+this to `~/.claude/settings.json` (a plugin cannot set it for you), here for a 1M window:
 
 ```json
 { "env": { "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "40", "LCC_SUGGEST_COMPACT_AT": "30" } }
@@ -189,7 +200,12 @@ on its own at 40 %, run [`lcc setup --apply`](#one-command-lcc-setup) or add thi
 
 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is a Claude Code setting. It takes 1–100, applies to
 subagents too, and can only lower the default threshold. Its percentage is of the
-auto-compact window, so on a 1M-token model 40 % is roughly 400k tokens. That compaction goes
+auto-compact window, so on a 1M-token model 40 % is roughly 400k tokens. **Keep it at 150k
+tokens or more.** On a 200k window that means 75 or more (40 % is 80k), and on a 300k
+`CLAUDE_CODE_AUTO_COMPACT_WINDOW`, 50 or more. Under that, a session whose fixed load is
+~110k compacts again right after each compaction ([the floor](#compacting-earlier-has-a-floor)).
+The replay below assumed a 200k window and did not model a fixed load, so its 30–40 % does
+not carry over to small windows. That compaction goes
 through this plugin like any other: verbatim when the pass clears `minReductionRatio`,
 Claude Code's own summary (with the `PreCompact` pin) otherwise. Earlier compaction is not
 free. On a warm cache, the first request after a compaction writes the new prefix at the
@@ -229,6 +245,17 @@ recovery fails the request. The 75 % ceiling keeps the guard well under both. Me
 Claude Code 2.1.309: a blocking `PreCompact` ran on each of 4 turns at a forced 1 % threshold,
 and every turn succeeded, with cache reads unchanged. Turn the guard off by unsetting
 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`.
+
+The guard does not prevent a threshold that is too low. It defers a compaction only while
+little tool output is removable, and Claude Code asks again every turn, so at a threshold under
+a session's fixed load it either blocks every turn up to the 75 % ceiling or lets the summary
+through and the context refills at once. On 2026-11-11 (Claude Code 2.1.321, 40 % of a 300k
+window, `cc-plugin-sec-default` skipping the plugin's `session.compact` hook) a session
+compacted 8 times in 10 minutes. Replaying its transcript, the guard stood down at 9 of 12
+auto-compactions: it counted `prompt_snapshot` records (fixed since) as context. At the other
+3 it would have blocked. Claude Code records no `PreCompact` output for an auto-compaction, so
+whether it ran there is not known. The fix is the threshold: see
+[the floor](#compacting-earlier-has-a-floor).
 
 ## Recall hints (opt-in)
 

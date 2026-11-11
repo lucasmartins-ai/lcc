@@ -187,6 +187,10 @@ const synthetic = { type: "assistant", message: { id: "s", model: "<synthetic>",
 assert.equal(contextEstimate([...turns(400, 280_000), synthetic, user("continue")]).used, null);
 assert.equal(earlyCompactBlock(auto, [...chatty, synthetic, user("continue")], EARLY), null);
 assert.equal(contextEstimate([...chatty, synthetic, user("continue"), said("n", 120_000)]).used, 120_010);
+// A prompt_snapshot attachment repeats the system prompt and tools already in the usage: not added.
+const snapshot = { type: "attachment", attachment: { type: "prompt_snapshot", systemPrompt: ["s".repeat(300_000)], tools: [] } };
+assert.equal(contextEstimate([...chatty, snapshot]).used, 120_010);
+assert.equal(earlyCompactBlock(auto, [...chatty, snapshot], EARLY).decision, "block");
 // A PDF's bytes do not bound its tokens: a document block since the last request stands it down.
 const pdf = { type: "document", source: { type: "base64", media_type: "application/pdf", data: "JVBERi0xLjQK" } };
 assert.equal(earlyCompactBlock(auto, [...chatty, user([pdf])], EARLY), null);
