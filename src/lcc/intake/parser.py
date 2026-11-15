@@ -213,23 +213,21 @@ _EN_STOP = {
     "was", "at", "from", "just", "should", "would", "which", "there", "they", "have", "has",
     "an", "all", "any", "some", "about", "when", "where", "because", "will", "it's", "don't",
 }  # fmt: skip
-_QUESTIONS = {
-    "en": {
-        "vague": [
-            "What is the exact deliverable and primary success criterion?",
-            "Are there specific architectural or runtime constraints?",
-        ],
-        "voice_dump": "This dictation holds {n} separate asks: which comes first, and should "
-        "each be its own task?",
-    },
-    "pt": {
-        "vague": [
-            "Qual é a entrega exata e o critério de sucesso principal?",
-            "Há restrições de arquitetura ou de execução a respeitar?",
-        ],
-        "voice_dump": "Este ditado tem {n} pedidos separados: qual vem primeiro, e cada um deve "
-        "virar uma tarefa?",
-    },
+_VAGUE_QUESTIONS: dict[str, list[str]] = {
+    "en": [
+        "What is the exact deliverable and primary success criterion?",
+        "Are there specific architectural or runtime constraints?",
+    ],
+    "pt": [
+        "Qual é a entrega exata e o critério de sucesso principal?",
+        "Há restrições de arquitetura ou de execução a respeitar?",
+    ],
+}
+_VOICE_DUMP_QUESTION: dict[str, str] = {
+    "en": "This dictation holds {n} separate asks: which comes first, and should "
+    "each be its own task?",
+    "pt": "Este ditado tem {n} pedidos separados: qual vem primeiro, e cada um deve "
+    "virar uma tarefa?",
 }
 
 
@@ -298,7 +296,6 @@ def parse_intake(
     if dictation:
         vague_hits = [h for h in vague_hits if h not in _SPOKEN_HEDGES]
     lang = detect_lang(text)
-    asked = _QUESTIONS[lang]
 
     states: list[ReadinessState] = [ReadinessState.READY_TO_EXECUTE]
     reasons: list[str] = []
@@ -309,12 +306,12 @@ def parse_intake(
     if vague_hits:
         states.append(ReadinessState.NEEDS_INTAKE)
         reasons.append("vague_marker")
-        questions.extend(asked["vague"])
+        questions.extend(_VAGUE_QUESTIONS[lang])
         critical_gaps.append(f"Contains ambiguous phrasing: {', '.join(vague_hits)}")
     if asks >= MULTI_ASK_THRESHOLD and dictation:
         states.append(ReadinessState.NEEDS_INTAKE)
         reasons.append("voice_dump")
-        questions.append(asked["voice_dump"].format(n=asks))
+        questions.append(_VOICE_DUMP_QUESTION[lang].format(n=asks))
         critical_gaps.append(f"{asks} distinct asks in one dictated message.")
     elif asks >= MULTI_ASK_THRESHOLD:
         states.append(ReadinessState.NEEDS_LIGHT_REFINEMENT)
