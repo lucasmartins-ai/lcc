@@ -1,0 +1,7462 @@
+{
+ "version": "intake-dictation-v1",
+ "arm": "L1",
+ "label": "final code",
+ "cases_sha256": "dd190cf2743db32a6a332909f5ada533904da8f39bbba813411aad43a8bb82d6",
+ "code_sha256": "0e0fdd3acbd77870152cba03ad3057048bbfe2d6681c82daf8ec150603963a4e",
+ "lcc_file": "src/lcc/__init__.py",
+ "metrics": {
+  "dev": {
+   "cases": 140,
+   "cut_tokens_gold": 320,
+   "cut_precision": 1.0,
+   "cut_recall": 0.4719,
+   "cut_f1": 0.6412,
+   "false_cut_rate_on_keep_tokens": 0.0,
+   "recall_by_family": {
+    "aside_lexicon": 1.0,
+    "aside_open": 0.0,
+    "false_start": 1.0,
+    "filler": 0.1333,
+    "repetition": 1.0,
+    "self_correction": 0.7123
+   },
+   "ask_survival": 1.0,
+   "asks": 180,
+   "brief_ask_recall": 1.0,
+   "brief_ask_precision": 0.9945,
+   "aside_leak_cases": 22,
+   "question_lang_match": 1.0,
+   "cases_with_questions": 14,
+   "false_needs_intake_rate": 0.0,
+   "detection_rate_noisy": 0.6429,
+   "detection_rate_clean": 0.0,
+   "reconstruct_rate": 1.0,
+   "verbatim_rate": 1.0,
+   "tokens_before": 5340,
+   "tokens_after": 5141,
+   "token_reduction": 0.0373
+  },
+  "test": {
+   "cases": 140,
+   "cut_tokens_gold": 345,
+   "cut_precision": 1.0,
+   "cut_recall": 0.5826,
+   "cut_f1": 0.7363,
+   "false_cut_rate_on_keep_tokens": 0.0,
+   "recall_by_family": {
+    "aside_lexicon": 1.0,
+    "aside_open": 0.0,
+    "false_start": 1.0,
+    "filler": 0.463,
+    "repetition": 1.0,
+    "self_correction": 0.883
+   },
+   "ask_survival": 1.0,
+   "asks": 160,
+   "brief_ask_recall": 0.9938,
+   "brief_ask_precision": 0.8833,
+   "aside_leak_cases": 23,
+   "question_lang_match": 1.0,
+   "cases_with_questions": 14,
+   "false_needs_intake_rate": 0.0,
+   "detection_rate_noisy": 0.6837,
+   "detection_rate_clean": 0.0,
+   "reconstruct_rate": 1.0,
+   "verbatim_rate": 1.0,
+   "tokens_before": 5183,
+   "tokens_after": 4923,
+   "token_reduction": 0.0502
+  },
+  "all": {
+   "cases": 280,
+   "cut_tokens_gold": 665,
+   "cut_precision": 1.0,
+   "cut_recall": 0.5293,
+   "cut_f1": 0.6922,
+   "false_cut_rate_on_keep_tokens": 0.0,
+   "recall_by_family": {
+    "aside_lexicon": 1.0,
+    "aside_open": 0.0,
+    "false_start": 1.0,
+    "filler": 0.3131,
+    "repetition": 1.0,
+    "self_correction": 0.8084
+   },
+   "ask_survival": 1.0,
+   "asks": 340,
+   "brief_ask_recall": 0.9971,
+   "brief_ask_precision": 0.9391,
+   "aside_leak_cases": 45,
+   "question_lang_match": 1.0,
+   "cases_with_questions": 28,
+   "false_needs_intake_rate": 0.0,
+   "detection_rate_noisy": 0.6633,
+   "detection_rate_clean": 0.0,
+   "reconstruct_rate": 1.0,
+   "verbatim_rate": 1.0,
+   "tokens_before": 10523,
+   "tokens_after": 10064,
+   "token_reduction": 0.0436
+  }
+ },
+ "per_case": {
+  "pt01-clean": {
+   "id": "pt01-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Ele quebra desde ontem no CI com timeout no banco."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-aside_lexicon": {
+   "id": "pt01-aside_lexicon",
+   "cut": [
+    [
+     0,
+     15
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Ele quebra desde ontem no CI com timeout no banco."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 39,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-aside_open": {
+   "id": "pt01-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Oi, mãe, te ligo depois. Ele quebra desde ontem no CI com timeout no banco."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 42,
+   "tokens_after": 42,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-filler": {
+   "id": "pt01-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Cara, preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Cara, preciso que você corrija o teste de integração do checkout.",
+    "Ele quebra desde ontem no CI com timeout no banco. Não hum, mexa no schema das tabelas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-self_correction": {
+   "id": "pt01-self_correction",
+   "cut": [
+    [
+     71,
+     98
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Ele quebra desde ontem no CI com timeout no banco."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 41,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-repetition": {
+   "id": "pt01-repetition",
+   "cut": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Ele quebra desde ontem no CI com timeout no banco."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-false_start": {
+   "id": "pt01-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Ele quebra desde ontem no CI com timeout no banco."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-distractor": {
+   "id": "pt01-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Minha esposa reclamou que o site está lento no celular. Ele quebra desde ontem no CI com timeout no banco."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 49,
+   "tokens_after": 49,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-vague": {
+   "id": "pt01-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Preciso que você corrija o teste de integração do checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do checkout.",
+    "Não mexa no schema das tabelas.",
+    "Ele quebra desde ontem no CI com timeout no banco. Ou alguma coisa assim, não sei bem."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 44,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt01-mixed": {
+   "id": "pt01-mixed",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Preciso que você corrija o teste de integração do ahn, checkout."
+   ],
+   "items": [
+    "Preciso que você corrija o teste de integração do ahn, checkout.",
+    "Não mexa no schema das tabelas.",
+    "Ele quebra desde ontem no CI com timeout no hum, banco. Minha esposa reclamou que o site está lento no celular. Desce do sofá, Bob!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 56,
+   "tokens_after": 56,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-clean": {
+   "id": "pt02-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "O time de suporte avisou os clientes sobre a janela."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-aside_lexicon": {
+   "id": "pt02-aside_lexicon",
+   "cut": [
+    [
+     45,
+     53
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "O time de suporte avisou os clientes sobre a janela."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 38,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-aside_open": {
+   "id": "pt02-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "Thor, sai daí! O time de suporte avisou os clientes sobre a janela."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-filler": {
+   "id": "pt02-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "O time de suporte avisou os clientes sobre a janela. Cara, depois me mande o ahn, log completo da execução."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-self_correction": {
+   "id": "pt02-self_correction",
+   "cut": [
+    [
+     25,
+     52
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "O time de suporte avisou os clientes sobre a janela."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 42,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-repetition": {
+   "id": "pt02-repetition",
+   "cut": [
+    [
+     0,
+     6
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "O time de suporte avisou os clientes sobre a janela."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-false_start": {
+   "id": "pt02-false_start",
+   "cut": [
+    [
+     0,
+     4
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "O time de suporte avisou os clientes sobre a janela."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-distractor": {
+   "id": "pt02-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "O time de suporte avisou os clientes sobre a janela. Deixa eu pensar como explicar isso."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 44,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-vague": {
+   "id": "pt02-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "Depois me mande o log completo da execução.",
+    "Ou alguma coisa assim, não sei bem. O time de suporte avisou os clientes sobre a janela."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 45,
+   "tokens_after": 45,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt02-mixed": {
+   "id": "pt02-mixed",
+   "cut": [
+    [
+     45,
+     59
+    ],
+    [
+     113,
+     126
+    ],
+    [
+     141,
+     148
+    ]
+   ],
+   "kinds": [
+    "aside_phrase",
+    "sentence_opener",
+    "comma_bounded"
+   ],
+   "asks": [
+    "Rode a migração do banco na segunda de manhã.",
+    "depois me mande o log completo da execução."
+   ],
+   "items": [
+    "Rode a migração do banco na segunda de manhã.",
+    "depois me mande o log completo da execução.",
+    "O time de suporte avisou os clientes sobre a janela. Desce do sofá, Bob!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 49,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-clean": {
+   "id": "pt03-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-aside_lexicon": {
+   "id": "pt03-aside_lexicon",
+   "cut": [
+    [
+     0,
+     15
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 40,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-aside_open": {
+   "id": "pt03-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar. Filho, desliga essa televisão."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 42,
+   "tokens_after": 42,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-filler": {
+   "id": "pt03-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "O relatório mensal está saindo com os valores em dólar. Então assim, só altere a configuração, sem mexer, né, no código."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-self_correction": {
+   "id": "pt03-self_correction",
+   "cut": [
+    [
+     97,
+     120
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 42,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-repetition": {
+   "id": "pt03-repetition",
+   "cut": [
+    [
+     56,
+     70
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 39,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-false_start": {
+   "id": "pt03-false_start",
+   "cut": [
+    [
+     56,
+     60
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-distractor": {
+   "id": "pt03-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar. O botão \"Te amo\" do app de namoro não aparece no iPhone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 51,
+   "tokens_after": 51,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-vague": {
+   "id": "pt03-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Você consegue trocar a moeda padrão para real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para real?",
+    "Só altere a configuração, sem mexer no código.",
+    "O relatório mensal está saindo com os valores em dólar. Ou alguma coisa assim, não sei bem."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 45,
+   "tokens_after": 45,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt03-mixed": {
+   "id": "pt03-mixed",
+   "cut": [
+    [
+     222,
+     236
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Você consegue trocar a moeda padrão para euro, não, real?"
+   ],
+   "items": [
+    "Você consegue trocar a moeda padrão para euro, não, real?",
+    "Só altere a configuração, sem mexer no código.",
+    "Meu cachorro derrubou o roteador ontem, por isso a rede caiu. O relatório mensal está saindo com os valores em dólar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 58,
+   "tokens_after": 54,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-clean": {
+   "id": "pt04-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 33,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-aside_lexicon": {
+   "id": "pt04-aside_lexicon",
+   "cut": [
+    [
+     0,
+     14
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-aside_open": {
+   "id": "pt04-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem.",
+    "Filho, desliga essa televisão."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-filler": {
+   "id": "pt04-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação hum, do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação hum, do painel de admin.",
+    "Não faça merge, tipo, sem os testes passarem."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-self_correction": {
+   "id": "pt04-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Queria que você revisasse o PR 24, quer dizer, 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 24, quer dizer, 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 37,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-repetition": {
+   "id": "pt04-repetition",
+   "cut": [
+    [
+     0,
+     11
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-false_start": {
+   "id": "pt04-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-distractor": {
+   "id": "pt04-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem.",
+    "O botão \"Te amo\" do app de namoro não aparece no iPhone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 48,
+   "tokens_after": 48,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-vague": {
+   "id": "pt04-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "Não faça merge sem os testes passarem.",
+    "Não sei se é o melhor jeito, sei lá."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 44,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt04-mixed": {
+   "id": "pt04-mixed",
+   "cut": [
+    [
+     31,
+     41
+    ],
+    [
+     105,
+     118
+    ],
+    [
+     136,
+     143
+    ]
+   ],
+   "kinds": [
+    "self_correction",
+    "sentence_opener",
+    "comma_bounded"
+   ],
+   "asks": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin."
+   ],
+   "items": [
+    "Queria que você revisasse o PR 42 antes do almoço.",
+    "Ele muda a autenticação do painel de admin.",
+    "não faça merge sem os testes passarem.",
+    "Thor, sai daí!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 44,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-clean": {
+   "id": "pt05-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 37,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-aside_lexicon": {
+   "id": "pt05-aside_lexicon",
+   "cut": [
+    [
+     0,
+     15
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 41,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-aside_open": {
+   "id": "pt05-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular. Oi, mãe, te ligo depois."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 44,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-filler": {
+   "id": "pt05-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Investigue o que, tipo, está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que, tipo, está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços, sabe, demora oito segundos para carregar no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-self_correction": {
+   "id": "pt05-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora dez, quer dizer, oito segundos para carregar no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 41,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-repetition": {
+   "id": "pt05-repetition",
+   "cut": [
+    [
+     66,
+     79
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 40,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-false_start": {
+   "id": "pt05-false_start",
+   "cut": [
+    [
+     113,
+     118
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 39,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-distractor": {
+   "id": "pt05-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular. Meu cachorro derrubou o roteador ontem, por isso a rede caiu."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 52,
+   "tokens_after": 52,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-vague": {
+   "id": "pt05-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular. Não sei se é o melhor jeito, sei lá."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 48,
+   "tokens_after": 48,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt05-mixed": {
+   "id": "pt05-mixed",
+   "cut": [
+    [
+     26,
+     37
+    ],
+    [
+     77,
+     84
+    ]
+   ],
+   "kinds": [
+    "self_correction",
+    "false_start"
+   ],
+   "asks": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir."
+   ],
+   "items": [
+    "Investigue o que está pesando no carregamento.",
+    "Depois me diga quais imagens dá para comprimir.",
+    "A página de preços demora oito segundos para carregar no celular. O botão \"Te amo\" do app de namoro não aparece no iPhone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 57,
+   "tokens_after": 52,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-clean": {
+   "id": "pt06-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "A função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-aside_lexicon": {
+   "id": "pt06-aside_lexicon",
+   "cut": [
+    [
+     92,
+     107
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "A função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-aside_open": {
+   "id": "pt06-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "Thor, sai daí! A função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-filler": {
+   "id": "pt06-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e, sabe, nada de mocks do banco.",
+    "Tipo, a função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-self_correction": {
+   "id": "pt06-self_correction",
+   "cut": [
+    [
+     110,
+     146
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "A função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 39,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-repetition": {
+   "id": "pt06-repetition",
+   "cut": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "A função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-false_start": {
+   "id": "pt06-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "A função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-distractor": {
+   "id": "pt06-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "A função está em src/cart/discount.py. Meu cachorro derrubou o roteador ontem, por isso a rede caiu."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 47,
+   "tokens_after": 47,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-vague": {
+   "id": "pt06-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "Escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "Ou alguma coisa assim, não sei bem. A função está em src/cart/discount.py."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 41,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt06-mixed": {
+   "id": "pt06-mixed",
+   "cut": [
+    [
+     0,
+     9
+    ],
+    [
+     25,
+     30
+    ],
+    [
+     44,
+     49
+    ]
+   ],
+   "kinds": [
+    "repetition",
+    "comma_bounded",
+    "comma_bounded"
+   ],
+   "asks": [
+    "escreva um teste para a função de desconto do carrinho."
+   ],
+   "items": [
+    "escreva um teste para a função de desconto do carrinho.",
+    "Use pytest e nada de mocks do banco.",
+    "Mel, larga isso! A função está em src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 40,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-clean": {
+   "id": "pt07-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 30,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-aside_lexicon": {
+   "id": "pt07-aside_lexicon",
+   "cut": [
+    [
+     47,
+     55
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-aside_open": {
+   "id": "pt07-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails. Mel, larga isso!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-filler": {
+   "id": "pt07-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Faça o ahn, rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o ahn, rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou, entendeu, o worker de e-mails."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 34,
+   "tokens_after": 34,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-self_correction": {
+   "id": "pt07-self_correction",
+   "cut": [
+    [
+     78,
+     96
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-repetition": {
+   "id": "pt07-repetition",
+   "cut": [
+    [
+     48,
+     56
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-false_start": {
+   "id": "pt07-false_start",
+   "cut": [
+    [
+     85,
+     88
+    ]
+   ],
+   "kinds": [
+    "false_start+repetition"
+   ],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 32,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-distractor": {
+   "id": "pt07-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails. O botão \"Te amo\" do app de namoro não aparece no iPhone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 46,
+   "tokens_after": 46,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-vague": {
+   "id": "pt07-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "O deploy de ontem derrubou o worker de e-mails. Não sei se é o melhor jeito, sei lá."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 41,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt07-mixed": {
+   "id": "pt07-mixed",
+   "cut": [
+    [
+     165,
+     183
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa."
+   ],
+   "items": [
+    "Faça o rollback para a versão 1.8.2.",
+    "E abra uma issue explicando a causa.",
+    "Minha esposa reclamou que o site está lento no celular. O deploy de ontem derrubou o worker de e-mails. Filho, desliga essa televisão."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 55,
+   "tokens_after": 51,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-clean": {
+   "id": "pt08-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 27,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-aside_lexicon": {
+   "id": "pt08-aside_lexicon",
+   "cut": [
+    [
+     0,
+     15
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 31,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-aside_open": {
+   "id": "pt08-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "Desce do sofá, Bob! O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-filler": {
+   "id": "pt08-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha, né, o texto hum, em inglês.",
+    "O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 30,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-self_correction": {
+   "id": "pt08-self_correction",
+   "cut": [
+    [
+     96,
+     128
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-repetition": {
+   "id": "pt08-repetition",
+   "cut": [
+    [
+     0,
+     11
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-false_start": {
+   "id": "pt08-false_start",
+   "cut": [
+    [
+     0,
+     6
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 28,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-distractor": {
+   "id": "pt08-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "O botão \"Te amo\" do app de namoro não aparece no iPhone. O comando mudou na versão 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 42,
+   "tokens_after": 42,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-vague": {
+   "id": "pt08-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "Atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "Ou alguma coisa assim, não sei bem. O comando mudou na versão 2.0."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt08-mixed": {
+   "id": "pt08-mixed",
+   "cut": [
+    [
+     0,
+     10
+    ],
+    [
+     70,
+     75
+    ],
+    [
+     113,
+     120
+    ]
+   ],
+   "kinds": [
+    "repetition",
+    "comma_bounded",
+    "comma_bounded"
+   ],
+   "asks": [
+    "atualize o README com o novo comando de instalação."
+   ],
+   "items": [
+    "atualize o README com o novo comando de instalação.",
+    "Mantenha o texto em inglês.",
+    "O comando mudou na versão 2.0. Mel, larga isso!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-clean": {
+   "id": "pt09-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-aside_lexicon": {
+   "id": "pt09-aside_lexicon",
+   "cut": [
+    [
+     0,
+     14
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-aside_open": {
+   "id": "pt09-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar. Oi, mãe, te ligo depois."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-filler": {
+   "id": "pt09-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Esconda esse botão para quem não paga.",
+    "Tipo, não remova a rota da API."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Tipo, não remova a rota da API.",
+    "Os clientes do plano grátis hum, estão vendo o botão de exportar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 34,
+   "tokens_after": 34,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-self_correction": {
+   "id": "pt09-self_correction",
+   "cut": [
+    [
+     51,
+     72
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-repetition": {
+   "id": "pt09-repetition",
+   "cut": [
+    [
+     61,
+     70
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-false_start": {
+   "id": "pt09-false_start",
+   "cut": [
+    [
+     61,
+     66
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-distractor": {
+   "id": "pt09-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar. Minha esposa reclamou que o site está lento no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 45,
+   "tokens_after": 45,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-vague": {
+   "id": "pt09-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Os clientes do plano grátis estão vendo o botão de exportar. Ou alguma coisa assim, não sei bem."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 41,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt09-mixed": {
+   "id": "pt09-mixed",
+   "cut": [
+    [
+     145,
+     150
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Esconda esse botão para quem não paga."
+   ],
+   "items": [
+    "Esconda esse botão para quem não paga.",
+    "Não remova a rota da API.",
+    "Meu cachorro derrubou o roteador ontem, por isso a rede caiu. Os clientes do plano grátis estão vendo o botão de importar, quer dizer, exportar."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 53,
+   "tokens_after": 51,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-clean": {
+   "id": "pt10-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 30,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-aside_lexicon": {
+   "id": "pt10-aside_lexicon",
+   "cut": [
+    [
+     117,
+     131
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-aside_open": {
+   "id": "pt10-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho.",
+    "Filho, desliga essa televisão."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-filler": {
+   "id": "pt10-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Me explica por que o cache do hum, prompt não, tipo, está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do hum, prompt não, tipo, está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 33,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-self_correction": {
+   "id": "pt10-self_correction",
+   "cut": [
+    [
+     72,
+     104
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 38,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-repetition": {
+   "id": "pt10-repetition",
+   "cut": [
+    [
+     0,
+     12
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-false_start": {
+   "id": "pt10-false_start",
+   "cut": [
+    [
+     0,
+     4
+    ]
+   ],
+   "kinds": [
+    "false_start+repetition"
+   ],
+   "asks": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 31,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-distractor": {
+   "id": "pt10-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho.",
+    "O botão \"Te amo\" do app de namoro não aparece no iPhone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 45,
+   "tokens_after": 45,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-vague": {
+   "id": "pt10-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "Me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho.",
+    "Não sei se é o melhor jeito, sei lá."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 41,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt10-mixed": {
+   "id": "pt10-mixed",
+   "cut": [
+    [
+     0,
+     4
+    ],
+    [
+     76,
+     103
+    ],
+    [
+     148,
+     162
+    ]
+   ],
+   "kinds": [
+    "repetition",
+    "self_correction",
+    "aside_phrase"
+   ],
+   "asks": [
+    "me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "items": [
+    "me explica por que o cache do prompt não está acertando.",
+    "O prefixo muda a cada pedido por causa da data no cabeçalho."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 42,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-clean": {
+   "id": "pt11-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "O valor já está aprovado no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-aside_lexicon": {
+   "id": "pt11-aside_lexicon",
+   "cut": [
+    [
+     93,
+     107
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "O valor já está aprovado no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-aside_open": {
+   "id": "pt11-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "Desce do sofá, Bob! O valor já está aprovado no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-filler": {
+   "id": "pt11-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o ahn, modelo novo com o logo atualizado.",
+    "O valor já está aprovado hum, no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-self_correction": {
+   "id": "pt11-self_correction",
+   "cut": [
+    [
+     17,
+     44
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "O valor já está aprovado no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 38,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-repetition": {
+   "id": "pt11-repetition",
+   "cut": [
+    [
+     0,
+     7
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "O valor já está aprovado no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-false_start": {
+   "id": "pt11-false_start",
+   "cut": [
+    [
+     0,
+     4
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "O valor já está aprovado no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-distractor": {
+   "id": "pt11-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "Meu cachorro derrubou o roteador ontem, por isso a rede caiu. O valor já está aprovado no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 48,
+   "tokens_after": 48,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-vague": {
+   "id": "pt11-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "Não sei se é o melhor jeito, sei lá. O valor já está aprovado no CRM."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt11-mixed": {
+   "id": "pt11-mixed",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Então assim, gere a fatura de outubro para a clínica Bristol Vet."
+   ],
+   "items": [
+    "Então assim, gere a fatura de outubro para a clínica Bristol Vet.",
+    "Use o modelo novo com o logo atualizado.",
+    "Filho, desliga essa televisão. O valor já está aprovado, sabe, no CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-clean": {
+   "id": "pt12-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 33,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-aside_lexicon": {
+   "id": "pt12-aside_lexicon",
+   "cut": [
+    [
+     88,
+     103
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-aside_open": {
+   "id": "pt12-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba. Thor, sai daí!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-filler": {
+   "id": "pt12-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O ahn, formulário de, entendeu, contato aceita e-mail sem arroba."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-self_correction": {
+   "id": "pt12-self_correction",
+   "cut": [
+    [
+     38,
+     54
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-repetition": {
+   "id": "pt12-repetition",
+   "cut": [
+    [
+     50,
+     60
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "adicione validação no front e no back."
+   ],
+   "items": [
+    "adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-false_start": {
+   "id": "pt12-false_start",
+   "cut": [
+    [
+     50,
+     56
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-distractor": {
+   "id": "pt12-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba. O botão \"Te amo\" do app de namoro não aparece no iPhone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 48,
+   "tokens_after": 48,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-vague": {
+   "id": "pt12-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba. Não sei se é o melhor jeito, sei lá."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt12-mixed": {
+   "id": "pt12-mixed",
+   "cut": [
+    [
+     38,
+     60
+    ],
+    [
+     72,
+     78
+    ]
+   ],
+   "kinds": [
+    "self_correction",
+    "false_start"
+   ],
+   "asks": [
+    "Adicione validação no front e no back."
+   ],
+   "items": [
+    "Adicione validação no front e no back.",
+    "A mensagem de erro tem que ser em português.",
+    "O formulário de contato aceita e-mail sem arroba. Deixa eu pensar como explicar isso."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 48,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-clean": {
+   "id": "pt13-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 29,
+   "tokens_after": 29,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-aside_lexicon": {
+   "id": "pt13-aside_lexicon",
+   "cut": [
+    [
+     0,
+     8
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 31,
+   "tokens_after": 29,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-aside_open": {
+   "id": "pt13-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "Mel, larga isso! O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 33,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-filler": {
+   "id": "pt13-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no ahn, projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no ahn, projeto do site.",
+    "O build atual, né, leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-self_correction": {
+   "id": "pt13-self_correction",
+   "cut": [
+    [
+     89,
+     106
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 29,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-repetition": {
+   "id": "pt13-repetition",
+   "cut": [
+    [
+     0,
+     11
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 32,
+   "tokens_after": 29,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-false_start": {
+   "id": "pt13-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 29,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-distractor": {
+   "id": "pt13-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "Meu cachorro derrubou o roteador ontem, por isso a rede caiu. O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 44,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-vague": {
+   "id": "pt13-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "Não sei se é o melhor jeito, sei lá. O build atual leva quatro minutos no CI."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt13-mixed": {
+   "id": "pt13-mixed",
+   "cut": [
+    [
+     0,
+     5
+    ],
+    [
+     130,
+     153
+    ]
+   ],
+   "kinds": [
+    "false_start",
+    "self_correction"
+   ],
+   "asks": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site."
+   ],
+   "items": [
+    "Compare o tempo de build do Vite com o do Webpack no projeto do site.",
+    "Deixa eu pensar como explicar isso. O build atual leva quatro minutos no CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 44,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-clean": {
+   "id": "pt14-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas linhas duplicadas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 33,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-aside_lexicon": {
+   "id": "pt14-aside_lexicon",
+   "cut": [
+    [
+     51,
+     65
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas linhas duplicadas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-aside_open": {
+   "id": "pt14-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "Mel, larga isso! A planilha de leads tem duzentas linhas duplicadas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 37,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-filler": {
+   "id": "pt14-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não, cara, apague nada da aba de clientes."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não, cara, apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas ahn, linhas duplicadas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-self_correction": {
+   "id": "pt14-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem trezentas, quer dizer, duzentas linhas duplicadas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-repetition": {
+   "id": "pt14-repetition",
+   "cut": [
+    [
+     52,
+     62
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas linhas duplicadas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-false_start": {
+   "id": "pt14-false_start",
+   "cut": [
+    [
+     52,
+     57
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas linhas duplicadas."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-distractor": {
+   "id": "pt14-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas linhas duplicadas. Minha esposa reclamou que o site está lento no celular."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 47,
+   "tokens_after": 47,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-vague": {
+   "id": "pt14-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "Remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas linhas duplicadas. Ou alguma coisa assim, não sei bem."
+   ],
+   "questions": [
+    "Qual é a entrega exata e o critério de sucesso principal?",
+    "Há restrições de arquitetura ou de execução a respeitar?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 42,
+   "tokens_after": 42,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "pt14-mixed": {
+   "id": "pt14-mixed",
+   "cut": [
+    [
+     24,
+     41
+    ],
+    [
+     69,
+     77
+    ]
+   ],
+   "kinds": [
+    "self_correction",
+    "repetition"
+   ],
+   "asks": [
+    "remova as duplicadas mantendo o registro mais recente."
+   ],
+   "items": [
+    "remova as duplicadas mantendo o registro mais recente.",
+    "Não apague nada da aba de clientes.",
+    "A planilha de leads tem duzentas linhas duplicadas. Desce do sofá, Bob!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 43,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-clean": {
+   "id": "en01-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "It fails about once in ten runs on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 31,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-aside_lexicon": {
+   "id": "en01-aside_lexicon",
+   "cut": [
+    [
+     45,
+     60
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "It fails about once in ten runs on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-aside_open": {
+   "id": "en01-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "Max, get off the couch! It fails about once in ten runs on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 37,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-filler": {
+   "id": "en01-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "It fails uh, about once in ten runs on CI. You know, do not change the session timeout."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-self_correction": {
+   "id": "en01-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "It fails about once in twenty, I mean, ten runs on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-repetition": {
+   "id": "en01-repetition",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "It fails about once in ten runs on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 32,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-false_start": {
+   "id": "en01-false_start",
+   "cut": [
+    [
+     0,
+     4
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "It fails about once in ten runs on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 32,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-distractor": {
+   "id": "en01-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "Let me think how to put this. It fails about once in ten runs on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 39,
+   "tokens_after": 39,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-vague": {
+   "id": "en01-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "Fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "It fails about once in ten runs on CI. Not sure this is the best way, or something."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 42,
+   "tokens_after": 42,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en01-mixed": {
+   "id": "en01-mixed",
+   "cut": [
+    [
+     0,
+     8
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "fix the flaky login test in the auth service."
+   ],
+   "items": [
+    "fix the flaky login test in the auth service.",
+    "Do not change the session timeout.",
+    "It fails about once in ten runs on CI. Max, get off the couch! Let me think how to put this."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 48,
+   "tokens_after": 46,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-clean": {
+   "id": "en02-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Support already warned the customers about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-aside_lexicon": {
+   "id": "en02-aside_lexicon",
+   "cut": [
+    [
+     137,
+     151
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Support already warned the customers about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-aside_open": {
+   "id": "en02-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Hey mom, I'll call you back. Support already warned the customers about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 39,
+   "tokens_after": 39,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-filler": {
+   "id": "en02-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Support already warned the um, customers, like, about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 34,
+   "tokens_after": 34,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-self_correction": {
+   "id": "en02-self_correction",
+   "cut": [
+    [
+     27,
+     45
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Support already warned the customers about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-repetition": {
+   "id": "en02-repetition",
+   "cut": [
+    [
+     0,
+     8
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Support already warned the customers about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-false_start": {
+   "id": "en02-false_start",
+   "cut": [
+    [
+     101,
+     105
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Support already warned the customers about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-distractor": {
+   "id": "en02-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "The \"Love you\" button in the dating app is hidden on iOS. Support already warned the customers about the window."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 47,
+   "tokens_after": 47,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-vague": {
+   "id": "en02-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Not sure this is the best way, or something. Support already warned the customers about the window."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en02-mixed": {
+   "id": "en02-mixed",
+   "cut": [
+    [
+     54,
+     58
+    ],
+    [
+     105,
+     109
+    ],
+    [
+     113,
+     120
+    ]
+   ],
+   "kinds": [
+    "interjection",
+    "false_start",
+    "comma_bounded"
+   ],
+   "asks": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log."
+   ],
+   "items": [
+    "Run the database migration on Monday morning.",
+    "Then send me the full execution log.",
+    "Support already warned the customers about the window. My wife says the site is slow on her phone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 48,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-clean": {
+   "id": "en03-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-aside_lexicon": {
+   "id": "en03-aside_lexicon",
+   "cut": [
+    [
+     49,
+     71
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-aside_open": {
+   "id": "en03-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars. Bella, drop it!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-filler": {
+   "id": "en03-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "The monthly report shows every amount in dollars. Like, only, you know, touch the config, not the code."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-self_correction": {
+   "id": "en03-self_correction",
+   "cut": [
+    [
+     89,
+     107
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-repetition": {
+   "id": "en03-repetition",
+   "cut": [
+    [
+     50,
+     55
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-false_start": {
+   "id": "en03-false_start",
+   "cut": [
+    [
+     50,
+     54
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-distractor": {
+   "id": "en03-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "Let me think how to put this. The monthly report shows every amount in dollars."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-vague": {
+   "id": "en03-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Can you switch the default currency to pounds?"
+   ],
+   "items": [
+    "Can you switch the default currency to pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars. Or something like that, I guess."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en03-mixed": {
+   "id": "en03-mixed",
+   "cut": [
+    [
+     50,
+     58
+    ],
+    [
+     118,
+     133
+    ]
+   ],
+   "kinds": [
+    "repetition",
+    "aside_phrase"
+   ],
+   "asks": [
+    "can you switch the default currency to euros, sorry, pounds?"
+   ],
+   "items": [
+    "can you switch the default currency to euros, sorry, pounds?",
+    "Only touch the config, not the code.",
+    "The monthly report shows every amount in dollars."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 41,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-clean": {
+   "id": "en04-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 28,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-aside_lexicon": {
+   "id": "en04-aside_lexicon",
+   "cut": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 31,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-aside_open": {
+   "id": "en04-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel. Bella, drop it!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 32,
+   "tokens_after": 32,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-filler": {
+   "id": "en04-filler",
+   "cut": [
+    [
+     16,
+     27
+    ],
+    [
+     117,
+     129
+    ]
+   ],
+   "kinds": [
+    "comma_bounded",
+    "comma_bounded"
+   ],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-self_correction": {
+   "id": "en04-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Please review PR 24, sorry, 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 24, sorry, 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 31,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-repetition": {
+   "id": "en04-repetition",
+   "cut": [
+    [
+     0,
+     8
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "please review PR 42 before lunch."
+   ],
+   "items": [
+    "please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-false_start": {
+   "id": "en04-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 29,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-distractor": {
+   "id": "en04-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel. Let me think how to put this."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-vague": {
+   "id": "en04-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "It changes authentication for the admin panel. Or something like that, I guess."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en04-mixed": {
+   "id": "en04-mixed",
+   "cut": [
+    [
+     0,
+     5
+    ],
+    [
+     22,
+     37
+    ]
+   ],
+   "kinds": [
+    "false_start",
+    "self_correction"
+   ],
+   "asks": [
+    "Please review PR 42 before lunch."
+   ],
+   "items": [
+    "Please review PR 42 before lunch.",
+    "Never merge it before the tests pass.",
+    "Max, get off the couch! It changes authentication for the admin panel."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 40,
+   "tokens_after": 34,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-clean": {
+   "id": "en05-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 33,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-aside_lexicon": {
+   "id": "en05-aside_lexicon",
+   "cut": [
+    [
+     89,
+     111
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 39,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-aside_open": {
+   "id": "en05-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile. And now the weather: heavy rain in Seattle tomorrow."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 46,
+   "tokens_after": 46,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-filler": {
+   "id": "en05-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "Basically, the pricing page takes eight seconds, like, to load on mobile."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 37,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-self_correction": {
+   "id": "en05-self_correction",
+   "cut": [
+    [
+     23,
+     37
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-repetition": {
+   "id": "en05-repetition",
+   "cut": [
+    [
+     56,
+     66
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-false_start": {
+   "id": "en05-false_start",
+   "cut": [
+    [
+     56,
+     60
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-distractor": {
+   "id": "en05-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile. My wife says the site is slow on her phone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 45,
+   "tokens_after": 45,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-vague": {
+   "id": "en05-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile. Not sure this is the best way, or something."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 45,
+   "tokens_after": 45,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en05-mixed": {
+   "id": "en05-mixed",
+   "cut": [
+    [
+     23,
+     37
+    ],
+    [
+     141,
+     148
+    ],
+    [
+     199,
+     210
+    ]
+   ],
+   "kinds": [
+    "self_correction",
+    "comma_bounded",
+    "comma_bounded"
+   ],
+   "asks": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress."
+   ],
+   "items": [
+    "Find out what is slowing it down.",
+    "Then tell me which images we can compress.",
+    "The pricing page takes eight seconds to load on mobile. My dog unplugged the router yesterday, so the network dropped."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 56,
+   "tokens_after": 48,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-clean": {
+   "id": "en06-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Write a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 31,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-aside_lexicon": {
+   "id": "en06-aside_lexicon",
+   "cut": [
+    [
+     49,
+     59
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Write a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-aside_open": {
+   "id": "en06-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Write a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "The function lives in src/cart/discount.py. Max, get off the couch!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-filler": {
+   "id": "en06-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Write uh, a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write uh, a unit test for the cart discount function.",
+    "Use pytest and do not mock the, you know, database.",
+    "The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-self_correction": {
+   "id": "en06-self_correction",
+   "cut": [
+    [
+     113,
+     140
+    ]
+   ],
+   "kinds": [
+    "self_correction+comma_bounded"
+   ],
+   "asks": [
+    "Write a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-repetition": {
+   "id": "en06-repetition",
+   "cut": [
+    [
+     0,
+     8
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "write a unit test for the cart discount function."
+   ],
+   "items": [
+    "write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 34,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-false_start": {
+   "id": "en06-false_start",
+   "cut": [
+    [
+     0,
+     4
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Write a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-distractor": {
+   "id": "en06-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Write a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "Let me think how to put this. The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-vague": {
+   "id": "en06-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Write a unit test for the cart discount function."
+   ],
+   "items": [
+    "Write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "The function lives in src/cart/discount.py. Or something like that, I guess."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en06-mixed": {
+   "id": "en06-mixed",
+   "cut": [
+    [
+     24,
+     34
+    ],
+    [
+     35,
+     42
+    ]
+   ],
+   "kinds": [
+    "aside_phrase",
+    "repetition"
+   ],
+   "asks": [
+    "write a unit test for the cart discount function."
+   ],
+   "items": [
+    "write a unit test for the cart discount function.",
+    "Use pytest and do not mock the database.",
+    "Kids, turn that TV down. The function lives in src/cart/discount.py."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 42,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-clean": {
+   "id": "en07-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 27,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-aside_lexicon": {
+   "id": "en07-aside_lexicon",
+   "cut": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-aside_open": {
+   "id": "en07-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker. Bella, drop it!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 31,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-filler": {
+   "id": "en07-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Basically, yesterday's deploy, like, took down the email worker."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 30,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-self_correction": {
+   "id": "en07-self_correction",
+   "cut": [
+    [
+     68,
+     84
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 31,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-repetition": {
+   "id": "en07-repetition",
+   "cut": [
+    [
+     47,
+     57
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-false_start": {
+   "id": "en07-false_start",
+   "cut": [
+    [
+     75,
+     79
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 28,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-distractor": {
+   "id": "en07-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker. My dog unplugged the router yesterday, so the network dropped."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 41,
+   "tokens_after": 41,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-vague": {
+   "id": "en07-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker. Or something like that, I guess."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en07-mixed": {
+   "id": "en07-mixed",
+   "cut": [
+    [
+     38,
+     50
+    ],
+    [
+     155,
+     170
+    ]
+   ],
+   "kinds": [
+    "comma_bounded",
+    "aside_phrase"
+   ],
+   "asks": [
+    "Roll back to um, version 1.8.2.",
+    "And open an issue explaining the cause."
+   ],
+   "items": [
+    "Roll back to um, version 1.8.2.",
+    "And open an issue explaining the cause.",
+    "Yesterday's deploy took down the email worker. Kids, turn that TV down."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 40,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-clean": {
+   "id": "en08-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 25,
+   "tokens_after": 25,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-aside_lexicon": {
+   "id": "en08-aside_lexicon",
+   "cut": [
+    [
+     104,
+     126
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 25,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-aside_open": {
+   "id": "en08-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "Bella, drop it! The command changed in version 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 29,
+   "tokens_after": 29,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-filler": {
+   "id": "en08-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "You know, update the README um, with the new install command."
+   ],
+   "items": [
+    "You know, update the README um, with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 29,
+   "tokens_after": 29,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-self_correction": {
+   "id": "en08-self_correction",
+   "cut": [
+    [
+     89,
+     113
+    ]
+   ],
+   "kinds": [
+    "self_correction+comma_bounded"
+   ],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 31,
+   "tokens_after": 25,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-repetition": {
+   "id": "en08-repetition",
+   "cut": [
+    [
+     0,
+     12
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "update the README with the new install command."
+   ],
+   "items": [
+    "update the README with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 28,
+   "tokens_after": 25,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-false_start": {
+   "id": "en08-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 26,
+   "tokens_after": 25,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-distractor": {
+   "id": "en08-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0. The \"Love you\" button in the dating app is hidden on iOS."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-vague": {
+   "id": "en08-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "Not sure this is the best way, or something. The command changed in version 2.0."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 37,
+   "tokens_after": 37,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en08-mixed": {
+   "id": "en08-mixed",
+   "cut": [
+    [
+     6,
+     17
+    ],
+    [
+     49,
+     60
+    ],
+    [
+     111,
+     135
+    ]
+   ],
+   "kinds": [
+    "comma_bounded",
+    "comma_bounded",
+    "self_correction+comma_bounded"
+   ],
+   "asks": [
+    "Update the README with the new install command."
+   ],
+   "items": [
+    "Update the README with the new install command.",
+    "Keep the text short.",
+    "The command changed in version 2.0. And now the weather: heavy rain in Seattle tomorrow."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 49,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-clean": {
+   "id": "en09-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 30,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-aside_lexicon": {
+   "id": "en09-aside_lexicon",
+   "cut": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-aside_open": {
+   "id": "en09-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button. Bella, drop it!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 34,
+   "tokens_after": 34,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-filler": {
+   "id": "en09-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API um, route.",
+    "Free, basically, plan users can see the export button."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 33,
+   "tokens_after": 33,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-self_correction": {
+   "id": "en09-self_correction",
+   "cut": [
+    [
+     28,
+     48
+    ]
+   ],
+   "kinds": [
+    "self_correction+comma_bounded"
+   ],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-repetition": {
+   "id": "en09-repetition",
+   "cut": [
+    [
+     43,
+     54
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 33,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-false_start": {
+   "id": "en09-false_start",
+   "cut": [
+    [
+     43,
+     47
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 31,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-distractor": {
+   "id": "en09-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Let me think how to put this. Free plan users can see the export button."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-vague": {
+   "id": "en09-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Hide that button for anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button. Or something like that, I guess."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en09-mixed": {
+   "id": "en09-mixed",
+   "cut": [
+    [
+     96,
+     100
+    ],
+    [
+     135,
+     144
+    ]
+   ],
+   "kinds": [
+    "false_start",
+    "comma_bounded"
+   ],
+   "asks": [
+    "Hide that button for um, anyone who does not pay."
+   ],
+   "items": [
+    "Hide that button for um, anyone who does not pay.",
+    "Do not remove the API route.",
+    "Free plan users can see the export button. And now the weather: heavy rain in Seattle tomorrow."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 47,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-clean": {
+   "id": "en10-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps missing.",
+    "The prefix changes on every request because of the date in the header."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 28,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-aside_lexicon": {
+   "id": "en10-aside_lexicon",
+   "cut": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps missing.",
+    "The prefix changes on every request because of the date in the header."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-aside_open": {
+   "id": "en10-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps missing.",
+    "The prefix changes on every request because of the date in the header. Max, get off the couch!"
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 34,
+   "tokens_after": 34,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-filler": {
+   "id": "en10-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Explain why the prompt cache keeps uh, missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps uh, missing.",
+    "The, like, prefix changes on every request because of the date in the header."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 30,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-self_correction": {
+   "id": "en10-self_correction",
+   "cut": [
+    [
+     63,
+     92
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps missing.",
+    "The prefix changes on every request because of the date in the header."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 35,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-repetition": {
+   "id": "en10-repetition",
+   "cut": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "explain why the prompt cache keeps missing.",
+    "The prefix changes on every request because of the date in the header."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 29,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-false_start": {
+   "id": "en10-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps missing.",
+    "The prefix changes on every request because of the date in the header."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 29,
+   "tokens_after": 28,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-distractor": {
+   "id": "en10-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps missing.",
+    "The \"Love you\" button in the dating app is hidden on iOS. The prefix changes on every request because of the date in the header."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-vague": {
+   "id": "en10-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "Explain why the prompt cache keeps missing.",
+    "Or something like that, I guess. The prefix changes on every request because of the date in the header."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en10-mixed": {
+   "id": "en10-mixed",
+   "cut": [
+    [
+     0,
+     13
+    ],
+    [
+     76,
+     101
+    ]
+   ],
+   "kinds": [
+    "repetition",
+    "self_correction"
+   ],
+   "asks": [
+    "explain why the prompt cache keeps missing."
+   ],
+   "items": [
+    "explain why the prompt cache keeps missing.",
+    "The prefix changes on every request because of the date in the header. Hey mom, I'll call you back."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 44,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-clean": {
+   "id": "en11-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount is already approved in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-aside_lexicon": {
+   "id": "en11-aside_lexicon",
+   "cut": [
+    [
+     143,
+     158
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount is already approved in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 38,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-aside_open": {
+   "id": "en11-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "And now the weather: heavy rain in Seattle tomorrow. The amount is already approved in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 47,
+   "tokens_after": 47,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-filler": {
+   "id": "en11-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount, I mean, is already approved uh, in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-self_correction": {
+   "id": "en11-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Generate the September, I mean, October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the September, I mean, October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount is already approved in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 39,
+   "tokens_after": 39,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-repetition": {
+   "id": "en11-repetition",
+   "cut": [
+    [
+     0,
+     14
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount is already approved in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 38,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-false_start": {
+   "id": "en11-false_start",
+   "cut": [
+    [
+     0,
+     6
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount is already approved in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-distractor": {
+   "id": "en11-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount is already approved in the CRM. Let me think how to put this."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-vague": {
+   "id": "en11-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "Generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "The amount is already approved in the CRM. Not sure this is the best way, or something."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 46,
+   "tokens_after": 46,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en11-mixed": {
+   "id": "en11-mixed",
+   "cut": [
+    [
+     82,
+     92
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "generate the October invoice for the Bristol vet clinic."
+   ],
+   "items": [
+    "generate the October invoice for the Bristol vet clinic.",
+    "Use the new template with the updated logo.",
+    "Max, get off the couch! The \"Love you\" button in the dating app is hidden on iOS. The amount is already approved in the CRM."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 58,
+   "tokens_after": 56,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-clean": {
+   "id": "en12-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "The contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-aside_lexicon": {
+   "id": "en12-aside_lexicon",
+   "cut": [
+    [
+     51,
+     66
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "The contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 38,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-aside_open": {
+   "id": "en12-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "Hey mom, I'll call you back. The contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 42,
+   "tokens_after": 42,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-filler": {
+   "id": "en12-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Add validation on the front end and the uh, back end."
+   ],
+   "items": [
+    "Add validation on the front end and the uh, back end.",
+    "The, basically, error message must be in English.",
+    "The contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 38,
+   "tokens_after": 38,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-self_correction": {
+   "id": "en12-self_correction",
+   "cut": [
+    [
+     32,
+     56
+    ]
+   ],
+   "kinds": [
+    "self_correction"
+   ],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "The contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 41,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-repetition": {
+   "id": "en12-repetition",
+   "cut": [
+    [
+     52,
+     57
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "add validation on the front end and the back end."
+   ],
+   "items": [
+    "add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "The contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-false_start": {
+   "id": "en12-false_start",
+   "cut": [
+    [
+     52,
+     56
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "The contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 36,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-distractor": {
+   "id": "en12-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "The contact form accepts emails without an at sign. Let me think how to put this."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-vague": {
+   "id": "en12-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "Or something like that, I guess. The contact form accepts emails without an at sign."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en12-mixed": {
+   "id": "en12-mixed",
+   "cut": [
+    [
+     0,
+     10
+    ],
+    [
+     42,
+     61
+    ],
+    [
+     81,
+     85
+    ],
+    [
+     152,
+     164
+    ]
+   ],
+   "kinds": [
+    "sentence_opener",
+    "self_correction",
+    "false_start",
+    "comma_bounded"
+   ],
+   "asks": [
+    "Add validation on the front end and the back end."
+   ],
+   "items": [
+    "Add validation on the front end and the back end.",
+    "The error message must be in English.",
+    "the contact form accepts emails without an at sign."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 46,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-clean": {
+   "id": "en13-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "The current build takes four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 27,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-aside_lexicon": {
+   "id": "en13-aside_lexicon",
+   "cut": [
+    [
+     0,
+     22
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "The current build takes four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 32,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-aside_open": {
+   "id": "en13-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "Bella, drop it! The current build takes four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 31,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-filler": {
+   "id": "en13-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "The uh, current build, basically, takes four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 30,
+   "tokens_after": 30,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-self_correction": {
+   "id": "en13-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "The current build takes six, I mean, four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 31,
+   "tokens_after": 31,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-repetition": {
+   "id": "en13-repetition",
+   "cut": [
+    [
+     0,
+     13
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "compare the build time of Vite and Webpack on the website project.",
+    "The current build takes four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 30,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-false_start": {
+   "id": "en13-false_start",
+   "cut": [
+    [
+     0,
+     5
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "The current build takes four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 28,
+   "tokens_after": 27,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-distractor": {
+   "id": "en13-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "The current build takes four minutes on CI. My wife says the site is slow on her phone."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 39,
+   "tokens_after": 39,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-vague": {
+   "id": "en13-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "The current build takes four minutes on CI. Or something like that, I guess."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 35,
+   "tokens_after": 35,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en13-mixed": {
+   "id": "en13-mixed",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Compare the build time of Vite and Webpack on the website project."
+   ],
+   "items": [
+    "Compare the build time of Vite and Webpack on the website project.",
+    "My dog unplugged the router yesterday, so the network dropped. And now the weather: heavy rain in Seattle tomorrow. The current build takes six, sorry, four minutes on CI."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 57,
+   "tokens_after": 57,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-clean": {
+   "id": "en14-clean",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "The leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 36,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-aside_lexicon": {
+   "id": "en14-aside_lexicon",
+   "cut": [
+    [
+     53,
+     68
+    ]
+   ],
+   "kinds": [
+    "aside_phrase"
+   ],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "The leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 39,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-aside_open": {
+   "id": "en14-aside_open",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "Hey mom, I'll call you back. The leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 43,
+   "tokens_after": 43,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-filler": {
+   "id": "en14-filler",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the uh, clients tab.",
+    "The, I mean, leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 39,
+   "tokens_after": 39,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-self_correction": {
+   "id": "en14-self_correction",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "The leads spreadsheet has three hundred, no, two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 40,
+   "tokens_after": 40,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-repetition": {
+   "id": "en14-repetition",
+   "cut": [
+    [
+     54,
+     65
+    ]
+   ],
+   "kinds": [
+    "repetition"
+   ],
+   "asks": [
+    "remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "The leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 38,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-false_start": {
+   "id": "en14-false_start",
+   "cut": [
+    [
+     54,
+     59
+    ]
+   ],
+   "kinds": [
+    "false_start"
+   ],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "The leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 37,
+   "tokens_after": 36,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-distractor": {
+   "id": "en14-distractor",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "The leads spreadsheet has two hundred duplicate rows. The \"Love you\" button in the dating app is hidden on iOS."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": false,
+   "tokens_before": 51,
+   "tokens_after": 51,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-vague": {
+   "id": "en14-vague",
+   "cut": [],
+   "kinds": [],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "Do not delete anything from the clients tab.",
+    "Or something like that, I guess. The leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [
+    "What is the exact deliverable and primary success criterion?",
+    "Are there specific architectural or runtime constraints?"
+   ],
+   "readiness": "NEEDS_INTAKE",
+   "detected": false,
+   "tokens_before": 44,
+   "tokens_after": 44,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  },
+  "en14-mixed": {
+   "id": "en14-mixed",
+   "cut": [
+    [
+     112,
+     117
+    ],
+    [
+     156,
+     163
+    ],
+    [
+     179,
+     189
+    ]
+   ],
+   "kinds": [
+    "false_start",
+    "comma_bounded",
+    "sentence_opener"
+   ],
+   "asks": [
+    "Remove the duplicates and keep the most recent record."
+   ],
+   "items": [
+    "Remove the duplicates and keep the most recent record.",
+    "do not delete anything from the clients tab.",
+    "The \"Love you\" button in the dating app is hidden on iOS. The leads spreadsheet has two hundred duplicate rows."
+   ],
+   "questions": [],
+   "readiness": "READY_TO_EXECUTE",
+   "detected": true,
+   "tokens_before": 56,
+   "tokens_after": 51,
+   "reconstruct_ok": true,
+   "verbatim_ok": true,
+   "roles_degraded": null,
+   "jev_model": null
+  }
+ }
+}

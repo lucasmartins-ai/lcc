@@ -8,6 +8,19 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc intake` cuts what a dictation says to someone else, and lists the real asks.**
+  Three layers, each measured on a synthetic benchmark whose answer is known by construction
+  ([protocol and results](benchmarks/research/intake-dictation-v1/RESULTS.md)):
+  fixed rules cut a closed list of asides ("Te amo.", "Coming, honey!"), self-corrections
+  ("na sexta, não, quer dizer, na segunda" keeps "na segunda"), repeated starts and cut-off
+  words; the brief now lists every ask, constraint and context sentence verbatim with its spans
+  in the raw input (`brief.asks`, report `extract`), and readiness questions follow the input's
+  language. `--judge-roles` (opt-in, Jev, feature `lcc_intake_roles` in
+  [docs/JEV.md](docs/JEV.md)) also cuts asides outside the list at p >= 0.9 and keeps everything
+  when Jev is missing or fails. Every cut is in the receipt, and `rebuild_input` gives the raw
+  input back byte for byte. A dictated "talvez"/"maybe" no longer counts as ambiguity, and a
+  constraint sentence no longer counts as one more ask.
+
 - **`lcc setup`: Claude Code runs lcc on its own.** One command writes what the guide asked
   for by hand in `~/.claude/settings.json`: the function-hook flag,
   the plugin's `provider: rules` with `rulesMode: stashed`, permission for its two tools, the
@@ -56,6 +69,16 @@ All notable changes to this project are documented here. The format is based on
   `PATH` that differs between hooks and MCP servers is not caught.
 
 ### Changed
+
+- **Efficiency baseline updated.**
+  - **What moved:** intake `cost` 1.317 → 2.392, `prefix_share` 0.8940 → 0.8986 and
+    `tokens_out` 17790 → 17784.
+  - **Why:** the dictation intake reads the input sentence by sentence (roles for the brief,
+    speech spans for the receipt), so the gate's 1,500-note synthetic brief now takes about
+    92 ms instead of 49 ms on the maintainer's machine (5 warm runs each, Python 3.14). On a
+    304-word prompt the same machine measured 2.16 ms before and 2.79 ms after (50 runs each).
+  - **How:** only the intake entry was edited, with the values `efficiency_gate.py --check`
+    printed in the Python 3.13 CI job of PR #174; the other paths were not re-measured.
 
 - **`lcc hint --hook` answers without loading the CLI, and the hints stay the same.**
   - **Entry point:** the `lcc` console script now starts at `lcc.entry:main`. When the command

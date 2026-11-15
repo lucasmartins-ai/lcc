@@ -1,0 +1,8385 @@
+{
+ "version": "intake-dictation-v1",
+ "seed": 20261115,
+ "cases": [
+  {
+   "id": "pt01-clean",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Preciso que você corrija o teste de integração do checkout. Ele quebra desde ontem no CI com timeout no banco. Não mexa no schema das tabelas.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      59
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt01-aside_lexicon",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Tô indo, amor. Preciso que você corrija o teste de integração do checkout. Ele quebra desde ontem no CI com timeout no banco. Não mexa no schema das tabelas.",
+   "cuts": [
+    [
+     0,
+     14,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      15,
+      74
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     14
+    ]
+   ]
+  },
+  {
+   "id": "pt01-aside_open",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Preciso que você corrija o teste de integração do checkout. Oi, mãe, te ligo depois. Ele quebra desde ontem no CI com timeout no banco. Não mexa no schema das tabelas.",
+   "cuts": [
+    [
+     60,
+     84,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      59
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     60,
+     84
+    ]
+   ]
+  },
+  {
+   "id": "pt01-filler",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Cara, preciso que você corrija o teste de integração do checkout. Ele quebra desde ontem no CI com timeout no banco. Não hum, mexa no schema das tabelas.",
+   "cuts": [
+    [
+     0,
+     6,
+     "filler"
+    ],
+    [
+     121,
+     126,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      6,
+      65
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt01-self_correction",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Preciso que você corrija o teste de integração do checkout. Ele quebra desde segunda, quer dizer, desde ontem no CI com timeout no banco. Não mexa no schema das tabelas.",
+   "cuts": [
+    [
+     71,
+     98,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      59
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt01-repetition",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Preciso, preciso que você corrija o teste de integração do checkout. Ele quebra desde ontem no CI com timeout no banco. Não mexa no schema das tabelas.",
+   "cuts": [
+    [
+     0,
+     9,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      9,
+      68
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt01-false_start",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Pre- Preciso que você corrija o teste de integração do checkout. Ele quebra desde ontem no CI com timeout no banco. Não mexa no schema das tabelas.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      64
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt01-distractor",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Preciso que você corrija o teste de integração do checkout. Minha esposa reclamou que o site está lento no celular. Ele quebra desde ontem no CI com timeout no banco. Não mexa no schema das tabelas.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      59
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt01-vague",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Preciso que você corrija o teste de integração do checkout. Ele quebra desde ontem no CI com timeout no banco. Ou alguma coisa assim, não sei bem. Não mexa no schema das tabelas.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      59
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt01-mixed",
+   "base": "pt01",
+   "lang": "pt",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "distractor",
+    "filler"
+   ],
+   "text": "Preciso que você corrija o teste de integração do ahn, checkout. Ele quebra desde ontem no CI com timeout no hum, banco. Minha esposa reclamou que o site está lento no celular. Desce do sofá, Bob! Não mexa no schema das tabelas.",
+   "cuts": [
+    [
+     50,
+     55,
+     "filler"
+    ],
+    [
+     109,
+     114,
+     "filler"
+    ],
+    [
+     177,
+     196,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      50
+     ],
+     [
+      55,
+      64
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     177,
+     196
+    ]
+   ]
+  },
+  {
+   "id": "pt02-clean",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Rode a migração do banco na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Depois me mande o log completo da execução.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      99,
+      142
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt02-aside_lexicon",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Rode a migração do banco na segunda de manhã. Te amo. O time de suporte avisou os clientes sobre a janela. Depois me mande o log completo da execução.",
+   "cuts": [
+    [
+     46,
+     53,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      107,
+      150
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     46,
+     53
+    ]
+   ]
+  },
+  {
+   "id": "pt02-aside_open",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Thor, sai daí! Rode a migração do banco na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Depois me mande o log completo da execução.",
+   "cuts": [
+    [
+     0,
+     14,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      15,
+      60
+     ]
+    ],
+    [
+     [
+      114,
+      157
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     14
+    ]
+   ]
+  },
+  {
+   "id": "pt02-filler",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Rode a migração do banco na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Cara, depois me mande o ahn, log completo da execução.",
+   "cuts": [
+    [
+     99,
+     105,
+     "filler"
+    ],
+    [
+     123,
+     128,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      105,
+      123
+     ],
+     [
+      128,
+      153
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt02-self_correction",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Rode a migração do banco na sexta, não, quer dizer, na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Depois me mande o log completo da execução.",
+   "cuts": [
+    [
+     25,
+     52,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      25
+     ],
+     [
+      52,
+      72
+     ]
+    ],
+    [
+     [
+      126,
+      169
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt02-repetition",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Rode, rode a migração do banco na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Depois me mande o log completo da execução.",
+   "cuts": [
+    [
+     0,
+     6,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      6,
+      51
+     ]
+    ],
+    [
+     [
+      105,
+      148
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt02-false_start",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Ro- Rode a migração do banco na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Depois me mande o log completo da execução.",
+   "cuts": [
+    [
+     0,
+     4,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      4,
+      49
+     ]
+    ],
+    [
+     [
+      103,
+      146
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt02-distractor",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Rode a migração do banco na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Deixa eu pensar como explicar isso. Depois me mande o log completo da execução.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      135,
+      178
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt02-vague",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Ou alguma coisa assim, não sei bem. Rode a migração do banco na segunda de manhã. O time de suporte avisou os clientes sobre a janela. Depois me mande o log completo da execução.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      36,
+      81
+     ]
+    ],
+    [
+     [
+      135,
+      178
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt02-mixed",
+   "base": "pt02",
+   "lang": "pt",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_lexicon",
+    "aside_open",
+    "filler"
+   ],
+   "text": "Rode a migração do banco na segunda de manhã. Amor, já vou. O time de suporte avisou os clientes sobre a janela. Então assim, depois me mande, tipo, o log completo da execução. Desce do sofá, Bob!",
+   "cuts": [
+    [
+     46,
+     59,
+     "aside_lexicon"
+    ],
+    [
+     113,
+     126,
+     "filler"
+    ],
+    [
+     141,
+     148,
+     "filler"
+    ],
+    [
+     177,
+     196,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      126,
+      141
+     ],
+     [
+      148,
+      176
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     46,
+     59
+    ],
+    [
+     177,
+     196
+    ]
+   ]
+  },
+  {
+   "id": "pt03-clean",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "O relatório mensal está saindo com os valores em dólar. Você consegue trocar a moeda padrão para real? Só altere a configuração, sem mexer no código.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      56,
+      102
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt03-aside_lexicon",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Tô indo, amor. O relatório mensal está saindo com os valores em dólar. Você consegue trocar a moeda padrão para real? Só altere a configuração, sem mexer no código.",
+   "cuts": [
+    [
+     0,
+     14,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      71,
+      117
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     14
+    ]
+   ]
+  },
+  {
+   "id": "pt03-aside_open",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "O relatório mensal está saindo com os valores em dólar. Você consegue trocar a moeda padrão para real? Só altere a configuração, sem mexer no código. Filho, desliga essa televisão.",
+   "cuts": [
+    [
+     150,
+     180,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      102
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     150,
+     180
+    ]
+   ]
+  },
+  {
+   "id": "pt03-filler",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "O relatório mensal está saindo com os valores em dólar. Você consegue trocar a moeda padrão para real? Então assim, só altere a configuração, sem mexer, né, no código.",
+   "cuts": [
+    [
+     103,
+     116,
+     "filler"
+    ],
+    [
+     151,
+     156,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      102
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt03-self_correction",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "O relatório mensal está saindo com os valores em dólar. Você consegue trocar a moeda padrão para euro, não, quer dizer, real? Só altere a configuração, sem mexer no código.",
+   "cuts": [
+    [
+     97,
+     120,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      97
+     ],
+     [
+      120,
+      125
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt03-repetition",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "O relatório mensal está saindo com os valores em dólar. Você consegue você consegue trocar a moeda padrão para real? Só altere a configuração, sem mexer no código.",
+   "cuts": [
+    [
+     56,
+     70,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      70,
+      116
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt03-false_start",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "O relatório mensal está saindo com os valores em dólar. Vo- Você consegue trocar a moeda padrão para real? Só altere a configuração, sem mexer no código.",
+   "cuts": [
+    [
+     56,
+     60,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      60,
+      106
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt03-distractor",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "O relatório mensal está saindo com os valores em dólar. O botão \"Te amo\" do app de namoro não aparece no iPhone. Você consegue trocar a moeda padrão para real? Só altere a configuração, sem mexer no código.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      113,
+      159
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt03-vague",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "O relatório mensal está saindo com os valores em dólar. Você consegue trocar a moeda padrão para real? Só altere a configuração, sem mexer no código. Ou alguma coisa assim, não sei bem.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      56,
+      102
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt03-mixed",
+   "base": "pt03",
+   "lang": "pt",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_lexicon",
+    "distractor",
+    "self_correction"
+   ],
+   "text": "Meu cachorro derrubou o roteador ontem, por isso a rede caiu. O relatório mensal está saindo com os valores em dólar. Você consegue trocar a moeda padrão para euro, não, real? Só altere a configuração, sem mexer no código. Já vou, amor!",
+   "cuts": [
+    [
+     159,
+     170,
+     "self_correction"
+    ],
+    [
+     223,
+     236,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      118,
+      159
+     ],
+     [
+      170,
+      175
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     223,
+     236
+    ]
+   ]
+  },
+  {
+   "id": "pt04-clean",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Queria que você revisasse o PR 42 antes do almoço. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      50
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt04-aside_lexicon",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Amor, já vou. Queria que você revisasse o PR 42 antes do almoço. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [
+    [
+     0,
+     13,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      14,
+      64
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     13
+    ]
+   ]
+  },
+  {
+   "id": "pt04-aside_open",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Queria que você revisasse o PR 42 antes do almoço. Filho, desliga essa televisão. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [
+    [
+     51,
+     81,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      50
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     51,
+     81
+    ]
+   ]
+  },
+  {
+   "id": "pt04-filler",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Queria que você revisasse o PR 42 antes do almoço. Ele muda a autenticação hum, do painel de admin. Não faça merge, tipo, sem os testes passarem.",
+   "cuts": [
+    [
+     75,
+     80,
+     "filler"
+    ],
+    [
+     114,
+     121,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      50
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt04-self_correction",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Queria que você revisasse o PR 24, quer dizer, 42 antes do almoço. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [
+    [
+     31,
+     47,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      31
+     ],
+     [
+      47,
+      66
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt04-repetition",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Queria que queria que você revisasse o PR 42 antes do almoço. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [
+    [
+     0,
+     11,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      11,
+      61
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt04-false_start",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Que- Queria que você revisasse o PR 42 antes do almoço. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      55
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt04-distractor",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "O botão \"Te amo\" do app de namoro não aparece no iPhone. Queria que você revisasse o PR 42 antes do almoço. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      57,
+      107
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt04-vague",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Não sei se é o melhor jeito, sei lá. Queria que você revisasse o PR 42 antes do almoço. Ele muda a autenticação do painel de admin. Não faça merge sem os testes passarem.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      37,
+      87
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt04-mixed",
+   "base": "pt04",
+   "lang": "pt",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "filler",
+    "self_correction"
+   ],
+   "text": "Queria que você revisasse o PR 24, digo, 42 antes do almoço. Ele muda a autenticação do painel de admin. Então assim, não faça merge sem, sabe, os testes passarem. Thor, sai daí!",
+   "cuts": [
+    [
+     31,
+     41,
+     "self_correction"
+    ],
+    [
+     105,
+     118,
+     "filler"
+    ],
+    [
+     136,
+     143,
+     "filler"
+    ],
+    [
+     164,
+     178,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      31
+     ],
+     [
+      41,
+      60
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     164,
+     178
+    ]
+   ]
+  },
+  {
+   "id": "pt05-clean",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "A página de preços demora oito segundos para carregar no celular. Investigue o que está pesando no carregamento. Depois me diga quais imagens dá para comprimir.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      66,
+      112
+     ]
+    ],
+    [
+     [
+      113,
+      160
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt05-aside_lexicon",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Tô indo, amor. A página de preços demora oito segundos para carregar no celular. Investigue o que está pesando no carregamento. Depois me diga quais imagens dá para comprimir.",
+   "cuts": [
+    [
+     0,
+     14,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      81,
+      127
+     ]
+    ],
+    [
+     [
+      128,
+      175
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     14
+    ]
+   ]
+  },
+  {
+   "id": "pt05-aside_open",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "A página de preços demora oito segundos para carregar no celular. Investigue o que está pesando no carregamento. Oi, mãe, te ligo depois. Depois me diga quais imagens dá para comprimir.",
+   "cuts": [
+    [
+     113,
+     137,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      112
+     ]
+    ],
+    [
+     [
+      138,
+      185
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     113,
+     137
+    ]
+   ]
+  },
+  {
+   "id": "pt05-filler",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "A página de preços, sabe, demora oito segundos para carregar no celular. Investigue o que, tipo, está pesando no carregamento. Depois me diga quais imagens dá para comprimir.",
+   "cuts": [
+    [
+     18,
+     25,
+     "filler"
+    ],
+    [
+     89,
+     96,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      73,
+      89
+     ],
+     [
+      96,
+      126
+     ]
+    ],
+    [
+     [
+      127,
+      174
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt05-self_correction",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "A página de preços demora dez, quer dizer, oito segundos para carregar no celular. Investigue o que está pesando no carregamento. Depois me diga quais imagens dá para comprimir.",
+   "cuts": [
+    [
+     26,
+     43,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      83,
+      129
+     ]
+    ],
+    [
+     [
+      130,
+      177
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt05-repetition",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "A página de preços demora oito segundos para carregar no celular. Investigue o investigue o que está pesando no carregamento. Depois me diga quais imagens dá para comprimir.",
+   "cuts": [
+    [
+     66,
+     79,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      79,
+      125
+     ]
+    ],
+    [
+     [
+      126,
+      173
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt05-false_start",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "A página de preços demora oito segundos para carregar no celular. Investigue o que está pesando no carregamento. Dep- Depois me diga quais imagens dá para comprimir.",
+   "cuts": [
+    [
+     113,
+     118,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      112
+     ]
+    ],
+    [
+     [
+      118,
+      165
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt05-distractor",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "A página de preços demora oito segundos para carregar no celular. Investigue o que está pesando no carregamento. Depois me diga quais imagens dá para comprimir. Meu cachorro derrubou o roteador ontem, por isso a rede caiu.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      66,
+      112
+     ]
+    ],
+    [
+     [
+      113,
+      160
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt05-vague",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "A página de preços demora oito segundos para carregar no celular. Investigue o que está pesando no carregamento. Depois me diga quais imagens dá para comprimir. Não sei se é o melhor jeito, sei lá.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      66,
+      112
+     ]
+    ],
+    [
+     [
+      113,
+      160
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt05-mixed",
+   "base": "pt05",
+   "lang": "pt",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "distractor",
+    "false_start",
+    "self_correction"
+   ],
+   "text": "A página de preços demora dez, digo, oito segundos para carregar no celular. Inves- Investigue o que está pesando no carregamento. O botão \"Te amo\" do app de namoro não aparece no iPhone. Depois me diga quais imagens dá para comprimir.",
+   "cuts": [
+    [
+     26,
+     37,
+     "self_correction"
+    ],
+    [
+     77,
+     84,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      84,
+      130
+     ]
+    ],
+    [
+     [
+      188,
+      235
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-clean",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. A função está em src/cart/discount.py.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      55
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-aside_lexicon",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. Também te amo! A função está em src/cart/discount.py.",
+   "cuts": [
+    [
+     93,
+     107,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      55
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     93,
+     107
+    ]
+   ]
+  },
+  {
+   "id": "pt06-aside_open",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Thor, sai daí! Escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. A função está em src/cart/discount.py.",
+   "cuts": [
+    [
+     0,
+     14,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      15,
+      70
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     14
+    ]
+   ]
+  },
+  {
+   "id": "pt06-filler",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Escreva um teste para a função de desconto do carrinho. Use pytest e, sabe, nada de mocks do banco. Tipo, a função está em src/cart/discount.py.",
+   "cuts": [
+    [
+     68,
+     75,
+     "filler"
+    ],
+    [
+     100,
+     106,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      55
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-self_correction",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. A função está em src/cart/price.py, não, quer dizer, src/cart/discount.py.",
+   "cuts": [
+    [
+     110,
+     146,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      55
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-repetition",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Escreva, escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. A função está em src/cart/discount.py.",
+   "cuts": [
+    [
+     0,
+     9,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      9,
+      64
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-false_start",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Esc- Escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. A função está em src/cart/discount.py.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      60
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-distractor",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. A função está em src/cart/discount.py. Meu cachorro derrubou o roteador ontem, por isso a rede caiu.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      55
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-vague",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Ou alguma coisa assim, não sei bem. Escreva um teste para a função de desconto do carrinho. Use pytest e nada de mocks do banco. A função está em src/cart/discount.py.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      36,
+      91
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt06-mixed",
+   "base": "pt06",
+   "lang": "pt",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "filler",
+    "repetition"
+   ],
+   "text": "Escreva, escreva um teste, né, para a função, né, de desconto do carrinho. Use pytest e nada de mocks do banco. Mel, larga isso! A função está em src/cart/discount.py.",
+   "cuts": [
+    [
+     0,
+     9,
+     "repetition"
+    ],
+    [
+     25,
+     30,
+     "filler"
+    ],
+    [
+     44,
+     49,
+     "filler"
+    ],
+    [
+     112,
+     128,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      9,
+      25
+     ],
+     [
+      30,
+      44
+     ],
+     [
+      49,
+      74
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     112,
+     128
+    ]
+   ]
+  },
+  {
+   "id": "pt07-clean",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Faça o rollback para a versão 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      48,
+      84
+     ]
+    ],
+    [
+     [
+      85,
+      121
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt07-aside_lexicon",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Te amo. Faça o rollback para a versão 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [
+    [
+     48,
+     55,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      92
+     ]
+    ],
+    [
+     [
+      93,
+      129
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     48,
+     55
+    ]
+   ]
+  },
+  {
+   "id": "pt07-aside_open",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Mel, larga isso! Faça o rollback para a versão 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [
+    [
+     48,
+     64,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      65,
+      101
+     ]
+    ],
+    [
+     [
+      102,
+      138
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     48,
+     64
+    ]
+   ]
+  },
+  {
+   "id": "pt07-filler",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "O deploy de ontem derrubou, entendeu, o worker de e-mails. Faça o ahn, rollback para a versão 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [
+    [
+     26,
+     37,
+     "filler"
+    ],
+    [
+     66,
+     71,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      59,
+      66
+     ],
+     [
+      71,
+      100
+     ]
+    ],
+    [
+     [
+      101,
+      137
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt07-self_correction",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Faça o rollback para a versão 1.8.3, ou melhor, 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [
+    [
+     78,
+     96,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      48,
+      78
+     ],
+     [
+      96,
+      102
+     ]
+    ],
+    [
+     [
+      103,
+      139
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt07-repetition",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Faça o, faça o rollback para a versão 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [
+    [
+     48,
+     56,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      92
+     ]
+    ],
+    [
+     [
+      93,
+      129
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt07-false_start",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Faça o rollback para a versão 1.8.2. E- E abra uma issue explicando a causa.",
+   "cuts": [
+    [
+     85,
+     88,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      48,
+      84
+     ]
+    ],
+    [
+     [
+      88,
+      124
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt07-distractor",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Faça o rollback para a versão 1.8.2. O botão \"Te amo\" do app de namoro não aparece no iPhone. E abra uma issue explicando a causa.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      48,
+      84
+     ]
+    ],
+    [
+     [
+      142,
+      178
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt07-vague",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "O deploy de ontem derrubou o worker de e-mails. Não sei se é o melhor jeito, sei lá. Faça o rollback para a versão 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      85,
+      121
+     ]
+    ],
+    [
+     [
+      122,
+      158
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt07-mixed",
+   "base": "pt07",
+   "lang": "pt",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "distractor",
+    "self_correction"
+   ],
+   "text": "Minha esposa reclamou que o site está lento no celular. O deploy de ontem derrubou o worker de e-mails. Filho, desliga essa televisão. Faça o rollback para a versão 1.8.3, ou melhor, 1.8.2. E abra uma issue explicando a causa.",
+   "cuts": [
+    [
+     104,
+     134,
+     "aside_open"
+    ],
+    [
+     165,
+     183,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      135,
+      165
+     ],
+     [
+      183,
+      189
+     ]
+    ],
+    [
+     [
+      190,
+      226
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     104,
+     134
+    ]
+   ]
+  },
+  {
+   "id": "pt08-clean",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Atualize o README com o novo comando de instalação. Mantenha o texto em inglês. O comando mudou na versão 2.0.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      51
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt08-aside_lexicon",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Tô indo, amor. Atualize o README com o novo comando de instalação. Mantenha o texto em inglês. O comando mudou na versão 2.0.",
+   "cuts": [
+    [
+     0,
+     14,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      15,
+      66
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     14
+    ]
+   ]
+  },
+  {
+   "id": "pt08-aside_open",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Desce do sofá, Bob! Atualize o README com o novo comando de instalação. Mantenha o texto em inglês. O comando mudou na versão 2.0.",
+   "cuts": [
+    [
+     0,
+     19,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      20,
+      71
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     19
+    ]
+   ]
+  },
+  {
+   "id": "pt08-filler",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Atualize o README com o novo comando de instalação. Mantenha, né, o texto hum, em inglês. O comando mudou na versão 2.0.",
+   "cuts": [
+    [
+     60,
+     65,
+     "filler"
+    ],
+    [
+     74,
+     79,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      51
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt08-self_correction",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Atualize o README com o novo comando de instalação. Mantenha o texto em inglês. O comando mudou na versão 1.9, não, quer dizer, na versão 2.0.",
+   "cuts": [
+    [
+     96,
+     128,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      51
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt08-repetition",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Atualize o atualize o README com o novo comando de instalação. Mantenha o texto em inglês. O comando mudou na versão 2.0.",
+   "cuts": [
+    [
+     0,
+     11,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      11,
+      62
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt08-false_start",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Atua- Atualize o README com o novo comando de instalação. Mantenha o texto em inglês. O comando mudou na versão 2.0.",
+   "cuts": [
+    [
+     0,
+     6,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      6,
+      57
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt08-distractor",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Atualize o README com o novo comando de instalação. Mantenha o texto em inglês. O botão \"Te amo\" do app de namoro não aparece no iPhone. O comando mudou na versão 2.0.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      51
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt08-vague",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Atualize o README com o novo comando de instalação. Ou alguma coisa assim, não sei bem. Mantenha o texto em inglês. O comando mudou na versão 2.0.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      51
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt08-mixed",
+   "base": "pt08",
+   "lang": "pt",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "filler",
+    "repetition"
+   ],
+   "text": "Atualize, atualize o README com o novo comando de instalação. Mantenha, né, o texto em inglês. O comando mudou na, cara, versão 2.0. Mel, larga isso!",
+   "cuts": [
+    [
+     0,
+     10,
+     "repetition"
+    ],
+    [
+     70,
+     75,
+     "filler"
+    ],
+    [
+     113,
+     120,
+     "filler"
+    ],
+    [
+     133,
+     149,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      10,
+      61
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     133,
+     149
+    ]
+   ]
+  },
+  {
+   "id": "pt09-clean",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Os clientes do plano grátis estão vendo o botão de exportar. Esconda esse botão para quem não paga. Não remova a rota da API.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      61,
+      99
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt09-aside_lexicon",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Já vou, amor! Os clientes do plano grátis estão vendo o botão de exportar. Esconda esse botão para quem não paga. Não remova a rota da API.",
+   "cuts": [
+    [
+     0,
+     13,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      75,
+      113
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     13
+    ]
+   ]
+  },
+  {
+   "id": "pt09-aside_open",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Os clientes do plano grátis estão vendo o botão de exportar. Oi, mãe, te ligo depois. Esconda esse botão para quem não paga. Não remova a rota da API.",
+   "cuts": [
+    [
+     61,
+     85,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      86,
+      124
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     61,
+     85
+    ]
+   ]
+  },
+  {
+   "id": "pt09-filler",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Os clientes do plano grátis hum, estão vendo o botão de exportar. Esconda esse botão para quem não paga. Tipo, não remova a rota da API.",
+   "cuts": [
+    [
+     28,
+     33,
+     "filler"
+    ],
+    [
+     105,
+     111,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      104
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt09-self_correction",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Os clientes do plano grátis estão vendo o botão de importar, ou melhor, exportar. Esconda esse botão para quem não paga. Não remova a rota da API.",
+   "cuts": [
+    [
+     51,
+     72,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      82,
+      120
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt09-repetition",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Os clientes do plano grátis estão vendo o botão de exportar. Esconda, esconda esse botão para quem não paga. Não remova a rota da API.",
+   "cuts": [
+    [
+     61,
+     70,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      70,
+      108
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt09-false_start",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Os clientes do plano grátis estão vendo o botão de exportar. Esc- Esconda esse botão para quem não paga. Não remova a rota da API.",
+   "cuts": [
+    [
+     61,
+     66,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      104
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt09-distractor",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Os clientes do plano grátis estão vendo o botão de exportar. Esconda esse botão para quem não paga. Minha esposa reclamou que o site está lento no celular. Não remova a rota da API.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      61,
+      99
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt09-vague",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Os clientes do plano grátis estão vendo o botão de exportar. Esconda esse botão para quem não paga. Não remova a rota da API. Ou alguma coisa assim, não sei bem.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      61,
+      99
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt09-mixed",
+   "base": "pt09",
+   "lang": "pt",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "distractor",
+    "false_start",
+    "self_correction"
+   ],
+   "text": "Meu cachorro derrubou o roteador ontem, por isso a rede caiu. Os clientes do plano grátis estão vendo o botão de importar, quer dizer, exportar. Esc- Esconda esse botão para quem não paga. Não remova a rota da API.",
+   "cuts": [
+    [
+     113,
+     135,
+     "self_correction"
+    ],
+    [
+     145,
+     150,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      150,
+      188
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-clean",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Me explica por que o cache do prompt não está acertando. O prefixo muda a cada pedido por causa da data no cabeçalho.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-aside_lexicon",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Me explica por que o cache do prompt não está acertando. O prefixo muda a cada pedido por causa da data no cabeçalho. Amor, já vou.",
+   "cuts": [
+    [
+     118,
+     131,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     118,
+     131
+    ]
+   ]
+  },
+  {
+   "id": "pt10-aside_open",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Me explica por que o cache do prompt não está acertando. Filho, desliga essa televisão. O prefixo muda a cada pedido por causa da data no cabeçalho.",
+   "cuts": [
+    [
+     57,
+     87,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     57,
+     87
+    ]
+   ]
+  },
+  {
+   "id": "pt10-filler",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Me explica por que o cache do hum, prompt não, tipo, está acertando. O prefixo muda a cada pedido por causa da data no cabeçalho.",
+   "cuts": [
+    [
+     30,
+     35,
+     "filler"
+    ],
+    [
+     45,
+     52,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      30
+     ],
+     [
+      35,
+      45
+     ],
+     [
+      52,
+      68
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-self_correction",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Me explica por que o cache do prompt não está acertando. O prefixo muda a cada sessão, não, quer dizer, a cada pedido por causa da data no cabeçalho.",
+   "cuts": [
+    [
+     72,
+     104,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-repetition",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Me explica, me explica por que o cache do prompt não está acertando. O prefixo muda a cada pedido por causa da data no cabeçalho.",
+   "cuts": [
+    [
+     0,
+     12,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      12,
+      68
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-false_start",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Me- Me explica por que o cache do prompt não está acertando. O prefixo muda a cada pedido por causa da data no cabeçalho.",
+   "cuts": [
+    [
+     0,
+     4,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      4,
+      60
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-distractor",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "O botão \"Te amo\" do app de namoro não aparece no iPhone. Me explica por que o cache do prompt não está acertando. O prefixo muda a cada pedido por causa da data no cabeçalho.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      57,
+      113
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-vague",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Não sei se é o melhor jeito, sei lá. Me explica por que o cache do prompt não está acertando. O prefixo muda a cada pedido por causa da data no cabeçalho.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      37,
+      93
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt10-mixed",
+   "base": "pt10",
+   "lang": "pt",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_lexicon",
+    "repetition",
+    "self_correction"
+   ],
+   "text": "Me, me explica por que o cache do prompt não está acertando. O prefixo muda a cada sessão, quer dizer, a cada pedido por causa da data no cabeçalho. Amor, já vou.",
+   "cuts": [
+    [
+     0,
+     4,
+     "repetition"
+    ],
+    [
+     76,
+     103,
+     "self_correction"
+    ],
+    [
+     149,
+     162,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      4,
+      60
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     149,
+     162
+    ]
+   ]
+  },
+  {
+   "id": "pt11-clean",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Gere a fatura de outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. O valor já está aprovado no CRM.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      52
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt11-aside_lexicon",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Gere a fatura de outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. Amor, já vou. O valor já está aprovado no CRM.",
+   "cuts": [
+    [
+     94,
+     107,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      52
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     94,
+     107
+    ]
+   ]
+  },
+  {
+   "id": "pt11-aside_open",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Desce do sofá, Bob! Gere a fatura de outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. O valor já está aprovado no CRM.",
+   "cuts": [
+    [
+     0,
+     19,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      20,
+      72
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     19
+    ]
+   ]
+  },
+  {
+   "id": "pt11-filler",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Gere a fatura de outubro para a clínica Bristol Vet. Use o ahn, modelo novo com o logo atualizado. O valor já está aprovado hum, no CRM.",
+   "cuts": [
+    [
+     59,
+     64,
+     "filler"
+    ],
+    [
+     124,
+     129,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      52
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt11-self_correction",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Gere a fatura de setembro, não, quer dizer, outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. O valor já está aprovado no CRM.",
+   "cuts": [
+    [
+     17,
+     44,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      17
+     ],
+     [
+      44,
+      79
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt11-repetition",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Gere a gere a fatura de outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. O valor já está aprovado no CRM.",
+   "cuts": [
+    [
+     0,
+     7,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      7,
+      59
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt11-false_start",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Ge- Gere a fatura de outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. O valor já está aprovado no CRM.",
+   "cuts": [
+    [
+     0,
+     4,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      4,
+      56
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt11-distractor",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Gere a fatura de outubro para a clínica Bristol Vet. Meu cachorro derrubou o roteador ontem, por isso a rede caiu. Use o modelo novo com o logo atualizado. O valor já está aprovado no CRM.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      52
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt11-vague",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Gere a fatura de outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. Não sei se é o melhor jeito, sei lá. O valor já está aprovado no CRM.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      52
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt11-mixed",
+   "base": "pt11",
+   "lang": "pt",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "filler",
+    "repetition"
+   ],
+   "text": "Filho, desliga essa televisão. Então assim, gere a fatura de outubro para a clínica Bristol Vet. Use o modelo novo com o logo atualizado. O valor já está aprovado, sabe, no CRM.",
+   "cuts": [
+    [
+     0,
+     30,
+     "aside_open"
+    ],
+    [
+     31,
+     44,
+     "filler"
+    ],
+    [
+     162,
+     169,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      44,
+      96
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     30
+    ]
+   ]
+  },
+  {
+   "id": "pt12-clean",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "O formulário de contato aceita e-mail sem arroba. Adicione validação no front e no back. A mensagem de erro tem que ser em português.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      50,
+      88
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt12-aside_lexicon",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "O formulário de contato aceita e-mail sem arroba. Adicione validação no front e no back. Tô indo, amor. A mensagem de erro tem que ser em português.",
+   "cuts": [
+    [
+     89,
+     103,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      50,
+      88
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     89,
+     103
+    ]
+   ]
+  },
+  {
+   "id": "pt12-aside_open",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "O formulário de contato aceita e-mail sem arroba. Adicione validação no front e no back. Thor, sai daí! A mensagem de erro tem que ser em português.",
+   "cuts": [
+    [
+     89,
+     103,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      50,
+      88
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     89,
+     103
+    ]
+   ]
+  },
+  {
+   "id": "pt12-filler",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "O ahn, formulário de, entendeu, contato aceita e-mail sem arroba. Adicione validação no front e no back. A mensagem de erro tem que ser em português.",
+   "cuts": [
+    [
+     2,
+     7,
+     "filler"
+    ],
+    [
+     20,
+     31,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      104
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt12-self_correction",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "O formulário de contato aceita e-mail sem ponto, não, sem arroba. Adicione validação no front e no back. A mensagem de erro tem que ser em português.",
+   "cuts": [
+    [
+     38,
+     54,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      104
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt12-repetition",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "O formulário de contato aceita e-mail sem arroba. Adicione, adicione validação no front e no back. A mensagem de erro tem que ser em português.",
+   "cuts": [
+    [
+     50,
+     60,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      60,
+      98
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt12-false_start",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "O formulário de contato aceita e-mail sem arroba. Adic- Adicione validação no front e no back. A mensagem de erro tem que ser em português.",
+   "cuts": [
+    [
+     50,
+     56,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      94
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt12-distractor",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "O formulário de contato aceita e-mail sem arroba. O botão \"Te amo\" do app de namoro não aparece no iPhone. Adicione validação no front e no back. A mensagem de erro tem que ser em português.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      107,
+      145
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt12-vague",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "O formulário de contato aceita e-mail sem arroba. Não sei se é o melhor jeito, sei lá. Adicione validação no front e no back. A mensagem de erro tem que ser em português.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      87,
+      125
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt12-mixed",
+   "base": "pt12",
+   "lang": "pt",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "distractor",
+    "false_start",
+    "self_correction"
+   ],
+   "text": "O formulário de contato aceita e-mail sem ponto, ou melhor, sem arroba. Adic- Adicione validação no front e no back. A mensagem de erro tem que ser em português. Deixa eu pensar como explicar isso.",
+   "cuts": [
+    [
+     38,
+     60,
+     "self_correction"
+    ],
+    [
+     72,
+     78,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      78,
+      116
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-clean",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Compare o tempo de build do Vite com o do Webpack no projeto do site. O build atual leva quatro minutos no CI.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      69
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-aside_lexicon",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Te amo. Compare o tempo de build do Vite com o do Webpack no projeto do site. O build atual leva quatro minutos no CI.",
+   "cuts": [
+    [
+     0,
+     7,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      8,
+      77
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     7
+    ]
+   ]
+  },
+  {
+   "id": "pt13-aside_open",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Mel, larga isso! Compare o tempo de build do Vite com o do Webpack no projeto do site. O build atual leva quatro minutos no CI.",
+   "cuts": [
+    [
+     0,
+     16,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      17,
+      86
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     16
+    ]
+   ]
+  },
+  {
+   "id": "pt13-filler",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Compare o tempo de build do Vite com o do Webpack no ahn, projeto do site. O build atual, né, leva quatro minutos no CI.",
+   "cuts": [
+    [
+     53,
+     58,
+     "filler"
+    ],
+    [
+     88,
+     93,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      53
+     ],
+     [
+      58,
+      74
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-self_correction",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Compare o tempo de build do Vite com o do Webpack no projeto do site. O build atual leva seis, ou melhor, quatro minutos no CI.",
+   "cuts": [
+    [
+     89,
+     106,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      69
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-repetition",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Compare o, compare o tempo de build do Vite com o do Webpack no projeto do site. O build atual leva quatro minutos no CI.",
+   "cuts": [
+    [
+     0,
+     11,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      11,
+      80
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-false_start",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Com- Compare o tempo de build do Vite com o do Webpack no projeto do site. O build atual leva quatro minutos no CI.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      74
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-distractor",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Meu cachorro derrubou o roteador ontem, por isso a rede caiu. Compare o tempo de build do Vite com o do Webpack no projeto do site. O build atual leva quatro minutos no CI.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      62,
+      131
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-vague",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Compare o tempo de build do Vite com o do Webpack no projeto do site. Não sei se é o melhor jeito, sei lá. O build atual leva quatro minutos no CI.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      69
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt13-mixed",
+   "base": "pt13",
+   "lang": "pt",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "distractor",
+    "false_start",
+    "self_correction"
+   ],
+   "text": "Com- Compare o tempo de build do Vite com o do Webpack no projeto do site. Deixa eu pensar como explicar isso. O build atual leva seis, não, quer dizer, quatro minutos no CI.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ],
+    [
+     130,
+     153,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      74
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-clean",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "A planilha de leads tem duzentas linhas duplicadas. Remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      52,
+      106
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-aside_lexicon",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "A planilha de leads tem duzentas linhas duplicadas. Já vou, amor! Remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [
+    [
+     52,
+     65,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      120
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     52,
+     65
+    ]
+   ]
+  },
+  {
+   "id": "pt14-aside_open",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Mel, larga isso! A planilha de leads tem duzentas linhas duplicadas. Remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [
+    [
+     0,
+     16,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      69,
+      123
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     16
+    ]
+   ]
+  },
+  {
+   "id": "pt14-filler",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "A planilha de leads tem duzentas ahn, linhas duplicadas. Remova as duplicadas mantendo o registro mais recente. Não, cara, apague nada da aba de clientes.",
+   "cuts": [
+    [
+     33,
+     38,
+     "filler"
+    ],
+    [
+     115,
+     122,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      57,
+      111
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-self_correction",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "A planilha de leads tem trezentas, quer dizer, duzentas linhas duplicadas. Remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [
+    [
+     24,
+     47,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      75,
+      129
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-repetition",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "A planilha de leads tem duzentas linhas duplicadas. Remova as remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [
+    [
+     52,
+     62,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      62,
+      116
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-false_start",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "A planilha de leads tem duzentas linhas duplicadas. Rem- Remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [
+    [
+     52,
+     57,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      57,
+      111
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-distractor",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "A planilha de leads tem duzentas linhas duplicadas. Minha esposa reclamou que o site está lento no celular. Remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      108,
+      162
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-vague",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "A planilha de leads tem duzentas linhas duplicadas. Ou alguma coisa assim, não sei bem. Remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      88,
+      142
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "pt14-mixed",
+   "base": "pt14",
+   "lang": "pt",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "repetition",
+    "self_correction"
+   ],
+   "text": "A planilha de leads tem trezentas, digo, duzentas linhas duplicadas. Remova, remova as duplicadas mantendo o registro mais recente. Não apague nada da aba de clientes. Desce do sofá, Bob!",
+   "cuts": [
+    [
+     24,
+     41,
+     "self_correction"
+    ],
+    [
+     69,
+     77,
+     "repetition"
+    ],
+    [
+     168,
+     187,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      77,
+      131
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     168,
+     187
+    ]
+   ]
+  },
+  {
+   "id": "en01-clean",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Fix the flaky login test in the auth service. It fails about once in ten runs on CI. Do not change the session timeout.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en01-aside_lexicon",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Fix the flaky login test in the auth service. Honey, coming! It fails about once in ten runs on CI. Do not change the session timeout.",
+   "cuts": [
+    [
+     46,
+     60,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     46,
+     60
+    ]
+   ]
+  },
+  {
+   "id": "en01-aside_open",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Fix the flaky login test in the auth service. Max, get off the couch! It fails about once in ten runs on CI. Do not change the session timeout.",
+   "cuts": [
+    [
+     46,
+     69,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     46,
+     69
+    ]
+   ]
+  },
+  {
+   "id": "en01-filler",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Fix the flaky login test in the auth service. It fails uh, about once in ten runs on CI. You know, do not change the session timeout.",
+   "cuts": [
+    [
+     55,
+     59,
+     "filler"
+    ],
+    [
+     89,
+     99,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en01-self_correction",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Fix the flaky login test in the auth service. It fails about once in twenty, I mean, ten runs on CI. Do not change the session timeout.",
+   "cuts": [
+    [
+     69,
+     85,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en01-repetition",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Fix, fix the flaky login test in the auth service. It fails about once in ten runs on CI. Do not change the session timeout.",
+   "cuts": [
+    [
+     0,
+     5,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      50
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en01-false_start",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Fi- Fix the flaky login test in the auth service. It fails about once in ten runs on CI. Do not change the session timeout.",
+   "cuts": [
+    [
+     0,
+     4,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      4,
+      49
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en01-distractor",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Fix the flaky login test in the auth service. Let me think how to put this. It fails about once in ten runs on CI. Do not change the session timeout.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en01-vague",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Fix the flaky login test in the auth service. It fails about once in ten runs on CI. Do not change the session timeout. Not sure this is the best way, or something.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en01-mixed",
+   "base": "en01",
+   "lang": "en",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "distractor",
+    "repetition"
+   ],
+   "text": "Fix the fix the flaky login test in the auth service. It fails about once in ten runs on CI. Max, get off the couch! Let me think how to put this. Do not change the session timeout.",
+   "cuts": [
+    [
+     0,
+     8,
+     "repetition"
+    ],
+    [
+     93,
+     116,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      8,
+      53
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     93,
+     116
+    ]
+   ]
+  },
+  {
+   "id": "en02-clean",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Run the database migration on Monday morning. Support already warned the customers about the window. Then send me the full execution log.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      101,
+      137
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en02-aside_lexicon",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Run the database migration on Monday morning. Support already warned the customers about the window. Then send me the full execution log. Love you too.",
+   "cuts": [
+    [
+     138,
+     151,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      101,
+      137
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     138,
+     151
+    ]
+   ]
+  },
+  {
+   "id": "en02-aside_open",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Hey mom, I'll call you back. Run the database migration on Monday morning. Support already warned the customers about the window. Then send me the full execution log.",
+   "cuts": [
+    [
+     0,
+     28,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      29,
+      74
+     ]
+    ],
+    [
+     [
+      130,
+      166
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     28
+    ]
+   ]
+  },
+  {
+   "id": "en02-filler",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Run the database migration on Monday morning. Support already warned the um, customers, like, about the window. Then send me the full execution log.",
+   "cuts": [
+    [
+     73,
+     77,
+     "filler"
+    ],
+    [
+     86,
+     93,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      112,
+      148
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en02-self_correction",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Run the database migration on Friday, sorry, on Monday morning. Support already warned the customers about the window. Then send me the full execution log.",
+   "cuts": [
+    [
+     27,
+     45,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      27
+     ],
+     [
+      45,
+      63
+     ]
+    ],
+    [
+     [
+      119,
+      155
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en02-repetition",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Run the run the database migration on Monday morning. Support already warned the customers about the window. Then send me the full execution log.",
+   "cuts": [
+    [
+     0,
+     8,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      8,
+      53
+     ]
+    ],
+    [
+     [
+      109,
+      145
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en02-false_start",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Run the database migration on Monday morning. Support already warned the customers about the window. Th- Then send me the full execution log.",
+   "cuts": [
+    [
+     101,
+     105,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      105,
+      141
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en02-distractor",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "The \"Love you\" button in the dating app is hidden on iOS. Run the database migration on Monday morning. Support already warned the customers about the window. Then send me the full execution log.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      58,
+      103
+     ]
+    ],
+    [
+     [
+      159,
+      195
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en02-vague",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Not sure this is the best way, or something. Run the database migration on Monday morning. Support already warned the customers about the window. Then send me the full execution log.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      45,
+      90
+     ]
+    ],
+    [
+     [
+      146,
+      182
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en02-mixed",
+   "base": "en02",
+   "lang": "en",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "distractor",
+    "false_start",
+    "filler"
+   ],
+   "text": "Run the database migration on Monday morning. Support uh, already warned the customers about the window. Th- Then, like, send me the full execution log. My wife says the site is slow on her phone.",
+   "cuts": [
+    [
+     54,
+     58,
+     "filler"
+    ],
+    [
+     105,
+     109,
+     "false_start"
+    ],
+    [
+     113,
+     120,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      45
+     ]
+    ],
+    [
+     [
+      109,
+      113
+     ],
+     [
+      120,
+      152
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-clean",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "The monthly report shows every amount in dollars. Can you switch the default currency to pounds? Only touch the config, not the code.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      50,
+      96
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-aside_lexicon",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "The monthly report shows every amount in dollars. Be right there, babe. Can you switch the default currency to pounds? Only touch the config, not the code.",
+   "cuts": [
+    [
+     50,
+     71,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      72,
+      118
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     50,
+     71
+    ]
+   ]
+  },
+  {
+   "id": "en03-aside_open",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "The monthly report shows every amount in dollars. Can you switch the default currency to pounds? Only touch the config, not the code. Bella, drop it!",
+   "cuts": [
+    [
+     134,
+     149,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      50,
+      96
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     134,
+     149
+    ]
+   ]
+  },
+  {
+   "id": "en03-filler",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "The monthly report shows every amount in dollars. Can you switch the default currency to pounds? Like, only, you know, touch the config, not the code.",
+   "cuts": [
+    [
+     97,
+     103,
+     "filler"
+    ],
+    [
+     107,
+     118,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      50,
+      96
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-self_correction",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "The monthly report shows every amount in dollars. Can you switch the default currency to euros, or rather, pounds? Only touch the config, not the code.",
+   "cuts": [
+    [
+     89,
+     107,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      50,
+      89
+     ],
+     [
+      107,
+      114
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-repetition",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "The monthly report shows every amount in dollars. Can, can you switch the default currency to pounds? Only touch the config, not the code.",
+   "cuts": [
+    [
+     50,
+     55,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      55,
+      101
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-false_start",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "The monthly report shows every amount in dollars. Ca- Can you switch the default currency to pounds? Only touch the config, not the code.",
+   "cuts": [
+    [
+     50,
+     54,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      54,
+      100
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-distractor",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Let me think how to put this. The monthly report shows every amount in dollars. Can you switch the default currency to pounds? Only touch the config, not the code.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      80,
+      126
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-vague",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "The monthly report shows every amount in dollars. Or something like that, I guess. Can you switch the default currency to pounds? Only touch the config, not the code.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      83,
+      129
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en03-mixed",
+   "base": "en03",
+   "lang": "en",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_lexicon",
+    "repetition",
+    "self_correction"
+   ],
+   "text": "The monthly report shows every amount in dollars. Can you can you switch the default currency to euros, sorry, pounds? Honey, coming! Only touch the config, not the code.",
+   "cuts": [
+    [
+     50,
+     58,
+     "repetition"
+    ],
+    [
+     97,
+     111,
+     "self_correction"
+    ],
+    [
+     119,
+     133,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      58,
+      97
+     ],
+     [
+      111,
+      118
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     119,
+     133
+    ]
+   ]
+  },
+  {
+   "id": "en04-clean",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Please review PR 42 before lunch. It changes authentication for the admin panel. Never merge it before the tests pass.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      33
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en04-aside_lexicon",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Love you! Please review PR 42 before lunch. It changes authentication for the admin panel. Never merge it before the tests pass.",
+   "cuts": [
+    [
+     0,
+     9,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      10,
+      43
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     9
+    ]
+   ]
+  },
+  {
+   "id": "en04-aside_open",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Please review PR 42 before lunch. It changes authentication for the admin panel. Never merge it before the tests pass. Bella, drop it!",
+   "cuts": [
+    [
+     119,
+     134,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      33
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     119,
+     134
+    ]
+   ]
+  },
+  {
+   "id": "en04-filler",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Please review PR, you know, 42 before lunch. It changes authentication for the admin panel. Never merge it before the, basically, tests pass.",
+   "cuts": [
+    [
+     16,
+     27,
+     "filler"
+    ],
+    [
+     117,
+     129,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      16
+     ],
+     [
+      27,
+      44
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en04-self_correction",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Please review PR 24, sorry, 42 before lunch. It changes authentication for the admin panel. Never merge it before the tests pass.",
+   "cuts": [
+    [
+     17,
+     28,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      17
+     ],
+     [
+      28,
+      44
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en04-repetition",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Please, please review PR 42 before lunch. It changes authentication for the admin panel. Never merge it before the tests pass.",
+   "cuts": [
+    [
+     0,
+     8,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      8,
+      41
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en04-false_start",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Ple- Please review PR 42 before lunch. It changes authentication for the admin panel. Never merge it before the tests pass.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      38
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en04-distractor",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Please review PR 42 before lunch. It changes authentication for the admin panel. Let me think how to put this. Never merge it before the tests pass.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      33
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en04-vague",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Please review PR 42 before lunch. It changes authentication for the admin panel. Or something like that, I guess. Never merge it before the tests pass.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      33
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en04-mixed",
+   "base": "en04",
+   "lang": "en",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "false_start",
+    "self_correction"
+   ],
+   "text": "Ple- Please review PR 24, or rather, 42 before lunch. Max, get off the couch! It changes authentication for the admin panel. Never merge it before the tests pass.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ],
+    [
+     22,
+     37,
+     "self_correction"
+    ],
+    [
+     54,
+     77,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      22
+     ],
+     [
+      37,
+      53
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     54,
+     77
+    ]
+   ]
+  },
+  {
+   "id": "en05-clean",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "The pricing page takes eight seconds to load on mobile. Find out what is slowing it down. Then tell me which images we can compress.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      56,
+      89
+     ]
+    ],
+    [
+     [
+      90,
+      132
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en05-aside_lexicon",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "The pricing page takes eight seconds to load on mobile. Find out what is slowing it down. Be right there, babe. Then tell me which images we can compress.",
+   "cuts": [
+    [
+     90,
+     111,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      89
+     ]
+    ],
+    [
+     [
+      112,
+      154
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     90,
+     111
+    ]
+   ]
+  },
+  {
+   "id": "en05-aside_open",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "The pricing page takes eight seconds to load on mobile. Find out what is slowing it down. And now the weather: heavy rain in Seattle tomorrow. Then tell me which images we can compress.",
+   "cuts": [
+    [
+     90,
+     142,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      89
+     ]
+    ],
+    [
+     [
+      143,
+      185
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     90,
+     142
+    ]
+   ]
+  },
+  {
+   "id": "en05-filler",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Basically, the pricing page takes eight seconds, like, to load on mobile. Find out what is slowing it down. Then tell me which images we can compress.",
+   "cuts": [
+    [
+     0,
+     11,
+     "filler"
+    ],
+    [
+     47,
+     54,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      74,
+      107
+     ]
+    ],
+    [
+     [
+      108,
+      150
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en05-self_correction",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "The pricing page takes ten, no wait, eight seconds to load on mobile. Find out what is slowing it down. Then tell me which images we can compress.",
+   "cuts": [
+    [
+     23,
+     37,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      70,
+      103
+     ]
+    ],
+    [
+     [
+      104,
+      146
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en05-repetition",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "The pricing page takes eight seconds to load on mobile. Find out, find out what is slowing it down. Then tell me which images we can compress.",
+   "cuts": [
+    [
+     56,
+     66,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      66,
+      99
+     ]
+    ],
+    [
+     [
+      100,
+      142
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en05-false_start",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "The pricing page takes eight seconds to load on mobile. Fi- Find out what is slowing it down. Then tell me which images we can compress.",
+   "cuts": [
+    [
+     56,
+     60,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      60,
+      93
+     ]
+    ],
+    [
+     [
+      94,
+      136
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en05-distractor",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "The pricing page takes eight seconds to load on mobile. Find out what is slowing it down. My wife says the site is slow on her phone. Then tell me which images we can compress.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      56,
+      89
+     ]
+    ],
+    [
+     [
+      134,
+      176
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en05-vague",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "The pricing page takes eight seconds to load on mobile. Find out what is slowing it down. Not sure this is the best way, or something. Then tell me which images we can compress.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      56,
+      89
+     ]
+    ],
+    [
+     [
+      135,
+      177
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en05-mixed",
+   "base": "en05",
+   "lang": "en",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "distractor",
+    "filler",
+    "self_correction"
+   ],
+   "text": "The pricing page takes ten, no wait, eight seconds to load on mobile. My dog unplugged the router yesterday, so the network dropped. Find out, like, what is slowing it down. Then tell me which images, you know, we can compress.",
+   "cuts": [
+    [
+     23,
+     37,
+     "self_correction"
+    ],
+    [
+     141,
+     148,
+     "filler"
+    ],
+    [
+     199,
+     210,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      133,
+      141
+     ],
+     [
+      148,
+      173
+     ]
+    ],
+    [
+     [
+      174,
+      199
+     ],
+     [
+      210,
+      227
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-clean",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/discount.py.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      49
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-aside_lexicon",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Write a unit test for the cart discount function. Love you! Use pytest and do not mock the database. The function lives in src/cart/discount.py.",
+   "cuts": [
+    [
+     50,
+     59,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      49
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     50,
+     59
+    ]
+   ]
+  },
+  {
+   "id": "en06-aside_open",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/discount.py. Max, get off the couch!",
+   "cuts": [
+    [
+     135,
+     158,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      49
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     135,
+     158
+    ]
+   ]
+  },
+  {
+   "id": "en06-filler",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Write uh, a unit test for the cart discount function. Use pytest and do not mock the, you know, database. The function lives in src/cart/discount.py.",
+   "cuts": [
+    [
+     6,
+     10,
+     "filler"
+    ],
+    [
+     84,
+     95,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      10,
+      53
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-self_correction",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/price.py, I mean, src/cart/discount.py.",
+   "cuts": [
+    [
+     113,
+     140,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      49
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-repetition",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Write a write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/discount.py.",
+   "cuts": [
+    [
+     0,
+     8,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      8,
+      57
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-false_start",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Wr- Write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/discount.py.",
+   "cuts": [
+    [
+     0,
+     4,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      4,
+      53
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-distractor",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Let me think how to put this. Write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/discount.py.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      30,
+      79
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-vague",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/discount.py. Or something like that, I guess.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      49
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en06-mixed",
+   "base": "en06",
+   "lang": "en",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_lexicon",
+    "aside_open",
+    "repetition"
+   ],
+   "text": "Kids, turn that TV down. Love you! Write, write a unit test for the cart discount function. Use pytest and do not mock the database. The function lives in src/cart/discount.py.",
+   "cuts": [
+    [
+     0,
+     24,
+     "aside_open"
+    ],
+    [
+     25,
+     34,
+     "aside_lexicon"
+    ],
+    [
+     35,
+     42,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      42,
+      91
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     24
+    ],
+    [
+     25,
+     34
+    ]
+   ]
+  },
+  {
+   "id": "en07-clean",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Yesterday's deploy took down the email worker. Roll back to version 1.8.2. And open an issue explaining the cause.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      47,
+      74
+     ]
+    ],
+    [
+     [
+      75,
+      114
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en07-aside_lexicon",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Love you! Yesterday's deploy took down the email worker. Roll back to version 1.8.2. And open an issue explaining the cause.",
+   "cuts": [
+    [
+     0,
+     9,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      57,
+      84
+     ]
+    ],
+    [
+     [
+      85,
+      124
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     9
+    ]
+   ]
+  },
+  {
+   "id": "en07-aside_open",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Yesterday's deploy took down the email worker. Roll back to version 1.8.2. And open an issue explaining the cause. Bella, drop it!",
+   "cuts": [
+    [
+     115,
+     130,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      47,
+      74
+     ]
+    ],
+    [
+     [
+      75,
+      114
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     115,
+     130
+    ]
+   ]
+  },
+  {
+   "id": "en07-filler",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Basically, yesterday's deploy, like, took down the email worker. Roll back to version 1.8.2. And open an issue explaining the cause.",
+   "cuts": [
+    [
+     0,
+     11,
+     "filler"
+    ],
+    [
+     29,
+     36,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      65,
+      92
+     ]
+    ],
+    [
+     [
+      93,
+      132
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en07-self_correction",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Yesterday's deploy took down the email worker. Roll back to version 1.8.3, no wait, 1.8.2. And open an issue explaining the cause.",
+   "cuts": [
+    [
+     68,
+     84,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      47,
+      68
+     ],
+     [
+      84,
+      90
+     ]
+    ],
+    [
+     [
+      91,
+      130
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en07-repetition",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Yesterday's deploy took down the email worker. Roll back roll back to version 1.8.2. And open an issue explaining the cause.",
+   "cuts": [
+    [
+     47,
+     57,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      57,
+      84
+     ]
+    ],
+    [
+     [
+      85,
+      124
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en07-false_start",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Yesterday's deploy took down the email worker. Roll back to version 1.8.2. An- And open an issue explaining the cause.",
+   "cuts": [
+    [
+     75,
+     79,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      47,
+      74
+     ]
+    ],
+    [
+     [
+      79,
+      118
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en07-distractor",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Yesterday's deploy took down the email worker. Roll back to version 1.8.2. And open an issue explaining the cause. My dog unplugged the router yesterday, so the network dropped.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      47,
+      74
+     ]
+    ],
+    [
+     [
+      75,
+      114
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en07-vague",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Yesterday's deploy took down the email worker. Roll back to version 1.8.2. Or something like that, I guess. And open an issue explaining the cause.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      47,
+      74
+     ]
+    ],
+    [
+     [
+      108,
+      147
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en07-mixed",
+   "base": "en07",
+   "lang": "en",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_lexicon",
+    "aside_open",
+    "filler"
+   ],
+   "text": "Yesterday's deploy took down the email, basically, worker. Kids, turn that TV down. Roll back to um, version 1.8.2. And open an issue explaining the cause. Honey, coming!",
+   "cuts": [
+    [
+     38,
+     50,
+     "filler"
+    ],
+    [
+     59,
+     83,
+     "aside_open"
+    ],
+    [
+     97,
+     101,
+     "filler"
+    ],
+    [
+     156,
+     170,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      84,
+      97
+     ],
+     [
+      101,
+      115
+     ]
+    ],
+    [
+     [
+      116,
+      155
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     59,
+     83
+    ],
+    [
+     156,
+     170
+    ]
+   ]
+  },
+  {
+   "id": "en08-clean",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Update the README with the new install command. Keep the text short. The command changed in version 2.0.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      47
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en08-aside_lexicon",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Update the README with the new install command. Keep the text short. The command changed in version 2.0. Be right there, babe.",
+   "cuts": [
+    [
+     105,
+     126,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      47
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     105,
+     126
+    ]
+   ]
+  },
+  {
+   "id": "en08-aside_open",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Update the README with the new install command. Bella, drop it! Keep the text short. The command changed in version 2.0.",
+   "cuts": [
+    [
+     48,
+     63,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      47
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     48,
+     63
+    ]
+   ]
+  },
+  {
+   "id": "en08-filler",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "You know, update the README um, with the new install command. Keep the text short. The command changed in version 2.0.",
+   "cuts": [
+    [
+     0,
+     10,
+     "filler"
+    ],
+    [
+     28,
+     32,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      10,
+      28
+     ],
+     [
+      32,
+      61
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en08-self_correction",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Update the README with the new install command. Keep the text short. The command changed in version 1.9, I mean, in version 2.0.",
+   "cuts": [
+    [
+     89,
+     113,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      47
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en08-repetition",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Update the, update the README with the new install command. Keep the text short. The command changed in version 2.0.",
+   "cuts": [
+    [
+     0,
+     12,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      12,
+      59
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en08-false_start",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Upd- Update the README with the new install command. Keep the text short. The command changed in version 2.0.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      52
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en08-distractor",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Update the README with the new install command. Keep the text short. The command changed in version 2.0. The \"Love you\" button in the dating app is hidden on iOS.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      47
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en08-vague",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Update the README with the new install command. Keep the text short. Not sure this is the best way, or something. The command changed in version 2.0.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      47
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en08-mixed",
+   "base": "en08",
+   "lang": "en",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "filler",
+    "self_correction"
+   ],
+   "text": "Update, you know, the README with the new install, you know, command. Keep the text short. The command changed in version 1.9, I mean, in version 2.0. And now the weather: heavy rain in Seattle tomorrow.",
+   "cuts": [
+    [
+     6,
+     17,
+     "filler"
+    ],
+    [
+     49,
+     60,
+     "filler"
+    ],
+    [
+     111,
+     135,
+     "self_correction"
+    ],
+    [
+     151,
+     203,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      17,
+      49
+     ],
+     [
+      60,
+      69
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     151,
+     203
+    ]
+   ]
+  },
+  {
+   "id": "en09-clean",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Free plan users can see the export button. Hide that button for anyone who does not pay. Do not remove the API route.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      43,
+      88
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en09-aside_lexicon",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Love you! Free plan users can see the export button. Hide that button for anyone who does not pay. Do not remove the API route.",
+   "cuts": [
+    [
+     0,
+     9,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      53,
+      98
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     9
+    ]
+   ]
+  },
+  {
+   "id": "en09-aside_open",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Free plan users can see the export button. Bella, drop it! Hide that button for anyone who does not pay. Do not remove the API route.",
+   "cuts": [
+    [
+     43,
+     58,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      59,
+      104
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     43,
+     58
+    ]
+   ]
+  },
+  {
+   "id": "en09-filler",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Free, basically, plan users can see the export button. Hide that button for anyone who does not pay. Do not remove the API um, route.",
+   "cuts": [
+    [
+     4,
+     16,
+     "filler"
+    ],
+    [
+     123,
+     127,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      55,
+      100
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en09-self_correction",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Free plan users can see the import, no, I mean, export button. Hide that button for anyone who does not pay. Do not remove the API route.",
+   "cuts": [
+    [
+     28,
+     48,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      63,
+      108
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en09-repetition",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Free plan users can see the export button. Hide that, hide that button for anyone who does not pay. Do not remove the API route.",
+   "cuts": [
+    [
+     43,
+     54,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      54,
+      99
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en09-false_start",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Free plan users can see the export button. Hi- Hide that button for anyone who does not pay. Do not remove the API route.",
+   "cuts": [
+    [
+     43,
+     47,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      47,
+      92
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en09-distractor",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Let me think how to put this. Free plan users can see the export button. Hide that button for anyone who does not pay. Do not remove the API route.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      73,
+      118
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en09-vague",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Free plan users can see the export button. Hide that button for anyone who does not pay. Or something like that, I guess. Do not remove the API route.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      43,
+      88
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en09-mixed",
+   "base": "en09",
+   "lang": "en",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "false_start",
+    "filler"
+   ],
+   "text": "Free plan users can see the export button. And now the weather: heavy rain in Seattle tomorrow. Hi- Hide that button for um, anyone who, I mean, does not pay. Do not remove the API route.",
+   "cuts": [
+    [
+     43,
+     95,
+     "aside_open"
+    ],
+    [
+     96,
+     100,
+     "false_start"
+    ],
+    [
+     121,
+     125,
+     "filler"
+    ],
+    [
+     135,
+     144,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      100,
+      121
+     ],
+     [
+      125,
+      135
+     ],
+     [
+      144,
+      158
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     43,
+     95
+    ]
+   ]
+  },
+  {
+   "id": "en10-clean",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "Explain why the prompt cache keeps missing. The prefix changes on every request because of the date in the header.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      43
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en10-aside_lexicon",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Love you! Explain why the prompt cache keeps missing. The prefix changes on every request because of the date in the header.",
+   "cuts": [
+    [
+     0,
+     9,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      10,
+      53
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     9
+    ]
+   ]
+  },
+  {
+   "id": "en10-aside_open",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Explain why the prompt cache keeps missing. The prefix changes on every request because of the date in the header. Max, get off the couch!",
+   "cuts": [
+    [
+     115,
+     138,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      43
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     115,
+     138
+    ]
+   ]
+  },
+  {
+   "id": "en10-filler",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Explain why the prompt cache keeps uh, missing. The, like, prefix changes on every request because of the date in the header.",
+   "cuts": [
+    [
+     35,
+     39,
+     "filler"
+    ],
+    [
+     51,
+     58,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      35
+     ],
+     [
+      39,
+      47
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en10-self_correction",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Explain why the prompt cache keeps missing. The prefix changes on every session, or rather, on every request because of the date in the header.",
+   "cuts": [
+    [
+     63,
+     92,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      43
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en10-repetition",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Explain, explain why the prompt cache keeps missing. The prefix changes on every request because of the date in the header.",
+   "cuts": [
+    [
+     0,
+     9,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      9,
+      52
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en10-false_start",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Exp- Explain why the prompt cache keeps missing. The prefix changes on every request because of the date in the header.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      48
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en10-distractor",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Explain why the prompt cache keeps missing. The \"Love you\" button in the dating app is hidden on iOS. The prefix changes on every request because of the date in the header.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      43
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en10-vague",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Or something like that, I guess. Explain why the prompt cache keeps missing. The prefix changes on every request because of the date in the header.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      33,
+      76
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en10-mixed",
+   "base": "en10",
+   "lang": "en",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "repetition",
+    "self_correction"
+   ],
+   "text": "Explain why, explain why the prompt cache keeps missing. The prefix changes on every session, sorry, on every request because of the date in the header. Hey mom, I'll call you back.",
+   "cuts": [
+    [
+     0,
+     13,
+     "repetition"
+    ],
+    [
+     76,
+     101,
+     "self_correction"
+    ],
+    [
+     153,
+     181,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      13,
+      56
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     153,
+     181
+    ]
+   ]
+  },
+  {
+   "id": "en11-clean",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en11-aside_lexicon",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM. Coming, honey!",
+   "cuts": [
+    [
+     144,
+     158,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     144,
+     158
+    ]
+   ]
+  },
+  {
+   "id": "en11-aside_open",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "And now the weather: heavy rain in Seattle tomorrow. Generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM.",
+   "cuts": [
+    [
+     0,
+     52,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      53,
+      109
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     52
+    ]
+   ]
+  },
+  {
+   "id": "en11-filler",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount, I mean, is already approved uh, in the CRM.",
+   "cuts": [
+    [
+     111,
+     120,
+     "filler"
+    ],
+    [
+     141,
+     145,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en11-self_correction",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Generate the September, I mean, October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM.",
+   "cuts": [
+    [
+     13,
+     32,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      13
+     ],
+     [
+      32,
+      75
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en11-repetition",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Generate the, generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM.",
+   "cuts": [
+    [
+     0,
+     14,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      14,
+      70
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en11-false_start",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Gene- Generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM.",
+   "cuts": [
+    [
+     0,
+     6,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      6,
+      62
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en11-distractor",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM. Let me think how to put this.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en11-vague",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM. Not sure this is the best way, or something.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      56
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en11-mixed",
+   "base": "en11",
+   "lang": "en",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "distractor",
+    "repetition"
+   ],
+   "text": "Max, get off the couch! The \"Love you\" button in the dating app is hidden on iOS. Generate, generate the October invoice for the Bristol vet clinic. Use the new template with the updated logo. The amount is already approved in the CRM.",
+   "cuts": [
+    [
+     0,
+     23,
+     "aside_open"
+    ],
+    [
+     82,
+     92,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      92,
+      148
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     23
+    ]
+   ]
+  },
+  {
+   "id": "en12-clean",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "The contact form accepts emails without an at sign. Add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      52,
+      101
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en12-aside_lexicon",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "The contact form accepts emails without an at sign. Honey, coming! Add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [
+    [
+     52,
+     66,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      67,
+      116
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     52,
+     66
+    ]
+   ]
+  },
+  {
+   "id": "en12-aside_open",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Hey mom, I'll call you back. The contact form accepts emails without an at sign. Add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [
+    [
+     0,
+     28,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      81,
+      130
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     28
+    ]
+   ]
+  },
+  {
+   "id": "en12-filler",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "The contact form accepts emails without an at sign. Add validation on the front end and the uh, back end. The, basically, error message must be in English.",
+   "cuts": [
+    [
+     92,
+     96,
+     "filler"
+    ],
+    [
+     109,
+     121,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      52,
+      92
+     ],
+     [
+      96,
+      105
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en12-self_correction",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "The contact form accepts emails without a dot, no wait, without an at sign. Add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [
+    [
+     32,
+     56,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      76,
+      125
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en12-repetition",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "The contact form accepts emails without an at sign. Add, add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [
+    [
+     52,
+     57,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      57,
+      106
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en12-false_start",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "The contact form accepts emails without an at sign. Ad- Add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [
+    [
+     52,
+     56,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      56,
+      105
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en12-distractor",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "The contact form accepts emails without an at sign. Let me think how to put this. Add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      82,
+      131
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en12-vague",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Or something like that, I guess. The contact form accepts emails without an at sign. Add validation on the front end and the back end. The error message must be in English.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      85,
+      134
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en12-mixed",
+   "base": "en12",
+   "lang": "en",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "false_start",
+    "filler",
+    "self_correction"
+   ],
+   "text": "You know, the contact form accepts emails without a dot, no, without an at sign. Ad- Add validation on the front end and the back end. The error message, basically, must be in English.",
+   "cuts": [
+    [
+     0,
+     10,
+     "filler"
+    ],
+    [
+     42,
+     61,
+     "self_correction"
+    ],
+    [
+     81,
+     85,
+     "false_start"
+    ],
+    [
+     152,
+     164,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      85,
+      134
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-clean",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "clean",
+   "families": [],
+   "text": "Compare the build time of Vite and Webpack on the website project. The current build takes four minutes on CI.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      66
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-aside_lexicon",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "Be right there, babe. Compare the build time of Vite and Webpack on the website project. The current build takes four minutes on CI.",
+   "cuts": [
+    [
+     0,
+     21,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      22,
+      88
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     21
+    ]
+   ]
+  },
+  {
+   "id": "en13-aside_open",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Bella, drop it! Compare the build time of Vite and Webpack on the website project. The current build takes four minutes on CI.",
+   "cuts": [
+    [
+     0,
+     15,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      16,
+      82
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     15
+    ]
+   ]
+  },
+  {
+   "id": "en13-filler",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "Compare the build time of Vite and Webpack on the website project. The uh, current build, basically, takes four minutes on CI.",
+   "cuts": [
+    [
+     71,
+     75,
+     "filler"
+    ],
+    [
+     88,
+     100,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      66
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-self_correction",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "Compare the build time of Vite and Webpack on the website project. The current build takes six, I mean, four minutes on CI.",
+   "cuts": [
+    [
+     91,
+     104,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      66
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-repetition",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "Compare the, compare the build time of Vite and Webpack on the website project. The current build takes four minutes on CI.",
+   "cuts": [
+    [
+     0,
+     13,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      13,
+      79
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-false_start",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "Com- Compare the build time of Vite and Webpack on the website project. The current build takes four minutes on CI.",
+   "cuts": [
+    [
+     0,
+     5,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      5,
+      71
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-distractor",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "Compare the build time of Vite and Webpack on the website project. The current build takes four minutes on CI. My wife says the site is slow on her phone.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      66
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-vague",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Compare the build time of Vite and Webpack on the website project. The current build takes four minutes on CI. Or something like that, I guess.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      0,
+      66
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en13-mixed",
+   "base": "en13",
+   "lang": "en",
+   "split": "dev",
+   "family": "mixed",
+   "families": [
+    "aside_open",
+    "distractor",
+    "self_correction"
+   ],
+   "text": "Compare the build time of Vite and Webpack on the website project. My dog unplugged the router yesterday, so the network dropped. And now the weather: heavy rain in Seattle tomorrow. The current build takes six, sorry, four minutes on CI.",
+   "cuts": [
+    [
+     130,
+     182,
+     "aside_open"
+    ],
+    [
+     207,
+     219,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      0,
+      66
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     130,
+     182
+    ]
+   ]
+  },
+  {
+   "id": "en14-clean",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "clean",
+   "families": [],
+   "text": "The leads spreadsheet has two hundred duplicate rows. Remove the duplicates and keep the most recent record. Do not delete anything from the clients tab.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      54,
+      108
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en14-aside_lexicon",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_lexicon",
+   "families": [
+    "aside_lexicon"
+   ],
+   "text": "The leads spreadsheet has two hundred duplicate rows. Honey, coming! Remove the duplicates and keep the most recent record. Do not delete anything from the clients tab.",
+   "cuts": [
+    [
+     54,
+     68,
+     "aside_lexicon"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      69,
+      123
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     54,
+     68
+    ]
+   ]
+  },
+  {
+   "id": "en14-aside_open",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "aside_open",
+   "families": [
+    "aside_open"
+   ],
+   "text": "Hey mom, I'll call you back. The leads spreadsheet has two hundred duplicate rows. Remove the duplicates and keep the most recent record. Do not delete anything from the clients tab.",
+   "cuts": [
+    [
+     0,
+     28,
+     "aside_open"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      83,
+      137
+     ]
+    ]
+   ],
+   "asides": [
+    [
+     0,
+     28
+    ]
+   ]
+  },
+  {
+   "id": "en14-filler",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "filler",
+   "families": [
+    "filler"
+   ],
+   "text": "The, I mean, leads spreadsheet has two hundred duplicate rows. Remove the duplicates and keep the most recent record. Do not delete anything from the uh, clients tab.",
+   "cuts": [
+    [
+     3,
+     12,
+     "filler"
+    ],
+    [
+     150,
+     154,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      63,
+      117
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en14-self_correction",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "self_correction",
+   "families": [
+    "self_correction"
+   ],
+   "text": "The leads spreadsheet has three hundred, no, two hundred duplicate rows. Remove the duplicates and keep the most recent record. Do not delete anything from the clients tab.",
+   "cuts": [
+    [
+     26,
+     45,
+     "self_correction"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      73,
+      127
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en14-repetition",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "repetition",
+   "families": [
+    "repetition"
+   ],
+   "text": "The leads spreadsheet has two hundred duplicate rows. Remove the remove the duplicates and keep the most recent record. Do not delete anything from the clients tab.",
+   "cuts": [
+    [
+     54,
+     65,
+     "repetition"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      65,
+      119
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en14-false_start",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "false_start",
+   "families": [
+    "false_start"
+   ],
+   "text": "The leads spreadsheet has two hundred duplicate rows. Rem- Remove the duplicates and keep the most recent record. Do not delete anything from the clients tab.",
+   "cuts": [
+    [
+     54,
+     59,
+     "false_start"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      59,
+      113
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en14-distractor",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "distractor",
+   "families": [
+    "distractor"
+   ],
+   "text": "The leads spreadsheet has two hundred duplicate rows. Remove the duplicates and keep the most recent record. Do not delete anything from the clients tab. The \"Love you\" button in the dating app is hidden on iOS.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      54,
+      108
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en14-vague",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "vague",
+   "families": [
+    "vague"
+   ],
+   "text": "Or something like that, I guess. The leads spreadsheet has two hundred duplicate rows. Remove the duplicates and keep the most recent record. Do not delete anything from the clients tab.",
+   "cuts": [],
+   "asks": [
+    [
+     [
+      87,
+      141
+     ]
+    ]
+   ],
+   "asides": []
+  },
+  {
+   "id": "en14-mixed",
+   "base": "en14",
+   "lang": "en",
+   "split": "test",
+   "family": "mixed",
+   "families": [
+    "distractor",
+    "false_start",
+    "filler"
+   ],
+   "text": "The \"Love you\" button in the dating app is hidden on iOS. The leads spreadsheet has two hundred duplicate rows. Rem- Remove the duplicates and keep the most, like, recent record. You know, do not delete anything from the clients tab.",
+   "cuts": [
+    [
+     112,
+     117,
+     "false_start"
+    ],
+    [
+     156,
+     163,
+     "filler"
+    ],
+    [
+     179,
+     189,
+     "filler"
+    ]
+   ],
+   "asks": [
+    [
+     [
+      117,
+      156
+     ],
+     [
+      163,
+      178
+     ]
+    ]
+   ],
+   "asides": []
+  }
+ ]
+}

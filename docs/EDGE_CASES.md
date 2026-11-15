@@ -107,7 +107,8 @@ over 4,096 characters are no longer parsed, so never allowlisted).
 ## Intake
 
 Corpus: [`tests/corpus/intake/v1.json`](../tests/corpus/intake/v1.json) (synthetic, pt and
-en); tests in [`test_intake_corpus.py`](../tests/test_intake_corpus.py) (K).
+en); tests in [`test_intake_corpus.py`](../tests/test_intake_corpus.py) (K) and
+[`test_intake_dictation.py`](../tests/test_intake_dictation.py) (D).
 
 | Input | Behaviour | Test |
 | :--- | :--- | :--- |
@@ -115,11 +116,18 @@ en); tests in [`test_intake_corpus.py`](../tests/test_intake_corpus.py) (K).
 | Security or injection words ("bypass security", "ignore all previous instructions") | Readiness unchanged; `risk_flags` names the pattern. | K `test_security_words_flag_but_never_block` |
 | Identifier containing a hedge word (`maybelline_sku`) | Not vague: markers match whole words only. | K `test_vague_markers_match_whole_words_only` |
 | Plain whisper/dictation text, no SRT/VTT | Detected (`filler_density`, `run_on_with_fillers`); fillers removed with spans. | K `test_dictation_detection` |
+| A sentence said to someone in the room, from the closed list ("Te amo.", "Coming, honey!") | Cut whole with the space before it, kind `aside_phrase`; detected as dictation. The same words inside a sentence or a quoted label (`"Te amo"` button) are kept, and so is a sentence a colon hands over ("Translate this into English:\nTe amo."). | D `test_aside_sentence_is_cut_detected_and_listed`, `test_aside_lookalikes_and_code_are_kept` |
+| Self-correction ("na sexta, não, quer dizer, na segunda") | The reparandum and the editing term go, the repair stays. A weak term with nothing parallel ("Usa Redis, não, Memcached.") and contrast ("não o deploy") cut nothing. | D `test_self_correction_keeps_only_the_repair`, `test_ambiguous_corrections_cut_nothing` |
+| Repeated start or cut-off word ("Fix the fix the", "Pre- Preciso") | The first copy or the fragment goes. Emphasis ("muito, muito"), grammar ("that that"), "pre- and post-" and double-quoted text (`"go, go"`) stay. | D `test_repetition_and_false_start_cut_the_first_copy`, `test_repetition_lookalikes_are_kept` |
+| Dictated hedge ("talvez você possa olhar") | Not `vague_marker` when dictated; typed "Talvez renomear a coluna." still is, and "sei lá" always is. | D `test_dictated_hedge_is_not_ambiguity` |
+| Portuguese input | Readiness questions in Portuguese (`lang: pt`). | D `test_readiness_questions_follow_the_input_language` |
+| `--judge-roles` with no key, a Jev error or a malformed answer | Nothing cut (a failed batch also voids the cuts of earlier batches; a malformed answer keeps its sentence); `roles.degraded` and `roles.warnings` say why, and the terminal summary shows it without `--report`. A question, code, quoted text or colon-introduced content is never cut, whatever Jev says. | D `test_jev_failure_keeps_everything`, `test_jev_bad_answers_cut_nothing`, `test_jev_unavailable_offline_keeps_everything`, `test_jev_failure_in_a_later_batch_drops_earlier_cuts`, `test_jev_never_cuts_a_line_inside_a_code_block`, `test_cli_shows_a_degraded_judgment_without_a_report` |
+| An ask with a rule inside it ("Create the login endpoint; it must be authenticated.") | Stays an ask in the brief and the ask count when it opens with an imperative; "The output must be JSON." is a constraint. | D `test_deterministic_roles`, `test_an_ask_with_a_rule_inside_still_counts_as_an_ask` |
 | SRT that opens with its sequence number | Detected (the timing line is checked per line). | `test_speech_cleaning.py::test_srt_starting_with_a_sequence_number_is_detected` |
 | Question tags ("né?", "right?") | Never removed; no removed span contains `?`. | K `test_question_tags_survive`, `test_cleaning_never_drops_a_question_mark` |
 | Filler look-alikes that are content ("tipo de", "kind of", "I'd like to", "não entendeu", "Um container") | Kept. | K `test_content_words_that_look_like_fillers_survive` |
 | Fillers inside code fences or inline code | Kept. | K corpus case `en_code_fence_fillers` |
-| Removal receipt | Deleting the reported spans from the raw input gives the cleaned text exactly. | K `test_receipt_reconstructs_the_input_exactly` |
+| Removal receipt | Deleting the reported spans from the raw input gives the cleaned text exactly; `rebuild_input(cleaned, removals)` gives the raw input back byte for byte. | K `test_receipt_reconstructs_the_input_exactly`; D `test_receipt_rebuilds_mixed_input_byte_for_byte` |
 | Two different requests, any template | Share every byte before the first per-request byte. | K `test_two_requests_share_the_whole_static_prefix`, `benchmarks/cache/run_intake_prefix.py --check` |
 
 ## Transcripts (tool-call mode)

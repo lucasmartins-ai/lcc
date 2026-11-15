@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import re
 from bisect import bisect_right
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
 
 from lcc.intake.category import classify
+from lcc.intake.speech import sentence_spans
 
 
 class ReadinessState(StrEnum):
@@ -44,6 +46,17 @@ class StructuredBrief:
     constraints: list[str] = field(default_factory=list)
     format_requirements: list[str] = field(default_factory=list)
     critical_gaps: list[str] = field(default_factory=list)
+    #: Every ask, copied verbatim from the input in order; ``objective`` is the first.
+    asks: list[str] = field(default_factory=list)
+
+
+@dataclass
+class BriefItem:
+    """One sentence of the input with its role and the exact spans it was copied from."""
+
+    role: str  # "ask", "context" or "constraint"
+    text: str
+    spans: list[tuple[int, int]] = field(default_factory=list)
 
 
 @dataclass
@@ -69,6 +82,11 @@ class ParsedIntake:
     category_probability: float = 0.0
     #: What the agent needs in context for that category; empty when ``category`` is.
     category_context: str = ""
+    #: "pt" or "en", from a stopword count; readiness questions are written in it.
+    lang: str = "en"
+    #: Each sentence with its role. Spans index the text given to ``parse_intake``;
+    #: ``LccIntake.process`` re-indexes them to its raw input.
+    extract: list[BriefItem] = field(default_factory=list)
 
 
 _RISK_PATTERNS = [
@@ -91,18 +109,21 @@ _VAGUE = re.compile(
     r"(?i)\b(?:maybe|perhaps|not sure|i guess|something with|or something|somehow"
     r"|talvez|não sei bem|não sei se|sei lá|alguma coisa|algo assim|de algum jeito)\b"
 )
+# Hedges a speaker uses to sound polite ("talvez você possa olhar"): ambiguity when typed,
+# a speech habit when dictated. The other markers stay vague either way.
+_SPOKEN_HEDGES = {"maybe", "perhaps", "i guess", "talvez"}
 
 # ponytail: a request is counted by its cue words (desire verbs, imperatives), merged when they
 # sit within ASK_MERGE_WINDOW words ("quero que você crie" is one ask). Ceiling: indicative verb
 # forms and noun homographs; a parser would be the upgrade if the corpus shows misses.
-_PT_CUES = (
-    r"quero|queria|preciso|precisa|precisamos|gostaria|tem que|temos que"
-    r"|arruma|arrume|corrige|corrija|cria|crie|faça|adiciona|adicione|coloca|coloque|muda|mude"
+_PT_VERBS = (
+    r"arruma|arrume|corrige|corrija|cria|crie|faça|adiciona|adicione|coloca|coloque|muda|mude"
     r"|atualiza|atualize|remova|verifica|verifique|implementa|implemente|refatora|refatore"
     r"|mede|meça|abre|abra|escreve|escreva|documenta|documente|revisa|revise|rode|configura"
     r"|configure|migra|migre|explica|explique|gera|gere|analisa|analise|investiga|investigue"
     r"|compare|compara|resume|resuma|renomeia|renomeie|apaga|apague"
 )
+_PT_CUES = r"quero|queria|preciso|precisa|precisamos|gostaria|tem que|temos que|" + _PT_VERBS
 _EN_CUES = (
     r"fix|add|create|write|update|remove|refactor|rename|implement|measure|open|document"
     r"|review|run|migrate|explain|summarize|summarise|build|check|investigate|delete|deploy"
@@ -120,6 +141,107 @@ _SHORT_DIRECTIVE = re.compile(r"(?i)\b(?:test|tests|check|fix)\b")
 _WORD = re.compile(r"\S+")
 
 
+# --- extractive brief ---------------------------------------------------------------------
+
+# ponytail: cue words, not a parser. Ceiling: a context sentence holding a cue verb reads as an
+# ask; Jev roles (lcc.intake.roles) replace these when the opt-in judgment answered.
+_BRIEF_ROLES = ("ask", "context", "constraint")
+_LEAD = r"(?:(?:depois|então|e|aí|agora|também|por favor|then|and|also|now|please|just)[,\s]+)*"
+_IMPERATIVE_OPEN = re.compile(
+    rf"(?i)^{_LEAD}(?:me\s+)?(?:"
+    r"mande|manda|envie|envia|diga|diz|fala|fale|conta|conte|mostre|mostra|liste|lista"
+    r"|esconda|esconde|traga|traz|descubra|confira|confere|teste|testa|suba|sobe|publique"
+    r"|desfaça|volte|reverta|ajuste|ajusta|troque|troca|separe|monte|prepare|olhe|olha|veja"
+    r"|você pode|você poderia|você consegue|pode|poderia"
+    r"|send|tell|show|list|hide|find|roll back|revert|give|bring|let me know|look|test"
+    r"|upload|publish|undo|set|turn|switch|replace|split|prepare|draft|translate|sort|clean"
+    r"|copy|install|enable|disable|restore|ship|merge|push|pull"
+    rf"|{_PT_VERBS}|{_EN_CUES})\b"
+)
+_ASK_ANYWHERE = re.compile(r"(?i)\b(?:precisava|precisaria|eu queria saber)\b")
+_CONSTRAINT_OPEN = re.compile(
+    r"(?i)^(?:não|nunca|jamais)\s+(?:me\s+)?(?:mexa|altere|apague|remova|faça|mude|use"
+    r"|toque|crie|delete|suba|publique|envie|rode|quebre|deixe|esqueça|adicione|exponha)\b"
+    r"|^(?:só|somente|apenas|mantenha|evite|sem|use|usa|do not|don't|never|only|keep|avoid"
+    r"|without|must not)\b"
+)
+_CONSTRAINT_ANYWHERE = re.compile(
+    r"(?i)\b(?:tem que ser|deve ser|precisa ser|must be|has to be|should be|needs to be)\b"
+)
+_CLAUSE_BREAK = re.compile(r"[;,:—–]")
+
+
+def sentence_role(sentence: str) -> str:
+    """Deterministic role of one sentence: ask, constraint or context. An imperative stays an
+    ask when the rule sits in a later clause ("Create X; it must be Y."); "Build must be
+    reproducible." is a rule about the build."""
+    if sentence.rstrip().endswith("?"):
+        return "ask"
+    if _CONSTRAINT_OPEN.search(sentence):
+        return "constraint"
+    rule = _CONSTRAINT_ANYWHERE.search(sentence)
+    if rule and not (
+        _IMPERATIVE_OPEN.search(sentence) and _CLAUSE_BREAK.search(sentence, 0, rule.start())
+    ):
+        return "constraint"
+    if _IMPERATIVE_OPEN.search(sentence) or _ASK_CUE.search(sentence):
+        return "ask"
+    return "ask" if _ASK_ANYWHERE.search(sentence) else "context"
+
+
+def _extract(text: str, roles: Mapping[str, str]) -> list[BriefItem]:
+    items = []
+    for s, e in sentence_spans(text):
+        sentence = text[s:e]
+        role = roles.get(sentence, "")
+        items.append(
+            BriefItem(role if role in _BRIEF_ROLES else sentence_role(sentence), sentence, [(s, e)])
+        )
+    return items
+
+
+_PT_STOP = {
+    "o", "os", "de", "do", "da", "dos", "das", "que", "não", "é", "uma", "para", "com", "em",
+    "na", "nos", "nas", "eu", "você", "isso", "mas", "por", "ele", "ela", "está", "tá", "foi",
+    "como", "mais", "ou", "também", "já", "aí", "né", "tipo", "então", "esse", "essa", "aquele",
+    "assim", "coisa", "sei", "aqui", "agora", "depois", "seu", "sua", "meu", "minha",
+    "nada", "tudo", "quando", "onde", "porque", "pra", "pro", "ao", "pelo", "pela", "tem", "vai",
+}  # fmt: skip
+_EN_STOP = {
+    "the", "to", "of", "and", "is", "it", "in", "that", "you", "for", "on", "with", "this",
+    "not", "be", "are", "i", "we", "my", "your", "can", "what", "how", "if", "or", "but",
+    "was", "at", "from", "just", "should", "would", "which", "there", "they", "have", "has",
+    "an", "all", "any", "some", "about", "when", "where", "because", "will", "it's", "don't",
+}  # fmt: skip
+_VAGUE_QUESTIONS: dict[str, list[str]] = {
+    "en": [
+        "What is the exact deliverable and primary success criterion?",
+        "Are there specific architectural or runtime constraints?",
+    ],
+    "pt": [
+        "Qual é a entrega exata e o critério de sucesso principal?",
+        "Há restrições de arquitetura ou de execução a respeitar?",
+    ],
+}
+_VOICE_DUMP_QUESTION: dict[str, str] = {
+    "en": "This dictation holds {n} separate asks: which comes first, and should "
+    "each be its own task?",
+    "pt": "Este ditado tem {n} pedidos separados: qual vem primeiro, e cada um deve "
+    "virar uma tarefa?",
+}
+
+
+_PT_ACCENT = re.compile(r"[ãõçáéíóúâêôà]")
+
+
+def detect_lang(text: str) -> str:
+    """``"pt"`` or ``"en"`` by stopword count (a word with a Portuguese accent counts as pt);
+    ties read as English."""
+    words = re.findall(r"[^\W\d_]+(?:'[a-z]+)?", text.lower())
+    pt = sum(w in _PT_STOP or bool(_PT_ACCENT.search(w)) for w in words)
+    return "pt" if pt > sum(w in _EN_STOP for w in words) else "en"
+
+
 def count_asks(text: str) -> int:
     """Count distinct requests: cue words, merged when within ``ASK_MERGE_WINDOW`` words."""
     word_starts = [m.start() for m in _WORD.finditer(text)]
@@ -134,12 +256,17 @@ def count_asks(text: str) -> int:
 
 
 def parse_intake(
-    raw_input: str, *, dictation: bool | None = None, previous_turn: str | None = None
+    raw_input: str,
+    *,
+    dictation: bool | None = None,
+    previous_turn: str | None = None,
+    roles: Mapping[str, str] | None = None,
 ) -> ParsedIntake:
     """Classify ``raw_input`` into a readiness state with named reasons and a derived brief.
 
     ``dictation`` is the speech detection made on the raw text before filler cleaning; when
-    ``None`` it is detected here.
+    ``None`` it is detected here. ``roles`` maps sentence text to a role judged elsewhere (Jev);
+    other sentences get their role from cue words.
     """
     text = (raw_input or "").strip()
     if not text:
@@ -162,8 +289,13 @@ def parse_intake(
     risk_flags = [name for name, pattern in _RISK_PATTERNS if pattern.search(text)]
     word_count = len(text.split())
     has_question = "?" in text
-    asks = count_asks(text)
+    extract = _extract(raw_input, roles or {})
+    # A constraint ("Não faça merge sem os testes") limits an ask; it is not one more ask.
+    asks = count_asks("\n".join(i.text for i in extract if i.role != "constraint"))
     vague_hits = sorted({m.group(0).lower() for m in _VAGUE.finditer(text)})
+    if dictation:
+        vague_hits = [h for h in vague_hits if h not in _SPOKEN_HEDGES]
+    lang = detect_lang(text)
 
     states: list[ReadinessState] = [ReadinessState.READY_TO_EXECUTE]
     reasons: list[str] = []
@@ -174,16 +306,12 @@ def parse_intake(
     if vague_hits:
         states.append(ReadinessState.NEEDS_INTAKE)
         reasons.append("vague_marker")
-        questions.append("What is the exact deliverable and primary success criterion?")
-        questions.append("Are there specific architectural or runtime constraints?")
+        questions.extend(_VAGUE_QUESTIONS[lang])
         critical_gaps.append(f"Contains ambiguous phrasing: {', '.join(vague_hits)}")
     if asks >= MULTI_ASK_THRESHOLD and dictation:
         states.append(ReadinessState.NEEDS_INTAKE)
         reasons.append("voice_dump")
-        questions.append(
-            f"This dictation holds {asks} separate asks: which comes first, and should each "
-            "be its own task?"
-        )
+        questions.append(_VOICE_DUMP_QUESTION[lang].format(n=asks))
         critical_gaps.append(f"{asks} distinct asks in one dictated message.")
     elif asks >= MULTI_ASK_THRESHOLD:
         states.append(ReadinessState.NEEDS_LIGHT_REFINEMENT)
@@ -202,6 +330,7 @@ def parse_intake(
     category = classify(text, previous_turn=previous_turn)
     score = _SCORES[readiness]
     intent_preview = text[:80] + ("..." if len(text) > 80 else "")
+    ask_items = [i.text for i in extract if i.role == "ask"]
     return ParsedIntake(
         raw_input=text,
         intent=intent_preview,
@@ -210,7 +339,13 @@ def parse_intake(
         ambiguity_score=100 - score,
         questions=questions,
         assumptions=assumptions,
-        brief=StructuredBrief(objective=intent_preview, critical_gaps=critical_gaps),
+        brief=StructuredBrief(
+            objective=ask_items[0] if ask_items else intent_preview,
+            context=" ".join(i.text for i in extract if i.role == "context"),
+            constraints=[i.text for i in extract if i.role == "constraint"],
+            critical_gaps=critical_gaps,
+            asks=ask_items,
+        ),
         reasons=reasons,
         risk_flags=risk_flags,
         ask_count=asks,
@@ -218,4 +353,6 @@ def parse_intake(
         category=category.id if category else "",
         category_probability=category.probability if category else 0.0,
         category_context=category.context_needed if category else "",
+        lang=lang,
+        extract=extract,
     )

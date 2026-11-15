@@ -27,7 +27,8 @@ Rules LCC enforces (`src/lcc/relevance/jev.py`, `src/lcc/relevance/compactor.py`
 - The resolved model version is recorded (`jev_model_resolved`), so a moving alias such
   as `jev-latest` never appears as the only model identifier.
 - Every attempt is appended to the shared ledger (`logs/typesafe/jev.jsonl` under
-  `LCC_LOOKAORCHESTRATOR_DIR`, or `LCC_TS_LEDGER`), with feature tag `lcc_compact`.
+  `LCC_LOOKAORCHESTRATOR_DIR`, or `LCC_TS_LEDGER`), with feature tag `lcc_compact`
+  (`lcc_intake_roles` for `lcc intake --judge-roles`).
 
 ## 2. Key and environment
 
