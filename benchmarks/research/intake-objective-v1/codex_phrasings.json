@@ -1,0 +1,56 @@
+{
+ "model": "gpt-6.1-sol",
+ "reasoning_effort": "high",
+ "date": "2026-11-15",
+ "brief": "You are writing test material for a benchmark. Do not read or run anything; just answer.\n\nContext: people dictate long, rambling voice messages to a coding assistant (some in Brazilian Portuguese, some in English). Each message holds one main request buried among side errands, background and thinking aloud.\n\nWrite four lists of short spoken phrases:\n\n1. \"marker_pt\" and \"marker_en\": 10 phrases each that a speaker says right before the single most important request of the message, to flag it as the main one. The request follows the phrase directly in the same sentence.\n2. \"restate_pt\" and \"restate_en\": 10 phrases each that a speaker uses near the end of the message to open a short closing recap that repeats the main request. The repeated request follows the phrase directly in the same sentence.\n\nRules for every phrase:\n- Natural spoken register: colloquial Brazilian Portuguese for the _pt lists, casual spoken English for the _en lists.\n- Vary the wording: no two phrases in a list built around the same key word.\n- End with \": \" or \", \" (colon or comma, then one space); the request is appended right after, starting with a lowercase letter.\n- No other sentence-ending punctuation (no . ! ? or ellipsis) and no line breaks, quotation marks, emoji or dashes.\n- At most 12 words. Do not start with a negation. Do not include the request itself.\n\nAnswer with one JSON object and nothing else:\n{\"marker_pt\": [...], \"marker_en\": [...], \"restate_pt\": [...], \"restate_en\": [...]}\n",
+ "phrasings": {
+  "marker_pt": [
+   "o principal é: ",
+   "minha prioridade aqui é: ",
+   "o que eu mais preciso de você é: ",
+   "foca nisso aqui: ",
+   "acima de tudo, eu quero: ",
+   "a parte que realmente importa é: ",
+   "o pedido central é: ",
+   "se for pra resolver uma coisa só, é: ",
+   "presta atenção nessa tarefa: ",
+   "o objetivo de verdade é: "
+  ],
+  "marker_en": [
+   "here's the big thing: ",
+   "my top priority is: ",
+   "what I really need you to do is: ",
+   "focus on this: ",
+   "above all, I want you to: ",
+   "the part that matters most is: ",
+   "my main request is: ",
+   "if you only tackle one thing: ",
+   "put this at the top of the list: ",
+   "the real goal here is: "
+  ],
+  "restate_pt": [
+   "então, resumindo: ",
+   "só pra reforçar: ",
+   "pra fechar, o pedido é: ",
+   "voltando ao ponto: ",
+   "em poucas palavras: ",
+   "no fim das contas, eu preciso disso: ",
+   "de novo, o essencial é: ",
+   "pra deixar bem claro: ",
+   "guarda essa ideia: ",
+   "só recapitulando: "
+  ],
+  "restate_en": [
+   "so, to sum up: ",
+   "just to be clear: ",
+   "bringing it back to the main point: ",
+   "one more time: ",
+   "the takeaway is: ",
+   "in a nutshell: ",
+   "to wrap this up: ",
+   "what I'm asking for is: ",
+   "here's the short version: ",
+   "let me repeat the request: "
+  ]
+ }
+}
