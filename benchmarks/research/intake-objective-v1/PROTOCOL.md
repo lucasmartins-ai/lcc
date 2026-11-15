@@ -1,13 +1,13 @@
-# Intake objective v1: can intake find the main ask in a long dictation? (design approved 2026-11-15)
+# Intake objective v1: can intake find the main ask in a long dictation? (design approved and data frozen 2026-11-15)
 
-**Status: design approved 2026-11-15; data not frozen.** Nothing below has run. Two dated checkpoints make it a
+**Status: design approved and data frozen 2026-11-15.** No arm has run. Two dated checkpoints make it a
 pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
    covering the data source, families, arms, Jev cap and H1 margin. From then on the families, arms, metrics and
    pass criteria are fixed.
-2. **Data freeze.** Before any work on arm D starts, an amendment records the generator, the cases file and its
-   sha256. From then on the cases are fixed.
+2. **Data freeze.** Done 2026-11-15 by Amendment 1, before any work on arm D: it records the generator, the
+   cases file and their sha256. From then on the cases are fixed.
 
 Any later change is a dated amendment at the end that says what it changes and why. Results are tagged INFERIDO
 until `gateClaim` returns PASS on them.
@@ -139,7 +139,7 @@ calls. D and the controls make none.
 
 1. The owner approves the design with a dated line (data source, families, Jev cap, H1 margin). Done 2026-11-15.
 2. Write the bases and the block pool, generate the cases, and freeze them by amendment (generator, cases file,
-   sha256) before any work on D.
+   sha256) before any work on D. Done 2026-11-15 (Amendment 1).
 3. Build D on dev; freeze its weights by amendment.
 4. Run A0, A1, D and its ablations on test, then DJ.
 5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes.
@@ -147,4 +147,48 @@ calls. D and the controls make none.
 
 ## Amendments
 
-None yet.
+### Amendment 1 (2026-11-15): data freeze
+
+Recorded before any work on arm D. `intake_objective_v1.py generate` rebuilds `cases.json` byte for byte, and
+`tests/test_intake_objective_bench.py` fails if the file and the generator disagree.
+
+| File | sha256 |
+| :--- | :--- |
+| `intake_objective_v1.py` (generator, bases, pool, dev phrasings) | `f5d42294fd6f6335905b01b934bc7b8e9755565ede1f55b7b85cb7fc4a850d4e` |
+| `codex_phrasings.json` (test phrasings and the brief Codex wrote them from) | `224d72650ce173c8f586606a5ac9a7778a2858d66c2628b5bf294f31222d8baf` |
+| `cases.json` (600 cases) | `a22ae7028a406db30d89680d9eefe378076f62a40a2f6ca35cbb0afd0c01776b` |
+
+**What the data holds.**
+
+- Bases: 40 (pt01 to pt20, en01 to en20). Each has one main ask, one or two supporting sentences, three later
+  mentions of its topic that ask for nothing, and a restatement body.
+- Pool: 32 blocks per language, 8 of each kind (narrative, errand, thinking aloud, aside), each 2 or 3 sentences.
+  Each errand block opens with its ask; the other kinds carry no gold ask. Both splits draw from the same pool.
+- Topic separation: a pool block that shares a word stem with a base (the first five letters of a word of four
+  letters or more, outside a list of common words kept in the generator) is left out of that base's cases, so a
+  topic comes back only where the generator puts it. Every base keeps 21 to 32 blocks. Pool blocks can still
+  share words with each other.
+- Positions: `first` puts the base at block 0; `recurrence` puts it where at least two blocks follow and appends
+  two or three of its mentions to later blocks (71 cases with two, 49 with three); `marker`, `restate` and `bare`
+  put it at a random position from 0 to k. `restate` adds a one-sentence block at the end.
+- Phrasings: on dev, 8 marker and 8 recap prefixes per language, written by the author. On test, 10 per kind and
+  language, written by Codex (gpt-6.1-sol, high reasoning) from the brief stored in `codex_phrasings.json`, which
+  does not show D's lists. The author has not read the test phrasings or the text of any test case; the tests
+  report case ids only and run without pytest's assertion introspection.
+- Every case carries the span of every sentence it emitted, and the intake's own sentence split matches them
+  exactly in all 600 cases.
+
+**Deviations from the approved design.**
+
+1. *Length.* Cases run 75 to 433 words (k = 4: 75 to 179; k = 8: 161 to 275; k = 16: 308 to 433), not "about
+   150 to 1,500". The pool blocks are two or three short sentences, and the word estimate assumed longer ones.
+   Length stays defined by k. The longest cases sit near the owner's 317-token dictation and the 300-word floor
+   of Part R; the study says nothing about dictations much longer than about 450 words.
+2. *Two test recap phrasings read as rules.* With Codex's Portuguese recap phrasings 1 and 9, the intake reads
+   the restatement sentence as a constraint, not an ask. Eight test `restate` cases use them. They stay as
+   written, because fixing them would mean reading them. Every arm picks an ask sentence, so in those cases
+   only the first statement can score the hit.
+3. *Dev and test phrasings were not filtered the same way.* The author knows the parser and dropped one dev recap
+   prefix that opened with "Só", which the parser reads as a constraint; nobody filtered the test phrasings. Dev
+   therefore has no misread recap and test has eight. Hit@1 on the Codex phrasings is reported apart, as the
+   leakage table already requires.
