@@ -2,9 +2,10 @@
 
 This is the run that [PROTOCOL.md](PROTOCOL.md) pre-registered: frozen by Amendment 2, with the billing route
 changed by Amendment 3. Amendment 4 leaves out the credit valuation. The verdicts below are the frozen harness's own
-(`longhealth_v1.py score --set D`). Every number comes from [`results.json`](results.json), which holds the
-aggregates and per-item 0/1 scores keyed by `(patient, question, condition, arm)`. No record text, question, option,
-summary or answer appears here (Data use).
+(`longhealth_v1.py score --set D`). Every D number comes from [`results.json`](results.json), which holds the
+aggregates and per-item 0/1 scores keyed by `(patient, question, condition, arm)`. The S6 numbers come from
+[`results-s6.json`](results-s6.json) (S6, below). No record text, question, option, summary or answer appears here
+(Data use).
 
 **Verdicts: H1 PASS, H2 FAIL, H3 descriptive.** Every validity gate passed. One dropped session departs from
 V2's rule, and scoring it as V2 reads leaves the verdicts unchanged (Dropped session).
@@ -13,6 +14,7 @@ V2's rule, and scoring it as V2 reads leaves the verdicts unchanged (Dropped ses
 as measured. BLOCK means it must carry the label INFERIDO (Portuguese for "inferred"). On 2026-11-07 it returned PASS
 on the H1 result in its short form below, and BLOCK on a longer wording of the same numbers. It returned BLOCK on the
 H2, verifier and token findings, so read those as INFERIDO: one run, one answerer model, no independent replication.
+On 2026-11-15 it returned BLOCK on the S6 contrast, so S6 reads INFERIDO as well.
 
 ## Setup
 
@@ -109,7 +111,8 @@ What this says:
 | S3 | U, both summaries | 0.0 | 0.0 to 0.0 |
 | S4 (substring rule) | H1 / H2 `summary_s` / H2 `summary_clin` / H3 A | 0.0 / +10.8 / +1.1 / −8.7 | −1.9 to +2.0 / +5.9 to +15.5 / −1.5 to +3.9 / −11.6 to −5.9 |
 
-Under S4 every contrast lands on the same side of its criterion as under the letter rule. S6 (a second answerer) was not run.
+Under S4 every contrast lands on the same side of its criterion as under the letter rule. S6 (a second answerer) has its
+own section below.
 
 ## Recall behaviour (`stashed_t`, 53 sessions)
 
@@ -179,9 +182,107 @@ do not change:
 - H2 vs `summary_s` +11.0 (+6.1 to +15.5);
 - H2 vs `summary_clin` +2.8 (−0.8 to +7.2).
 
+## S6: a second answerer (Amendment 5, scored 2026-11-15)
+
+S6 repeats `full_t` and `stashed_t` on the 53 kept sessions with `gpt-6.1-sol` at medium effort through
+`codex-cli 0.166.0`, with the same prompts, stashes and recall tool (PROTOCOL, Amendment 5). Its numbers come from
+[`results-s6.json`](results-s6.json), the S6 driver's `results-D.json` copied unchanged (sha256
+`5c7af768355e39138d2d6bf07a50b348efbe8074c951c928076e01ae17ab3699`): aggregates and 2,120 per-item 0/1 scores in the
+same format as `results.json`. S6 has no hypothesis, so it reports CIs with no pass or fail, and H1's margin does not
+apply to it. On 2026-11-15 `gateClaim` returned BLOCK on "this run detected no difference between the arms", so
+every S6 finding is INFERIDO.
+
+| Gate | Result |
+|---|---|
+| V1 `full_t` A ≥ 0.60 | pass (611/700 = 0.873) |
+| V2 drops ≤ 5% | pass (0 of 53) |
+| V4 S6 toolcheck | pass |
+| V5 parse ≥ 95% | pass (0 response failures in either arm or any condition) |
+
+V3 and V3b hold from D. V6 does not apply, because S6 has no `none` arm (Limits).
+
+S6 accuracy over the 53 sessions, counted as in D:
+
+| Arm | A | E | U | UA | A on `ans_early` | A on `ans_late` |
+|---|---|---|---|---|---|---|
+| `full_t` | 611/700 = 0.873 | 239/278 = 0.860 | 360/360 | 0/360 | 295/340 = 0.868 | 316/360 = 0.878 |
+| `stashed_t` | 608/700 = 0.869 | 237/278 = 0.853 | 360/360 | 0/360 | 293/340 = 0.862 | 315/360 = 0.875 |
+
+`stashed_t − full_t` with the frozen bootstrap (18 targets, 2000 resamples, seed `20261103`), in percentage points:
+
+| Metric | Difference | 95% CI |
+|---|---|---|
+| A | −0.4 | −1.9 to +1.0 |
+| A on ans_early | −0.6 | −3.8 to +2.4 |
+| A on ans_late | −0.3 | −1.1 to +0.6 |
+| E | −0.7 | −2.8 to +1.6 |
+| A, substring rule | −0.6 | −1.9 to +0.7 |
+
+Per-patient differences (patients 01, 02, 04, 06–20 in order, percentage points):
+
+| Metric | 18 per-patient differences |
+|---|---|
+| A | 2.5, 0.0, −7.5, −2.5, 0.0, 5.0, −2.5, 0.0, 0.0, 0.0, 2.5, 0.0, 2.5, 0.0, 0.0, −7.5, 0.0, 0.0 |
+| A on ans_early | 10.0, 0.0, −15.0, −5.0, 0.0, 5.0, −5.0, 0.0, 0.0, 0.0, 5.0, 0.0, 5.0, 0.0, 0.0, −15.0, 0.0, 5.0 |
+| A on ans_late | −5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, −5.0 |
+| E | 0.0, 0.0, −8.3, 0.0, 0.0, 10.0, −5.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, −9.1, 0.0, 0.0 |
+| A, substring rule | 2.5, 0.0, −7.5, −2.5, 0.0, 2.5, −2.5, 0.0, 0.0, 0.0, 2.5, 0.0, 2.5, 0.0, 0.0, −7.5, 0.0, 0.0 |
+
+Recall behaviour of `stashed_t`, from S6's recall logs, beside D's:
+
+| | S6 (`gpt-6.1-sol`) | D (Claude Sonnet 5.5) |
+|---|---|---|
+| R1 stash-dependent questions whose answer text was recalled (of 340) | 0.982 | 0.965 |
+| R2 recalls that returned an answer text | 0.949 | 0.941 |
+| R3 recall calls per session (all / successful) | 2.40 / 2.23 | 2.08 / 1.92 |
+| R3 sessions with no recall / that hit the recall cap | 0.68 / 0.09 | 0.68 / 0.04 |
+| R4 recalled tokens over stashed tokens | 0.117 | 0.106 |
+| R5 restored context, median ratio to `C` | 0.608 | 0.608 |
+| R6 recall errors | 9, all `cap` | 8, all `cap` |
+
+Tokens per arm, from Codex's usage counts. Cached input is part of input.
+
+| Arm | Input | Cached input | Output | Reasoning output |
+|---|---|---|---|---|
+| `full_t` | 3,844,235 | 169,344 | 35,762 | 4,362 |
+| `stashed_t` | 4,831,288 | 2,522,112 | 40,524 | 6,173 |
+
+`stashed_t` sent 1.26 times the input of `full_t`, because every recall turn resends the context, and most of it came
+from the cache: input outside the cache was 2,309,176 against 3,674,891 (0.63). I did not check that Codex and
+Claude Code count cached input the same way, so these figures are not set against D's cumulative usage. Amendment 4
+still leaves out any money figure.
+
+Calls, refusals and item kinds:
+
+- 112 calls of S6's 130 cap: the toolcheck twice, the smoke call, 3 pilot calls and 106 D calls, one per session and
+  arm, none retried. 109 ended ok; calls 1–3 predate the outcome field.
+- No refusals. 0 response failures in each condition of each arm.
+- Codex item kinds over the 109 calls that logged them: 109 agent messages and 134 MCP calls to `recall`. No call used
+  the shell, a file edit, web search, a collaboration tool or `exec`. The CLI still offered the collaboration tools and
+  `exec`, which it cannot drop (Amendment 5), so the GPT answerer saw more tools than Claude did. In the D sessions `stashed_t` made 127 MCP calls
+  and `full_t` none.
+
+Plan windows, read in whole percents before and after each call: every `full_t` call started with the 5-hour window
+at 79% or less. The readings rose by a summed 86 points of the 5-hour window and 13 of the weekly window over the
+`full_t` calls, and by 62 and 10 over the `stashed_t` calls. Whole-percent steps make these sums rough.
+
+**Deviation: pacing.** Amendment 5 starts no call while the 5-hour or weekly window reads 80% or more. On 2026-11-14,
+with `full_t` complete and no `stashed_t` call made, the owner waived that rule: "pode usar 100%, eu vou parar de usar
+por agora" ("use up to 100%, I am stopping my own use for now"). The `stashed_t` arm then ran with the pause set to 96%
+at run time. The pinned `s6_codex.py` was not edited; its sha256 still matches Amendment 5. 11 `stashed_t` calls
+started with the 5-hour window at 80% or more. The highest reading was 97%, where the driver paused once and resumed
+after the window reset. No reset credit was spent. Pacing decides only when a call starts, and changes no prompt,
+model, cap or score.
+
+The two answerers, described and not tested: with `gpt-6.1-sol`, A was 0.873 for `full_t` and 0.869 for `stashed_t`;
+with Claude Sonnet 5.5 it was 0.887 and 0.889. Both answerers chose F on all 360 `unans` lines in both arms. The GPT
+answerer made more recall calls per session and hit the cap more often.
+
 ## Limits
 
-- One run, one answerer model and one summarizer model. S6 was not run.
+- One run and one summarizer model. Two answerer models: Claude Sonnet 5.5 for every arm, and `gpt-6.1-sol` for
+  `full_t` and `stashed_t` only (S6).
+- S6 has no `none` arm, so whether `gpt-6.1-sol` saw LongHealth in training is not measured.
 - `none` at 0.597 means some questions can be answered without the records. Whether accuracies would be lower on
   unseen records is not tested here.
 - UA was 0 in every arm, so this run cannot show whether the verifier prevents unsupported answers.

@@ -337,6 +337,61 @@ def test_per_patient_table():
         ), patient
 
 
+def tables_after(text: str, marker: str) -> list[dict[str, list[str]]]:
+    """The pipe tables after the first line that starts with `marker`, each keyed as `table` keys its rows."""
+    lines = text.splitlines()
+    start = next(n for n, line in enumerate(lines) if line.startswith(marker))
+    out, rows = [], []
+    for line in [*lines[start:], ""]:
+        if line.startswith("|"):
+            rows.append([c.strip() for c in line.strip().strip("|").split("|")])
+        elif rows:
+            keyed = {r[0].strip("`"): r[1:] for r in rows[2:]}
+            assert len(keyed) == len(rows) - 2, f"repeated row label after {marker}"
+            out.append(keyed)
+            rows = []
+    return out
+
+
+def test_s6_tables():
+    """S6's accuracy and contrast tables, in RESULTS and in the paper, and its per-patient rows, match results-s6.json."""
+    s6 = json.loads((HERE / "results-s6.json").read_text(encoding="utf-8"))
+    res = (HERE / "RESULTS.md").read_text(encoding="utf-8")
+    correct, n = Counter(), Counter()
+    for it in s6["items"]:
+        correct[it["arm"], it["condition"]] += it["correct"]
+        n[it["arm"], it["condition"]] += 1
+    con = s6["contrast_stashed_t_minus_full_t"]
+    want = {
+        "A": con["A"],
+        "A on ans_early": con["A_by_condition"]["ans_early"],
+        "A on ans_late": con["A_by_condition"]["ans_late"],
+        "E": con["E"],
+        "A, substring rule": con["A_substring_rule"],
+    }
+    assert s6["complete"] and s6["valid"] and not s6["dropped"]
+    for text, marker in ((res, "S6 accuracy"), (DOC, "Table: S6 accuracy")):
+        acc, contrasts = tables_after(text, marker)[:2]
+        assert set(acc) == {"full_t", "stashed_t"}, marker
+        for arm, cells in acc.items():
+            t = s6["table"][arm]
+            assert cells == [
+                frac(t["A"]),
+                frac(t["E"]),
+                *(f"{k}/{m}" for k, m in (t["U"], t["UA"])),
+                *(frac([correct[arm, c], n[arm, c]]) for c in ("ans_early", "ans_late")),
+            ], (marker, arm)
+        assert set(contrasts) == set(want), marker
+        for label, (diff, ci) in contrasts.items():
+            t = want[label]
+            assert same(diff, t["diff"]) and same(ci, t["lo"], t["hi"]), (marker, label)
+    per_patient = tables_after(res, "S6 accuracy")[2]
+    assert set(per_patient) == set(want)
+    for label, t in want.items():
+        pp_ = t["per_patient"]
+        assert same(per_patient[label][0], *(pp_[p] for p in sorted(pp_))), label
+
+
 def _tokens(text: str) -> set[str]:
     return set(nums(text))
 

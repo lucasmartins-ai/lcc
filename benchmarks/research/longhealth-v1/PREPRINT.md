@@ -1,7 +1,7 @@
 ---
 title: "Verbatim compaction with recall for agents that read long clinical records: a pre-registered study on LongHealth"
 author: "Lucas Martins, LookADev (veterinary medicine graduate)"
-date: "Draft of 7 November 2026"
+date: "Draft of 15 November 2026"
 keywords: [context compaction, LLM agents, clinical question answering, pre-registration, LongHealth]
 abstract: |
   Coding agents compact their context when a session outgrows the window, and the usual method has a model summarize
@@ -22,11 +22,14 @@ abstract: |
   needed both lower bounds above zero. A deterministic quote check found no unsupported answers to prevent and cost
   8.4 points of accuracy. One session was dropped for a reason the protocol does not list; scoring it the way the
   protocol reads leaves both verdicts unchanged. The H2, verifier and token findings come from one run with one
-  answerer model and carry the label INFERIDO (inferred).
+  answerer model and carry the label INFERIDO (inferred). A secondary analysis added after scoring, S6, repeated the
+  full and stashed arms with `gpt-6.1-sol` from another vendor: the stashed arm scored −0.4 points against the full
+  context on answerable questions (95% CI −1.9 to +1.0), with no pass criterion and the label INFERIDO.
 ---
 
 <!-- Build: pandoc PREPRINT.md -o preprint.pdf --pdf-engine=xelatex --number-sections -V geometry:margin=2.5cm
-     Numbers: pytest tests/test_longhealth_v1_preprint.py checks every figure here against results.json. -->
+     Numbers: pytest tests/test_longhealth_v1_preprint.py checks every figure here against results.json,
+     results-s6.json and the study's reports. -->
 
 # Introduction
 
@@ -54,8 +57,9 @@ existed:
   Amendment 1.)
 
 H1 passed and H2 failed. H3 sat at a floor: no arm chose an answer about an absent patient, so the check had nothing
-to prevent. I report all three as the frozen harness scored them, together with four protocol amendments and one
-deviation.
+to prevent. I report all three as the frozen harness scored them, together with five protocol amendments and two
+deviations. The fifth amendment adds S6, a second answerer from another vendor for the H1 comparison, reported with
+CIs only.
 
 The study says nothing about real patients, real clinical work or a model's clinical judgement. The patients are
 fictional, and the benchmark's authors state that it must not be used for clinical decisions.
@@ -90,6 +94,9 @@ Table: Protocol timeline. "Owner" in the protocol is the author.
 | 2026-11-04 | Amendment 2, the freeze, before any main-set call: lcc pin, sha256 of the harness and of every prompt text, models, efforts and caps. |
 | 2026-11-06 | Amendment 3, during the main set: the remaining calls bill API credits I already held instead of the subscription. Prompts, models and harness unchanged. |
 | 2026-11-07 | Scoring. Amendment 4, after scoring: the credit valuation that Amendment 3 promised is left out. I decided this with the verdicts known. |
+| 2026-11-07 | Amendment 5, after scoring and approved before any S6 pilot or D call: S6 repeats `full_t` and `stashed_t` with `gpt-6.1-sol` through the Codex CLI, on my ChatGPT Plus plan, with CIs only. |
+| 2026-11-14 | Deviation in S6: I waived Amendment 5's pacing rule for the `stashed_t` arm, after `full_t` had finished. |
+| 2026-11-15 | S6 scored. |
 
 Amendment 1 changed the treatment, so it needs a closer look. In the pilot every record opened with a salutation.
 Neither the plain pointer (line count and size) nor lcc's existing `lean` pointer (which adds the first line) said
@@ -246,8 +253,9 @@ The hypotheses, declared before any answer:
 
 Secondary contrasts carry CIs and no pass claim. S1 is what the tool adds on stash-dependent questions
 (`stashed_t − stashed_0`). S2 splits every primary contrast by condition. S3 compares `full_t` with each summary. S4
-rescores with LongHealth's substring rule. S5 replays the verifier's first pass without the patient check. S6, a second
-answerer from another model family, was not run.
+rescores with LongHealth's substring rule. S5 replays the verifier's first pass without the patient check. S6, added by
+Amendment 5 after scoring, repeats `full_t` and `stashed_t` with an answerer from another vendor and reports
+`stashed_t − full_t` with CIs and no pass criterion.
 
 ## Statistics
 
@@ -263,7 +271,7 @@ Before I publish a measured claim, I run it through `gateClaim`, an automated ev
 part of lcc). PASS lets a claim stand as measured. BLOCK means the claim carries the label INFERIDO (Portuguese for
 "inferred"). On 2026-11-07 the check passed the H1 result in the short form quoted in the abstract and blocked a longer
 wording of the same numbers. It blocked the H2, verifier and token findings, so this paper labels them INFERIDO: one
-run, one answerer model, no independent replication.
+run, one answerer model, no independent replication. On 2026-11-15 it blocked the S6 contrast too.
 
 # Results
 
@@ -445,6 +453,45 @@ Scored as V2 reads, the session stays in and `summary_clin` is wrong on all 20 o
 with the harness's own scoring and bootstrap on the cached answers, with no model call. The verdicts do not change: H1
 +0.1 (−1.8 to +2.1); H2 against `summary_s` +11.0 (+6.1 to +15.5); H2 against `summary_clin` +2.8 (−0.8 to +7.2).
 
+## Second answerer, S6 (INFERIDO)
+
+S6 ran `full_t` and `stashed_t` again on the 53 kept sessions with `gpt-6.1-sol` (OpenAI) at medium effort, through
+`codex-cli 0.166.0`. A driver beside the frozen harness, `s6_codex.py`, built the prompts with the frozen code, so
+the context, instructions, stashes and `recall` tool were the ones Claude had. It turned off the CLI's shell, file
+edits and web search. The CLI still offered collaboration tools, a JavaScript `exec` tool and a multi-agent developer
+message that the driver cannot remove, so the GPT answerer saw more tools than Claude did; no call used any of them.
+Its scores use the frozen scoring and bootstrap. Every S6
+gate passed (V1 611/700 = 0.873, no session dropped, the toolcheck passed, 0 response failures), and there were no
+refusals.
+
+Table: S6 accuracy by arm over the 53 sessions, counted as in D, with `gpt-6.1-sol` as the answerer.
+
+| Arm | A | E | U | UA | A on `ans_early` | A on `ans_late` |
+|-------------|-----------------|-----------------|---------|-------|------------------|-----------------|
+| `full_t` | 611/700 = 0.873 | 239/278 = 0.860 | 360/360 | 0/360 | 295/340 = 0.868 | 316/360 = 0.878 |
+| `stashed_t` | 608/700 = 0.869 | 237/278 = 0.853 | 360/360 | 0/360 | 293/340 = 0.862 | 315/360 = 0.875 |
+
+Table: S6 `stashed_t − full_t` in percentage points, paired cluster bootstrap over the 18 targets. No pass claims.
+
+| Metric | Difference | 95% CI |
+|-------------------|------------|--------------|
+| A | −0.4 | −1.9 to +1.0 |
+| A on ans_early | −0.6 | −3.8 to +2.4 |
+| A on ans_late | −0.3 | −1.1 to +0.6 |
+| E | −0.7 | −2.8 to +1.6 |
+| A, substring rule | −0.6 | −1.9 to +0.7 |
+
+With Claude the same contrast on A was +0.1 (−1.9 to +2.1). For the GPT answerer, R1 (stash-dependent questions whose
+answer text it recalled) was 0.982. It made 2.40 recall calls per session against Claude's 2.08, and 9 of its recall
+attempts hit the cap of 8 calls. Its `stashed_t` arm sent 1.26 times the input tokens of `full_t`, because each recall turn resends
+the context, but most of that input came from the cache: outside it, `stashed_t` used 0.63 of `full_t`'s input. I
+did not check that the two CLIs count cached input the same way, so the two answerers' tokens are not compared.
+
+The S6 run has one deviation. Amendment 5 starts no call while my plan's 5-hour or weekly usage window reads 80% or
+more, to keep room for my other work. After `full_t` finished I waived that rule for `stashed_t`, which ran with the
+pause at 96%, set at run time without editing the pinned driver. 11 of its calls started at 80% or more, and the
+driver paused once at 97% until the window reset. The rule decides only when a call starts, not what it sends.
+
 # Discussion
 
 On this benchmark, with this answerer, stashing old record reads and giving the agent `recall` matched the full
@@ -453,6 +500,11 @@ after it. The answers that needed stashed text came through recall: the model re
 stash-dependent questions, and without the tool it got 2 of those 340 questions right. In the pilot the plain pointer
 failed because the model often did not recall, and the `head` pointer changed that. A reader should count the
 pointer's text as part of the treatment.
+
+S6 asked whether that result depends on the answerer. With `gpt-6.1-sol` both arms scored a little lower than with
+Claude, and the stashed arm again sat close to the full context, with a CI that includes 0 and spans less than 3
+points (INFERIDO). This is one run per answerer, the second answerer has no contamination check, and S6 had no pass
+criterion, so it widens the evidence for H1 without testing it again.
 
 H2 failed on the clinical summary. The generic prompt, written for coding sessions, lost exact values, as the generic
 summary did in my earlier coding-session study. The clinical prompt asks for every value, unit and date, and it closed
@@ -469,8 +521,10 @@ needs questions on which models do answer about absent patients.
 
 # Limits
 
-- One run, one answerer model (Claude Sonnet 5.5) and one summarizer model (Claude Opus 5.5), both from one vendor.
-  S6, a second answerer from another family, was not run.
+- One run and one summarizer model (Claude Opus 5.5). Every arm used one answerer, Claude Sonnet 5.5; only `full_t`
+  and `stashed_t` were repeated with a second, `gpt-6.1-sol` (S6), and S6 came after the D verdicts were known.
+- S6 has no `none` arm, so whether `gpt-6.1-sol` saw LongHealth in training is not measured. Its pacing rule was
+  waived for one arm (Second answerer, above).
 - `none` scored 0.597 with no records, against chance at 0.20, so some questions can be answered without the records.
   I did not test whether accuracies would be lower on records no model has seen.
 - UA was 0 in every arm, so the run cannot show whether the verifier prevents unsupported answers.
@@ -493,7 +547,7 @@ needs questions on which models do answer about absent patients.
 Everything needed to check or rerun the study is in the lcc repository [6], `github.com/lucasmartins-ai/lcc` (MIT),
 under `benchmarks/research/longhealth-v1/`:
 
-- `PROTOCOL.md`: the pre-registered protocol with Amendments 1–4;
+- `PROTOCOL.md`: the pre-registered protocol with Amendments 1–5;
 - `PILOT.md`: the pilot and re-pilot report;
 - `RESULTS.md` and `results.json`: the D results, with aggregates and 6,720 per-item 0/1 scores keyed by patient,
   question number, condition and arm;
@@ -501,6 +555,8 @@ under `benchmarks/research/longhealth-v1/`:
   before any answer;
 - `longhealth_v1.py` and `recall_shim.py`: the harness, whose sha256 Amendment 2 records, and `freeze-tests.log`, the
   test run at the pin;
+- `s6_codex.py`, whose sha256 Amendment 5 records, with `tests/test_longhealth_v1_s6.py`, and `results-s6.json`: the
+  S6 driver, its tests, and the S6 results in the same format as `results.json`, with 2,120 item scores;
 - `PREPRINT.md`: this paper. `tests/test_longhealth_v1_preprint.py` checks the numbers quoted here against
   `results.json` and the study's own files.
 
@@ -518,6 +574,10 @@ python longhealth_v1.py run --arm <arm> --set D
 python longhealth_v1.py score --set D
 ```
 
+S6 reruns after those phases with `codex-cli 0.166.0` on `PATH` and a ChatGPT login: `s6_codex.py toolcheck`, then
+`s6_codex.py run --set pilot --arm <arm>` for both arms, then `s6_codex.py run --set D --arm <arm>` for both arms and
+`s6_codex.py score --set D`. The D run refuses to start until the S6 toolcheck and pilot gates hold.
+
 This draft has no archival DOI yet.
 
 # AI-use disclosure
@@ -529,7 +589,8 @@ findings and the pilot report another. Claude Code drafted this paper from the r
 files, Codex reviewed the draft, and a test ties its numbers to `results.json`. The decisions the protocol records as
 the owner's are mine: the route and call cap, the pilot decisions in Amendment 1, the billing switch in Amendment 3
 and the omission in Amendment 4. The models under test, Claude Sonnet 5.5 as answerer and Claude Opus 5.5 as
-summarizer, come from the same vendor as the main assistant. I am responsible for the content.
+summarizer, come from the same vendor as the main assistant. S6's answerer, `gpt-6.1-sol`, comes from the vendor of
+the reviewing assistant. I am responsible for the content.
 
 # Ethics
 
@@ -539,7 +600,7 @@ seek ethics review.
 # Competing interests and funding
 
 I maintain lcc, the tool under test, and run LookADev, a software business. The study had no external funding. Model
-calls ran on my own Claude subscription and on API credits I already held.
+calls ran on my own Claude subscription and on API credits I already held, and S6 ran on my ChatGPT Plus plan.
 
 # References
 
