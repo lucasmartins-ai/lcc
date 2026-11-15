@@ -125,6 +125,22 @@ lcc intake voice-note.txt --report intake.json > prompt.md
   "uh", a bare "tipo" after a connector); "né?" and "right?" stay, so a question stays a
   question. Every removed span is in `intake.json` under `speech.removals` with its position
   in the raw input; the prompt carries one line with the span and char counts.
+- **Asides and disfluencies** go too, by fixed rules: a whole sentence said to someone in the
+  room from a closed list ("Te amo.", "Já vou, amor!", "Coming, honey!"), a self-correction
+  ("na sexta, não, quer dizer, na segunda" keeps "na segunda"), a repeated start ("Preciso,
+  preciso que") and a cut-off word ("Pre- Preciso"). Each one also counts as a dictation
+  signal. Code, double-quoted text (`"go, go"`) and a sentence a colon hands over
+  ("Translate this:\nTe amo.") are never cut. A dictated "talvez" or "maybe" is a speech habit, not ambiguity; typed, it still is.
+- **Brief:** `brief.asks` lists every ask, `brief.constraints` every constraint and
+  `brief.context` the rest, each copied verbatim from the input after the cuts; the report's
+  `extract` gives each sentence's role and its exact spans in the raw input. Readiness
+  questions come in the input's language (`lang`, pt or en).
+- **`--judge-roles`** (opt-in, sends the text to TypeSafe): Jev judges each sentence, and one
+  said to someone else (a pet, the TV, a phone call) is cut when p(aside) >= 0.9, with kind
+  `aside_jev` in the receipt. No key, no network or a failed call cuts nothing, a malformed
+  answer keeps its sentence, and both the terminal summary (`Jev Roles`) and the report's
+  `roles.degraded` say so. Measured on a synthetic benchmark:
+  [`benchmarks/research/intake-dictation-v1/RESULTS.md`](../benchmarks/research/intake-dictation-v1/RESULTS.md).
 - **Readiness** comes with named `reasons`: `vague_marker` (whole words, pt and en),
   `voice_dump` (3+ asks in one dictation → `NEEDS_INTAKE`), `multiple_asks` (3+ typed asks →
   `NEEDS_LIGHT_REFINEMENT`), `short_directive`, `too_short`. Only empty input is `BLOCKED`.
@@ -161,6 +177,7 @@ lcc intake voice-note.txt --report intake.json > prompt.md
 | `bench` | yes | no | mechanical metrics, not LLM quality |
 | `intake` (no `--enable-relevance`) | yes | no | structuring only |
 | `intake --enable-relevance --relevance-provider jev` | no | yes | needs `TYPESAFE_API_KEY` |
+| `intake --judge-roles` | falls back, never silent | yes for judgment | no key → nothing cut, `roles.degraded: true` |
 | `agent health` (default mock) | yes | no | mock backend |
 | `agent run` (ollama/llamacpp/vllm) | depends on backend | backend endpoint | local backends stay offline |
 | `route run/eval` | yes (mock/local default) | only if a remote model is configured | default path is local |

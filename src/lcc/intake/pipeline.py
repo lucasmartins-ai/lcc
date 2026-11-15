@@ -7,12 +7,20 @@ from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Any
 
 from lcc.compressor import CompressionResult, LccCompressor
-from lcc.intake.parser import ParsedIntake, ReadinessState, parse_intake
-from lcc.intake.speech import DictationClean, DictationDetection, clean_dictation, detect_dictation
+from lcc.intake.parser import BriefItem, ParsedIntake, ReadinessState, parse_intake
+from lcc.intake.speech import (
+    DictationClean,
+    DictationDetection,
+    clean_dictation,
+    detect_dictation,
+    merge_removals,
+    raw_spans,
+)
 from lcc.prompt_builder import PromptSpec, build_prompt
 from lcc.toon import encode_toon
 
 if TYPE_CHECKING:
+    from lcc.intake.roles import RoleJudgment
     from lcc.relevance import RelevanceCompactionResult
 
 
@@ -29,6 +37,13 @@ class IntakeResult:
     dictation: DictationDetection | None = None
     #: Filler/transcript removals with exact spans in ``raw_input``; ``None`` when not dictation.
     speech_cleaning: DictationClean | None = None
+    #: The opt-in Jev role judgment (``judge_roles=True``); ``None`` when not asked for.
+    roles: RoleJudgment | None = None
+
+    @property
+    def extract(self) -> list[BriefItem]:
+        """Brief sentences with their spans in ``raw_input``."""
+        return self.parsed.extract
 
 
 def speech_receipt(result: IntakeResult) -> dict[str, Any]:
@@ -89,6 +104,8 @@ class LccIntake:
         relevance_threshold: float = 0.4,
         relevance_provider: str = "auto",
         relevance_client: Any | None = None,
+        judge_roles: bool = False,
+        roles_client: Any | None = None,
     ) -> None:
         self.model = model
         self.template_name = template_name
@@ -99,6 +116,8 @@ class LccIntake:
         self.relevance_threshold = relevance_threshold
         self.relevance_provider = relevance_provider
         self.relevance_client = relevance_client
+        self.judge_roles = judge_roles
+        self.roles_client = roles_client
         self.compressor = LccCompressor(
             model=model,
             strategy=strategy,
@@ -128,7 +147,31 @@ class LccIntake:
         detection = detect_dictation(raw_input)
         cleaning = clean_dictation(raw_input) if detection.detected else None
         input_text = cleaning.text if cleaning else raw_input
-        parsed = parse_intake(input_text, dictation=detection.detected, previous_turn=previous_turn)
+        judgment: RoleJudgment | None = None
+        if self.judge_roles:
+            from lcc.intake import roles
+
+            judgment = roles.judge_roles(input_text, client=self.roles_client)
+            if judgment.asides:
+                prior = cleaning.removals if cleaning else []
+                found = [(r.start, r.end, r.kind) for r in prior]
+                for start, end in judgment.asides:
+                    found += [(s, e, "aside_jev") for s, e in raw_spans(start, end, prior)]
+                cleaning = merge_removals(raw_input, found)
+                input_text = cleaning.text
+                detection.detected = True  # words said to someone else: this is speech
+                detection.reasons.append("aside_jev")
+        parsed = parse_intake(
+            input_text,
+            dictation=detection.detected,
+            previous_turn=previous_turn,
+            roles=judgment.roles if judgment else None,
+        )
+        if cleaning is not None:
+            for item in parsed.extract:
+                item.spans = [r for s, e in item.spans for r in raw_spans(s, e, cleaning.removals)]
+        # The question the context is compacted against: every ask, not the first 80 chars.
+        question = question or " ".join(parsed.brief.asks) or parsed.brief.objective
         relevance_result: RelevanceCompactionResult | None = None
         if self.enable_relevance and parsed.readiness != ReadinessState.BLOCKED:
             from lcc.relevance import RelevanceCompactionRequest, compact_context
@@ -136,7 +179,7 @@ class LccIntake:
             relevance_result = compact_context(
                 RelevanceCompactionRequest(
                     text=input_text,
-                    question=question or parsed.brief.objective,
+                    question=question,
                     threshold=self.relevance_threshold,
                     provider=self.relevance_provider,
                     client=self.relevance_client,
@@ -149,7 +192,7 @@ class LccIntake:
         if self.optimize_context and parsed.readiness != ReadinessState.BLOCKED:
             compression_result = self.compressor.compress(
                 raw_text=source_text,
-                question=question or parsed.brief.objective,
+                question=question,
                 task_type="intake-refinement",
                 constraints=extra_constraints or [],
             )
@@ -160,7 +203,7 @@ class LccIntake:
             constraints.extend(extra_constraints)
 
         spec = PromptSpec(
-            question=question or parsed.brief.objective,
+            question=question,
             context=cleaned_text,
             task_type="intake-refinement",
             constraints=constraints,
@@ -186,6 +229,7 @@ class LccIntake:
                 "readiness": parsed.readiness.value,
                 "readiness_score": parsed.readiness_score,
                 "intent": parsed.intent,
+                "lang": parsed.lang,
                 "reasons": parsed.reasons,
                 "risk_flags": parsed.risk_flags,
                 "ask_count": parsed.ask_count,
@@ -213,6 +257,7 @@ class LccIntake:
             relevance=relevance_result,
             dictation=detection,
             speech_cleaning=cleaning,
+            roles=judgment,
         )
 
 

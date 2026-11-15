@@ -8,6 +8,19 @@ All notable changes to this project are documented here. The format is based on
 
 ### Added
 
+- **`lcc intake` cuts what a dictation says to someone else, and lists the real asks.**
+  Three layers, each measured on a synthetic benchmark whose answer is known by construction
+  ([protocol and results](benchmarks/research/intake-dictation-v1/RESULTS.md)):
+  fixed rules cut a closed list of asides ("Te amo.", "Coming, honey!"), self-corrections
+  ("na sexta, não, quer dizer, na segunda" keeps "na segunda"), repeated starts and cut-off
+  words; the brief now lists every ask, constraint and context sentence verbatim with its spans
+  in the raw input (`brief.asks`, report `extract`), and readiness questions follow the input's
+  language. `--judge-roles` (opt-in, Jev, feature `lcc_intake_roles` in
+  [docs/JEV.md](docs/JEV.md)) also cuts asides outside the list at p >= 0.9 and keeps everything
+  when Jev is missing or fails. Every cut is in the receipt, and `rebuild_input` gives the raw
+  input back byte for byte. A dictated "talvez"/"maybe" no longer counts as ambiguity, and a
+  constraint sentence no longer counts as one more ask.
+
 - **`lcc setup`: Claude Code runs lcc on its own.** One command writes what the guide asked
   for by hand in `~/.claude/settings.json`: the function-hook flag,
   the plugin's `provider: rules` with `rulesMode: stashed`, permission for its two tools, the

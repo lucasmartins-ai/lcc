@@ -2498,6 +2498,14 @@ def intake_cmd(
         "--previous-turn",
         help="The agent's last message before this input; the category reads its last 600 chars.",
     ),
+    judge_roles: bool = typer.Option(
+        False,
+        "--judge-roles",
+        help=(
+            "Opt in to the Jev judgment of each sentence (sends the text to TypeSafe): cuts "
+            "sentences said to someone else, with p(aside) >= 0.9; keeps everything if Jev fails."
+        ),
+    ),
 ) -> None:
     """Analyze raw, unstructured, or voice prompt input, structure intent, and compile with LCC."""
     from lcc.intake import LccIntake, ReadinessState
@@ -2518,6 +2526,7 @@ def intake_cmd(
         enable_relevance=enable_relevance,
         relevance_threshold=relevance_threshold,
         relevance_provider=relevance_provider,
+        judge_roles=judge_roles,
     )
     result = pipeline.process(
         raw_input=raw_text,
@@ -2547,8 +2556,11 @@ def intake_cmd(
             "intent": result.parsed.intent,
             "questions": result.parsed.questions,
             "assumptions": result.parsed.assumptions,
+            "lang": result.parsed.lang,
             "brief": asdict(result.parsed.brief),
+            "extract": [asdict(item) for item in result.extract],
             "speech": speech_receipt(result),
+            "roles": asdict(result.roles) if result.roles else None,
             "compression": asdict(result.compression) if result.compression else None,
             "relevance": relevance_report_to_dict(result.relevance.report)
             if result.relevance
@@ -2594,6 +2606,12 @@ def intake_cmd(
             f"{len(cleaning.removals)} span(s), {cleaning.removed_chars} chars removed"
             + (" (listed below)" if cleaning.removals else ""),
         )
+    if result.roles is not None:  # --judge-roles: say when Jev did not judge, report or not
+        roles = result.roles
+        status = f"{roles.provider}, {len(roles.asides)} aside(s) cut"
+        if roles.degraded:
+            status = f"[yellow]degraded[/yellow]: {escape('; '.join(roles.warnings))}"
+        table.add_row("Jev Roles", status)
     table.add_row("Target Model", model)
     table.add_row("Template", template)
 
