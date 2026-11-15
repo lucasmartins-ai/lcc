@@ -1,9 +1,11 @@
-# Intake objective v1: can intake find the main ask in a long dictation? (draft 2026-11-15)
+# Intake objective v1: can intake find the main ask in a long dictation? (design approved 2026-11-15)
 
-**Status: DRAFT, not pre-registered.** Nothing below has run. Two dated checkpoints make it a pre-registration:
+**Status: design approved 2026-11-15; data not frozen.** Nothing below has run. Two dated checkpoints make it a
+pre-registration:
 
-1. **Design approval.** The owner adds a dated line here. From then on the families, arms, metrics and pass
-   criteria are fixed.
+1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
+   covering the data source, families, arms, Jev cap and H1 margin. From then on the families, arms, metrics and
+   pass criteria are fixed.
 2. **Data freeze.** Before any work on arm D starts, an amendment records the generator, the cases file and its
    sha256. From then on the cases are fixed.
 
@@ -103,7 +105,7 @@ main span by at least half of the gold span.
 
 All metrics by family and length, plus the test-split total.
 
-## Hypotheses and pass criteria (to be fixed on approval)
+## Hypotheses and pass criteria (fixed by the design approval of 2026-11-15)
 
 The 300 test cases are 15 variants of 20 bases, so they are not independent. Every interval below resamples whole
 bases (paired cluster bootstrap, 10,000 resamples, seed 20261116), never single cases.
@@ -135,7 +137,7 @@ calls. D and the controls make none.
 
 ## Run order
 
-1. The owner approves this draft with a dated line (data source, families, Jev cap, H1 margin).
+1. The owner approves the design with a dated line (data source, families, Jev cap, H1 margin). Done 2026-11-15.
 2. Write the bases and the block pool, generate the cases, and freeze them by amendment (generator, cases file,
    sha256) before any work on D.
 3. Build D on dev; freeze its weights by amendment.
