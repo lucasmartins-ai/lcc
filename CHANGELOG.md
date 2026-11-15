@@ -74,11 +74,15 @@ All notable changes to this project are documented here. The format is based on
   - **What moved:** intake `cost` 1.317 → 2.392, `prefix_share` 0.8940 → 0.8986 and
     `tokens_out` 17790 → 17784.
   - **Why:** the dictation intake reads the input sentence by sentence (roles for the brief,
-    speech spans for the receipt), so the gate's 1,500-note synthetic brief now takes about
-    92 ms instead of 49 ms on the maintainer's machine (5 warm runs each, Python 3.14). On a
-    304-word prompt the same machine measured 2.16 ms before and 2.79 ms after (50 runs each).
+    speech spans for the receipt). On the maintainer's machine (Python 3.14, best of 7 warm
+    runs, four runs each) the gate's 1,500-note synthetic brief takes 76 to 78 ms against 49 to
+    50 ms before the dictation intake; a 304-word prompt takes 2.58 to 2.62 ms against 2.05 to
+    2.06 ms (best of 50). One `_ASK_CUE` scan now serves both the sentence roles and the ask count, where there
+    were two (`parse_intake` alone: 52 ms → 39 ms on that brief); 50,000 random texts gave the
+    same `parse_intake` result as the two-scan code.
   - **How:** only the intake entry was edited, with the values `efficiency_gate.py --check`
-    printed in the Python 3.13 CI job of PR #174; the other paths were not re-measured.
+    printed in the Python 3.13 CI job of PR #174 before the one-scan change; the other paths
+    were not re-measured.
 
 - **`lcc hint --hook` answers without loading the CLI, and the hints stay the same.**
   - **Entry point:** the `lcc` console script now starts at `lcc.entry:main`. When the command

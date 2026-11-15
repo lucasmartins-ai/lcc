@@ -12,6 +12,7 @@ from bisect import bisect_right
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
+from itertools import accumulate
 
 from lcc.intake.category import classify
 from lcc.intake.speech import sentence_spans
@@ -171,33 +172,60 @@ _CONSTRAINT_ANYWHERE = re.compile(
 _CLAUSE_BREAK = re.compile(r"[;,:—–]")
 
 
-def sentence_role(sentence: str) -> str:
+def sentence_role(sentence: str, *, ask_cue: bool | None = None) -> str:
     """Deterministic role of one sentence: ask, constraint or context. An imperative stays an
     ask when the rule sits in a later clause ("Create X; it must be Y."); "Build must be
-    reproducible." is a rule about the build."""
+    reproducible." is a rule about the build. ``ask_cue`` is whether ``_ASK_CUE`` matches the
+    sentence, when the caller already scanned it."""
     if sentence.rstrip().endswith("?"):
         return "ask"
-    if _CONSTRAINT_OPEN.search(sentence):
+    if _rule_constraint(sentence):
         return "constraint"
-    rule = _CONSTRAINT_ANYWHERE.search(sentence)
-    if rule and not (
-        _IMPERATIVE_OPEN.search(sentence) and _CLAUSE_BREAK.search(sentence, 0, rule.start())
-    ):
-        return "constraint"
-    if _IMPERATIVE_OPEN.search(sentence) or _ASK_CUE.search(sentence):
+    if ask_cue is None:
+        ask_cue = _ASK_CUE.search(sentence) is not None
+    if ask_cue or _IMPERATIVE_OPEN.search(sentence):
         return "ask"
     return "ask" if _ASK_ANYWHERE.search(sentence) else "context"
 
 
-def _extract(text: str, roles: Mapping[str, str]) -> list[BriefItem]:
-    items = []
-    for s, e in sentence_spans(text):
-        sentence = text[s:e]
+def _rule_constraint(sentence: str) -> bool:
+    """Whether the cue-word rules make ``sentence`` a constraint; ``_ASK_CUE`` plays no part."""
+    if sentence.rstrip().endswith("?"):
+        return False
+    if _CONSTRAINT_OPEN.search(sentence):
+        return True
+    rule = _CONSTRAINT_ANYWHERE.search(sentence)
+    return rule is not None and not (
+        _IMPERATIVE_OPEN.search(sentence) and _CLAUSE_BREAK.search(sentence, 0, rule.start())
+    )
+
+
+def _extract(text: str, roles: Mapping[str, str]) -> tuple[list[BriefItem], int]:
+    """Each sentence with its role, and the ask count over the non-constraint sentences.
+
+    A constraint ("Não faça merge sem os testes") limits an ask; it is not one more ask. Being a
+    constraint never depends on ``_ASK_CUE``, so those sentences are known first and one
+    ``_ASK_CUE`` scan of the rest, joined by newlines, gives the count and each one's cue.
+    """
+    spans = sentence_spans(text)
+    sentences = [text[s:e] for s, e in spans]
+    fixed = []
+    for sentence in sentences:
         role = roles.get(sentence, "")
-        items.append(
-            BriefItem(role if role in _BRIEF_ROLES else sentence_role(sentence), sentence, [(s, e)])
-        )
-    return items
+        if role not in _BRIEF_ROLES:
+            role = "constraint" if _rule_constraint(sentence) else ""
+        fixed.append(role)
+    kept = [i for i, role in enumerate(fixed) if role != "constraint"]
+    joined = "\n".join(sentences[i] for i in kept)
+    starts = list(accumulate((len(sentences[i]) + 1 for i in kept[:-1]), initial=0))
+    ends = [m.end() for m in _ASK_CUE.finditer(joined)]
+    # A cue ends on a word, so its last character sits in the sentence it belongs to.
+    cued = {kept[bisect_right(starts, end - 1) - 1] for end in ends}
+    items = [
+        BriefItem(role or sentence_role(sentences[i], ask_cue=i in cued), sentences[i], [spans[i]])
+        for i, role in enumerate(fixed)
+    ]
+    return items, _merge_asks(joined, ends)
 
 
 _PT_STOP = {
@@ -244,11 +272,14 @@ def detect_lang(text: str) -> str:
 
 def count_asks(text: str) -> int:
     """Count distinct requests: cue words, merged when within ``ASK_MERGE_WINDOW`` words."""
+    return _merge_asks(text, [m.end() for m in _ASK_CUE.finditer(text)])
+
+
+def _merge_asks(text: str, cue_ends: list[int]) -> int:
     word_starts = [m.start() for m in _WORD.finditer(text)]
-    positions = [bisect_right(word_starts, m.end() - 1) - 1 for m in _ASK_CUE.finditer(text)]
     asks = 0
     last: int | None = None
-    for pos in sorted(positions):
+    for pos in sorted(bisect_right(word_starts, end - 1) - 1 for end in cue_ends):
         if last is None or pos - last > ASK_MERGE_WINDOW:
             asks += 1
         last = pos
@@ -289,9 +320,7 @@ def parse_intake(
     risk_flags = [name for name, pattern in _RISK_PATTERNS if pattern.search(text)]
     word_count = len(text.split())
     has_question = "?" in text
-    extract = _extract(raw_input, roles or {})
-    # A constraint ("Não faça merge sem os testes") limits an ask; it is not one more ask.
-    asks = count_asks("\n".join(i.text for i in extract if i.role != "constraint"))
+    extract, asks = _extract(raw_input, roles or {})
     vague_hits = sorted({m.group(0).lower() for m in _VAGUE.finditer(text)})
     if dictation:
         vague_hits = [h for h in vague_hits if h not in _SPOKEN_HEDGES]

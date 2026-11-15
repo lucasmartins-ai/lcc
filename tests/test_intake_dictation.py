@@ -5,6 +5,7 @@ Protocol and benchmark: benchmarks/research/intake-dictation-v1/.
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import pytest
@@ -362,3 +363,43 @@ def test_default_intake_never_builds_a_judge(monkeypatch):
 
     monkeypatch.setattr(roles, "judge_roles", boom)
     LccIntake(optimize_context=False).process(TEXT)
+
+
+# --- one cue scan serves the roles and the ask count ---------------------------------------
+
+_ONE_SCAN_EDGES = [
+    "Do it.\nadd the test",
+    "please\nfix the bug",
+    "Check it and\nfix it",
+    "1. fix X\n2. add Y\n3) run the suite",
+    "Não faça merge sem os testes. Corrige o login. Depois adiciona um teste, e roda.",
+    "Fix the login; it must be fast. Build must be reproducible. Also update the docs?",
+    "Hmm… fix the bug. Never touch the cart. Then, just add a test and deploy.",
+    "",
+    # A per-sentence scan counted these differently: the join glues "!\n" to "make".
+    "crie … cart ! \t make sure",
+    "Fix deve ser 2) keep \n 1. i need não 2) then você pode    ! make sure , talvez . Run ADD … Fix",
+    "then i need talvez bug never \n\n without ADD add the Do só login make sure without and ! "
+    "make sure , deve ser maybe tem que add without fix touch crie then",
+]
+
+
+def test_one_cue_scan_matches_the_joined_count_and_the_roles():
+    from pathlib import Path
+
+    from lcc.intake.parser import count_asks, sentence_role
+
+    root = Path(__file__).resolve().parents[1]
+    bench = json.loads(
+        (root / "benchmarks/research/intake-dictation-v1/cases.json").read_text("utf-8")
+    )
+    corpus = json.loads((root / "tests/corpus/intake/v1.json").read_text("utf-8"))
+    texts = [c["text"] for c in bench["cases"] + corpus["cases"]] + _ONE_SCAN_EDGES
+    assert len(texts) > len(_ONE_SCAN_EDGES)
+    for text in texts:
+        parsed = parse_intake(text)
+        if not text.strip():
+            continue
+        joined = "\n".join(i.text for i in parsed.extract if i.role != "constraint")
+        assert parsed.ask_count == count_asks(joined), text
+        assert [i.role for i in parsed.extract] == [sentence_role(i.text) for i in parsed.extract]
