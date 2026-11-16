@@ -1,6 +1,8 @@
 # Intake objective v1: can intake find the main ask in a long dictation? (design approved, data and arm D frozen 2026-11-15)
 
-**Status: design approved, data and arm D frozen 2026-11-15.** No arm has run on the test split or on Part R.
+**Status: design approved, data and arm D frozen 2026-11-15; arm DJ and the analysis frozen 2026-11-16 (Amendment
+3).** The test split ran once on 2026-11-16 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its
+numbers go to RESULTS.md (run order step 6). No arm has run on Part R.
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -302,3 +304,76 @@ D's hit@3 is 0.993. Ask recall is 1.00 and the stash rebuilds in all 300 cases, 
 **What the author knew before the test run.** Amendment 1 records that eight test `restate` cases make the parser
 read the recap as a constraint. The author learned it from case ids and parser roles during the data freeze, without
 reading those cases, and D was not changed for it.
+
+### Amendment 3 (2026-11-16): arm DJ and the analysis frozen
+
+Recorded after DJ ran once on dev, before any arm ran on test. `run_dj.py` runs DJ on one split and writes
+`results_dj_<split>.json`; `stats.py` reads the results files, computes H1 to H4 and writes `stats_<split>.json`.
+Both write case ids, spans, labels and numbers, never case text. Amendment 2's files are unchanged.
+
+| File | sha256 |
+| :--- | :--- |
+| `run_dj.py` (arm DJ and its test-split guard) | `cde9aa0584bc1c7976b59cee51c9c8a24cfc3b80ed5f2a9bfc9e9f9ac80b63ca` |
+| `stats.py` (H1 to H4, cluster bootstrap) | `8788754f505b63a693fbbcd44f56874af0723d1efa4b13728c298b0c7f18d875` |
+
+`tests/test_intake_objective_dj.py` fails if a later change moves either hash.
+
+**How DJ fills in what the design left open.**
+
+1. Options: D's top 5 eligible blocks, or all of them when D has fewer, shown in input order and labelled A to E,
+   so the labels do not carry D's ranking. Each option is the block's text, stripped.
+2. State `{"message": <the whole input>}` and one `choice` question with this instruction, written before the dev
+   run and not changed after it: "state.message is a long message someone dictated to an AI assistant. It mixes
+   context, side errands and thinking aloud with the request the speaker most needs done. Each option is one passage
+   of the message. Which passage holds that main request?"
+3. Jev's label is used when its probability is at least 0.6. Below that, on any error, or on a label outside the
+   options, DJ keeps D's pick. A case with fewer than two eligible blocks makes no call and keeps D's pick.
+4. The objective is the first ask sentence of the chosen block, the rule D uses.
+5. Calls carry the feature tag `lcc_intake_objective_dj` in the Jev ledger, and each result row records the model
+   Jev resolved to. If the test run resolves to a different model than dev, the results say so.
+6. The design says DJ returns D's pick when Jev is missing. The runner refuses to run instead, so a results file
+   always holds a real Jev run and never a copy of D.
+7. One call is one HTTP attempt: the client's retries are off, so a failed call keeps D's pick and counts as an
+   error, as the design says. Each row is appended to `results_dj_<split>.partial.jsonl` as it is made, and a rerun
+   after an interruption takes those rows instead of asking Jev again. A failed call is final: the rerun does not ask
+   it again, so an outage during the test run shows as errors in the results, not as a second run.
+8. `run_dj.py` refuses to overwrite a results file, and `--split test` refuses unless D is the frozen D (the check
+   `run_arms.py` makes).
+
+**The analysis.**
+
+- Intervals are the designed paired cluster bootstrap. Each of 10,000 resamples (seed 20261116, Python's
+  `random.Random`) draws as many bases as the split has, with replacement; its statistic is the mean per-case
+  difference over every case of the drawn bases. The interval is the 2.5th and 97.5th percentiles from
+  `statistics.quantiles(n=40, method="inclusive")`; the point estimate is the mean over all cases.
+- H1 and H2 as designed. H3 compares point estimates on `first`, as the design writes it. H4 reads D's ask recall
+  and rebuild from `run_arms.py`; A0, A1 and DJ change only which sentence is the objective and keep the intake's
+  sentence list, so Amendment 2's reading gives them recall 1.00 by construction.
+- Reported apart, with no pass criterion: hit@1 by family, length and language; D minus A1; the ablations; the test
+  `marker` and `restate` cases whose phrasings Codex wrote (the leakage table); and the test `restate` cases where
+  the parser does not label the gold recap sentence `ask` (Amendment 1). The script finds those cases from the
+  parser's role of the gold span and never prints or stores their text.
+
+**DJ on dev.** Nothing in DJ was tuned on these numbers, but the author saw them before the test run. DJ ran as one
+smoke call on one dev case, then once over the 300 dev cases, with nothing changed between them. After the dev run
+the runner changed three times, leaving DJ's decisions as they were: item 7's single attempt (the dev run used the
+client's default of up to three, and the ledger's 254 dev rows all answered on the first attempt), the progress log
+after the code review, and the model recorded per row. `results_dj_dev.json` comes from the earlier runner, so it
+records the model in its summary only. The hash above is the runner after those changes.
+
+| hit@1 on dev | D | DJ |
+| :--- | ---: | ---: |
+| `first` (60) | 1.000 | 1.000 |
+| `marker` (60) | 1.000 | 1.000 |
+| `recurrence` (60) | 0.717 | 1.000 |
+| `restate` (60) | 0.967 | 0.983 |
+| `bare` (60) | 0.783 | 0.983 |
+| all (300) | 0.893 | 0.993 |
+
+DJ minus D on dev is +0.100 with cluster interval [0.067, 0.137]; D minus A0 is +0.297 [0.257, 0.337]. DJ called
+Jev in 253 cases (the other 47 have one eligible block) with no error. Jev's pick was used in 226 and fell below 0.6
+in 27. DJ fixed 30 of D's 32 misses and lost none of D's hits; its two misses are cases where Jev answered below 0.6
+and D was wrong. Mean 221 ms and max 378 ms per call, model jev-1.14.0.
+
+**Budget.** The ledger holds 254 DJ calls (the smoke call and the dev run). The test run makes at most 300 and Part R
+at most 30, so the total stays under the 700-call cap.
