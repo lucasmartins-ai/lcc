@@ -1,8 +1,9 @@
 # Intake objective v1: can intake find the main ask in a long dictation? (design approved, data and arm D frozen 2026-11-15)
 
 **Status: design approved, data and arm D frozen 2026-11-15; arm DJ and the analysis frozen 2026-11-16 (Amendment
-3).** The test split ran once on 2026-11-16 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its
-numbers go to RESULTS.md (run order step 6). No arm has run on Part R.
+3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4).** The test split ran once on 2026-11-16
+(`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
+No arm has run on Part R.
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -146,7 +147,7 @@ calls. D and the controls make none.
    sha256) before any work on D. Done 2026-11-15 (Amendment 1).
 3. Build D on dev; freeze its weights by amendment. Done 2026-11-15 (Amendment 2).
 4. Run A0, A1, D and its ablations on test, then DJ.
-5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes.
+5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes. Amendment 4 fixes how.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -377,3 +378,93 @@ and D was wrong. Mean 221 ms and max 378 ms per call, model jev-1.14.0.
 
 **Budget.** The ledger holds 254 DJ calls (the smoke call and the dev run). The test run makes at most 300 and Part R
 at most 30, so the total stays under the 700-call cap.
+
+### Amendment 4 (2026-11-16): how Part R is drawn, labelled and scored
+
+Recorded before the owner labels any dictation and before any arm runs on Part R. The design says the owner picks
+20 to 30 dictations; this amendment makes the pick mechanical, so the choice of cases cannot lean toward ones an arm
+handles well. `part_r.py` holds every step. Amendments 1 to 3 are unchanged.
+
+| File | sha256 |
+| :--- | :--- |
+| `part_r.py` (pool, labelling page, Part R runner) | `cc0da0564f8904f3b8094c737bdaa9fabf02af39bcbc0e659a5a5d17c7699659` |
+
+`tests/test_intake_objective_part_r.py` fails if a later change moves that hash, and tests each rule below on
+synthetic text.
+
+**The pool.** `part_r.py collect` reads the owner's Claude Code transcripts (`~/.claude/projects/*/*.jsonl`, top
+level only, so no subagent transcript) and keeps a user message when all of these hold:
+
+1. The app tagged it as typed by a person (`turnOrigin` or `origin.kind` is `human`) and it is not meta, a sidechain
+   or a compaction summary. Messages with no origin tag, which older app versions wrote, are left out rather than
+   guessed; so are scheduled tasks, SDK prompts and tool results.
+2. After removing the app reminder blocks (`<system-reminder>`) at the very start and the very end (repeatedly, so
+   stacked blocks go too; a block in the middle stays and drops the message under rule 3), it has 300 or more
+   whitespace-separated words.
+3. Nothing in it marks pasted or generated content: no wrapper that lcc's `session_report.INJECTED` lists (another
+   reminder block, shell input or output, local commands, hook output, task notifications), no other tag whose name
+   has a hyphen or an underscore (how apps name their wrappers, pasted content included), and no code fence. Such a
+   message is dropped, never edited.
+4. Its text is not a duplicate (same sha256) of a message already kept.
+
+The pool is sorted by sha256 and shuffled with `random.Random(20261116)`; that order is fixed before the owner sees
+any message. `collect` refuses to run again once a pool exists, since a second draw would reorder the messages
+being labelled. The filter counts are below.
+
+**The labelling.** `collect` writes the pool and a single-file page (`label.html`, no network) to
+`~/.lcc-private/intake-objective-v1/`, a folder only the owner can read (0700, files 0600). The page shows one
+message at a time in the fixed order, split into the sentences the pinned parser (Amendment 2) produces, and no arm
+output; it saves progress in the browser under a key made from the whole ordered pool. The owner reads the
+instruction below, clicks the sentence (or sentences) that hold the main ask, and keeps the message, or skips it with
+one of three reasons: "não foi ditado" (it was not dictated), "sensível" (sensitive) or "não tem um pedido
+principal" (no main ask). He works top down; the page stops at 25 kept or when the pool ends, and the run accepts
+any top-down prefix with 20 to 30 kept. The instruction,
+written before any message was shown and mirroring DJ's question:
+
+> Esta é uma mensagem longa que você mandou para um assistente de IA. Ela mistura contexto, pedidos laterais e
+> pensamento em voz alta com o pedido que você mais precisava que fosse feito. Clique na frase que traz esse pedido
+> principal. Se ele aparece em mais de uma frase (repetido no fim, por exemplo), marque cada uma. Não marque os
+> pedidos laterais.
+
+(In English: this is a long message you sent to an AI assistant; it mixes context, side requests and thinking aloud
+with the request you most needed done; click the sentence that holds that main request, mark each one if it appears
+in more than one sentence, and do not mark side requests.)
+
+**The run.** `part_r.py run` reads the exported labels and refuses unless: D is the frozen D (the check
+`run_arms.py` makes); the parser and sentence splitter match Amendment 2; the decisions cover the fixed order from
+the top with no gap; every skip carries one of the three reasons; every gold span is a sentence the page showed;
+each label names the sha256 of the text it was made on; 20 to 30 messages are kept; and `stats_r.json` does not
+exist yet. Then it runs A0, A1 and D, and nothing else, on the kept messages.
+
+- Scoring is Part S's: a pick hits when it covers at least half of any gold sentence. D's row comes from
+  Amendment 2's own `score_d`, given the gold sentences as the only asks and no support labels.
+- Reported, with no pass criterion: hit@1 for A0, A1 and D, and D's hit@3, each with a Wilson 95% interval
+  (z = 1.96: centre (p + z²/2n) / (1 + z²/n), half-width z·√(p(1−p)/n + z²/4n²) / (1 + z²/n), clipped to [0, 1]);
+  D's fallbacks, rebuild and mean brief ratio; the cases where the parser labels none of the gold sentences `ask`
+  (no arm can hit those); the cases with two or more gold sentences; the pool counts and the skips by reason.
+- Ask recall is not computed: Part R labels only the main ask.
+- Per-case rows stay in the private folder (`results_r.json`); the repository gets `stats_r.json`, which holds
+  aggregate numbers only.
+
+**DJ on Part R** does not run under this amendment. It needs the owner's explicit yes, and then its own amendment
+and a separate code path that fixes the five runner findings from the second code review of `run_dj.py` (atomic
+journal and results writes, no message text in the ledger on an HTTP error or a malformed answer, the model
+recorded only from a successful call, and `used_jev` counted on the unrounded probability), with its Jev ledger kept
+in the private folder. `run_dj.py` stays as Amendment 3 froze it.
+
+**Privacy.** Part R text goes to no model. The code review of `part_r.py` ran on its diff and synthetic tests only,
+told not to open the private folder or the transcripts.
+
+**The pool on 2026-11-16.** Drawn once, before the owner saw any message. Of 4,190 user messages the app tagged as
+typed by a person, 4,100 have fewer than 300 words, 55 carry pasted or generated content (28 shell input or output,
+26 pasted content, 1 code fence) and 4 repeat a message already kept, which leaves 31 candidates from 28 sessions
+between 2026-06-29 and 2026-11-13, of 302 to 1,852 words (median 394). Counted once per distinct text instead: 128
+human-tagged messages reach 300 words before the reminder blocks come off; 54 fall under 300 once they do, 43 carry
+markup (22 pasted content, 20 shell, 1 code fence) and 31 are kept. Another 138 distinct messages of 300 or more
+words carry no origin tag (2026-06-02 to 2026-11-03); rule 1 leaves them out. Before labelling began, the owner
+answered that his dictations reach the app typed, not pasted (2026-11-16: "No, they're typed"), so the 22 pasted
+messages stay out and the pool is not redrawn. To reach 25 kept the owner can skip at
+most 6; the run still goes ahead with 20 kept, which leaves room for 11 skips. If the pool runs out before 20 are
+kept, nothing runs: widening the pool (for example, keeping the dictated part of a message that also carries pasted
+text) needs a new amendment written before any arm runs. The drawn `candidates.json` has sha256
+`d8f0691299647f1da608e6c2a8dc86dd1a5643dd7a1d117852323c3513131b88`, which fixes both the pool and its order.
