@@ -1,0 +1,157 @@
+{
+ "split": "test",
+ "n": 300,
+ "bases": 20,
+ "hit@1": {
+  "n": 300,
+  "A0": 0.5533,
+  "A1": 0.4733,
+  "D_hit": 0.79,
+  "DJ": 0.97
+ },
+ "D_hit3": 0.9667,
+ "by_family": {
+  "bare": {
+   "n": 60,
+   "A0": 0.3833,
+   "A1": 0.4,
+   "D_hit": 0.6667,
+   "DJ": 0.9333
+  },
+  "first": {
+   "n": 60,
+   "A0": 1.0,
+   "A1": 0.15,
+   "D_hit": 1.0,
+   "DJ": 1.0
+  },
+  "marker": {
+   "n": 60,
+   "A0": 0.4333,
+   "A1": 0.4833,
+   "D_hit": 0.8167,
+   "DJ": 1.0
+  },
+  "recurrence": {
+   "n": 60,
+   "A0": 0.4333,
+   "A1": 0.4167,
+   "D_hit": 0.7167,
+   "DJ": 1.0
+  },
+  "restate": {
+   "n": 60,
+   "A0": 0.5167,
+   "A1": 0.9167,
+   "D_hit": 0.75,
+   "DJ": 0.9167
+  }
+ },
+ "by_k": {
+  "4": {
+   "n": 100,
+   "A0": 0.74,
+   "A1": 0.65,
+   "D_hit": 0.87,
+   "DJ": 0.99
+  },
+  "8": {
+   "n": 100,
+   "A0": 0.56,
+   "A1": 0.45,
+   "D_hit": 0.8,
+   "DJ": 0.97
+  },
+  "16": {
+   "n": 100,
+   "A0": 0.36,
+   "A1": 0.32,
+   "D_hit": 0.7,
+   "DJ": 0.95
+  }
+ },
+ "by_lang": {
+  "en": {
+   "n": 150,
+   "A0": 0.5067,
+   "A1": 0.42,
+   "D_hit": 0.6667,
+   "DJ": 0.9467
+  },
+  "pt": {
+   "n": 150,
+   "A0": 0.6,
+   "A1": 0.5267,
+   "D_hit": 0.9133,
+   "DJ": 0.9933
+  }
+ },
+ "codex_phrasings": {
+  "n": 120,
+  "A0": 0.475,
+  "A1": 0.7,
+  "D_hit": 0.7833,
+  "DJ": 0.9583
+ },
+ "recap_read_as_rule": {
+  "ids": [
+   "pt02-restate-k8",
+   "pt10-restate-k16",
+   "pt10-restate-k4",
+   "pt10-restate-k8",
+   "pt12-restate-k4",
+   "pt12-restate-k8",
+   "pt16-restate-k16",
+   "pt18-restate-k16"
+  ],
+  "n": 8,
+  "A0": 0.625,
+  "A1": 0.375,
+  "D_hit": 0.75,
+  "DJ": 1.0
+ },
+ "ablations": {
+  "D-ask": 0.6167,
+  "D-marker": 0.7667,
+  "D-recurrence": 0.79,
+  "D-restate": 0.78
+ },
+ "D_minus_A0": {
+  "diff": 0.2367,
+  "lo": 0.18,
+  "hi": 0.2967
+ },
+ "D_minus_A1": {
+  "diff": 0.3167,
+  "lo": 0.23,
+  "hi": 0.4033
+ },
+ "H1": true,
+ "H3": true,
+ "H4": true,
+ "D_summary": {
+  "D_ask_recall_min": 1.0,
+  "D_rebuilds_all": true,
+  "asks_labelled_mean": 0.6552,
+  "D_brief_ratio_mean": 0.1514,
+  "D_link_precision_on_hits": 0.3978,
+  "D_link_recall_on_hits": 0.4022,
+  "D_fallbacks": 0,
+  "D_ms_mean": 5.521,
+  "D_ms_max": 11.015
+ },
+ "DJ_minus_D": {
+  "diff": 0.18,
+  "lo": 0.1233,
+  "hi": 0.24
+ },
+ "H2": true,
+ "DJ_summary": {
+  "n": 300,
+  "DJ_hit": 0.97,
+  "calls": 258,
+  "errors": 0,
+  "used_jev": 244,
+  "model": "jev-1.14.0"
+ }
+}
