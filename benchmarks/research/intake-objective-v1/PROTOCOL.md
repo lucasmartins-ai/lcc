@@ -1,13 +1,15 @@
-# Intake objective v1: can intake find the main ask in a long dictation? (design approved and data frozen 2026-11-15)
+# Intake objective v1: can intake find the main ask in a long dictation? (design approved, data and arm D frozen 2026-11-15)
 
-**Status: design approved and data frozen 2026-11-15.** No arm has run. Two dated checkpoints make it a
-pre-registration:
+**Status: design approved, data and arm D frozen 2026-11-15.** No arm has run on the test split or on Part R.
+Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
    covering the data source, families, arms, Jev cap and H1 margin. From then on the families, arms, metrics and
    pass criteria are fixed.
 2. **Data freeze.** Done 2026-11-15 by Amendment 1, before any work on arm D: it records the generator, the
    cases file and their sha256. From then on the cases are fixed.
+3. **Arm D freeze.** Done 2026-11-15 by Amendment 2, before any arm ran on test: it records the hash of D's code, its
+   weights tuned on dev and the hash of its dev output. From then on D is fixed.
 
 Any later change is a dated amendment at the end that says what it changes and why. Results are tagged INFERIDO
 until `gateClaim` returns PASS on them.
@@ -140,7 +142,7 @@ calls. D and the controls make none.
 1. The owner approves the design with a dated line (data source, families, Jev cap, H1 margin). Done 2026-11-15.
 2. Write the bases and the block pool, generate the cases, and freeze them by amendment (generator, cases file,
    sha256) before any work on D. Done 2026-11-15 (Amendment 1).
-3. Build D on dev; freeze its weights by amendment.
+3. Build D on dev; freeze its weights by amendment. Done 2026-11-15 (Amendment 2).
 4. Run A0, A1, D and its ablations on test, then DJ.
 5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
@@ -192,3 +194,111 @@ Recorded before any work on arm D. `intake_objective_v1.py generate` rebuilds `c
    prefix that opened with "Só", which the parser reads as a constraint; nobody filtered the test phrasings. Dev
    therefore has no misread recap and test has eight. Hit@1 on the Codex phrasings is reported apart, as the
    leakage table already requires.
+
+### Amendment 2 (2026-11-15): arm D frozen
+
+Recorded after D was built and tuned on the dev split, before any arm ran on test. D is
+`src/lcc/intake/objective.py`; `run_arms.py` runs A0, A1, D and its ablations on one split and writes
+`results_<split>.json` (case ids, spans and numbers, no case text). Building D read no test phrasing and no test
+case text, and D has not run on the test split, not even inside a test.
+
+| File | sha256 |
+| :--- | :--- |
+| `src/lcc/intake/objective.py` (arm D) | `80448a328bf426f9e58294de1621dbcdcf1a5b40826a58fdd7d26be81d802431` |
+| `run_arms.py` (runner, metrics, test-split guard) | `bf4e66b24d370d52baceb0520c6613907a2564c6e67dd00bf2561bd102647e82` |
+| `src/lcc/intake/parser.py` (roles, ask cues, stopwords) | `91ed1cc255e4bd35bb3e9de5216f2f6461ef6af634977008ccb6339908834346` |
+| `src/lcc/intake/speech.py` (sentence split) | `f9b2fd0ff9e295f4cea7350878be903fd00eb4f895063adae450616087a00c15` |
+| `src/lcc/relevance/specialist.py` (BM25) | `e03e1ac22b89dd3ef12fec1ec080ed4840581bbc086f2a398d585b97d72fe911` |
+| `src/lcc/relevance/compactor.py` (accent folding) | `acc84f90855e7fd253201ddcdfbefaad24debc5b460adf2d425e46cb64af9b32` |
+| `src/lcc/token_budget/counters.py` (brief ratio) | `93d4795db4201682e55dda061d5826ad49dac970cf193a9795d6f6e12421139f` |
+| D's dev output (`d_sha256`: the weights and, for each of the 300 dev cases, the objective span, block spans, ranking, linked blocks and the ablations' objective spans) | `d1c870a56de54d9534f38a1ef3e0fbd89426a2018bb515d45a4acd1f80f6a347` |
+
+The five library files above are unchanged from `main` at 73dbe52. Python 3.14.3.
+
+**The frozen D.**
+
+- Weights: recurrence 0.0, marker 0.5, restate 0.5, ask 0.5 (`WEIGHTS`). The score is linear, so any positive
+  multiple of these weights ranks the blocks the same way.
+- How they were chosen: `run_arms.py tune` scores every combination of 0, 0.5, 1 and 2 per signal on dev and ranks
+  them by hit@1, then hit@3, then the smallest total weight. The ten best all reach hit@1 268/300 and hit@3 298/300,
+  all with recurrence at 0; the first is frozen.
+- Guard: `run_arms.py run --split test` refuses unless `objective.py` hashes to `FROZEN_OBJECTIVE_SHA256` and D's
+  dev output hashes to `FROZEN_D_SHA256`; it checks both before D runs on any test case.
+  `tests/test_intake_objective.py` fails if a later change moves either hash. The library files D imports are pinned
+  by the table above and, for any change that alters D's behaviour on dev, by the output hash.
+- Two fixes from the code review came after the tuning: an input with no sentence keeps its whitespace, and ask cues
+  are counted per sentence. D's dev picks are the same before and after them, so the tuning stands.
+
+**How D fills in what the design left open.**
+
+1. Content words: accent-folded, four letters or more, outside the parser's pt-BR and English stopwords, cut to
+   their first five letters.
+2. Blocks as designed: a new block starts at a topic-shift cue or where a sentence shares no content word with the
+   one before it. Block spans tile the input: leading whitespace joins the first block, the whitespace after a
+   block belongs to it, and an input with no sentence (empty or whitespace) is one block with no sentence.
+3. Signals, each scaled to [0, 1] within one input:
+   - recurrence: the block's BM25 against every other block, summed, over the largest such sum in the input;
+   - marker: 1 when the block matches a priority cue;
+   - restate: when the first sentence of the last block matches a recap cue, the recap block gets 1 and each
+     earlier block its BM25 against the recap, over the largest;
+   - ask: the count of the parser's ask cues in the block's sentences, each sentence read on its own, over the
+     largest.
+4. Ties go to the earlier block, the order the first-ask rule uses.
+5. Links: a block other than the objective's own is linked when it shares a content word with the objective
+   sentence.
+6. The author wrote the topic-shift, priority and recap cue lists after reading the dev phrasings; the test
+   phrasings stay unread.
+
+**Recurrence gets weight 0.** Before the freeze, these variants ran on dev:
+
+- content words of three letters instead of four;
+- a block rule that joins a sentence sharing a word with any sentence of the current block;
+- recurrence counted over non-adjacent blocks only;
+- raw BM25 sums, or counts of blocks sharing a word, in place of scaling by the largest value.
+
+None gave recurrence a positive weight at the best hit@1, which stayed at 268/300 in every variant. With recurrence
+forced above 0 the best was 248 to 259. In the six normalisation variants, broken down by family, those weights
+lifted the `recurrence` family to as much as 55/60 from 43/60 and dropped `first` to between 40 and 49 from 60, and
+`bare` to between 40 and 42 from 47. The dev cases show why. D cuts finer blocks than the generator (24.8 per case
+against 10.5), so the sentences of one pool block land in separate blocks and score recurrence off each other, and
+unrelated pool blocks share everyday words. Scaling by the largest value lifts that noise to 1 in cases with no real
+recurrence. A base's supporting sentences often share no content word with its ask: in 132 of the 300 dev cases (9
+of the 20 dev bases) the main ask is a block on its own. D keeps the designed rules and signal with weight 0; the
+no-recurrence ablation therefore equals D by construction, and it is still reported, as the design asks.
+
+**Metric definitions** where the design was open or inconsistent.
+
+- *Ask recall.* Q3 says "in the brief or in a stash"; the Metrics list says "`brief.asks` or in the stash". The
+  study uses Q3's reading: a gold ask counts when the objective's block, a linked block or a stash block covers at
+  least half of it. D's blocks tile the input, so D's recall is 1.00 whenever its stash rebuilds. A0 and A1 change
+  only which sentence is the objective and keep the intake's sentence list, so the same holds for them. The other
+  reading is reported apart as `asks_labelled`: the share of gold asks the parser labels `ask`, which is what
+  reaches `brief.asks`. Every arm shares the parser, so it is one number for all arms; on dev it is 0.68.
+- *Rebuild.* The objective's block, the linked blocks and the stash blocks, joined in input order, equal the input
+  byte for byte, with no block lost.
+- *Brief ratio.* `approximate_token_count` of the objective's block plus the linked blocks, over the input's.
+- *Links.* Precision and recall against the gold supporting sentences, on the cases where D hits. A linked sentence
+  is any sentence of the objective's block or of a linked block, except the objective and the gold main sentences.
+- *hit@3.* The span of one of D's top three eligible blocks covers at least half of a gold main span.
+- *Fallback.* With no eligible block D returns `brief.objective`, the opening of the input rather than one sentence;
+  it is scored with span (0, 0), a miss. Every Part S case has a main ask the parser labels `ask` (the bench tests
+  check it), so the fallback cannot happen in Part S. It can in Part R.
+- *Cost.* Wall time of `analyse` plus `choose` per case, parsing included, on the owner's Mac.
+
+**Dev numbers.** Tuning data, not evidence for any hypothesis: D was tuned on these cases.
+
+| hit@1 on dev | A0 | A1 | D | D without marker | D without restate | D without ask cues |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `first` (60) | 1.000 | 0.200 | 1.000 | 1.000 | 1.000 | 1.000 |
+| `marker` (60) | 0.450 | 0.583 | 1.000 | 0.683 | 1.000 | 0.983 |
+| `recurrence` (60) | 0.500 | 0.417 | 0.717 | 0.717 | 0.717 | 0.500 |
+| `restate` (60) | 0.500 | 1.000 | 0.967 | 0.967 | 0.733 | 0.917 |
+| `bare` (60) | 0.533 | 0.483 | 0.783 | 0.783 | 0.783 | 0.533 |
+| all (300) | 0.597 | 0.537 | 0.893 | 0.830 | 0.847 | 0.787 |
+
+D's hit@3 is 0.993. Ask recall is 1.00 and the stash rebuilds in all 300 cases, with no fallback. Brief ratio mean
+0.168; link precision 0.479 and recall 0.529 on the 268 hits; 5.9 ms mean and 20.3 ms max per case.
+
+**What the author knew before the test run.** Amendment 1 records that eight test `restate` cases make the parser
+read the recap as a constraint. The author learned it from case ids and parser roles during the data freeze, without
+reading those cases, and D was not changed for it.
