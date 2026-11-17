@@ -1,0 +1,65 @@
+---
+import Outcome from "../../components/Outcome.astro";
+import Base from "../../layouts/Base.astro";
+import { studies, type Study } from "../../lib/research.ts";
+import { commitUrl, href, judge, short } from "../../lib/sources.ts";
+
+export const getStaticPaths = () => studies.map((s) => ({ params: { id: s.id }, props: { s } }));
+const { s } = Astro.props as { s: Study };
+const docs = s.files.filter((f) => f.kind === "md");
+const receipts = s.files.filter((f) => f.kind === "json");
+---
+
+<Base title={s.name} current="Research">
+  <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <a href={href("research.html")} class="font-mono text-xs text-faint hover:text-dim">← research log</a>
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <Outcome outcome={s.outcome} />
+      <span class="font-mono text-xs text-faint">
+        protocol committed {s.registered.date} · <a class="underline hover:text-dim" href={commitUrl(judge, s.registered.sha)}>{short(s.registered.sha)}</a>
+      </span>
+    </div>
+    <h1 class="mt-4 text-3xl font-semibold tracking-tight">{s.name}</h1>
+    <p class="mt-2 text-dim">{s.title}</p>
+
+    <dl class="mt-8 space-y-6 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div>
+        <dt class="font-mono text-xs uppercase tracking-wider text-faint">{s.question.label}</dt>
+        <dd class="prose mt-1" set:html={s.question.html} />
+      </div>
+      <div>
+        <dt class="font-mono text-xs uppercase tracking-wider text-faint">State (STATUS.md)</dt>
+        <dd class="prose mt-1" set:html={s.stateHtml} />
+      </div>
+    </dl>
+
+    <section class="mt-10">
+      <h2 class="text-xl font-semibold">Result</h2>
+      {
+        s.resultHtml ? (
+          <div class="prose mt-4" set:html={s.resultHtml} />
+        ) : (
+          <p class="mt-4 rounded-lg border border-warn/30 bg-warn/5 p-4 text-sm text-warn">
+            No results file yet. See the state above and the files below.
+          </p>
+        )
+      }
+      {s.resultsUrl && <p class="mt-6 text-sm"><a class="text-accent underline" href={s.resultsUrl}>Full results on GitHub</a></p>}
+    </section>
+
+    <section class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2">
+      <div>
+        <h2 class="font-mono text-xs uppercase tracking-wider text-faint">Protocol, amendments, results</h2>
+        <ul class="mt-3 space-y-1 font-mono text-sm">
+          {docs.map((f) => <li><a class="text-dim hover:text-accent" href={f.url}>{f.name}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <h2 class="font-mono text-xs uppercase tracking-wider text-faint">Receipts (JSON)</h2>
+        <ul class="mt-3 space-y-1 font-mono text-sm break-all">
+          {receipts.length ? receipts.map((f) => <li><a class="text-dim hover:text-accent" href={f.url}>{f.name}</a></li>) : <li class="text-faint">none</li>}
+        </ul>
+      </div>
+    </section>
+  </article>
+</Base>

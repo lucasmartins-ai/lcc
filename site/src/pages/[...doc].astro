@@ -1,0 +1,40 @@
+---
+import Base from "../layouts/Base.astro";
+import { guides } from "../lib/home.ts";
+import { blob, docFiles, docSlug, href, lcc, md, read, title } from "../lib/sources.ts";
+
+export function getStaticPaths() {
+  return docFiles.map((file) => ({ params: { doc: docSlug(file) }, props: { file } }));
+}
+const { file } = Astro.props;
+const src = read(lcc, file);
+const name = title(src, file);
+const current = href(`${docSlug(file)}.html`);
+---
+
+<Base title={name} current={guides.some((g) => g.url === current) ? "Docs" : undefined}>
+  <div class="mx-auto grid grid-cols-1 max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
+    <aside class="text-sm">
+      <details class="group rounded-lg border border-line lg:border-0" open>
+        <summary class="cursor-pointer px-3 py-2 font-mono text-xs uppercase tracking-wider text-faint lg:pointer-events-none lg:px-0">Guides</summary>
+        <ul class="space-y-1 px-3 pb-3 lg:px-0">
+          {
+            guides.map((g) => (
+              <li>
+                <a href={g.url} class:list={["block py-0.5 hover:text-ink", g.url === current ? "text-accent" : "text-dim"]}>
+                  {g.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </details>
+    </aside>
+    <article>
+      <div class="prose max-w-3xl" set:html={md(src, lcc, file)} />
+      <p class="mt-12 font-mono text-xs text-faint">
+        Source: <a class="underline hover:text-dim" href={blob(lcc, file)}>{file}</a>
+      </p>
+    </article>
+  </div>
+</Base>

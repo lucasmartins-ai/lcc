@@ -1,0 +1,158 @@
+---
+import Base from "../layouts/Base.astro";
+import { models } from "../lib/models.ts";
+import { studies } from "../lib/research.ts";
+import { cite, href, judge } from "../lib/sources.ts";
+
+const G = "research/goal-engine-2026-10-04";
+const v1 = cite(judge, `${G}/intake-judge-v1/RESULTS.md`);
+const v3 = cite(judge, `${G}/intake-judge-v3/RESULTS_EXTERNAL.md`);
+const size = `${(models.find((m) => m.name === "intake_category_v1.json")!.bytes / 1e6).toFixed(1)} MB`;
+const v3State = studies.find((s) => s.id === "intake-judge-v3")!.stateHtml;
+const examples = [
+  "commit and push",
+  "sim, pode seguir",
+  "write a handoff prompt for the next session with everything we learned",
+  "deu erro de novo no deploy, olha o log: Error: ECONNREFUSED 127.0.0.1:5432",
+  "what is the difference between a mutex and a semaphore?",
+];
+---
+
+<Base title="Intake judge demo" current="Demo" description="The intake category judge LCC ships, running in your browser.">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-accent">Live demo</p>
+    <h1 class="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Intake judge v1, in your browser</h1>
+    <p class="mt-4 max-w-3xl text-dim">
+      Type a request the way you would to a coding agent. This page runs the same model file LCC ships (hashed n-grams and a logistic
+      regression, {size}) in a TypeScript port that a test checks against the Python code. Your text stays in this tab: nothing is
+      sent anywhere.
+    </p>
+
+    <div id="demo" data-model={href("models/intake_category_v1.json")} data-notes={href("models/intake_categories.json")} class="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div>
+        <label for="prompt" class="font-mono text-xs uppercase tracking-wider text-faint">Request</label>
+        <textarea
+          id="prompt"
+          rows="6"
+          maxlength="4000"
+          spellcheck="false"
+          class="mt-2 block w-full resize-y rounded-xl border border-line bg-panel p-4 font-mono text-sm text-ink placeholder:text-faint focus:border-faint focus:outline-none"
+          placeholder="e.g. the tests fail after the merge, here is the log…">commit and push</textarea
+        >
+        <p class="mt-2 text-xs text-faint">Only the first 1,000 characters count, as in LCC.</p>
+        <p class="mt-6 font-mono text-xs uppercase tracking-wider text-faint">Examples</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          {examples.map((e) => <button type="button" data-example={e} class="max-w-full truncate rounded-full border border-line px-3 py-1 text-left text-sm text-dim hover:border-faint hover:text-ink">{e}</button>)}
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-line bg-panel p-5 sm:p-6" aria-live="polite">
+        <p class="font-mono text-xs uppercase tracking-wider text-faint">LCC reports</p>
+        <p id="verdict" class="mt-2 font-mono text-2xl text-ink">loading model…</p>
+        <p id="reason" class="mt-1 text-sm text-dim"></p>
+        <p id="context" class="mt-4 hidden border-l-2 border-accent/50 pl-3 text-sm text-dim"></p>
+        <p class="mt-6 font-mono text-xs uppercase tracking-wider text-faint">All labels</p>
+        <ol id="bars" class="mt-3 space-y-1.5"></ol>
+      </div>
+    </div>
+
+    <section class="mt-14 max-w-3xl rounded-xl border border-warn/30 bg-warn/5 p-5 text-sm text-dim sm:p-6">
+      <h2 class="font-medium text-warn">How far to trust it</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5">
+        <li>
+          On the owner's held-out prompts v1 is right on <span class="font-mono text-ink">{v1("0.509")}</span>, against{" "}
+          <span class="font-mono text-ink">{v1("0.224")}</span> for keyword rules and <span class="font-mono text-ink">{v1("0.862")}</span>{" "}
+          for Opus. That is why LCC shows the category only at probability 0.45 or higher.
+        </li>
+        <li>
+          v1 learned from one person's prompts. On other people's prompts it does worse than always answering{" "}
+          <code class="font-mono text-ink">specified_task</code>: <span class="font-mono text-ink">{v3("0.303 vs 0.434")}</span>.
+        </li>
+        <li>
+          v3, trained on public data too, scores <span class="font-mono text-ink">{v3("0.697")}</span> on that external set and
+          replaces v1 only if it also passes the owner held-out. Its state in STATUS.md: <span class="[&_code]:font-mono" set:html={v3State} />.
+        </li>
+      </ul>
+      <p class="mt-4">
+        Studies: <a class="text-accent underline" href={href("research/intake-judge-v1.html")}>v1</a>,{" "}
+        <a class="text-accent underline" href={href("research/intake-judge-v3.html")}>v3</a>.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { classify, loadModel, THRESHOLD, type Model, type ModelFile } from "../lib/intake.ts";
+
+  const root = document.getElementById("demo")!;
+  const input = document.getElementById("prompt") as HTMLTextAreaElement;
+  const verdict = document.getElementById("verdict")!;
+  const reason = document.getElementById("reason")!;
+  const context = document.getElementById("context")!;
+  const bars = document.getElementById("bars")!;
+  const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
+
+  function render(model: Model, notes: Record<string, { context_needed: string }>) {
+    const r = classify(model, input.value);
+    bars.replaceChildren();
+    context.classList.add("hidden");
+    if (!r) {
+      verdict.textContent = "no category";
+      reason.textContent = "Empty input.";
+      return;
+    }
+    verdict.textContent = r.category ?? "no category";
+    reason.textContent = r.category
+      ? `probability ${pct(r.probability)}, at or above the ${pct(THRESHOLD)} threshold`
+      : r.top === "UNKNOWN"
+        ? `top label is UNKNOWN (${pct(r.probability)}): cannot tell from the text`
+        : `top label ${r.top} at ${pct(r.probability)}, below the ${pct(THRESHOLD)} threshold`;
+    const note = r.category && notes[r.category]?.context_needed;
+    if (note) {
+      context.textContent = `Context the agent needs: ${note}`;
+      context.classList.remove("hidden");
+    }
+    const order = model.labels.map((label, i) => ({ label, p: r.probabilities[i]! })).sort((a, b) => b.p - a.p);
+    for (const { label, p } of order) {
+      const li = document.createElement("li");
+      li.className = "grid grid-cols-[minmax(0,1fr)_6rem_3.5rem] items-center gap-3 font-mono text-xs sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)_3.5rem]";
+      const name = document.createElement("span");
+      name.className = `truncate ${label === r.top ? "text-ink" : "text-faint"}`;
+      name.textContent = label;
+      const track = document.createElement("span");
+      track.className = "relative h-1.5 rounded-full bg-raised";
+      const fill = document.createElement("span");
+      fill.className = `absolute inset-y-0 left-0 rounded-full ${label === r.category ? "bg-accent" : "bg-faint"}`;
+      fill.style.width = pct(p);
+      const mark = document.createElement("span");
+      mark.className = "absolute -inset-y-1 w-px bg-warn/60";
+      mark.style.left = pct(THRESHOLD);
+      track.append(fill, mark);
+      const value = document.createElement("span");
+      value.className = "text-right text-dim tabular-nums";
+      value.textContent = pct(p);
+      li.append(name, track, value);
+      bars.append(li);
+    }
+  }
+
+  Promise.all([fetch(root.dataset.model!), fetch(root.dataset.notes!)])
+    .then(async ([m, n]) => {
+      if (!m.ok || !n.ok) throw new Error(`HTTP ${m.status}/${n.status}`);
+      const model = loadModel((await m.json()) as ModelFile);
+      const notes = ((await n.json()) as { categories: Record<string, { context_needed: string }> }).categories;
+      const update = () => render(model, notes);
+      input.addEventListener("input", update);
+      root.querySelectorAll<HTMLButtonElement>("[data-example]").forEach((b) =>
+        b.addEventListener("click", () => {
+          input.value = b.dataset.example!;
+          update();
+        }),
+      );
+      update();
+    })
+    .catch((e: unknown) => {
+      verdict.textContent = "model failed to load";
+      reason.textContent = String(e);
+    });
+</script>

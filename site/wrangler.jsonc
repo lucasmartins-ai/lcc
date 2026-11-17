@@ -1,0 +1,10 @@
+{
+  // Static site at lookadev.com/lcc/*. The more specific route wins over the lookadev Worker's
+  // lookadev.com/* and *.lookadev.com/*; lookadev.com/lcc itself stays on the lookadev Worker.
+  "name": "lcc-site",
+  "compatibility_date": "2026-09-01",
+  "assets": { "directory": "./dist", "not_found_handling": "404-page" },
+  "routes": [{ "pattern": "lookadev.com/lcc/*", "zone_name": "lookadev.com" }],
+  "workers_dev": false,
+  "preview_urls": false
+}

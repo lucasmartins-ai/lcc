@@ -1,0 +1,14 @@
+---
+import type { Outcome } from "../lib/research.ts";
+
+const { outcome } = Astro.props as { outcome: Outcome };
+const tone: Record<Outcome, string> = {
+  shipped: "border-accent/40 text-accent",
+  passed: "border-accent/40 text-accent",
+  pending: "border-warn/40 text-warn",
+  "not adopted": "border-bad/40 text-bad",
+  finding: "border-line text-dim",
+};
+---
+
+<span class:list={["inline-block rounded-full border px-2 py-0.5 font-mono text-[11px] whitespace-nowrap uppercase tracking-wider", tone[outcome]]}>{outcome}</span>
