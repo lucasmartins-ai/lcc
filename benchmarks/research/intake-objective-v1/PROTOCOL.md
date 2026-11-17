@@ -3,7 +3,7 @@
 **Status: design approved, data and arm D frozen 2026-11-15; arm DJ and the analysis frozen 2026-11-16 (Amendment
 3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
-No arm has run on Part R.
+A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record); DJ has not run on it.
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -147,7 +147,8 @@ calls. D and the controls make none.
    sha256) before any work on D. Done 2026-11-15 (Amendment 1).
 3. Build D on dev; freeze its weights by amendment. Done 2026-11-15 (Amendment 2).
 4. Run A0, A1, D and its ablations on test, then DJ.
-5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes. Amendment 4 fixes how.
+5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes. Amendment 4 fixes how. A0, A1 and D
+   done 2026-11-17; DJ not run.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -468,3 +469,26 @@ most 6; the run still goes ahead with 20 kept, which leaves room for 11 skips. I
 kept, nothing runs: widening the pool (for example, keeping the dictated part of a message that also carries pasted
 text) needs a new amendment written before any arm runs. The drawn `candidates.json` has sha256
 `d8f0691299647f1da608e6c2a8dc86dd1a5643dd7a1d117852323c3513131b88`, which fixes both the pool and its order.
+
+### Part R run record (2026-11-17)
+
+A record of how the Part R run went. It changes nothing in the design.
+
+**Labels.** The owner labelled all 31 candidates top down: 22 kept, 9 skipped, all 9 as "não tem um pedido
+principal". The exported labels have sha256 `af8aac5dd9365e1f0393efc9dab4d43b3f25e36834f2fc7f91b78167778700b3`
+and are kept in the private folder next to `results_r.json`. 19 of the 22 kept messages have two or more gold
+sentences. Before the run, the share of each kept message's characters inside its gold spans was computed from
+these labels and the pinned `candidates.json` (only the shares were printed, no text): in three messages of 13 or more sentences the gold
+covers most of the text (60%, 68% and 83%); in the other 19 it covers at most 38%, apart from a two-sentence message
+whose one gold sentence is 80% of it. The owner was shown these figures and chose to run on the labels as made.
+`stats_r.json` does not hold this measure, and the run does not test what it does to the arms' hit rates.
+
+**The run.** `part_r.py run` ran once from `main` at 1645d83 (`part_r.py` sha256 as in Amendment 4) and passed
+every check Amendment 4 lists. It ran A0, A1 and D only, and wrote `stats_r.json`; the per-case rows stay in the
+private folder.
+
+**A deviation from Amendment 4's privacy rule.** After the labelling and before the run, a text search the
+assistant ran over `label.html`, which embeds the pool, printed about five short fragments of pooled messages into
+the assistant's context. So Part R text did reach a model. The labels were already final, and A0, A1 and D are
+deterministic code that reads no model output, so no number in `stats_r.json` depends on it. DJ on Part R is still
+unrun and still needs the owner's yes and its own amendment.
