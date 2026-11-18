@@ -1,0 +1,23 @@
+{
+ "n": 22,
+ "labeller": "a fresh agent, model alias opus, with BRIEF (Amendment 7)",
+ "agree": {
+  "k": 7,
+  "n": 22,
+  "rate": 0.3182,
+  "lo": 0.1636,
+  "hi": 0.5268
+ },
+ "agree_any_marked": {
+  "k": 11,
+  "n": 22,
+  "rate": 0.5,
+  "lo": 0.3072,
+  "hi": 0.6928
+ },
+ "skipped": 9,
+ "pass_at": 19,
+ "passed": false,
+ "input_sha256": "ca49465cd59b59a10828b74c4c867eb80e1fbe291c9d23c7b35edb4d4f2b6113",
+ "answer_sha256": "4c93e3b140a23175f0ecbf0ba0e4d4b7c8bf5256c9ba26c464d627cc9dcd0577"
+}

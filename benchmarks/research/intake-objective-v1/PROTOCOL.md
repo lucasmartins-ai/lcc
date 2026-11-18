@@ -6,7 +6,8 @@
 labeller on Part R fixed 2026-11-18 (Amendment 7).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
-(`stats_r_dj.json`, see the Part R DJ run record).
+(`stats_r_dj.json`, see the Part R DJ run record). Amendment 7's check of Claude as a labeller ran on 2026-11-18 and
+failed, 7 of 22 against 19 (`stats_r_claude.json`, see its run record).
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -153,7 +154,7 @@ calls. D and the controls make none.
 5. The owner labels Part R; run A0, A1 and D on it, and DJ only after the owner's yes. Amendment 4 fixes how. A0,
    A1 and D done 2026-11-17; DJ done 2026-11-18 (Amendment 5). Then Part R2 (Amendment 6): `collect` after its
    merge, the owner labels, then `run`. Before the labels, Claude's labels are checked blind on Part R (Amendment
-   7).
+   7); done 2026-11-18, failed, so Part R2 keeps the owner's labels.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -754,3 +755,36 @@ Part R's results files. The run record states the outcome.
 
 **Privacy.** The 22 texts go to Claude once, through the agent, and nothing else leaves the machine. Only
 `stats_r_claude.json` enters the repository: aggregates, plus the sha256 of the input and of the answer.
+
+### Part R Claude-labeller run record (2026-11-18)
+
+A record of how Amendment 7's check went. It changes nothing in the design.
+
+**The run.** `part_r_claude.py` ran from `main` at fdf4dcf (sha256 as in Amendment 7), after the merge of
+Amendment 7. `prepare` wrote the 22 kept dictations: 1,884 lines, the longest 160 characters. One fresh agent,
+model alias `opus`, labelled them with the brief verbatim and replied with the entry count only. A script that
+printed only counts and yes or no then read the agent's transcript. The agent made 3 Read calls on the input and
+1 Write call on the answer file, plus its final hand-back. It made no other call and touched no file holding the
+owner's labels or results. The agent's Write created the answer file with mode 0644; it was set to 0600 before
+`score` ran. `score` ran once.
+
+**What it found.** The agent agrees with the owner on 7 of the 22 dictations (0.318, Wilson 95% 0.164 to 0.527).
+The criterion was 19, so the check fails, and Part R2 stays with the owner's labels (Amendment 6). The agent skipped
+9 dictations the owner kept, and a skip counts as a miss:
+
+- 6 as "não foi ditado";
+- 2 as "não tem um pedido principal";
+- 1 as "sensível".
+
+Only the owner knows which messages were dictated, and the agent judged it from the text.
+
+**Not pre-registered**, read from the same private files by a script that printed only counts:
+
+- On the 13 dictations the agent labelled, its main sentence is one of the owner's in 7. Some sentence it marked is
+  one of the owner's in 11.
+- A0 and D each hit 8 of the same 13.
+- The owner marked 5.0 gold sentences per dictation on average. The agent marked 2.08 sentences per labelled
+  dictation.
+
+On these 22 dictations, Claude's choice of a single main sentence agrees with the owner's no more often than A0's
+or D's does. These counts are too small to rank the three.
