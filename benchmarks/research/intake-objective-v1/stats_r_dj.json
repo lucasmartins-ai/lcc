@@ -1,0 +1,24 @@
+{
+ "n": 22,
+ "DJ": {
+  "k": 14,
+  "n": 22,
+  "rate": 0.6364,
+  "lo": 0.4295,
+  "hi": 0.8027
+ },
+ "D": {
+  "k": 11,
+  "n": 22,
+  "rate": 0.5,
+  "lo": 0.3072,
+  "hi": 0.6928
+ },
+ "dj_fixed_d_misses": 4,
+ "dj_lost_d_hits": 1,
+ "calls": 21,
+ "errors": 0,
+ "used_jev": 18,
+ "below_threshold": 3,
+ "model": "jev-1.14.0"
+}

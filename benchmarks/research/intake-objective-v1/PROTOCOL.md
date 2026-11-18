@@ -4,8 +4,8 @@
 3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4); arm DJ on Part R fixed 2026-11-18
 (Amendment 5).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
-A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record); DJ has not run on it
-(Amendment 5 fixes how it will).
+A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
+(`stats_r_dj.json`, see the Part R DJ run record).
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -150,7 +150,7 @@ calls. D and the controls make none.
 3. Build D on dev; freeze its weights by amendment. Done 2026-11-15 (Amendment 2).
 4. Run A0, A1, D and its ablations on test, then DJ.
 5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes. Amendment 4 fixes how. A0, A1 and D
-   done 2026-11-17; DJ fixed by Amendment 5, not run.
+   done 2026-11-17; DJ done 2026-11-18 (Amendment 5).
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -566,3 +566,29 @@ With 22 dictations an interval near 0.5 reaches about 0.19 on each side. The num
 **Budget.** The shared ledger holds 254 DJ calls from dev, and the test split made 258: 512 in all. Part R makes at
 most 22 calls plus one smoke call per start that still has dictations to send, which stays far under the 700-call
 cap.
+
+### Part R DJ run record (2026-11-18)
+
+A record of how DJ's run on Part R went. It changes nothing in the design.
+
+**The run.** `part_r_dj.py` ran once from `main` at 3587983 (sha256 as in Amendment 5), after the merge of
+Amendment 5, and passed every check Amendment 4 and Amendment 5 list before sending anything. It made one smoke call
+on its synthetic text and 21 calls on Part R: of the 22 dictations, one has fewer than two eligible blocks and made
+no call. None failed, none was interrupted, and every answered call resolved to `jev-1.14.0`, the model of the test
+split. With the 512 calls of dev and test, the study has made 534 Jev calls, under the 700-call cap. After the run,
+a script that printed only counts and yes/no checked the private files: the Jev ledger has 22 lines, all with
+fields from the runner's list, and the 22 rows hold no string longer than 12 characters.
+
+**What it found**, with no pass criterion (Amendment 5):
+
+| Arm on Part R (n = 22) | hit@1 | Wilson 95% |
+| :--- | ---: | :--- |
+| A0 (first ask), from `stats_r.json` | 12 (0.545) | 0.347 to 0.731 |
+| D | 11 (0.500) | 0.307 to 0.693 |
+| DJ | 14 (0.636) | 0.430 to 0.803 |
+
+Jev's pick was used in 18 dictations and fell below 0.6 in 3, which kept D's pick. DJ fixed 4 of D's 11 misses and
+lost 1 of its 11 hits. The three intervals overlap widely: 22 dictations cannot tell DJ from D or from A0. Read
+paired on the same dictations, which is not pre-registered, DJ and D differ on 5, 4 of them in DJ's favour; that
+count is also too small to separate them. On the synthetic test split DJ hit 0.97 and D 0.79 (`stats_test.json`).
+The numbers go to RESULTS.md with `gateClaim` in run order step 6.
