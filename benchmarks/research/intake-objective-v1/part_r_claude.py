@@ -63,7 +63,7 @@ Reply with only the number of entries written. Quote no message text in your rep
 
 
 def _wrap(head: str, text: str) -> list[str]:
-    flat = " ⏎ ".join(part.strip() for part in text.split("\n") if part.strip())
+    flat = " ⏎ ".join(part.strip() for part in text.split("\n")).strip()  # a blank line: two ⏎
     if not flat:
         return []
     return textwrap.wrap(
@@ -79,8 +79,7 @@ def render(items: list[dict[str, Any]]) -> str:
         text, at = c["text"], 0  # spans count code points, as Python indexes a str
         lines.append(f"=== ITEM {k}/{len(items)} · id {c['id']} · {len(c['sentences'])} frases ===")
         for j, (start, end) in enumerate(c["sentences"]):
-            gap = text[at:start]  # the page shows it as is, a line break included
-            lines += _wrap("--- ", gap) or (["--- ⏎"] if "\n" in gap else [])
+            lines += _wrap("--- ", text[at:start])  # the page shows it, line breaks included
             lines += _wrap(f"[{j}] ", text[start:end]) or [f"[{j}]"]
             at = end
         lines += _wrap("--- ", text[at:])
@@ -95,6 +94,8 @@ def kept_items(
     messages, the ones marked sensitive among them, never leave this function."""
     kept, _ = part_r.labelled(candidates, labels)
     pool = {c["id"]: c for c in candidates["items"]}
+    if len(pool) != len(candidates["items"]):
+        raise SystemExit("refused: two candidates share an id")
     return [pool[k["id"]] for k in kept], kept
 
 
@@ -116,9 +117,12 @@ def score(
         if g.get("decision") == "skip" and g.get("reason") in part_r.SKIP_REASONS:
             skips += 1
             continue
-        picks = [g.get("main"), *(g.get("also") or [])]
-        if g.get("decision") != "use" or not all(
-            type(j) is int and 0 <= j < len(sentences) for j in picks
+        also = g.get("also", [])
+        picks = [g.get("main"), *also] if isinstance(also, list) else []
+        if (
+            g.get("decision") != "use"
+            or not picks
+            or not all(type(j) is int and 0 <= j < len(sentences) for j in picks)
         ):
             raise SystemExit(f"refused: item {k} has no valid decision")
         hits += run_arms.hit(sentences[picks[0]], gold["main"])
@@ -151,8 +155,8 @@ def _part_r() -> tuple[dict[str, Any], dict[str, Any]]:
 
 
 def cmd_prepare(args: argparse.Namespace) -> int:
-    if ANSWER.exists():
-        print("refused: the labelling ran already")
+    if INPUT.exists() or ANSWER.exists():
+        print("refused: the input is written once; the labelling may be under way")
         return 2
     if not _reused_are_pinned():
         return 2

@@ -19,9 +19,9 @@ rc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rc)
 
 #: Amendment 7 pins this file; a change needs a new amendment.
-PART_R_CLAUDE_SHA256 = "209e046a75b45eef1f8c0e1834703f93abb7743f690b1972b1aa7300813f2ac8"
+PART_R_CLAUDE_SHA256 = "1ac6f809a91f8ff64f6257f9ea946f58deda5556d10669b5208a3b62fb31ed27"
 TEXT = (
-    "Please rename the photo folder from the event. The photos sit on the shared drive.\n"
+    "Please rename the photo folder from the event. The photos sit on the shared drive.\n\n"
     "Another thing, please fix the checkout that freezes when a customer pays by card. "
     "The checkout froze twice. " + "The shop opens at nine and the van leaves at ten. " * 30
 )
@@ -71,11 +71,11 @@ def test_the_agent_sees_the_kept_messages_whole_and_nothing_else():
     blocks = re.split(r"^=== ITEM .*\n", shown.removesuffix("=== FIM ===\n"), flags=re.M)[1:]
     for c, block in zip(items, blocks, strict=True):
         lines = [re.sub(r"^(\[\d+\] |--- |    )", "", line) for line in block.splitlines()]
-        assert " ".join(lines).replace(" ⏎ ", " ").split() == c["text"].split()  # all of it
+        assert [w for w in " ".join(lines).split() if w != "⏎"] == c["text"].split()  # all of it
         numbered = re.findall(r"^\[(\d+)\] ", block, flags=re.M)
         assert numbered == [str(j) for j in range(len(c["sentences"]))]
         assert f"· {len(c['sentences'])} frases ===" in shown
-    assert "drive.\n--- ⏎\n[2] Another" in shown  # a line break the page showed stays visible
+    assert "drive.\n--- ⏎  ⏎\n[2] Another" in shown  # a blank line the page showed stays visible
 
 
 def test_the_pick_is_scored_against_the_owners_gold():
@@ -104,6 +104,8 @@ def test_the_pick_is_scored_against_the_owners_gold():
         ({"i3": {"sentences": 1}}, "another sentence count"),
         ({"i3": {"main": 999}}, "no valid decision"),
         ({"i3": {"main": True}}, "no valid decision"),
+        ({"i3": {"also": 1}}, "no valid decision"),
+        ({"i3": {"also": 0}}, "no valid decision"),
         ({"i3": {"decision": "skip", "reason": "cansei"}}, "no valid decision"),
         ({"i3": {"id": "nope"}}, "in order"),
     ],
@@ -118,10 +120,16 @@ def test_a_malformed_answer_is_refused(bad, why):
 
 
 def test_each_step_runs_once(monkeypatch, tmp_path, capsys):
-    monkeypatch.setattr(rc, "OUT", tmp_path / "stats_r_claude.json")
-    monkeypatch.setattr(rc, "ANSWER", tmp_path / "claude_labels_r.json")
-    (tmp_path / "stats_r_claude.json").write_text("{}", encoding="utf-8")
-    (tmp_path / "claude_labels_r.json").write_text("{}", encoding="utf-8")
-    assert rc.main(["score"]) == 2 and rc.main(["prepare"]) == 2
-    out = capsys.readouterr().out
-    assert "runs once" in out and "ran already" in out
+    for name in ("OUT", "INPUT", "ANSWER"):
+        monkeypatch.setattr(rc, name, tmp_path / name)
+    (tmp_path / "OUT").write_text("{}", encoding="utf-8")
+    assert rc.main(["score"]) == 2 and "runs once" in capsys.readouterr().out
+    (tmp_path / "INPUT").write_text("", encoding="utf-8")  # the agent may be reading it
+    assert rc.main(["prepare"]) == 2 and "written once" in capsys.readouterr().out
+
+
+def test_ids_must_be_unique():
+    pool, labels = _pool()
+    pool["items"].append({**pool["items"][-1], "text": "another text"})
+    with pytest.raises(SystemExit, match="share an id"):
+        rc.kept_items(pool, labels)

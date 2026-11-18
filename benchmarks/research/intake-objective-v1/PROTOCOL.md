@@ -706,7 +706,7 @@ labelling and `score` then run once each.
 
 | File | sha256 |
 | :--- | :--- |
-| `part_r_claude.py` (input, brief and scoring) | `209e046a75b45eef1f8c0e1834703f93abb7743f690b1972b1aa7300813f2ac8` |
+| `part_r_claude.py` (input, brief and scoring) | `1ac6f809a91f8ff64f6257f9ea946f58deda5556d10669b5208a3b62fb31ed27` |
 
 `tests/test_intake_objective_part_r_claude.py` fails if a later change moves that hash, and tests what the agent is
 shown and how its answer is scored, on synthetic text.
@@ -716,10 +716,10 @@ no message the owner skipped, the sensitive ones among them, is sent. It writes 
 page shows them:
 
 - every sentence numbered, and the text between sentences unnumbered;
-- line breaks marked, and lines of at most 160 characters;
+- line breaks marked, a blank line as two marks, and lines of at most 160 characters;
 - no date, session, label or arm output.
 
-Before this amendment, a probe that printed only counts confirmed that all 22 come out whole: 1,883 lines and 1,129
+Before this amendment, a probe that printed only counts confirmed that all 22 come out whole: 1,884 lines and 1,129
 numbered sentences. The input and the brief go to `~/.lcc-private/intake-objective-v1-claude/`, a folder apart from
 the owner's labels.
 
