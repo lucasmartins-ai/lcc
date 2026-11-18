@@ -27,6 +27,7 @@ import os
 import re
 import sys
 import time
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -65,6 +66,8 @@ _MODEL = re.compile(r"jev-(?:latest|\d{1,3}(?:\.\d{1,3}){0,3})")
 _LABELS = frozenset(run_dj.LABELS)
 _INT_KEYS = ("http_status", "attempt", "latency_ms", "input_tokens", "output_tokens", "state_chars")
 _ERROR_KINDS = ("pre_flight", "network", "malformed_response")
+#: Settings that would send Part R text elsewhere or trust other certificates.
+_REFUSED_ENV = ("TYPESAFE_ENDPOINT", "TYPESAFE_MODEL", "SSL_CERT_FILE", "SSL_CERT_DIR")
 
 
 def _model_id(value: Any) -> str | None:
@@ -353,9 +356,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--labels", default=str(PRIVATE / "labels.json"))
     args = parser.parse_args(argv)
-    for var in ("TYPESAFE_ENDPOINT", "TYPESAFE_MODEL"):
+    for var in _REFUSED_ENV:
         if var in os.environ:
             return _refuse(f"{var} is set; Part R text goes only to the default endpoint and model")
+    # The client's opener honours proxies from the environment and, on macOS, the system settings.
+    if urllib.request.getproxies().keys() & {"https", "all"}:
+        return _refuse("an HTTPS proxy is set; Part R text goes straight to the endpoint")
     fd = os.open(LOCK, os.O_WRONLY | os.O_CREAT, 0o600)
     with os.fdopen(fd, "w") as lock:
         try:

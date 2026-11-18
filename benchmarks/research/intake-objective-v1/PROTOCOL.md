@@ -503,7 +503,7 @@ it. `run_dj.py` stays as Amendment 3 froze it.
 
 | File | sha256 |
 | :--- | :--- |
-| `part_r_dj.py` (arm DJ on Part R) | `b028dca88f6ba4b5c0f13fe715324267aed86a8230218e461356ea1dd7ac5600` |
+| `part_r_dj.py` (arm DJ on Part R) | `5aeacbdb2af5b3eafab5ffdef9eab8dcb16277552151e535e88ff44fc78691b4` |
 
 `tests/test_intake_objective_part_r_dj.py` fails if a later change moves that hash. With a stand-in for Jev and the
 private paths in a temporary folder, it tests the privacy rules, the journal, the smoke call, the counts and the
@@ -517,8 +517,9 @@ eligible blocks makes no call and keeps D's pick.
 
 **Privacy.** Each dictation with two or more eligible blocks goes whole to the TypeSafe API, once: the state is the
 whole message and the options are its blocks, as in Amendment 3. Nothing else from Part R leaves the machine. The
-runner refuses to run if `TYPESAFE_ENDPOINT` or `TYPESAFE_MODEL` is set, even empty, so the text goes only to the
-default endpoint and model alias (`jev-latest`). Its Jev ledger is in the private folder, not the shared one. The
+runner refuses to run if `TYPESAFE_ENDPOINT`, `TYPESAFE_MODEL`, `SSL_CERT_FILE` or `SSL_CERT_DIR` is set, even empty,
+or if an HTTPS proxy is set in the environment or the system settings, so the text goes straight to the default
+endpoint and model alias (`jev-latest`), checked against the client's certificate bundle. Its Jev ledger is in the private folder, not the shared one. The
 per-case rows (ids, spans, labels, probabilities and model ids, never text) go to `results_r_dj.json` in the private
 folder; the repository gets `stats_r_dj.json`, aggregates only.
 

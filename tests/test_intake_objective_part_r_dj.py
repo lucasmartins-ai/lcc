@@ -21,7 +21,7 @@ HERE = Path(__file__).resolve().parents[1] / "benchmarks" / "research" / "intake
 sys.path.insert(0, str(HERE))
 
 #: Amendment 5 pins this file; a change needs a new amendment.
-PART_R_DJ_SHA256 = "b028dca88f6ba4b5c0f13fe715324267aed86a8230218e461356ea1dd7ac5600"
+PART_R_DJ_SHA256 = "5aeacbdb2af5b3eafab5ffdef9eab8dcb16277552151e535e88ff44fc78691b4"
 
 
 def _load(name: str):
@@ -242,13 +242,21 @@ def _no_reads(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize("value", ["https://example.invalid", ""])
-def test_it_refuses_another_endpoint_or_model_first(monkeypatch, tmp_path, capsys, value):
+def test_it_refuses_another_endpoint_model_or_ca_first(monkeypatch, tmp_path, capsys, value):
     _no_reads(monkeypatch, tmp_path)
-    for var in ("TYPESAFE_ENDPOINT", "TYPESAFE_MODEL"):
+    for var in ("TYPESAFE_ENDPOINT", "TYPESAFE_MODEL", "SSL_CERT_FILE", "SSL_CERT_DIR"):
         monkeypatch.setenv(var, value)
         assert prd.main(["--labels", str(tmp_path / "labels.json")]) == 2
         assert var in capsys.readouterr().out
         monkeypatch.delenv(var)
+
+
+@pytest.mark.parametrize("var", ["HTTPS_PROXY", "https_proxy", "ALL_PROXY"])
+def test_it_refuses_an_https_proxy_first(monkeypatch, tmp_path, capsys, var):
+    _no_reads(monkeypatch, tmp_path)
+    monkeypatch.setenv(var, "http://proxy.invalid:8080")
+    assert prd.main(["--labels", str(tmp_path / "labels.json")]) == 2
+    assert "proxy" in capsys.readouterr().out
 
 
 def test_after_its_results_it_only_publishes_the_summary(monkeypatch, tmp_path, capsys):
