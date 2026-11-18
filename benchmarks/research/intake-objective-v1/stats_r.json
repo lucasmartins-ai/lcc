@@ -1,0 +1,47 @@
+{
+ "pool": {
+  "markup": 55,
+  "short": 4100,
+  "ok": 35,
+  "duplicate": 4,
+  "candidates": 31
+ },
+ "skipped": {
+  "não tem um pedido principal": 9
+ },
+ "n": 22,
+ "A0": {
+  "k": 12,
+  "n": 22,
+  "rate": 0.5455,
+  "lo": 0.3466,
+  "hi": 0.7308
+ },
+ "A1": {
+  "k": 6,
+  "n": 22,
+  "rate": 0.2727,
+  "lo": 0.1315,
+  "hi": 0.4815
+ },
+ "D": {
+  "k": 11,
+  "n": 22,
+  "rate": 0.5,
+  "lo": 0.3072,
+  "hi": 0.6928
+ },
+ "D_hit3": {
+  "k": 19,
+  "n": 22,
+  "rate": 0.8636,
+  "lo": 0.6666,
+  "hi": 0.9525
+ },
+ "D_fallbacks": 0,
+ "D_rebuilds_all": true,
+ "D_brief_ratio_mean": 0.6177,
+ "cases_with_gold_never_an_ask": 2,
+ "cases_with_two_or_more_golds": 19,
+ "ask_recall": "not computed: Part R labels only the main ask"
+}
