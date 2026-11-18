@@ -1,9 +1,11 @@
 # Intake objective v1: can intake find the main ask in a long dictation? (design approved, data and arm D frozen 2026-11-15)
 
 **Status: design approved, data and arm D frozen 2026-11-15; arm DJ and the analysis frozen 2026-11-16 (Amendment
-3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4).** The test split ran once on 2026-11-16
+3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4); arm DJ on Part R fixed 2026-11-18
+(Amendment 5).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
-A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record); DJ has not run on it.
+A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record); DJ has not run on it
+(Amendment 5 fixes how it will).
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -148,7 +150,7 @@ calls. D and the controls make none.
 3. Build D on dev; freeze its weights by amendment. Done 2026-11-15 (Amendment 2).
 4. Run A0, A1, D and its ablations on test, then DJ.
 5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes. Amendment 4 fixes how. A0, A1 and D
-   done 2026-11-17; DJ not run.
+   done 2026-11-17; DJ fixed by Amendment 5, not run.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -492,3 +494,74 @@ assistant ran over `label.html`, which embeds the pool, printed about five short
 the assistant's context. So Part R text did reach a model. The labels were already final, and A0, A1 and D are
 deterministic code that reads no model output, so no number in `stats_r.json` depends on it. DJ on Part R is still
 unrun and still needs the owner's yes and its own amendment.
+
+### Amendment 5 (2026-11-18): arm DJ on Part R
+
+Recorded before DJ runs on Part R. The owner chose to run DJ on Part R on 2026-11-18, after seeing A0, A1 and D on
+it (`stats_r.json`). Merging this amendment is the owner's yes to sending the Part R text to Jev; the run waits for
+it. `run_dj.py` stays as Amendment 3 froze it.
+
+| File | sha256 |
+| :--- | :--- |
+| `part_r_dj.py` (arm DJ on Part R) | `b028dca88f6ba4b5c0f13fe715324267aed86a8230218e461356ea1dd7ac5600` |
+
+`tests/test_intake_objective_part_r_dj.py` fails if a later change moves that hash. With a stand-in for Jev and the
+private paths in a temporary folder, it tests the privacy rules, the journal, the smoke call, the counts and the
+refusals before any read; the checks against the pinned files and `stats_r.json` need the private data and run only
+at the start of the real run.
+
+**What runs.** Amendment 3's DJ, unchanged: `part_r_dj.py` calls `run_dj.dj_pick` as frozen (options, instruction,
+labels, the 0.6 threshold, one HTTP attempt) on the 22 dictations the Part R run record kept, and scores it as
+Amendment 4 scores D (a pick hits when it covers at least half of a gold sentence). A dictation with fewer than two
+eligible blocks makes no call and keeps D's pick.
+
+**Privacy.** Each dictation with two or more eligible blocks goes whole to the TypeSafe API, once: the state is the
+whole message and the options are its blocks, as in Amendment 3. Nothing else from Part R leaves the machine. The
+runner refuses to run if `TYPESAFE_ENDPOINT` or `TYPESAFE_MODEL` is set, even empty, so the text goes only to the
+default endpoint and model alias (`jev-latest`). Its Jev ledger is in the private folder, not the shared one. The
+per-case rows (ids, spans, labels, probabilities and model ids, never text) go to `results_r_dj.json` in the private
+folder; the repository gets `stats_r_dj.json`, aggregates only.
+
+**The five fixes.** The second code review of `run_dj.py` found five problems in its runner. `part_r_dj.py` fixes
+them without touching `run_dj.py`:
+
+1. The journal: before a case's call its id is synced to disk, and the journal's folder entry before the first
+   call; the row is synced right after the call. Only a case that will make a call gets that pending id. On a
+   restart only an unreadable last line, the one an interruption can cut, is dropped, and the journal is rewritten
+   atomically without it; an unreadable line before the last stops the run and leaves the journal as it is.
+2. The results files are written atomically (a fresh temporary file, then a rename), with no NaN or infinity in
+   them: a probability that is not a finite number is written as null, and `used_jev` still follows the decision
+   `dj_pick` made.
+3. No message text in the ledger on an API error or an unexpected answer. Every ledger field is checked by type: an
+   error keeps its kind (`api_error`, `network`, `malformed_response`, `pre_flight`) and HTTP status, never the error
+   body; a model id must be `jev-latest` or `jev-` with a dotted version number, or is written as `unexpected`;
+   token counts must be integers; and of the answers only `main` is kept, as a label A to E and a finite
+   confidence. The filter cannot raise into the call, so it cannot turn a valid answer into D's pick.
+4. The model is recorded only from an answered call with a usable label, read from that call's response: the
+   resolved model if the response names one, else its model field, never the alias the runner asked for. A
+   response naming neither is recorded as `unidentified`.
+5. `used_jev` is counted on the unrounded probability, the one `dj_pick` decides on.
+
+**Before any Part R text is sent**, the runner holds a lock in the private folder, so two runs cannot overlap, and
+refuses unless: `stats_r_dj.json` does not exist; `run_dj.py` and `part_r.py` match Amendments 3 and 4 on disk;
+`candidates.json` and the labels match the hashes in Amendment 4 and the Part R run record (the bytes checked are
+the bytes used); D is the frozen D and the parser the pinned one; and A0, A1 and D reproduce `stats_r.json`
+exactly. Then, at each start that still has dictations to send, it makes one smoke call on a fixed synthetic text
+written in the runner. If that call gets no label among the options with a probability between 0 and 1, or names
+a model id the runner would record as `unexpected`, nothing from Part R is sent. A start with nothing left to send
+needs no key and makes no call. If `results_r_dj.json` exists but `stats_r_dj.json` does not (a run stopped between
+its two writes), a start only writes the summary from the results and sends nothing.
+
+**Failures, interruptions and the model.** As in Amendment 3, a failed call keeps D's pick, counts as an error and
+is final. A dictation whose call started but whose row was not written (the run stopped in between) is final too:
+it keeps D's pick as an `interrupted` error and is never sent again. The results record every model Jev resolved to;
+the test split resolved to `jev-1.14.0`. A different model is reported, not a reason to run again.
+
+**Reported, with no pass criterion:** DJ's hit@1 next to D's, each with a Wilson 95% interval as in Amendment 4; the
+cases where DJ fixed a D miss and where it lost a D hit; calls, errors, and Jev picks used and below 0.6; the models.
+With 22 dictations an interval near 0.5 reaches about 0.19 on each side. The numbers go to RESULTS.md with
+`gateClaim`.
+
+**Budget.** The shared ledger holds 254 DJ calls from dev, and the test split made 258: 512 in all. Part R makes at
+most 22 calls plus one smoke call per start that still has dictations to send, which stays far under the 700-call
+cap.
