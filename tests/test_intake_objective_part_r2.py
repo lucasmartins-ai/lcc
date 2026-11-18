@@ -19,7 +19,7 @@ r2 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(r2)
 
 #: Amendment 6 pins this file; a change needs a new amendment.
-PART_R2_SHA256 = "7d1ce82f2f9ecb00823671050f6c1bfa0d8c5611a6b3d24d34039d6693f4e02b"
+PART_R2_SHA256 = "b99db4925dd508b499de88e67c73c65a39264bf1d766227d68d278de9c01a74c"
 SENTENCE = "The shop opens at nine and the van leaves at ten. "
 TEXT = (
     "Please rename the photo folder from the event. The photos sit on the shared drive. "
@@ -44,7 +44,7 @@ def _old(text, version="2.1.181", **extra):
 
 def test_the_file_is_the_one_amendment_6_pins():
     assert hashlib.sha256((HERE / "part_r2.py").read_bytes()).hexdigest() == PART_R2_SHA256
-    assert r2._part_r_is_pinned()  # and part_r.py, which it reuses, is Amendment 4's
+    assert r2._reused_are_pinned()  # and part_r.py and run_arms.py, which it reuses
 
 
 def test_the_page_is_part_rs_with_no_target_count():
@@ -67,6 +67,7 @@ def test_the_pool_rule_takes_tagged_and_old_untagged_rows_only():
     for row in (
         _old(text, version="2.1.187"),  # tagging exists from here: untagged means automated
         _old(text, version="garbled"),
+        _old(text, version="2.1"),  # incomplete: not known to be before 2.1.187
         _old(text, entrypoint="sdk-py"),
         _old(text, turnOrigin="sdk"),
         _old(text, origin={"kind": "sdk"}),
@@ -207,13 +208,14 @@ def test_run_refuses_a_second_time(monkeypatch, tmp_path, capsys):
     assert "runs once" in capsys.readouterr().out
 
 
-def test_run_refuses_when_part_r_is_not_the_pinned_file(monkeypatch, tmp_path, capsys):
-    monkeypatch.setattr(r2, "PART_R_SHA256", "0" * 64)
+@pytest.mark.parametrize("name", ["part_r.py", "run_arms.py"])
+def test_run_refuses_when_a_reused_file_is_not_pinned(monkeypatch, tmp_path, capsys, name):
+    monkeypatch.setitem(r2.PINNED, name, "0" * 64)
     monkeypatch.setattr(r2, "OUT", tmp_path / "stats_r2.json")
     monkeypatch.setattr(r2, "PART_R_POOL", tmp_path / "absent.json")  # never read
     assert r2.main(["collect"]) == 2
     assert r2.main(["run", "--labels", str(tmp_path / "none.json")]) == 2
-    assert capsys.readouterr().out.count("Amendment 4 pins") == 2
+    assert capsys.readouterr().out.count(f"{name} is not the file the protocol pins") == 2
     assert not (tmp_path / "stats_r2.json").exists()
 
 

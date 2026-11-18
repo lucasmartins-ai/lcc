@@ -604,7 +604,7 @@ desktop messages of June 2026 included. Merging this amendment fixes the pool ru
 
 | File | sha256 |
 | :--- | :--- |
-| `part_r2.py` (Part R2 pool and scoring) | `7d1ce82f2f9ecb00823671050f6c1bfa0d8c5611a6b3d24d34039d6693f4e02b` |
+| `part_r2.py` (Part R2 pool and scoring) | `b99db4925dd508b499de88e67c73c65a39264bf1d766227d68d278de9c01a74c` |
 
 `tests/test_intake_objective_part_r2.py` fails if a later change moves that hash, and tests the pool rule, the pool,
 the page, the labelling rules, the paired test, the strata and the run on synthetic text.
@@ -624,12 +624,13 @@ never text, surveyed the owner's transcripts:
 
 The real numbers are the ones `collect` prints.
 
-**The pool.** `part_r2.py collect` reuses Part R's text rule, labelling rules, scoring and page, so it first checks
-that `part_r.py` is the file Amendment 4 pins and that Part R's `candidates.json` is the pool Amendment 4 records. It
-then reads the Claude Code transcripts once and keeps a user message when all of these hold:
+**The pool.** `part_r2.py collect` reuses Part R's text rule, labelling rules, scoring and page, and Amendment 2's
+A0, A1 and hit rules, so it first checks that `part_r.py` and `run_arms.py` are the files Amendments 4 and 2 pin and
+that Part R's `candidates.json` is the pool Amendment 4 records. It then reads the Claude Code transcripts once and keeps a user message when all of these hold:
 
 1. It is a row Part R takes (typed, origin tagged human, not a side chain, meta row or compaction summary), or a
-   Claude desktop row with no origin tag from an app version before 2.1.187.
+   Claude desktop row with no origin tag from an app version before 2.1.187 (a version of three numbers; any other
+   form stays out).
 2. After Part R's stripping of app reminders at either end, it has 200 words or more and none of Part R's markup.
 3. It is not one of Part R's 31 candidates and not a duplicate. A text that cannot be encoded (a lone surrogate)
    has no stable hash: it is left out and counted.
@@ -648,17 +649,22 @@ to draw a second pool.
 `labels_r2.json`, and it shows how many are used with no target beside it, so it never nudges toward "use".
 
 - The page shows the parser's sentence split and no arm output.
-- The candidates come in a seeded random order and the owner works top down. The page counts as done when every
-  candidate is decided; the owner may stop earlier, since any top-down prefix is a random sample of the pool.
+- The page keeps its progress in the browser's storage on this machine: ids, decisions and sentence offsets, no
+  text. The owner moves the downloaded `labels_r2.json` into the private folder, where `run` reads it.
+- The candidates come in a seeded random order and the owner works top down to the end of the pool. Stopping is
+  fixed in advance: the owner labels every candidate. If they stop earlier, the kept set ends where they chose, so it
+  is not a random sample; the run record says so, and `stats_r2.json` shows it (kept plus skipped below the
+  candidate count).
 - `run` refuses the labels if any of these holds:
   - a gap in the top-down order;
   - a skip without a listed reason;
   - a gold sentence that is not one of the page's sentences;
   - fewer than 60 kept dictations.
 
-**What runs.** `part_r2.py run`, once. It first checks that `part_r.py` is the pinned file, D the frozen D and the
-parser the pinned one. It then scores A0, A1 and D (Amendment 2, frozen) with Part R's `score`. No model is called.
-DJ on Part R2 would send its text to Jev, so it needs the owner's yes and its own amendment.
+**What runs.** `part_r2.py run`, once. It first checks that `part_r.py` and `run_arms.py` are the pinned files, D
+the frozen D and the parser the pinned one. It then scores A0, A1 and D (Amendment 2, frozen) with Part R's `score`.
+No text leaves the machine: the parser's local sentence classifier runs, as in Part R, and no model service is
+called. DJ on Part R2 would send its text to Jev, so it needs the owner's yes and its own amendment.
 
 **Reported** in `stats_r2.json` (aggregates only; per-case rows stay private):
 
@@ -685,5 +691,5 @@ DJ on Part R2 would send its text to Jev, so it needs the owner's yes and its ow
 **Privacy.** As in Part R:
 
 - Texts, labels and per-case rows stay in the private folder, and only `stats_r2.json` enters the repository.
-- No text goes to any model or service.
+- No text goes to any model service or leaves the machine.
 - `collect` and `run` print counts and aggregates only.

@@ -31,8 +31,12 @@ from run_arms import HERE, WEIGHTS  # noqa: E402
 
 from lcc.intake import parser as intake_parser  # noqa: E402
 
-#: part_r.py as Amendment 4 pins it: this file reuses its filter, labelling rules, scoring and page.
-PART_R_SHA256 = "cc0da0564f8904f3b8094c737bdaa9fabf02af39bcbc0e659a5a5d17c7699659"
+#: Files this one reuses, as Amendments 4 and 2 pin them: Part R's filter, labelling rules, scoring
+#: and page, and the A0, A1 and hit rules D is scored with.
+PINNED = {
+    "part_r.py": "cc0da0564f8904f3b8094c737bdaa9fabf02af39bcbc0e659a5a5d17c7699659",
+    "run_arms.py": "bf4e66b24d370d52baceb0520c6613907a2564c6e67dd00bf2561bd102647e82",
+}
 PRIVATE = part_r.PRIVATE.with_name("intake-objective-v1-r2")
 PART_R_POOL = part_r.PRIVATE / "candidates.json"
 PART_R_POOL_SHA256 = "d8f0691299647f1da608e6c2a8dc86dd1a5643dd7a1d117852323c3513131b88"
@@ -59,9 +63,10 @@ PAGE = (
 
 def _version(entry: dict[str, Any]) -> tuple[int, ...] | None:
     try:
-        return tuple(int(part) for part in str(entry.get("version", "")).split("."))
+        version = tuple(int(part) for part in str(entry.get("version", "")).split("."))
     except ValueError:
         return None
+    return version if len(version) == 3 else None  # "2.1" would sort below 2.1.187
 
 
 def source(entry: dict[str, Any]) -> str | None:
@@ -240,15 +245,16 @@ def summarise(rows: list[dict[str, Any]], summary: dict[str, Any]) -> dict[str, 
     }
 
 
-def _part_r_is_pinned() -> bool:
-    if part_r._sha((HERE / "part_r.py").read_bytes()) == PART_R_SHA256:
-        return True
-    print("refused: part_r.py is not the file Amendment 4 pins")
-    return False
+def _reused_are_pinned() -> bool:
+    for name, sha in PINNED.items():
+        if part_r._sha((HERE / name).read_bytes()) != sha:
+            print(f"refused: {name} is not the file the protocol pins")
+            return False
+    return True
 
 
 def cmd_collect(args: argparse.Namespace) -> int:
-    if not _part_r_is_pinned():
+    if not _reused_are_pinned():
         return 2
     raw = PART_R_POOL.read_bytes()
     if part_r._sha(raw) != PART_R_POOL_SHA256:
@@ -264,7 +270,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     if OUT.exists():
         print("refused: stats_r2.json exists; Part R2 runs once")
         return 2
-    if not _part_r_is_pinned():
+    if not _reused_are_pinned():
         return 2
     if run_arms._code_sha256() != run_arms.FROZEN_OBJECTIVE_SHA256 or (
         run_arms.run("dev", WEIGHTS)["summary"]["d_sha256"] != run_arms.FROZEN_D_SHA256
