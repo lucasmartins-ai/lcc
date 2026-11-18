@@ -645,7 +645,7 @@ The pool and its page go to `~/.lcc-private/intake-objective-v1-r2/` (folder 070
 to draw a second pool.
 
 **Labelling.** Part R's page, instruction and three skip reasons, with two changes: the page saves its file as
-`labels_r2.json`, and it counts used and decided messages against no target, so it never nudges toward "use".
+`labels_r2.json`, and it shows how many are used with no target beside it, so it never nudges toward "use".
 
 - The page shows the parser's sentence split and no arm output.
 - The candidates come in a seeded random order and the owner works top down. The page counts as done when every
@@ -669,7 +669,8 @@ DJ on Part R2 would send its text to Jev, so it needs the owner's yes and its ow
   - split dev and split test.
 - **Band crossed with source:** the same for each of the four cells. Part R took the tagged messages of 300 words
   or more up to its draw, so nearly every tagged message here is 200 to 299 words. The two strata overlap, and only
-  the crossed cells keep length apart from source.
+  the crossed cells keep length apart from source. A cell may hold one or two dictations; it then shows only their
+  hits, with no text or id.
 - **D against A0, paired** on the same dictations: the cases only D hits, the cases only A0 hits, and the exact
   two-sided McNemar p, given to four significant figures. This is the one pre-registered test. D differs from A0 on
   real dictations if p < 0.05; otherwise the run does not separate them. Shorter messages may favour A0, which the
