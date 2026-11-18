@@ -2,7 +2,7 @@
 
 **Status: design approved, data and arm D frozen 2026-11-15; arm DJ and the analysis frozen 2026-11-16 (Amendment
 3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4); arm DJ on Part R fixed 2026-11-18
-(Amendment 5).** The test split ran once on 2026-11-16
+(Amendment 5); Part R2's pool, labelling and analysis fixed 2026-11-18 (Amendment 6).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
 (`stats_r_dj.json`, see the Part R DJ run record).
@@ -149,8 +149,9 @@ calls. D and the controls make none.
    sha256) before any work on D. Done 2026-11-15 (Amendment 1).
 3. Build D on dev; freeze its weights by amendment. Done 2026-11-15 (Amendment 2).
 4. Run A0, A1, D and its ablations on test, then DJ.
-5. The owner labels Part R; run A0, A1 and D on it, and DJ only after his yes. Amendment 4 fixes how. A0, A1 and D
-   done 2026-11-17; DJ done 2026-11-18 (Amendment 5).
+5. The owner labels Part R; run A0, A1 and D on it, and DJ only after the owner's yes. Amendment 4 fixes how. A0,
+   A1 and D done 2026-11-17; DJ done 2026-11-18 (Amendment 5). Then Part R2 (Amendment 6): `collect` after its
+   merge, the owner labels, then `run`.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -592,3 +593,96 @@ lost 1 of its 11 hits. The three intervals overlap widely: 22 dictations cannot 
 paired on the same dictations, which is not pre-registered, DJ and D differ on 5, 4 of them in DJ's favour; that
 count is also too small to separate them. On the synthetic test split DJ hit 0.97 and D 0.79 (`stats_test.json`).
 The numbers go to RESULTS.md with `gateClaim` in run order step 6.
+
+### Amendment 6 (2026-11-18): Part R2, a larger set of real dictations
+
+Recorded before the pool is drawn. On Part R's 22 dictations D (0.50), A0 (0.55) and DJ (0.64) have 95% intervals
+about 0.2 wide on each side, so they cannot be told apart. Part R2 is a second, larger real set, aimed at about 100
+kept dictations (intervals near 0.1). The owner chose it on 2026-11-18, with a 200-word floor and the untagged
+desktop messages of June 2026 included. Merging this amendment fixes the pool rule, the labelling and the analysis;
+`collect` runs after the merge and `run` after the labels.
+
+| File | sha256 |
+| :--- | :--- |
+| `part_r2.py` (Part R2 pool and scoring) | `7d1ce82f2f9ecb00823671050f6c1bfa0d8c5611a6b3d24d34039d6693f4e02b` |
+
+`tests/test_intake_objective_part_r2.py` fails if a later change moves that hash, and tests the pool rule, the pool,
+the page, the labelling rules, the paired test, the strata and the run on synthetic text.
+
+**Where the messages come from.** Before this amendment, scripts that printed only counts and app version labels,
+never text, surveyed the owner's transcripts:
+
+- **Claude Code** (`~/.claude/projects`) holds about 150 unused messages that fit the rule below:
+  - 86 of 300 words or more, 85 of them untagged desktop messages from June 2026;
+  - 66 of 200 to 299 words, 37 of them tagged.
+- **Untagged Claude desktop rows:** no row from an app version before 2.1.187 carries an origin tag, so there a
+  missing tag says nothing either way. Such a row may be the owner's or an automated one; the owner skips an
+  automated one as "não foi ditado". From 2.1.187 on, rows the owner types are tagged, so an untagged row there comes
+  from the app or a script and stays out.
+- **Not sources:** Codex sessions are all scripted runs, and Grok sessions have no long message without markup.
+  Other tools were not surveyed.
+
+The real numbers are the ones `collect` prints.
+
+**The pool.** `part_r2.py collect` reuses Part R's text rule, labelling rules, scoring and page, so it first checks
+that `part_r.py` is the file Amendment 4 pins and that Part R's `candidates.json` is the pool Amendment 4 records. It
+then reads the Claude Code transcripts once and keeps a user message when all of these hold:
+
+1. It is a row Part R takes (typed, origin tagged human, not a side chain, meta row or compaction summary), or a
+   Claude desktop row with no origin tag from an app version before 2.1.187.
+2. After Part R's stripping of app reminders at either end, it has 200 words or more and none of Part R's markup.
+3. It is not one of Part R's 31 candidates and not a duplicate. A text that cannot be encoded (a lone surrogate)
+   has no stable hash: it is left out and counted.
+
+Each candidate records three things:
+
+- **source:** tagged or untagged;
+- **length band:** 300+ or 200 to 299 words;
+- **split:** fixed by its sha256 before any label. It is test when the sha256, read as a number, is odd, and dev
+  when it is even.
+
+The pool and its page go to `~/.lcc-private/intake-objective-v1-r2/` (folder 0700, files 0600). `collect` refuses
+to draw a second pool.
+
+**Labelling.** Part R's page, instruction and three skip reasons, with two changes: the page saves its file as
+`labels_r2.json`, and it counts used and decided messages against no target, so it never nudges toward "use".
+
+- The page shows the parser's sentence split and no arm output.
+- The candidates come in a seeded random order and the owner works top down. The page counts as done when every
+  candidate is decided; the owner may stop earlier, since any top-down prefix is a random sample of the pool.
+- `run` refuses the labels if any of these holds:
+  - a gap in the top-down order;
+  - a skip without a listed reason;
+  - a gold sentence that is not one of the page's sentences;
+  - fewer than 60 kept dictations.
+
+**What runs.** `part_r2.py run`, once. It first checks that `part_r.py` is the pinned file, D the frozen D and the
+parser the pinned one. It then scores A0, A1 and D (Amendment 2, frozen) with Part R's `score`. No model is called.
+DJ on Part R2 would send its text to Jev, so it needs the owner's yes and its own amendment.
+
+**Reported** in `stats_r2.json` (aggregates only; per-case rows stay private):
+
+- **Overall:** the hit@1 of A0, A1 and D, and D's hit@3, each with a Wilson 95% interval, on all kept dictations.
+- **By stratum:** the same for each stratum:
+  - band 300+, comparable with Part R, and band 200 to 299;
+  - source tagged and source untagged;
+  - split dev and split test.
+- **Band crossed with source:** the same for each of the four cells. Part R took the tagged messages of 300 words
+  or more up to its draw, so nearly every tagged message here is 200 to 299 words. The two strata overlap, and only
+  the crossed cells keep length apart from source.
+- **D against A0, paired** on the same dictations: the cases only D hits, the cases only A0 hits, and the exact
+  two-sided McNemar p, given to four significant figures. This is the one pre-registered test. D differs from A0 on
+  real dictations if p < 0.05; otherwise the run does not separate them. Shorter messages may favour A0, which the
+  bands show.
+- **Bookkeeping:** the pool counts, the skip counts, and the sha256 of the pool and of the labels.
+
+**The split.** Nothing is tuned here. The test half is held out for whatever is later tuned on real data:
+
+- An arm tuned on real dictations may use Part R and the dev half of Part R2, and is measured on the test half only.
+- If DJ runs on Part R2 later, its paired comparison with D uses the same exact two-sided McNemar test at 0.05.
+
+**Privacy.** As in Part R:
+
+- Texts, labels and per-case rows stay in the private folder, and only `stats_r2.json` enters the repository.
+- No text goes to any model or service.
+- `collect` and `run` print counts and aggregates only.
