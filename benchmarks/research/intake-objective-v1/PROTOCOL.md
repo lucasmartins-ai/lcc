@@ -2,7 +2,8 @@
 
 **Status: design approved, data and arm D frozen 2026-11-15; arm DJ and the analysis frozen 2026-11-16 (Amendment
 3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4); arm DJ on Part R fixed 2026-11-18
-(Amendment 5); Part R2's pool, labelling and analysis fixed 2026-11-18 (Amendment 6).** The test split ran once on 2026-11-16
+(Amendment 5); Part R2's pool, labelling and analysis fixed 2026-11-18 (Amendment 6); a blind check of Claude as a
+labeller on Part R fixed 2026-11-18 (Amendment 7).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
 (`stats_r_dj.json`, see the Part R DJ run record).
@@ -151,7 +152,8 @@ calls. D and the controls make none.
 4. Run A0, A1, D and its ablations on test, then DJ.
 5. The owner labels Part R; run A0, A1 and D on it, and DJ only after the owner's yes. Amendment 4 fixes how. A0,
    A1 and D done 2026-11-17; DJ done 2026-11-18 (Amendment 5). Then Part R2 (Amendment 6): `collect` after its
-   merge, the owner labels, then `run`.
+   merge, the owner labels, then `run`. Before the labels, Claude's labels are checked blind on Part R (Amendment
+   7).
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -693,3 +695,62 @@ called. DJ on Part R2 would send its text to Jev, so it needs the owner's yes an
 - Texts, labels and per-case rows stay in the private folder, and only `stats_r2.json` enters the repository.
 - No text goes to any model service or leaves the machine.
 - `collect` and `run` print counts and aggregates only.
+
+### Amendment 7 (2026-11-18): Claude as a labeller, checked blind on Part R
+
+Recorded before any Part R text reaches a model. Labelling Part R2's 152 messages by hand takes the owner hours, so on
+2026-11-18 the owner asked whether Claude could label them instead, and agreed that Part R's kept dictations go to
+Claude first, for a blind check against the owner's own labels. These messages come from Claude Code transcripts, so
+they reached the same provider when they were first sent. Merging this amendment fixes the check; `prepare`, the
+labelling and `score` then run once each.
+
+| File | sha256 |
+| :--- | :--- |
+| `part_r_claude.py` (input, brief and scoring) | `1ac6f809a91f8ff64f6257f9ea946f58deda5556d10669b5208a3b62fb31ed27` |
+
+`tests/test_intake_objective_part_r_claude.py` fails if a later change moves that hash, and tests what the agent is
+shown and how its answer is scored, on synthetic text.
+
+**What the agent sees.** `prepare` takes the dictations the owner kept under Part R's rules (`part_r.labelled`), so
+no message the owner skipped, the sensitive ones among them, is sent. It writes them in the page's order and as the
+page shows them:
+
+- every sentence numbered, and the text between sentences unnumbered;
+- line breaks marked, a blank line as two marks, and lines of at most 160 characters;
+- no date, session, label or arm output.
+
+Before this amendment, a probe that printed only counts confirmed that all 22 come out whole: 1,884 lines and 1,129
+numbered sentences. The input and the brief go to `~/.lcc-private/intake-objective-v1-claude/`, a folder apart from
+the owner's labels.
+
+**Who labels.** One fresh agent, model alias `opus` (Claude Opus 5.5 on 2026-11-18), with `BRIEF` from
+`part_r_claude.py`. It is not a fork of any session that has seen a label. The brief holds the page's instruction
+verbatim, the three skip reasons and the answer format. The agent:
+
+- may use only the Read and Write tools, on the input and the answer file;
+- replies with a count only.
+
+The lcc plugin's hooks fire only at session start and before compaction, so no intake output reaches the agent.
+Afterwards, a script that prints only yes or no checks the agent's transcript for any read of the owner's labels or of
+Part R's results files. The run record states the outcome.
+
+**Scoring.** `score` runs once:
+
+- For each dictation the agent names one main sentence. It agrees with the owner when that sentence is one of the
+  owner's gold sentences by Amendment 2's hit rule (`run_arms.hit`). This is the rule the arms are scored by, so the
+  number reads next to A0's 12, D's 11 and DJ's 14 of 22.
+- A skip counts as a miss.
+- An answer is refused if its ids are out of order or if a sentence count differs from the input's.
+- Other sentences the agent marks ("also") are reported, but the criterion does not use them.
+- There is one run: no retry, no second agent, and no change to the brief after the score.
+
+**Criterion.** The agent passes if it agrees on at least 19 of the 22 (0.86).
+
+- A pass allows a later amendment to propose the same brief and model for Part R2, in batches of at most 22
+  messages, each with a fresh agent, and with its own in-pool check by the owner.
+- A pass does not settle Part R2. Part R holds only tagged messages of 300 words or more, and the check covers the
+  pick, not the skip decisions.
+- A fail leaves Part R2 to the owner's labels (Amendment 6).
+
+**Privacy.** The 22 texts go to Claude once, through the agent, and nothing else leaves the machine. Only
+`stats_r_claude.json` enters the repository: aggregates, plus the sha256 of the input and of the answer.
