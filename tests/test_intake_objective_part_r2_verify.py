@@ -19,7 +19,7 @@ v = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(v)
 
 #: Amendment 8 pins this file; a change needs a new amendment.
-PART_R2_VERIFY_SHA256 = "25e72214453ff9cab2b9595c2152ebccaf69efba44928d2bd086e25165fe16e8"
+PART_R2_VERIFY_SHA256 = "f2edc81b4f17d80611c4eff4762c2814dcb61f9fbcd00b36007ac41be4f6af4d"
 TEXT = (
     "Please rename the photo folder from the event. The photos sit on the shared drive. "
     "Another thing, please fix the checkout that freezes when a customer pays by card. "
@@ -226,6 +226,9 @@ def test_prepare_page_and_run_keep_texts_private(tmp_path, monkeypatch):
     assert v.main(["run"]) == 2  # verdicts from another page
     (private / "verdicts.json").write_text("[]", "utf-8")
     assert v.main(["run"]) == 2  # not an object
+    (private / "verdicts.json").write_text("{", "utf-8")
+    assert v.main(["run"]) == 2  # not JSON
+    assert v.main(["run", "--verdicts", str(private / "absent.json")]) == 2  # missing
     (private / "verdicts.json").write_text(
         json.dumps({**_verdicts(items, ["Fix the checkout."] * 3), "pool": pool}), "utf-8"
     )

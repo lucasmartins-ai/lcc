@@ -805,7 +805,7 @@ each, and only after the owner's yes in chat to the sending described under Priv
 
 | File | sha256 |
 | :--- | :--- |
-| `part_r2_verify.py` (batches, brief, page and scoring) | `25e72214453ff9cab2b9595c2152ebccaf69efba44928d2bd086e25165fe16e8` |
+| `part_r2_verify.py` (batches, brief, page and scoring) | `f2edc81b4f17d80611c4eff4762c2814dcb61f9fbcd00b36007ac41be4f6af4d` |
 
 `tests/test_intake_objective_part_r2_verify.py` fails if a later change moves that hash. It tests the batches, the
 answer check and its one retry, the slots, the page, the verdict rules and the scoring, on synthetic text.

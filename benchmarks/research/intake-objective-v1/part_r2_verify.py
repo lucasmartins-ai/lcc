@@ -349,13 +349,19 @@ def cmd_run(args: argparse.Namespace) -> int:
     if retry:
         print(json.dumps({"retry": retry}))
         return 2
-    raw = Path(args.verdicts).read_bytes()
-    verdicts = json.loads(raw)
+    try:
+        raw, shown = Path(args.verdicts).read_bytes(), (PRIVATE / "verify.html").read_bytes()
+        verdicts = json.loads(raw)
+    except FileNotFoundError as missing:
+        print(f"refused: {Path(missing.filename).name} is missing")
+        return 2
+    except ValueError:
+        print("refused: the verdicts are not JSON")
+        return 2
     pool_id = part_r._sha("\n".join(c["sha256"] for c in items))[:16]
     if not isinstance(verdicts, dict) or verdicts.get("pool") != pool_id:
         print("refused: the verdicts come from another page")
         return 2
-    shown = (PRIVATE / "verify.html").read_bytes()
     if shown != page(items, lines).encode("utf-8"):  # the slots scored are the slots shown
         print("refused: verify.html is not the page the pool and the answers give")
         return 2
