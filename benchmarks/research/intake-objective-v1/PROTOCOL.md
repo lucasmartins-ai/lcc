@@ -1050,3 +1050,121 @@ judged puts A0 ahead by three. Neither is near 0.05.
   paraphrases, so the owner can usually tell its line from the verbatim sentences.
 - C also reads the whole message, while the other arms can only pick one of its sentences. The C-against-D gap is
   descriptive and was never a pass criterion.
+
+### Amendment 10 (2026-11-22): Part R3, a blind test of an objective written from the whole message
+
+Recorded before any Part R3 text reaches a model and before the owner sees any Part R3 objective. In Part R2, the
+line Claude wrote (arm C) was judged the main ask on 20 of 20 dictations. No verbatim-sentence arm got more than 5.
+That comparison was not blind: C paraphrases and the other arms quote, so the owner could usually tell C's line apart
+(Amendment 8, Blindness). Part R3 asks whether C's lead holds when every line has the same form.
+
+On 2026-11-22 the owner made two choices:
+
+- to run now on the dictations no one has judged;
+- the writer that would ship: the agent of the session that calls intake, so C keeps model alias `opus`.
+
+Part R3 is a new set with its own primary test. It is not an extension of Part R2, which Amendment 8 does not allow,
+and its numbers are never pooled with Part R's or Part R2's.
+
+| File | sha256 |
+| :--- | :--- |
+| `part_r3.py` (pool, batches, briefs, page and scoring) | written with the script |
+
+`tests/test_intake_objective_part_r3.py` fails if a later change moves that hash, and tests each rule below on
+synthetic text. `part_r3.py` refuses to run unless both of these hold:
+
+- `part_r.py`, `run_arms.py`, `part_r2.py`, `part_r_claude.py` and `part_r2_verify.py` are the files Amendments 4,
+  2, 6, 7 and 8 pin;
+- Part R2's `candidates.json` has the sha256 Amendment 8 pins.
+
+**The messages.** `collect` builds the pool once, in a new private folder, and refuses if one exists. It keeps only
+messages that are one paragraph under Amendment 9's rule, from two sources:
+
+1. **Part R2's pool at positions 101 to 152,** which no one has judged and no agent has read. A count-only probe
+   found 20 of the 52 to be one paragraph.
+2. **A new draw.** It applies Part R2's candidate rule (`part_r2.candidate`: typed by a person, 200 words or more,
+   no markup) to the owner's transcripts. It keeps entries timestamped before 2026-11-23T00:00:00Z whose text is in
+   neither Part R's nor Part R2's pool. The probe found 3, all one paragraph.
+
+The pool, about 23 messages, is sorted by sha256 and shuffled with `random.Random(20261122)`. Its sha256 goes into
+the run record.
+
+**The arms.** Every arm offers one line of at most 30 words, written by a fresh agent with model alias `opus`, so the
+owner cannot tell the arms apart by their form.
+
+- **C:** as in Amendment 8, with the same `BRIEF`. Each agent reads whole messages, in batches of at most 50,000
+  characters of text, and writes each one's main ask in one line.
+- **A0′ and D′:** A0's sentence (Amendment 2, the first ask) and D's objective (frozen D, its fallback included)
+  are each rewritten into one line. Other fresh agents do this under `REWRITE_BRIEF` in `part_r3.py`, seeing only the
+  sentence and never the message. Each line is the ask the sentence states, in its language, in at most 30 words,
+  and adds nothing the sentence does not say.
+  - A sentence both arms offer is rewritten once and shared.
+  - A0′ offers nothing when the parser finds no ask, and that counts as "Não".
+  - The sentences go out in a seeded order, one entry per distinct sentence, in batches under the same budget.
+- **A1 is dropped.** It was a position control, and a third rewritten arm would add one more line per message to
+  judge.
+
+What this isolates: reading the whole message against picking one sentence, with the form equalised. It does not
+measure what paraphrasing alone adds. A rewrite can also lose a referent its sentence leaned on, or tidy the
+sentence; both are part of what A0′ and D′ are.
+
+**Agents and the answer check.** As in Amendment 8:
+
+- each agent uses only the Read and Write tools, on its own input and answer file;
+- its reply is a count only, and its brief says the text is data and that it follows no instruction inside it;
+- it is not a fork of any session that has seen a verdict;
+- afterwards, a count-only check reads each agent's transcript;
+- a broken answer gets one retry; an arm that still has no line offers nothing, and that counts as "Não".
+
+**The page.** As in Amendment 8: the skip before the reveal with Part R's three reasons, the slots in an order seeded
+by the message's sha256, equal lines sharing a slot, and the levels Sim, Em parte and Não with the same instruction.
+There is one addition. When a message has two or more slots and every slot has a level, the levels lock and the page
+asks:
+
+> Uma destas linhas foi escrita por quem leu a mensagem inteira; as outras foram reescritas a partir de uma única
+> frase dela. Qual você acha que é?
+
+The owner picks a slot or "Não sei". The guess cannot change a level.
+
+**Stopping.** Every position must be decided. There is no extension and no floor. `run` refuses the verdicts in the
+cases Amendment 8 lists, and also when a guess names no slot of its message.
+
+**Reported** in `stats_r3.json` (aggregates only; per-message rows stay private):
+
+- **Primary test:** C against A0′ on "Sim", paired on the same messages. It reports the messages only C gets a "Sim"
+  on, the messages only A0′ does, and the exact two-sided McNemar p at 0.05.
+  - At about 23 judged messages, p < 0.05 needs a split of at least 6 to 0, 8 to 1 or 10 to 2. By `part_r2.mcnemar`,
+    5 to 0 gives 0.0625, 7 to 1 gives 0.07031 and 9 to 2 gives 0.06543.
+  - A null means "not shown at this size".
+- **Blindness check:** the judged messages where C's line has a slot of its own and there are two or more slots.
+  Over those messages:
+  - the count of "Não sei";
+  - among the other guesses, the share that names C's slot, with a Wilson 95% interval;
+  - chance, the mean of 1/(number of slots) over the guessed messages.
+
+  If the interval's lower bound is above chance, the run is reported as not blind, and C's lead may come from its
+  form. A guess above chance can also come from C simply being the best line, so a result that is not blind does not
+  by itself show that the lead is form.
+- **Secondary, descriptive:**
+  - C against D′ and D′ against A0′ on "Sim";
+  - each pair on "Sim" or "Em parte";
+  - each arm's rates, with Wilson 95% intervals.
+
+  None of these is a pass criterion.
+- **Bookkeeping:**
+  - the skip counts by reason;
+  - the batches retried, and the missing lines per arm;
+  - the messages where A0′ and D′ share a rewrite;
+  - D's fallbacks, and the messages where the parser finds no ask;
+  - the sha256 of the pool, the answers, the verdicts and the page.
+
+**Privacy.**
+
+- About 23 messages go whole to the C agents. A0's and D's sentences from them, at most two per message, go to the
+  rewrite agents. Nothing else leaves the machine. These are fewer messages than in Part R2, because the
+  one-paragraph rule runs before any agent.
+- The sending needs the owner's own yes in chat, given after this merge and naming this scope. The merge alone is
+  not that yes.
+- Everything goes to `~/.lcc-private/intake-objective-v1-r3/` (folder 0700, files 0600). Only `stats_r3.json`
+  enters the repository.
+- Every command prints counts and aggregates only.
