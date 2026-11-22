@@ -193,7 +193,8 @@ Run on 2026-11-22 with `intelligence gate --presented-as MEASURED`, one claim pe
 aggregates only. The evidence named its sources:
 
 - **Most claims** had two: the study's stats file, and a recount from the per-case rows by a separate script, which
-  matched every number.
+  matched every rate and count it covered. The intervals (bootstrap and Wilson) and the McNemar p-values come from
+  the stats files alone.
 - **CLAUDE's** second source is a re-score of the private answer file, whose sha256 the stats file pins, with the
   study's own scoring function.
 - **R2SENS** has one source.
@@ -226,3 +227,6 @@ The gate's reasons were:
 - **R2SENS:** evidence strength below 2 for a claim presented as measured.
 
 So every finding on the owner's real dictations reads INFERIDO. No claim was reworded to change a verdict.
+
+Some cells of the synthetic hit@1 table are in no claim's text: A1 outside `restate` (the `all` row's 0.473
+among them) and DJ on the Codex phrasings (0.958). The recount matched them, but they carry no verdict.
