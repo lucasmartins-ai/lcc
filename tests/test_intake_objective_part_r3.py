@@ -152,7 +152,10 @@ def test_the_rewrite_input_shows_sentences_and_no_message():
     lines = text.splitlines()
     assert lines[0] == "=== FRASE 1/2 · id abc ===" and lines[-1] == "=== FIM ==="
     assert max(map(len, lines)) <= 160 and "MENSAGEM" not in text
-    assert "{input}" in r3.REWRITE_BRIEF and "do not invent an ask" in r3.REWRITE_BRIEF
+    brief = r3.REWRITE_BRIEF.format(input="a0_input_1.txt", answer="a0_answer_1.json", n=2)
+    assert "read one file, a0_input_1.txt" in brief and "write one file, a0_answer_1.json" in brief
+    assert '{"items": [{"id": "ID", "objective": "..."}]}' in brief and "FRASE k/2" in brief
+    assert "do not invent an ask" in brief and "{" not in brief.replace('{"', "")
 
 
 def _answer(entries, line="Fix the checkout."):

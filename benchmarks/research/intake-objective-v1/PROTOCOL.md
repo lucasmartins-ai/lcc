@@ -1195,7 +1195,7 @@ cases Amendment 8 lists, and in these as well:
 
 **Privacy.**
 
-- About 23 messages go whole to the C agents. A0's and D's sentences from them, at most two per message and each to
+- About 23 messages go whole to the C agents. A0's and D's excerpts from them, at most two per message and each to
   a different agent, go to the rewrite agents. Nothing else leaves the machine. These are fewer messages than in
   Part R2, because the one-paragraph rule runs before any agent.
 - The sending needs the owner's own yes in chat, given after this merge and naming this scope. The merge alone is
