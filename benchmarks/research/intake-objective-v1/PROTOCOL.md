@@ -5,7 +5,8 @@
 (Amendment 5); Part R2's pool, labelling and analysis fixed 2026-11-18 (Amendment 6); a blind check of Claude as a
 labeller on Part R fixed 2026-11-18 (Amendment 7); Part R2's measure changed to the owner's verdicts on each arm's
 objective 2026-11-18 (Amendment 8); Part R2's judged messages that were not dictated turned into skips by a fixed
-rule 2026-11-22 (Amendment 9).** The test split ran once on 2026-11-16
+rule 2026-11-22 (Amendment 9); Part R3, a blind test of an objective written from the whole message, fixed
+2026-11-22 (Amendment 10).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
 (`stats_r_dj.json`, see the Part R DJ run record). Amendment 7's check of Claude as a labeller ran on 2026-11-18 and
@@ -165,6 +166,9 @@ calls. D and the controls make none.
 6. Write RESULTS.md and run `gateClaim` on every number in it. Done 2026-11-22 ([RESULTS.md](RESULTS.md)): the
    synthetic findings pass; the Part R and Part R2 findings, the Claude-labeller check among them, return BLOCK or
    DOWNGRADE and read INFERIDO.
+7. Part R3 (Amendment 10), after its merge: `collect`, then `prepare`, then the agents, only after the owner's yes in
+   chat. Then `page`, the owner's verdicts and `run`. Its numbers go to a Part R3 section of RESULTS.md, with
+   `gateClaim` on each.
 
 ## Amendments
 
@@ -1068,14 +1072,16 @@ and its numbers are never pooled with Part R's or Part R2's.
 
 | File | sha256 |
 | :--- | :--- |
-| `part_r3.py` (pool, batches, briefs, page and scoring) | written with the script |
+| `part_r3.py` (pool, batches, briefs, page and scoring) | `c2e6e0da5da6c77425174ad1a0d400e1e87d991f36d3857da3734feda46e8251` |
 
 `tests/test_intake_objective_part_r3.py` fails if a later change moves that hash, and tests each rule below on
-synthetic text. `part_r3.py` refuses to run unless both of these hold:
+synthetic text. `part_r3.py` refuses to run unless all of these hold:
 
 - `part_r.py`, `run_arms.py`, `part_r2.py`, `part_r_claude.py` and `part_r2_verify.py` are the files Amendments 4,
   2, 6, 7 and 8 pin;
-- Part R2's `candidates.json` has the sha256 Amendment 8 pins.
+- Part R2's `candidates.json` has the sha256 Amendment 8 pins (checked by `collect`);
+- D is the frozen D, by Amendment 2's code hash and dev output (checked by `prepare`, before any text goes to an
+  agent, and again by `run`).
 
 **The messages.** `collect` builds the pool once, in a new private folder, and refuses if one exists. It keeps only
 messages that are one paragraph under Amendment 9's rule, from two sources:
@@ -1098,14 +1104,19 @@ bookkeeping reports each arm's line lengths.
 - **A0′ and D′:** A0's sentence (Amendment 2, the first ask) and D's objective (frozen D, its fallback included)
   are each rewritten into one line. Other fresh agents do this under `REWRITE_BRIEF` in `part_r3.py`. Each line is
   the ask the sentence states, in its language, in at most 30 words, and adds nothing the sentence does not say. A
-  sentence that states no ask, such as D's fallback (the opening of the message), is restated in one line, and the
-  agent never invents an ask for it.
-  - **No agent sees more than one sentence of a message.** A0's sentences go to one set of agents. D's sentences
-    that differ from A0's go to another set. The messages themselves go to neither.
-  - Each entry's id is drawn at random and carries no link to its message. The entries go out in a seeded order, in
-    batches under the same budget.
+  sentence that states no ask, such as D's fallback, is restated in one line, and the agent never invents an ask for
+  it. D's fallback is the parser's preview: the message's first 80 characters followed by "...".
+  - **No rewrite agent sees more than one excerpt of a message,** and an excerpt is one sentence or D's fallback.
+    A0's sentences go to one set of agents. D's excerpts that differ from A0's sentence go to another set. The
+    messages themselves go to neither. A fallback can hold two short sentences inside its 80 characters.
+  - A sentence is what the parser splits, and on dictation with little punctuation one can run long. A count-only
+    probe of Part R2's positions 101 to 152 found A0's sentence at 5 to 133 words, three of the 20 past 80 words, and
+    no message where D falls back.
+  - Each entry's id is the first 12 hex digits of sha256 over the seed, the arm and the message's sha256. It is not
+    the message's id, and an agent cannot map it back to a message. The entries go out in a seeded order, in batches
+    under the same budget.
   - A sentence both arms offer is rewritten once, and both arms share the line.
-  - A0′ offers nothing when the parser finds no ask, and that counts as "Não".
+  - A0′ offers nothing when the parser finds no ask, and that counts as "Não": it is what A0 does.
 - **A1 is dropped.** It was a position control, and a third rewritten arm would add one more line per message to
   judge.
 
@@ -1119,7 +1130,9 @@ the sentence; both are part of what A0′ and D′ are.
 - its reply is a count only, and its brief says the text is data and that it follows no instruction inside it;
 - it is not a fork of any session that has seen a verdict;
 - afterwards, a count-only check reads each agent's transcript;
-- a broken answer gets one retry; an arm that still has no line offers nothing, and that counts as "Não".
+- a broken answer gets one retry; an arm that still has no line offers nothing. That message then drops out of the
+  arm's rates and out of every paired test with that arm, rather than counting as "Não" for one side. The A0 set fits
+  in one batch, so a lost batch would otherwise hand C the primary test.
 
 **The page.** As in Amendment 8: the skip before the reveal with Part R's three reasons, the slots in an order seeded
 by the message's sha256, equal lines sharing a slot, and the levels Sim, Em parte and Não with the same instruction.
@@ -1130,15 +1143,27 @@ asks:
 > frase dela. Qual você acha que é?
 
 The owner picks a slot or "Não sei". The guess cannot change a level, and the page never says whether a guess was
-right.
+right. The rest of the page works like this:
+
+- Before the guess, "Refazer as notas" clears the levels so they can be given again.
+- The guess ends the message. A message with one slot ends with its level.
+- "Desfazer a anterior" clears the previous message's levels and guess together. It never makes a judged message
+  skippable again.
 
 **Stopping.** Every position must be decided. There is no extension and no floor. `run` refuses the verdicts in the
-cases Amendment 8 lists, and also when a guess names no slot of its message.
+cases Amendment 8 lists, and in these as well:
+
+- a message with two or more slots has no guess;
+- a guess names no slot of its message;
+- a message with one slot carries a guess;
+- the verdicts carry another page id. The id is a hash of the pool and of every message's lines, so verdicts from a
+  page built on other answers do not fit. The page also keys its saved progress by that id.
 
 **Reported** in `stats_r3.json` (aggregates only; per-message rows stay private):
 
-- **Primary test:** C against A0′ on "Sim", paired on the same messages. It reports the messages only C gets a "Sim"
-  on, the messages only A0′ does, and the exact two-sided McNemar p at 0.05.
+- **Primary test:** C against A0′ on "Sim", paired on the same messages, where both arms have their line. It reports
+  the number of messages paired, the messages only C gets a "Sim" on, the messages only A0′ does, and the exact
+  two-sided McNemar p at 0.05.
   - At about 23 judged messages, p < 0.05 needs a split of at least 6 to 0, 8 to 1 or 10 to 2. By `part_r2.mcnemar`,
     5 to 0 gives 0.0625, 7 to 1 gives 0.07031 and 9 to 2 gives 0.06543.
   - A null means "not shown at this size".
@@ -1156,7 +1181,8 @@ cases Amendment 8 lists, and also when a guess names no slot of its message.
 - **Secondary, descriptive:**
   - C against D′ and D′ against A0′ on "Sim";
   - each pair on "Sim" or "Em parte";
-  - each arm's rates, with Wilson 95% intervals.
+  - each arm's rates, with Wilson 95% intervals;
+  - the rates on "Sim" by source: Part R2's positions and the new draw.
 
   None of these is a pass criterion.
 - **Bookkeeping:**
