@@ -4,7 +4,8 @@
 3); Part R's pool, labelling and runner fixed 2026-11-16 (Amendment 4); arm DJ on Part R fixed 2026-11-18
 (Amendment 5); Part R2's pool, labelling and analysis fixed 2026-11-18 (Amendment 6); a blind check of Claude as a
 labeller on Part R fixed 2026-11-18 (Amendment 7); Part R2's measure changed to the owner's verdicts on each arm's
-objective 2026-11-18 (Amendment 8).** The test split ran once on 2026-11-16
+objective 2026-11-18 (Amendment 8); Part R2's judged messages that were not dictated turned into skips by a fixed
+rule 2026-11-22 (Amendment 9).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
 (`stats_r_dj.json`, see the Part R DJ run record). Amendment 7's check of Claude as a labeller ran on 2026-11-18 and
@@ -157,7 +158,8 @@ calls. D and the controls make none.
    merge, the owner labels, then `run`. Before the labels, Claude's labels are checked blind on Part R (Amendment
    7); done 2026-11-18, failed, so Part R2 keeps the owner's labels. Amendment 8 then replaces those labels and
    `part_r2.py run` with the owner's verdicts on each arm's objective: `prepare`, the agents (after the owner's yes),
-   `page`, the verdicts, then `run`.
+   `page`, the verdicts, then `run`. Before `run`, Amendment 9 turns the judged messages at positions 1 to 34 that
+   are not one paragraph into skips.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -915,3 +917,68 @@ on real data.
 - Inputs, answers, the page, the verdicts and the per-message rows go to `~/.lcc-private/intake-objective-v1-r2-verify/`
   (folder 0700, files 0600). Only `stats_r2_verify.json` enters the repository.
 - `prepare`, `page` and `run` print counts and aggregates only.
+
+### Amendment 9 (2026-11-22): Part R2's judged messages that were not dictated
+
+**What happened.** The owner decided all 100 positions on Amendment 8's page and exported the verdicts (sha256
+`52fee459a6c6e16bb01bf61d8092cba3acbc8b19f6216e434c751928b03d01a2`).
+
+- At positions 1 to 34 they judged every message and skipped none.
+- From position 35 on they skipped 51, all as "não foi ditado", and judged 15.
+- After the export, the owner reported that they had applied the skip rule only from position 35 on, so many of the
+  first 34 were not dictated and should have been skipped before the reveal.
+
+Nothing from the export has been scored. Only its decisions and skip reasons were counted.
+
+**The deviation.** Amendment 8's rule 1 puts every skip before the objectives are shown, so a skip cannot depend on
+what the arms offered. Turning judged messages into skips after the reveal breaks that rule. This amendment does it
+only through a fixed rule on the message text, which reads no objective, level or arm. The rule was fixed before any
+arm-level number was computed.
+
+- **The rule.** A message is dictated when its text, split on `"\n"`, has exactly one line that is not blank after
+  stripping whitespace: it is one paragraph. Every other message counts as not dictated.
+- **Where it came from.** A count-only script printed each position's decision with its line and markup counts, never
+  text. At positions 35 to 100, which the owner decided before any reveal:
+  - every judged message is one paragraph (15 of 15);
+  - every skip has five or more non-blank lines (51 of 51).
+
+  The rule was written from those 66 decisions, so it reproduces them in-sample; that agreement is not an
+  independent validation. No decision there falls between one and five lines. The owner settled that gap by stating
+  that a dictation of theirs is one paragraph, with no line break. This decides one message, at position 4 (two
+  non-blank lines).
+- **What it changes.** Only positions 1 to 34, the ones before the first skip. A message there that the rule calls
+  not dictated turns from a judged message into a skip with the reason "não foi ditado", and its levels are dropped.
+  Nothing else changes:
+  - no level;
+  - nothing at positions 35 to 100;
+  - no skip turns into a judged message.
+- **On the export,** the rule keeps 5 of the 34 (positions 2, 8, 10, 26 and 31) and turns 29 into skips, which
+  leaves 20 judged messages.
+
+**How.** After this merge, a script derives the corrected `verdicts.json` from the export and the pool. It lives
+outside the repository because it reads private files. It refuses unless all of these hold:
+
+- the export's sha256 is the one above;
+- the rule reproduces all 66 decisions at positions 35 to 100;
+- the only differences from the export are judged messages at positions 1 to 34 that the rule calls not dictated,
+  each turned into a "não foi ditado" skip.
+
+It writes the corrected file to the private folder (0600), and the export stays there as `verdicts_asjudged.json`.
+The pinned `part_r2_verify.py` does not change. `run` reads the corrected file as it would read the page's export.
+
+**Reported**
+
+- **Primary:** Amendment 8's test and its descriptive numbers on the corrected verdicts, in `stats_r2_verify.json`.
+- **Sensitivity:** the same primary counts on the export as judged (49 messages), computed after this merge with
+  `part_r2_verify.py`'s own scoring functions and reported in the run record as aggregates. These are the messages
+  only D gets a "Sim" on, those only A0 does, and the exact McNemar p, plus each arm's "Sim" rate. If the two sets
+  disagree on the primary's direction, the run record says so.
+- **Bookkeeping:** the sha256 of the export and of the corrected verdicts, and the counts above.
+
+**Power.** With 20 judged messages the run is far below Amendment 8's 60, so `stats_r2_verify.json` marks it
+underpowered. Amendment 8 allows no extension past position 100. The pool's 52 unused candidates would not reach 60
+either: only 15 of the 66 messages at positions 35 to 100 were dictated. The run is descriptive, neither a pass nor
+a fail for D.
+
+**Privacy.** As in Amendment 8. The derivation and the sensitivity script print counts, positions, hashes and
+aggregates only, and no message goes to any model.
