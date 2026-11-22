@@ -1109,9 +1109,9 @@ bookkeeping reports each arm's line lengths.
 - **A1 is dropped.** It was a position control, and a third rewritten arm would add one more line per message to
   judge.
 
-What this isolates: reading the whole message against picking one sentence, with the form equalised in kind. It does not
-measure what paraphrasing alone adds. A rewrite can also lose a referent its sentence leaned on, or tidy the
-sentence; both are part of what A0′ and D′ are.
+What this isolates: reading the whole message against picking one sentence, with the form equalised in kind. It
+does not measure what paraphrasing alone adds. A rewrite can also lose a referent its sentence leaned on, or tidy
+the sentence; both are part of what A0′ and D′ are.
 
 **Agents and the answer check.** As in Amendment 8:
 
@@ -1170,8 +1170,8 @@ cases Amendment 8 lists, and also when a guess names no slot of its message.
 **Privacy.**
 
 - About 23 messages go whole to the C agents. A0's and D's sentences from them, at most two per message and each to
-  a different agent, go to the rewrite agents. Nothing else leaves the machine. These are fewer messages than in Part R2, because the
-  one-paragraph rule runs before any agent.
+  a different agent, go to the rewrite agents. Nothing else leaves the machine. These are fewer messages than in
+  Part R2, because the one-paragraph rule runs before any agent.
 - The sending needs the owner's own yes in chat, given after this merge and naming this scope. The merge alone is
   not that yes.
 - Everything goes to `~/.lcc-private/intake-objective-v1-r3/` (folder 0700, files 0600). Only `stats_r3.json`
