@@ -1089,22 +1089,27 @@ messages that are one paragraph under Amendment 9's rule, from two sources:
 The pool, about 23 messages, is sorted by sha256 and shuffled with `random.Random(20261122)`. Its sha256 goes into
 the run record.
 
-**The arms.** Every arm offers one line of at most 30 words, written by a fresh agent with model alias `opus`, so the
-owner cannot tell the arms apart by their form.
+**The arms.** Every arm offers one line of at most 30 words, written by a fresh agent with model alias `opus`. The
+form is equalised in kind, since every line is a one-line paraphrase. Length and wording can still differ, so the
+bookkeeping reports each arm's line lengths.
 
 - **C:** as in Amendment 8, with the same `BRIEF`. Each agent reads whole messages, in batches of at most 50,000
   characters of text, and writes each one's main ask in one line.
 - **A0′ and D′:** A0's sentence (Amendment 2, the first ask) and D's objective (frozen D, its fallback included)
-  are each rewritten into one line. Other fresh agents do this under `REWRITE_BRIEF` in `part_r3.py`, seeing only the
-  sentence and never the message. Each line is the ask the sentence states, in its language, in at most 30 words,
-  and adds nothing the sentence does not say.
-  - A sentence both arms offer is rewritten once and shared.
+  are each rewritten into one line. Other fresh agents do this under `REWRITE_BRIEF` in `part_r3.py`. Each line is
+  the ask the sentence states, in its language, in at most 30 words, and adds nothing the sentence does not say. A
+  sentence that states no ask, such as D's fallback (the opening of the message), is restated in one line, and the
+  agent never invents an ask for it.
+  - **No agent sees more than one sentence of a message.** A0's sentences go to one set of agents. D's sentences
+    that differ from A0's go to another set. The messages themselves go to neither.
+  - Each entry's id is drawn at random and carries no link to its message. The entries go out in a seeded order, in
+    batches under the same budget.
+  - A sentence both arms offer is rewritten once, and both arms share the line.
   - A0′ offers nothing when the parser finds no ask, and that counts as "Não".
-  - The sentences go out in a seeded order, one entry per distinct sentence, in batches under the same budget.
 - **A1 is dropped.** It was a position control, and a third rewritten arm would add one more line per message to
   judge.
 
-What this isolates: reading the whole message against picking one sentence, with the form equalised. It does not
+What this isolates: reading the whole message against picking one sentence, with the form equalised in kind. It does not
 measure what paraphrasing alone adds. A rewrite can also lose a referent its sentence leaned on, or tidy the
 sentence; both are part of what A0′ and D′ are.
 
@@ -1124,7 +1129,8 @@ asks:
 > Uma destas linhas foi escrita por quem leu a mensagem inteira; as outras foram reescritas a partir de uma única
 > frase dela. Qual você acha que é?
 
-The owner picks a slot or "Não sei". The guess cannot change a level.
+The owner picks a slot or "Não sei". The guess cannot change a level, and the page never says whether a guess was
+right.
 
 **Stopping.** Every position must be decided. There is no extension and no floor. `run` refuses the verdicts in the
 cases Amendment 8 lists, and also when a guess names no slot of its message.
@@ -1142,9 +1148,11 @@ cases Amendment 8 lists, and also when a guess names no slot of its message.
   - among the other guesses, the share that names C's slot, with a Wilson 95% interval;
   - chance, the mean of 1/(number of slots) over the guessed messages.
 
-  If the interval's lower bound is above chance, the run is reported as not blind, and C's lead may come from its
-  form. A guess above chance can also come from C simply being the best line, so a result that is not blind does not
-  by itself show that the lead is form.
+  The check reads one of three ways:
+  - **Lower bound above chance:** the run is reported as not blind, and C's lead may come from its form. A guess above
+    chance can also come from C simply being the best line, so this alone does not show that the lead is form.
+  - **Lower bound at or below chance:** blindness is not refuted at this size. That does not show the run was blind.
+  - **Fewer than 5 guesses that name a slot,** "Não sei" every time included: the check is reported as too few to read.
 - **Secondary, descriptive:**
   - C against D′ and D′ against A0′ on "Sim";
   - each pair on "Sim" or "Em parte";
@@ -1155,13 +1163,14 @@ cases Amendment 8 lists, and also when a guess names no slot of its message.
   - the skip counts by reason;
   - the batches retried, and the missing lines per arm;
   - the messages where A0′ and D′ share a rewrite;
+  - each arm's line length in words (mean, minimum and maximum);
   - D's fallbacks, and the messages where the parser finds no ask;
   - the sha256 of the pool, the answers, the verdicts and the page.
 
 **Privacy.**
 
-- About 23 messages go whole to the C agents. A0's and D's sentences from them, at most two per message, go to the
-  rewrite agents. Nothing else leaves the machine. These are fewer messages than in Part R2, because the
+- About 23 messages go whole to the C agents. A0's and D's sentences from them, at most two per message and each to
+  a different agent, go to the rewrite agents. Nothing else leaves the machine. These are fewer messages than in Part R2, because the
   one-paragraph rule runs before any agent.
 - The sending needs the owner's own yes in chat, given after this merge and naming this scope. The merge alone is
   not that yes.
