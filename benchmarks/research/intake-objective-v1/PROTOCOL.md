@@ -9,7 +9,8 @@ rule 2026-11-22 (Amendment 9).** The test split ran once on 2026-11-16
 (`results_test.json`, `results_dj_test.json`, `stats_test.json`); its numbers go to RESULTS.md (run order step 6).
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
 (`stats_r_dj.json`, see the Part R DJ run record). Amendment 7's check of Claude as a labeller ran on 2026-11-18 and
-failed, 7 of 22 against 19 (`stats_r_claude.json`, see its run record).
+failed, 7 of 22 against 19 (`stats_r_claude.json`, see its run record). Part R2 ran once on 2026-11-22 under
+Amendments 8 and 9 (`stats_r2_verify.json`, see the Part R2 run record).
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -159,7 +160,7 @@ calls. D and the controls make none.
    7); done 2026-11-18, failed, so Part R2 keeps the owner's labels. Amendment 8 then replaces those labels and
    `part_r2.py run` with the owner's verdicts on each arm's objective: `prepare`, the agents (after the owner's yes),
    `page`, the verdicts, then `run`. Before `run`, Amendment 9 turns the judged messages at positions 1 to 34 that
-   are not one paragraph into skips.
+   are not one paragraph into skips. Done 2026-11-22.
 6. Write RESULTS.md and run `gateClaim` on every number in it.
 
 ## Amendments
@@ -982,3 +983,67 @@ a fail for D.
 
 **Privacy.** As in Amendment 8. The derivation and the sensitivity script print counts, positions, hashes and
 aggregates only, and no message goes to any model.
+
+### Part R2 run record (2026-11-22)
+
+A record of how Amendments 8 and 9 ran. It changes nothing in the design.
+
+**Arm C.** `prepare` ran from `main` at 3a7880c, after the merge of Amendment 8 and the owner's yes in chat. It wrote
+the 100 messages as 9 inputs. Nine fresh agents, model alias `opus`, one per batch, wrote one line per message with
+the brief verbatim. They returned 11, 7, 11, 16, 14, 14, 10, 13 and 4 entries, 100 in all.
+
+A script that printed only counts then read their transcripts:
+
+- 12 Read calls, each on the agent's own input;
+- 9 Write calls, each on the agent's own answer file;
+- the 9 final hand-backs;
+- no other call, and no call on any other file.
+
+Every answer passed the format check on the first try. No batch was retried, and C offers a line on all 100 messages.
+`page` set the answer files to 0600 and wrote `verify.html` (sha256 `794403d2…0e82`).
+
+**Verdicts.** The owner decided all 100 positions and exported the verdicts (sha256 `52fee459…01a2`): 49 judged and
+51 skipped, all 51 as "não foi ditado". Amendment 9's derivation ran from `main` at 9d0110d, after its merge:
+
+- the rule reproduced all 66 decisions at positions 35 to 100;
+- it kept positions 2, 8, 10, 26 and 31 of the first 34, and turned the other 29 into "não foi ditado" skips;
+- that leaves 20 judged messages;
+- the corrected verdicts' sha256 is `ef441975…e4ac`.
+
+`run` then ran once, from the same commit.
+
+**Primary, on the 20 judged messages** (underpowered: Amendment 8's floor is 60). The owner's "Sim" rates, with
+Wilson 95% intervals:
+
+| Arm | "Sim" | "Sim" or "Em parte" |
+|---|---|---|
+| C, Claude's line | 20 of 20 (0.839 to 1) | 20 of 20 (0.839 to 1) |
+| D, frozen | 4 of 20 (0.081 to 0.416) | 15 of 20 (0.531 to 0.888) |
+| A0, first ask | 3 of 20 (0.052 to 0.360) | 13 of 20 (0.433 to 0.819) |
+| A1, last ask | 5 of 20 (0.112 to 0.469) | 15 of 20 (0.531 to 0.888) |
+
+- **The pre-registered test,** D against A0 on "Sim": D alone in 1 message, A0 alone in 0, exact McNemar p = 1.0. D's
+  objective is A0's in 11 of the 20. D does not beat A0 here.
+- **Secondary, descriptive:**
+  - C against D on "Sim": C alone in 16, D alone in 0, p = 3.052e-05;
+  - on "Sim" or "Em parte", D against A0 is 3 to 1 (p = 0.625), and C against D is 5 to 0 (p = 0.0625).
+- **Strata:** 18 of the 20 are 200 to 299 words and 17 are tagged, so the strata are too small to read.
+- **Bookkeeping:** D fell back in 2 messages.
+
+**Sensitivity, on the export as judged** (49 messages, by the same scoring functions; Amendment 9):
+
+- "Sim": C 47 of 49, D 9, A0 12, A1 7.
+- D against A0 on "Sim": D alone in 3, A0 alone in 6, p = 0.5078.
+- C against D: 38 to 0, p = 7.276e-12.
+
+The two sets disagree on the primary's direction. The corrected set puts D ahead by one message; the export as
+judged puts A0 ahead by three. Neither is near 0.05.
+
+**Reading.**
+
+- On the owner's real dictations, frozen D and the first ask sentence tie. No verbatim-sentence arm reaches the main
+  ask on more than 5 of 20.
+- The line Claude wrote was judged the main ask on all 20. That comparison is not blind (Amendment 8, Blindness): C
+  paraphrases, so the owner can usually tell its line from the verbatim sentences.
+- C also reads the whole message, while the other arms can only pick one of its sentences. The C-against-D gap is
+  descriptive and was never a pass criterion.
