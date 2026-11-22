@@ -26,8 +26,9 @@ even-numbered bases.
   called only by this study's scripts. What ships is the owner's decision.
 
 **Evidence labels.** `gateClaim` is the evidence check the owner runs on a measured claim before publishing it. PASS
-lets the claim stand as measured; DOWNGRADE or BLOCK means it reads INFERIDO. Each finding below carries its
-verdict from 2026-11-22 (see [gateClaim](#gateclaim)).
+lets the claim stand as measured; DOWNGRADE or BLOCK means it reads INFERIDO. Each synthetic finding below names its
+claim, and the Part R and Part R2 sections read INFERIDO as a whole. All verdicts are from 2026-11-22 (see
+[gateClaim](#gateclaim)).
 
 | Arm | What it is | Code | Results |
 | :--- | :--- | :--- | :--- |
@@ -49,7 +50,7 @@ Pre-registered verdicts. The intervals are paired cluster bootstraps over the 20
 | H3, `first` kept | D 1.0, A0 1.0 on the 60 `first` cases | D ≥ A0 − 0.05 | **PASS** | H3 |
 | H4, recall | D's ask recall 1.0 in all 300 cases; every stash rebuilds byte for byte | 1.00 and every rebuild | **PASS** | H4 |
 
-Hit@1 by family, length and language, with no pass criterion:
+Hit@1 by family, length and language, with no pass criterion (`gateClaim`: TABLE):
 
 | Group (test) | n | A0 | A1 | D | DJ |
 | :--- | ---: | ---: | ---: | ---: | ---: |
@@ -72,7 +73,7 @@ Hit@1 by family, length and language, with no pass criterion:
   (`gateClaim`: CODEX). `bare`, the only family whose gold is the author's judgment, is the family where D is lowest
   (0.667).
 - **The position control.** D minus A1 is 0.317 (0.23 to 0.403). A1 wins only on `restate` (0.917), where the
-  restatement is last by construction.
+  restatement is last by construction (`gateClaim`: CONTROLS, which also covers the ablations and hit@3).
 - **Ablations.** D's hit@1 with one signal removed:
   - without ask cues, 0.617;
   - without the marker, 0.767;
@@ -80,7 +81,7 @@ Hit@1 by family, length and language, with no pass criterion:
   - without recurrence, 0.79, unchanged, because the dev tuning set recurrence's weight to 0 (Amendment 2).
 - **D's hit@3** is 0.967.
 
-**Q3, the brief** (D, test):
+**Q3, the brief** (D, test; `gateClaim`: Q3):
 
 - **Size.** The objective plus the linked blocks are 0.151 of the input tokens on average.
 - **Asks.** Ask recall is 1.0, and every stash rebuilds the input byte for byte. The parser labels 0.655 of the gold
@@ -88,16 +89,19 @@ Hit@1 by family, length and language, with no pass criterion:
 - **Links,** on the cases D hits: precision 0.398 and recall 0.402.
 - **Speed and fallbacks.** D takes 5.5 ms per case on average (11.0 ms at most) and never falls back to A0.
 
-**DJ's calls** (test): 258 Jev calls, because cases with fewer than two eligible blocks make none. There were 0
-errors, Jev's pick was used in 244, and every call resolved to `jev-1.14.0`.
+**DJ's calls** (test): 258 Jev calls. The 42 cases with fewer than two eligible blocks made none. There were 0
+errors, Jev's pick was used in 244, and every call resolved to `jev-1.14.0` (`gateClaim`: DJCALLS).
 
-**Dev split,** where D was tuned and DJ was seen before the test run: A0 0.597, A1 0.537, D 0.893, DJ 0.993.
+**Dev split,** where D was tuned and DJ was seen before the test run: A0 0.597, A1 0.537, D 0.893, DJ 0.993
+(`gateClaim`: DEV).
 
 ## Part R: the owner's real dictations, gold sentences (Amendments 4 and 5)
 
-The owner picked dictations of 300 words or more and marked the main ask sentence or sentences before any arm ran.
-They kept 22 of 31 candidates and skipped 9 as "não tem um pedido principal". Scoring is Part S's rule: a pick hits
-when it covers at least half of any gold sentence. Nothing here has a pass criterion.
+Amendment 4 drew the pool mechanically from the owner's transcripts: messages the app tagged as typed by a person,
+300 words or more, with no pasted or generated content and no duplicate. That left 31 candidates in a seeded order.
+The owner went through them top down and marked the main ask sentence or sentences before any arm ran. They kept 22
+and skipped 9 as "não tem um pedido principal". Scoring is Part S's rule: a pick hits when it covers at least half
+of any gold sentence. Nothing here has a pass criterion.
 
 | Arm (n = 22) | hit@1 | Wilson 95% |
 | :--- | ---: | :--- |
@@ -119,8 +123,8 @@ when it covers at least half of any gold sentence. Nothing here has a pass crite
 - **D's brief** is 0.618 of the input on average.
 
 **Claude as a labeller** (Amendment 7). A fresh `opus` agent labelled the same 22 dictations blind and agreed with
-the owner on 7 of 22 (Wilson 0.164 to 0.527), against a pass mark of 19. The check failed, so Claude's labels
-replace no owner labels (`gateClaim`: CLAUDE).
+the owner on 7 of 22 (Wilson 0.164 to 0.527), against a pass mark of 19. Under Amendment 7 a failed check means
+Claude's labels replace no owner labels. `gateClaim`: CLAUDE, DOWNGRADE, so the 7 of 22 reads INFERIDO too.
 
 ## Part R2: the owner's verdict on each arm's objective (Amendments 6, 8 and 9)
 
@@ -185,23 +189,40 @@ BLOCK at `gateClaim` and reads INFERIDO.
 
 ## gateClaim
 
-Run on 2026-11-22 with `intelligence gate --presented-as MEASURED`, one claim per finding. Each claim and its
-evidence carried aggregates only, with two sources each: the study's stats file, and a recount from the per-case
-rows that matched it.
+Run on 2026-11-22 with `intelligence gate --presented-as MEASURED`, one claim per finding or group of numbers, with
+aggregates only. The evidence named its sources:
 
-| Claim | Finding | Verdict | Support (threshold 0.75) | Reads as |
-| :--- | :--- | :--- | ---: | :--- |
-| H1 | D over A0, synthetic test | PASS | 0.81 | measured |
-| H2 | DJ over D, synthetic test | PASS | 0.77 | measured |
-| H3 | D keeps `first`, synthetic test | PASS | 0.87 | measured |
-| H4 | ask recall and rebuild, synthetic test | PASS | 0.94 | measured |
-| CODEX | D over A0 on the Codex phrasings | PASS | 0.92 | measured |
-| CLAUDE | Claude as a labeller, 7 of 22 against 19 | PASS | 0.85 | measured |
-| PARTR | Part R hit@1 and its overlapping intervals | BLOCK | 0.62 | INFERIDO |
-| R2 | Part R2, D against A0 | BLOCK | 0.69 | INFERIDO |
-| R2C | Part R2, C's 20 of 20 | BLOCK | 0.51 | INFERIDO |
-| R2SENS | Part R2 sensitivity, 3 to 6 | BLOCK | 0.71 | INFERIDO |
+- **Most claims** had two: the study's stats file, and a recount from the per-case rows by a separate script, which
+  matched every number.
+- **CLAUDE's** second source is a re-score of the private answer file, whose sha256 the stats file pins, with the
+  study's own scoring function.
+- **R2SENS** has one source.
 
-Every real-data finding returned BLOCK. Each comes from one run on one speaker's small sample with no independent
-replication, so Part R and Part R2 read INFERIDO. The counts themselves are recounted and exact; what the gate
-withholds is the reading put on them. No claim was reworded to change a verdict.
+CODEX, CLAUDE and R2SENS were first run with evidence that wrongly claimed a recount for each. They were run again the
+same day with the same claim text and evidence that states their sources, and the table gives that second run.
+
+| Claim | Finding | Verdict | Support | Evidence strength | Reads as |
+| :--- | :--- | :--- | ---: | ---: | :--- |
+| H1 | D over A0, synthetic test | PASS | 0.81 | 2.9 | measured |
+| H2 | DJ over D, synthetic test | PASS | 0.77 | 2.86 | measured |
+| H3 | D keeps `first`, synthetic test | PASS | 0.87 | 2.87 | measured |
+| H4 | ask recall and rebuild, synthetic test | PASS | 0.94 | 2.92 | measured |
+| CODEX | D over A0 on the Codex phrasings | PASS | 0.9 | 2.77 | measured |
+| TABLE | hit@1 by family, length and language | PASS | 0.9 | 2.87 | measured |
+| CONTROLS | D minus A1, ablations, D's hit@3 | PASS | 0.85 | 2.81 | measured |
+| Q3 | brief size, asks labelled, links, speed, fallbacks | PASS | 0.91 | 2.83 | measured |
+| DJCALLS | DJ's calls, errors, uses and model | PASS | 0.79 | 2.74 | measured |
+| DEV | dev split hit@1 | PASS | 0.87 | 2.88 | measured |
+| CLAUDE | Claude as a labeller, 7 of 22 against 19 | DOWNGRADE | 0.85 | 2.18 | INFERIDO |
+| PARTR | Part R hit@1 and its overlapping intervals | BLOCK | 0.62 | 2.77 | INFERIDO |
+| R2 | Part R2, D against A0 | BLOCK | 0.69 | 2.74 | INFERIDO |
+| R2C | Part R2, C's 20 of 20 | BLOCK | 0.51 | 2.81 | INFERIDO |
+| R2SENS | Part R2 sensitivity, 3 to 6 | BLOCK | 0.44 | 1.22 | INFERIDO |
+
+The gate's reasons were:
+
+- **PARTR, R2 and R2C:** support below 0.75, the threshold for their evidence strength.
+- **CLAUDE:** evidence strength below 2.5, which the gate reads as a single point measurement.
+- **R2SENS:** evidence strength below 2 for a claim presented as measured.
+
+So every finding on the owner's real dictations reads INFERIDO. No claim was reworded to change a verdict.

@@ -163,8 +163,8 @@ calls. D and the controls make none.
    `page`, the verdicts, then `run`. Before `run`, Amendment 9 turns the judged messages at positions 1 to 34 that
    are not one paragraph into skips. Done 2026-11-22.
 6. Write RESULTS.md and run `gateClaim` on every number in it. Done 2026-11-22 ([RESULTS.md](RESULTS.md)): the
-   synthetic findings and the Claude-labeller check pass; the Part R and Part R2 findings return BLOCK and read
-   INFERIDO.
+   synthetic findings pass; the Part R and Part R2 findings, the Claude-labeller check among them, return BLOCK or
+   DOWNGRADE and read INFERIDO.
 
 ## Amendments
 
