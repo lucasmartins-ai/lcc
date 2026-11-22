@@ -10,7 +10,8 @@ rule 2026-11-22 (Amendment 9).** The test split ran once on 2026-11-16
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
 (`stats_r_dj.json`, see the Part R DJ run record). Amendment 7's check of Claude as a labeller ran on 2026-11-18 and
 failed, 7 of 22 against 19 (`stats_r_claude.json`, see its run record). Part R2 ran once on 2026-11-22 under
-Amendments 8 and 9 (`stats_r2_verify.json`, see the Part R2 run record).
+Amendments 8 and 9 (`stats_r2_verify.json`, see the Part R2 run record). The results and their `gateClaim` verdicts
+are in [RESULTS.md](RESULTS.md) (2026-11-22).
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -161,7 +162,9 @@ calls. D and the controls make none.
    `part_r2.py run` with the owner's verdicts on each arm's objective: `prepare`, the agents (after the owner's yes),
    `page`, the verdicts, then `run`. Before `run`, Amendment 9 turns the judged messages at positions 1 to 34 that
    are not one paragraph into skips. Done 2026-11-22.
-6. Write RESULTS.md and run `gateClaim` on every number in it.
+6. Write RESULTS.md and run `gateClaim` on every number in it. Done 2026-11-22 ([RESULTS.md](RESULTS.md)): the
+   synthetic findings and the Claude-labeller check pass; the Part R and Part R2 findings return BLOCK and read
+   INFERIDO.
 
 ## Amendments
 
