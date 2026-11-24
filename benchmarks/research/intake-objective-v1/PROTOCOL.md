@@ -11,8 +11,9 @@ rule 2026-11-22 (Amendment 9); Part R3, a blind test of an objective written fro
 A0, A1 and D ran once on Part R on 2026-11-17 (`stats_r.json`, see the Part R run record), and DJ on 2026-11-18
 (`stats_r_dj.json`, see the Part R DJ run record). Amendment 7's check of Claude as a labeller ran on 2026-11-18 and
 failed, 7 of 22 against 19 (`stats_r_claude.json`, see its run record). Part R2 ran once on 2026-11-22 under
-Amendments 8 and 9 (`stats_r2_verify.json`, see the Part R2 run record). The results and their `gateClaim` verdicts
-are in [RESULTS.md](RESULTS.md) (2026-11-22).
+Amendments 8 and 9 (`stats_r2_verify.json`, see the Part R2 run record), and Part R3 once on 2026-11-24 under
+Amendment 10 (`stats_r3.json`, see the Part R3 run record). The results and their `gateClaim` verdicts are in
+[RESULTS.md](RESULTS.md) (2026-11-22; Part R3 2026-11-24).
 Three dated checkpoints make it a pre-registration:
 
 1. **Design approval.** Done 2026-11-15: the owner approved the design as written here ("Aprovo o desenho"),
@@ -168,7 +169,8 @@ calls. D and the controls make none.
    DOWNGRADE and read INFERIDO.
 7. Part R3 (Amendment 10), after its merge: `collect`, then `prepare`, then the agents, only after the owner's yes in
    chat. Then `page`, the owner's verdicts and `run`. Its numbers go to a Part R3 section of RESULTS.md, with
-   `gateClaim` on each.
+   `gateClaim` on each. Done 2026-11-24 (Part R3 run record): C beats A0′ on "Sim" by 14 to 4 (p = 0.031), and the
+   run is not blind. The pre-registered counts pass `gateClaim`; the post-hoc counts read INFERIDO.
 
 ## Amendments
 
@@ -1203,3 +1205,66 @@ cases Amendment 8 lists, and in these as well:
 - Everything goes to `~/.lcc-private/intake-objective-v1-r3/` (folder 0700, files 0600). Only `stats_r3.json`
   enters the repository.
 - Every command prints counts and aggregates only.
+
+### Part R3 run record (2026-11-24)
+
+A record of how Amendment 10 ran. It changes nothing in the design. Every command ran from `main` at 6b6887b, after
+the merge of Amendment 10.
+
+**The pool.** `collect` ran on 2026-11-22:
+
+- Part R2's positions 101 to 152: 20 of the 52 are one paragraph, as the probe found;
+- the new draw: 4 candidates, all timestamped before the cutoff and all one paragraph (the probe had found 3);
+- the pool: 24 messages, sha256 `0e5be030…ec89`.
+
+**The arms.** `prepare` ran after the owner's yes in chat and checked frozen D before any text left the machine. It
+wrote one batch per arm:
+
+- C: the 24 whole messages;
+- A0′: the 24 sentences A0 picks. The parser found an ask in all 24;
+- D′: 16 excerpts. In the other 8 messages D's objective is A0's sentence, so the two arms share one rewrite. D
+  never fell back.
+
+Three fresh agents, model alias `opus`, one per batch, returned 24, 24 and 16 entries. A script that printed only
+counts then read their transcripts: each agent made one Read call on its own input and one Write call on its own
+answer file, and no call on any other file. Every answer passed the format check on the first try. No batch was
+retried, and no arm misses a line.
+
+**The page.** `page` wrote `verify.html` (sha256 `9fa88505…4968`, page id `a7d049a5477f055e`). 16 messages have
+three slots and 8 have two. C's line has a slot of its own in all 24.
+
+**Verdicts.** The owner decided all 24 positions and skipped none. The export carries the page's id, and its sha256
+is `9e3f6d93…39f0`. `run` ran once on 2026-11-24. It checked the pins, frozen D, the page id and the page's bytes,
+and wrote `stats_r3.json` (answers sha256 `b18fc105…62f1`).
+
+**Primary,** C against A0′ on "Sim", paired on all 24: C alone in 14, A0′ alone in 4, exact McNemar p = 0.03088. That
+is below 0.05.
+
+**Blindness check.** All 24 messages are eligible. The owner made 24 guesses and no "Não sei". 18 named C's slot
+(0.75, Wilson 0.551 to 0.88), against a chance rate of 0.3889. The lower bound is above chance, so the run is not
+blind, and C's lead may come from its form. A guess above chance can also come from C simply being the best line,
+so this alone does not show that the lead is form.
+
+**Secondary, descriptive.** The owner's rates, with Wilson 95% intervals:
+
+| Arm (n = 24) | "Sim" | "Sim" or "Em parte" |
+|---|---|---|
+| C, Claude's line | 18 (0.551 to 0.88) | 24 (0.862 to 1) |
+| D′, D's objective rewritten | 9 (0.212 to 0.573) | 22 (0.742 to 0.977) |
+| A0′, A0's sentence rewritten | 8 (0.18 to 0.533) | 21 (0.69 to 0.957) |
+
+- **On "Sim":** C against D′ is 15 to 6 (p = 0.07835), and D′ against A0′ is 3 to 2 (p = 1.0).
+- **On "Sim" or "Em parte":** C against A0′ is 3 to 0 (p = 0.25), C against D′ 2 to 0 (p = 0.5), and D′ against A0′
+  2 to 1 (p = 1.0).
+- **"Sim" by source:** on Part R2's 20 positions, C 14, D′ 9 and A0′ 6; on the 4 new messages, C 4, D′ 0 and A0′ 2.
+- A0′ and D′ share a line in 8 messages, so the pairs with C are not independent.
+
+**Bookkeeping.** No skips, no retried batch, no missing line, no D fallback and no message without an ask. The
+lines' length in words: C 19 to 30 (mean 27.33), D′ 5 to 30 (18.54), A0′ 3 to 30 (13.79).
+
+**Reading.**
+
+- C's lead on "Sim" passes the pre-registered test, and the run is not blind. The owner named C's line on 18 of 24
+  guesses, so this run does not separate a better objective from a recognisable one.
+- Every line was a one-line paraphrase, but the lines were not one length, and C's were the longest on average.
+- On "Sim" or "Em parte" all three arms are near the ceiling. C's lead is "Sim" against "Em parte".
