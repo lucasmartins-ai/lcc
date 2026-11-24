@@ -1,0 +1,194 @@
+{
+ "n": 24,
+ "skipped": {
+  "não foi ditado": 0,
+  "sensível": 0,
+  "não tem um pedido principal": 0
+ },
+ "writer": "fresh agents, model alias opus: C with part_r2_verify.BRIEF on whole messages, A0' and D' with REWRITE_BRIEF on one excerpt per message per agent (Amendment 10)",
+ "sim": {
+  "n": 24,
+  "C": {
+   "k": 18,
+   "n": 24,
+   "rate": 0.75,
+   "lo": 0.551,
+   "hi": 0.88
+  },
+  "D": {
+   "k": 9,
+   "n": 24,
+   "rate": 0.375,
+   "lo": 0.2116,
+   "hi": 0.5729
+  },
+  "A0": {
+   "k": 8,
+   "n": 24,
+   "rate": 0.3333,
+   "lo": 0.1797,
+   "hi": 0.5329
+  }
+ },
+ "sim_or_part": {
+  "n": 24,
+  "C": {
+   "k": 24,
+   "n": 24,
+   "rate": 1.0,
+   "lo": 0.862,
+   "hi": 1.0
+  },
+  "D": {
+   "k": 22,
+   "n": 24,
+   "rate": 0.9167,
+   "lo": 0.7415,
+   "hi": 0.9768
+  },
+  "A0": {
+   "k": 21,
+   "n": 24,
+   "rate": 0.875,
+   "lo": 0.69,
+   "hi": 0.9566
+  }
+ },
+ "C_vs_A0": {
+  "n": 24,
+  "C_only": 14,
+  "A0_only": 4,
+  "p_exact_mcnemar": 0.03088
+ },
+ "C_vs_D": {
+  "n": 24,
+  "C_only": 15,
+  "D_only": 6,
+  "p_exact_mcnemar": 0.07835
+ },
+ "D_vs_A0": {
+  "n": 24,
+  "D_only": 3,
+  "A0_only": 2,
+  "p_exact_mcnemar": 1.0
+ },
+ "C_vs_A0_sim_or_part": {
+  "n": 24,
+  "C_only": 3,
+  "A0_only": 0,
+  "p_exact_mcnemar": 0.25
+ },
+ "C_vs_D_sim_or_part": {
+  "n": 24,
+  "C_only": 2,
+  "D_only": 0,
+  "p_exact_mcnemar": 0.5
+ },
+ "D_vs_A0_sim_or_part": {
+  "n": 24,
+  "D_only": 2,
+  "A0_only": 1,
+  "p_exact_mcnemar": 1.0
+ },
+ "blindness": {
+  "eligible": 24,
+  "dont_know": 0,
+  "guessed": 24,
+  "named_C": {
+   "k": 18,
+   "n": 24,
+   "rate": 0.75,
+   "lo": 0.551,
+   "hi": 0.88
+  },
+  "chance": 0.3889,
+  "reading": "not blind"
+ },
+ "by_origin": {
+  "r2": {
+   "n": 20,
+   "C": {
+    "k": 14,
+    "n": 20,
+    "rate": 0.7,
+    "lo": 0.481,
+    "hi": 0.8545
+   },
+   "D": {
+    "k": 9,
+    "n": 20,
+    "rate": 0.45,
+    "lo": 0.2582,
+    "hi": 0.6579
+   },
+   "A0": {
+    "k": 6,
+    "n": 20,
+    "rate": 0.3,
+    "lo": 0.1455,
+    "hi": 0.519
+   }
+  },
+  "new": {
+   "n": 4,
+   "C": {
+    "k": 4,
+    "n": 4,
+    "rate": 1.0,
+    "lo": 0.5101,
+    "hi": 1.0
+   },
+   "D": {
+    "k": 0,
+    "n": 4,
+    "rate": 0.0,
+    "lo": 0.0,
+    "hi": 0.4899
+   },
+   "A0": {
+    "k": 2,
+    "n": 4,
+    "rate": 0.5,
+    "lo": 0.15,
+    "hi": 0.85
+   }
+  }
+ },
+ "shared_rewrite": 8,
+ "D_fallbacks": 0,
+ "no_ask": 0,
+ "missing": {
+  "C": 0,
+  "D": 0,
+  "A0": 0
+ },
+ "retried_batches": {
+  "c": 0,
+  "a0": 0,
+  "d": 0
+ },
+ "words": {
+  "C": {
+   "n": 24,
+   "mean": 27.33,
+   "min": 19,
+   "max": 30
+  },
+  "D": {
+   "n": 24,
+   "mean": 18.54,
+   "min": 5,
+   "max": 30
+  },
+  "A0": {
+   "n": 24,
+   "mean": 13.79,
+   "min": 3,
+   "max": 30
+  }
+ },
+ "candidates_sha256": "0e5be030e9fdeafe933cd3d18dc11298bff805bf81a41ec8ebb4fe774898ec89",
+ "answers_sha256": "b18fc1050f9c4ac78c4b67c4618d9a8cf1ade54701abf65c28ad58c90ba462f1",
+ "verdicts_sha256": "9e3f6d9393b48121565adb582d71ab385d72d8dd6f4c9390debf528a47c439f0",
+ "page_sha256": "9fa88505987ce7fa7722c19746ae0320d865941ec1f935d41d98ca6960244968"
+}

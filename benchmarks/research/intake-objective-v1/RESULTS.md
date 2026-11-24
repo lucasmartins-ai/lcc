@@ -1,6 +1,6 @@
-# Intake objective v1: results (2026-11-22)
+# Intake objective v1: results (2026-11-22; Part R3 2026-11-24)
 
-Protocol: [PROTOCOL.md](PROTOCOL.md). It was pre-registered before any arm ran and has nine amendments, each merged
+Protocol: [PROTOCOL.md](PROTOCOL.md). It was pre-registered before any arm ran and has ten amendments, each merged
 before the run it governs. Cases: `cases.json`, 600 synthetic cases, sha256
 `a22ae7028a406db30d89680d9eefe378076f62a40a2f6ca35cbb0afd0c01776b`. The test split has 300 cases from the 20
 even-numbered bases.
@@ -20,15 +20,20 @@ even-numbered bases.
   - **Part R2:** on 20 dictations under the owner's verdicts, D is rated the main ask on 4 and A0 on 3.
 
   Both sets are small, so this is "not shown at this size", not "no effect".
-- **A line written by Claude,** INFERIDO. It was rated the main ask on 20 of the 20 Part R2 dictations. That
-  comparison is not blind (see Part R2).
+- **A line written by Claude.** In Part R2 it was rated the main ask on 20 of 20 dictations, INFERIDO and not blind.
+  Part R3 rewrote A0's and D's picks into one line each, like C's, and asked the owner to guess which line Claude
+  wrote from the whole message:
+  - on 24 new dictations, C beats A0′ on "Sim" by 14 to 4, exact McNemar p = 0.031;
+  - the owner named C's line on 18 of 24 guesses, against 0.389 by chance, so the run is not blind.
+
+  Both counts pass `gateClaim`. Together they do not show whether C's objective is better or only recognisable.
 - **What runs in lcc today.** `parse_intake` still uses A0, and the module under test, `lcc/intake/objective.py`, is
   called only by this study's scripts. What ships is the owner's decision.
 
 **Evidence labels.** `gateClaim` is the evidence check the owner runs on a measured claim before publishing it. PASS
-lets the claim stand as measured; DOWNGRADE or BLOCK means it reads INFERIDO. Each synthetic finding below names its
-claim, and the Part R and Part R2 sections read INFERIDO as a whole. All verdicts are from 2026-11-22 (see
-[gateClaim](#gateclaim)).
+lets the claim stand as measured; DOWNGRADE or BLOCK means it reads INFERIDO. Each synthetic and Part R3 finding
+below names its claim, and the Part R and Part R2 sections read INFERIDO as a whole. The verdicts are from
+2026-11-22, and Part R3's from 2026-11-24 (see [gateClaim](#gateclaim)).
 
 | Arm | What it is | Code | Results |
 | :--- | :--- | :--- | :--- |
@@ -36,7 +41,8 @@ claim, and the Part R and Part R2 sections read INFERIDO as a whole. All verdict
 | A1 | the last ask, a position control | same | `results_test.json` |
 | D | ranks topic blocks by marker, restatement and ask cues | `src/lcc/intake/objective.py`, frozen by Amendment 2 | `results_test.json` |
 | DJ | one Jev `choice` over D's top 5 blocks, used at p ≥ 0.6 | `run_dj.py`, frozen by Amendment 3; `jev-1.14.0` | `results_dj_test.json` |
-| C (Part R2 only) | one line written by a fresh Claude `opus` agent per batch | Amendment 8 | private |
+| C (Parts R2 and R3) | one line written from the whole message by a fresh Claude `opus` agent per batch | Amendments 8 and 10 | private |
+| A0′, D′ (Part R3 only) | A0's sentence and D's objective, each rewritten into one line by fresh `opus` agents that see one excerpt per message | `part_r3.py`, Amendment 10 | private; aggregates in `stats_r3.json` |
 
 ## Synthetic test split (Part S)
 
@@ -162,6 +168,56 @@ BLOCK at `gateClaim` and reads INFERIDO.
 - **Arm C's runs.** Nine agents wrote all 100 lines on the first try. A count-only check of their transcripts
   found calls only on each agent's own input and answer files.
 
+## Part R3: a blind test of Claude's line (Amendment 10)
+
+In Part R2, C read the whole message and paraphrased it, while the other arms quoted one sentence, so the owner
+could tell C's line apart. Part R3 gives every arm the same form:
+
+- **C** writes one line from the whole message, as in Part R2.
+- **A0′ and D′** are A0's sentence and D's objective, each rewritten into one line of at most 30 words. The fresh
+  `opus` agents that rewrite them see one excerpt per message and never the message itself.
+
+The pool is the 24 one-paragraph messages among Part R2's unjudged positions 101 to 152 (20) and a new draw (4).
+The owner rated each line as in Part R2, then guessed which line had been written from the whole message ("Não sei"
+was allowed). Part R3 is a new set, and its numbers are not pooled with Part R's or Part R2's.
+
+| Arm (n = 24) | "Sim" | Wilson 95% | "Sim" or "Em parte" | Wilson 95% |
+| :--- | ---: | :--- | ---: | :--- |
+| C, Claude's line | 18 of 24 | 0.551 to 0.88 | 24 of 24 | 0.862 to 1 |
+| D′, D's objective rewritten | 9 of 24 | 0.212 to 0.573 | 22 of 24 | 0.742 to 0.977 |
+| A0′, A0's sentence rewritten | 8 of 24 | 0.18 to 0.533 | 21 of 24 | 0.69 to 0.957 |
+
+- **The pre-registered test,** C against A0′ on "Sim", paired on all 24: C alone in 14, A0′ alone in 4, exact
+  McNemar p = 0.031, below 0.05 (`gateClaim`: R3).
+- **The blindness check.** The owner made 24 guesses and no "Não sei". 18 named C's line (0.75, Wilson 0.551 to
+  0.88), against 0.389 by chance, so the run is not blind (`gateClaim`: R3BLIND). Under Amendment 10 this means C's
+  lead may come from its form. A guess above chance can also come from C simply being the best line, so the check
+  does not tell the two apart.
+- **Where the lead is.** On "Sim" or "Em parte" the arms are at 24, 22 and 21 of 24, so C's lead is "Sim" against
+  "Em parte" (`gateClaim`: R3RATES).
+- **Secondary, descriptive** (`gateClaim`: R3SEC):
+  - on "Sim", C against D′ is 15 to 6 (p = 0.078), and D′ against A0′ is 3 to 2 (p = 1.0);
+  - on "Sim" or "Em parte", C against A0′ is 3 to 0, C against D′ 2 to 0, and D′ against A0′ 2 to 1;
+  - "Sim" on Part R2's 20 positions: C 14, D′ 9, A0′ 6. On the 4 new messages: C 4, D′ 0, A0′ 2;
+  - A0′ and D′ share a line in 8 messages, so the pairs with C are not independent.
+- **Bookkeeping** (`gateClaim`: R3BOOK). There were no skips, retries or missing lines, D never fell back, and every
+  message had an ask. Line lengths:
+  - C, 19 to 30 words (mean 27.33);
+  - D′, 5 to 30 (mean 18.54);
+  - A0′, 3 to 30 (mean 13.79).
+
+  The rewrite made every line the same kind, a one-line paraphrase, but not the same length.
+- **Post hoc, not pre-registered** (`gateClaim`: R3POST, BLOCK, so INFERIDO). These are counts only, kept out of
+  `stats_r3.json`:
+  - 22 of the 24 guesses named a line the owner had rated "Sim". Of the 6 guesses that missed C, 5 named a line rated
+    "Sim" where C's was "Em parte".
+  - C's line was the single longest on the page in 18 of the 24 messages, and the guess named a longest line in 19.
+
+  The guess came after the levels on the same message. "I rated it Sim, so it is Claude's" and "I spotted Claude's
+  line and rated it Sim" give the same counts, so these counts do not separate form from quality either.
+- **The agents.** Three agents wrote all 64 lines on the first try: 24 for C, 24 for A0′ and 16 for D′. A count-only
+  check of their transcripts found calls only on each agent's own input and answer files.
+
 ## Deviations
 
 - **Part R text reached a model once.** After the labelling and before the run, a text search the assistant ran over
@@ -176,6 +232,8 @@ BLOCK at `gateClaim` and reads INFERIDO.
   first judged.
 - **Synthetic test phrasings.** Two Codex recap phrasings are read as rules in eight test `restate` cases
   (Amendment 1). They stay as written and are reported apart.
+- **Part R3** ran as Amendment 10 fixed it. Its post-hoc counts are outside the pre-registration and are labelled
+  so.
 
 ## What this does not show
 
@@ -184,8 +242,10 @@ BLOCK at `gateClaim` and reads INFERIDO.
   but not for `bare`.
 - **Real data.** Part R (22) and Part R2 (20) come from one speaker and are small. A null there means "not shown at
   this size".
-- **Claude's line.** C's 20 of 20 is not blind and covers 20 messages. It shows what a blind test should check, not
-  that a generated objective is better.
+- **Claude's line.** Part R2's 20 of 20 is not blind. Part R3's 14 to 4 is not blind either: the owner named C's
+  line on 18 of 24 guesses, and C's lines were the longest. On 24 dictations from one speaker, the owner rated C's
+  line the main ask more often and could tell it apart. That does not show that a generated objective is better
+  whatever its form. A test that does would need lines of one length, or the guess taken before the ratings.
 
 ## gateClaim
 
@@ -201,6 +261,10 @@ aggregates only. The evidence named its sources:
 
 CODEX, CLAUDE and R2SENS were first run with evidence that wrongly claimed a recount for each. They were run again the
 same day with the same claim text and evidence that states their sources, and the table gives that second run.
+
+Part R3's claims ran once, on 2026-11-24. R3 to R3BOOK had two sources: `stats_r3.json`, and a separate recount
+from the private per-message rows with its own Wilson and McNemar code (27 checks, 0 mismatches). R3POST has one
+source, the two count-only scripts that produced it.
 
 | Claim | Finding | Verdict | Support | Evidence strength | Reads as |
 | :--- | :--- | :--- | ---: | ---: | :--- |
@@ -219,14 +283,22 @@ same day with the same claim text and evidence that states their sources, and th
 | R2 | Part R2, D against A0 | BLOCK | 0.69 | 2.74 | INFERIDO |
 | R2C | Part R2, C's 20 of 20 | BLOCK | 0.51 | 2.81 | INFERIDO |
 | R2SENS | Part R2 sensitivity, 3 to 6 | BLOCK | 0.44 | 1.22 | INFERIDO |
+| R3 | Part R3, C against A0′, 14 to 4 | PASS | 0.92 | 2.87 | measured |
+| R3BLIND | Part R3 blindness check, 18 of 24, not blind | PASS | 0.83 | 2.81 | measured |
+| R3RATES | Part R3 rates and intervals | PASS | 0.95 | 2.93 | measured |
+| R3SEC | Part R3 secondary pairs and rates by source | PASS | 0.86 | 2.89 | measured |
+| R3BOOK | Part R3 bookkeeping and line lengths | PASS | 0.84 | 2.91 | measured |
+| R3POST | Part R3 post-hoc counts | BLOCK | 0.68 | 1.79 | INFERIDO |
 
 The gate's reasons were:
 
 - **PARTR, R2 and R2C:** support below 0.75, the threshold for their evidence strength.
 - **CLAUDE:** evidence strength below 2.5, which the gate reads as a single point measurement.
-- **R2SENS:** evidence strength below 2 for a claim presented as measured.
+- **R2SENS and R3POST:** evidence strength below 2 for a claim presented as measured.
 
-So every finding on the owner's real dictations reads INFERIDO. No claim was reworded to change a verdict.
+So the Part R and Part R2 findings and Part R3's post-hoc counts read INFERIDO. Part R3's pre-registered counts stand
+as measured. Their PASS covers the counts as stated: C led A0′ and the run was not blind. It does not cover a reading
+that C's objective is better. No claim was reworded to change a verdict.
 
 Some cells of the synthetic hit@1 table are in no claim's text: A1 outside `restate` (the `all` row's 0.473
 among them) and DJ on the Codex phrasings (0.958). The recount matched them, but they carry no verdict.
