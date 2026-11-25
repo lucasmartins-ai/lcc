@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0c0e11;
+  --color-panel: #13161b;
+  --color-raised: #1a1e24;
+  --color-line: #262b33;
+  --color-ink: #e7e9ec;
+  --color-dim: #9aa3ad;
+  --color-faint: #6b737d;
+  --color-accent: #7fe0b5;
+  --color-warn: #f0c674;
+  --color-bad: #ef8f8f;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+/* Rendered markdown (docs, research sections). In a layer so utilities such as text-dim win. */
+@layer components {
+  .prose {
+    min-width: 0;
+    overflow-wrap: break-word;
+    color: var(--color-ink);
+    font-size: 1rem;
+  }
+  .prose > * + * {
+    margin-top: 1em;
+  }
+  .prose h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+  .prose h2 {
+    margin-top: 2.2em;
+    padding-top: 1.2em;
+    border-top: 1px solid var(--color-line);
+    font-size: 1.35rem;
+    font-weight: 620;
+    letter-spacing: -0.01em;
+  }
+  .prose h3 {
+    margin-top: 1.8em;
+    font-size: 1.08rem;
+    font-weight: 620;
+  }
+  .prose h4 {
+    margin-top: 1.5em;
+    font-weight: 620;
+    color: var(--color-dim);
+  }
+  .prose a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+    text-underline-offset: 3px;
+  }
+  .prose a:hover {
+    text-decoration-color: currentColor;
+  }
+  .prose strong {
+    font-weight: 650;
+    color: #fff;
+  }
+  .prose ul,
+  .prose ol {
+    padding-left: 1.4em;
+  }
+  .prose ul {
+    list-style: disc;
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose li + li,
+  .prose li > ul,
+  .prose li > ol {
+    margin-top: 0.35em;
+  }
+  .prose li::marker {
+    color: var(--color-faint);
+  }
+  .prose blockquote {
+    border-left: 2px solid var(--color-line);
+    padding-left: 1em;
+    color: var(--color-dim);
+  }
+  .prose hr {
+    border-color: var(--color-line);
+  }
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--color-raised);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    padding: 0.1em 0.3em;
+  }
+  .prose pre {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    padding: 0.9em 1.1em;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+  .prose pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+  }
+  .prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .prose th,
+  .prose td {
+    border-bottom: 1px solid var(--color-line);
+    padding: 0.5em 0.8em;
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose th {
+    color: var(--color-dim);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+}

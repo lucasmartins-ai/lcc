@@ -1,0 +1,143 @@
+---
+import Base from "../layouts/Base.astro";
+import { cite, codeBlock, href, judge, lcc, md, read } from "../lib/sources.ts";
+
+const G = "research/goal-engine-2026-10-04";
+const readme = cite(lcc, "README.md");
+const recallRes = cite(judge, `${G}/stashed-recall-v1/RESULTS.md`);
+const spec = cite(lcc, "docs/SPECIALIST.md");
+const quick = cite(lcc, "docs/QUICKSTART.md");
+const v3 = cite(judge, `${G}/intake-judge-v3/RESULTS_EXTERNAL.md`);
+const mcpTable = /^\|[^\n]*\n\|[\s:|-]+\|\n(\|[^\n]*\n)+/m.exec(read(lcc, "docs/MCP.md"))?.[0];
+if (!mcpTable) throw new Error("docs/MCP.md: tools table not found");
+
+interface Case {
+  id: string;
+  title: string;
+  text: string;
+  stats: [label: string, value: string][];
+  source: ReturnType<typeof cite>;
+  code: string;
+  links: [label: string, url: string][];
+}
+
+const cases: Case[] = [
+  {
+    id: "claude-code",
+    title: "Replace Claude Code's /compact summary",
+    text: "Claude Code's `/compact` swaps your session for a summary a model wrote, and the exact error, path or line the agent needs two turns later often goes with it. The lcc plugin removes spent tool outputs instead. It keeps every user and assistant message as written and leaves each removed output one `recall` away.",
+    stats: [
+      [`one real session, ${readme("193 messages")}`, `${readme("57,083")} → ${readme("28,807 (−49.5%)")} tokens`],
+      ["user and assistant messages", readme("43 / 43 byte for byte")],
+      [`median cut over ${readme("299")} long sessions`, readme("21.8%")],
+    ],
+    source: readme,
+    code: codeBlock(lcc, "README.md", "claude plugin install"),
+    links: [["Claude Code guide", href("CLAUDE_CODE.html")]],
+  },
+  {
+    id: "stashed-recall",
+    title: "Stash old tool outputs, recall them on demand",
+    text: "The `stashed` rules mode moves old tool outputs to a local content-addressed store and leaves a one-line placeholder with the size. When the agent needs one back it calls `recall` and gets the exact bytes, hash-checked. A pre-registered test on 172 real requests compared answers from the stashed context against the full one.",
+    stats: [
+      ["fewer context tokens", recallRes("36.6%")],
+      ["artifact recall, stashed minus full (95% CI)", recallRes("+0.006 [−0.023, +0.034]")],
+      ["questions about removed content that triggered a recall", recallRes("90%")],
+      ["the same questions answered without the tool", recallRes("1 in 144")],
+    ],
+    source: recallRes,
+    code: codeBlock(lcc, "README.md", "--rules-mode stashed"),
+    links: [["Study page", href("research/stashed-recall-v1.html")], ["Tool-call mode", href("TOOL_CALLS.html")]],
+  },
+  {
+    id: "specialist",
+    title: "Compact agent transcripts with the local ranker",
+    text: "`specialist-v3` ranks the blocks of an agent transcript by how likely the agent is to need each one next, and drops the lowest. It runs on your CPU in plain Python, with no key and no network. `auto` picks it whenever the input has transcript blocks. It is a ranker, so reports say `semantic_guarantee: none`.",
+    stats: [
+      ["recall AUC on a held-out final test", `${spec("0.899")} (mechanical ${spec("0.829")}, recency ${spec("0.818")})`],
+      ["recall AUC vs Opus (95% CI)", spec("−0.009 [−0.055, +0.031]")],
+      ["cost per item", spec("median 178 ms")],
+      ["model file", spec("183 KB")],
+    ],
+    source: spec,
+    code: codeBlock(lcc, "docs/TOOL_CALLS.md", "--mode tool-calls"),
+    links: [["Specialist v3 guide", href("SPECIALIST.html")], ["Study page", href("research/specialist-v3.html")]],
+  },
+  {
+    id: "intake",
+    title: "Tag each request with what context it needs",
+    text: "`lcc intake` and the MCP `intake` tool put a request in one of 13 categories and say what the agent needs for that kind of request: the pasted error for a failure report, git state for a ship request. The category is advisory. It shows only at probability 0.45 or higher and never changes readiness or your text.",
+    stats: [
+      ["right on the owner's held-out prompts", `${quick("0.51")} (keyword rules ${quick("0.22")}, Opus ${quick("0.86")})`],
+      ["cost per prompt", quick("about 0.3 ms")],
+      ["other people's prompts: v1 vs always answering specified_task", v3("0.303 vs 0.434")],
+    ],
+    source: quick,
+    code: codeBlock(lcc, "docs/QUICKSTART.md", "lcc intake"),
+    links: [["Try it in your browser", href("demo.html")], ["v1 study", href("research/intake-judge-v1.html")], ["v3 study", href("research/intake-judge-v3.html")]],
+  },
+];
+---
+
+<Base title="Use cases" current="Use cases" description="Ways to run lcc, each with the number it was measured at and its source.">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-accent">Use cases</p>
+    <h1 class="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Ways to run lcc</h1>
+    <p class="mt-4 max-w-2xl text-dim">
+      Every number below is checked against its source file when the site builds; if a source changes, the build fails until this
+      page follows. Most of them come from one maintainer's sessions, so read them as one person's results and{" "}
+      <a class="text-accent underline" href={href("SHARE_STATS.html")}>send yours</a>.
+    </p>
+    <nav class="mt-8 flex flex-wrap gap-2 text-sm" aria-label="Use cases">
+      {[...cases.map((c) => [c.id, c.title]), ["mcp", "Use it from any MCP client"]].map(([id, t]) => <a href={`#${id}`} class="rounded-full border border-line px-3 py-1 text-dim hover:border-faint hover:text-ink">{t}</a>)}
+    </nav>
+
+    {
+      cases.map((c, i) => (
+        <section id={c.id} class="mt-16 scroll-mt-6 border-t border-line pt-10">
+          <div class="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
+            <div>
+              <p class="font-mono text-xs text-faint">0{i + 1}</p>
+              <h2 class="mt-2 text-2xl font-semibold tracking-tight">{c.title}</h2>
+              <div class="prose mt-4 text-dim" set:html={md(c.text, lcc, "README.md")} />
+              <div class="prose mt-6" set:html={c.code} />
+              <p class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                {c.links.map(([label, url]) => <a class="text-accent underline" href={url}>{label}</a>)}
+              </p>
+            </div>
+            <figure class="self-start rounded-xl border border-line bg-panel p-5">
+              <dl class="divide-y divide-line">
+                {c.stats.map(([label, value]) => (
+                  <div class="py-3 first:pt-0 last:pb-0">
+                    <dt class="text-xs text-faint">{label}</dt>
+                    <dd class="mt-1 font-mono text-lg text-ink tabular-nums">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <figcaption class="mt-4 border-t border-line pt-3 font-mono text-[11px] break-all text-faint">
+                source: <a class="underline hover:text-dim" href={c.source.href}>{c.source.label}</a>
+                {c.id === "intake" && (
+                  <>
+                    , <a class="underline hover:text-dim" href={v3.href}>{v3.label}</a>
+                  </>
+                )}
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      ))
+    }
+
+    <section id="mcp" class="mt-16 scroll-mt-6 border-t border-line pt-10">
+      <p class="font-mono text-xs text-faint">0{cases.length + 1}</p>
+      <h2 class="mt-2 text-2xl font-semibold tracking-tight">Use it from any MCP client</h2>
+      <p class="mt-4 max-w-2xl text-dim">
+        <code class="font-mono text-ink">lcc mcp</code> serves the same functions over stdio to Claude Code, Cursor, Claude Desktop or any
+        other MCP client. Add it to your client's config:
+      </p>
+      <div class="prose mt-6 max-w-2xl" set:html={codeBlock(lcc, "docs/MCP.md", '"mcpServers"')} />
+      <div class="prose mt-8 max-w-none text-sm" set:html={md(mcpTable, lcc, "docs/MCP.md")} />
+      <p class="mt-6 text-sm"><a class="text-accent underline" href={href("MCP.html")}>MCP guide</a></p>
+    </section>
+  </div>
+</Base>

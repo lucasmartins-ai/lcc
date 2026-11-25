@@ -1,0 +1,71 @@
+---
+import "../styles/global.css";
+import { href, judge, lcc, short } from "../lib/sources.ts";
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Nav item to mark as current. */
+  current?: string | undefined;
+}
+const { title, description = "Compact coding-agent context without summarizing it away.", current } = Astro.props;
+const nav = [
+  ["Use cases", "use-cases.html"],
+  ["Research", "research.html"],
+  ["Demo", "demo.html"],
+  ["Downloads", "downloads.html"],
+  ["Docs", "QUICKSTART.html"],
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- The site shares the lookadev.com origin: only same-origin scripts, whatever the markdown contains. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title === "lcc" ? "lcc — Local Context Compiler" : `${title} · lcc`}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0c0e11" />
+    <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
+  </head>
+  <body class="min-h-dvh bg-bg">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:m-2 focus:rounded focus:bg-raised focus:px-3 focus:py-2">Skip to content</a>
+    <header class="border-b border-line">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
+        <a href={href()} class="font-mono text-[15px] font-semibold tracking-tight text-ink">
+          lcc<span class="hidden text-faint sm:inline"> / local context compiler</span>
+        </a>
+        <nav class="flex w-full flex-wrap items-center gap-x-5 gap-y-1 text-sm text-dim sm:w-auto sm:flex-1 sm:justify-end" aria-label="Main">
+          {
+            nav.map(([label, url]) => (
+              <a href={href(url)} class:list={["hover:text-ink", current === label && "text-ink"]} aria-current={current === label ? "page" : undefined}>
+                {label}
+              </a>
+            ))
+          }
+          <a href={lcc.url} class="hover:text-ink">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="mt-24 border-t border-line">
+      <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-xs text-faint sm:flex-row sm:justify-between sm:px-6">
+        <p>
+          MIT licensed. Maintained by <a class="underline hover:text-dim" href="https://lookadev.com">LookADev</a>. The PyPI package is{" "}
+          <code class="font-mono">local-context-compiler</code>.
+        </p>
+        <p class="font-mono">
+          built from <a class="underline hover:text-dim" href={`${lcc.url}/tree/${lcc.sha}`}>lcc@{short(lcc.sha)}</a> and{" "}
+          <a class="underline hover:text-dim" href={`${judge.url}/tree/${judge.sha}`}>LCC-judge@{short(judge.sha)}</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
