@@ -30,7 +30,7 @@ What intake-objective-v1 established (`../intake-objective-v1/RESULTS.md`):
   noise and repetition to the stash, and how many tokens does that save?
 - **Q1b.** Does a deterministic pattern model whose weights are learned from teacher labels (arm P) find the
   owner's main ask more often than A0 on fresh real dictations?
-- **Q2.** How well do P and the tuned teacher assign the five categories, against the owner?
+- **Q2.** How well do P and the tuned teacher assign the six categories, against the owner?
 - **Q4 (phase 2, only by a later amendment).** Does a small encoder student (ModernBERT family), with or without
   in-domain JEPA pretraining, beat P? Does the XML brief help a downstream agent?
 
@@ -45,7 +45,7 @@ What intake-objective-v1 established (`../intake-objective-v1/RESULTS.md`):
 | `regra` | constrains how: must, never, only, without, before |
 | `ruido` | thinking aloud, filler, or a repeat of an earlier sentence with nothing new |
 
-The page defaults every sentence to `contexto`; the labeller clicks only the others. "Five categories" below means the five besides `contexto`'s default, i.e. all six are labelled.
+The page defaults every sentence to `contexto`; the labeller clicks only the others.
 
 ## Data
 
@@ -80,7 +80,7 @@ on the same 22 with T's page (the main ask shown as the owner marked it in Part 
 categories and the only dev gold for them. It is already exposed to Jev (DJ) and to an Opus labeller, so it is
 dev only and never a test. Used to choose the teacher, tune the Jev question, and fix τ.
 
-### Test: T (fresh, owner-labelled, all five categories)
+### Test: T (fresh, owner-labelled, all six categories)
 
 Candidates, drawn once and shuffled with a fixed seed:
 
@@ -96,7 +96,7 @@ message with a listed reason ("não foi ditado", "sensível", "não tem um pedid
 ## Teachers and the teacher gate (dev only)
 
 - **Jev.** One request per message: the message as `state` with numbered sentences, one Choice question per
-  sentence over the five categories (definitions as above). Probabilities are kept as soft labels.
+  sentence over the six categories (definitions as above). Probabilities are kept as soft labels.
 - **Opus.** A fresh agent per batch with the same definitions, writing one category per sentence.
 
 Gate on Part R, two measures:
