@@ -89,6 +89,24 @@ Candidates, drawn once and shuffled with a fixed seed:
 3. long voice recordings the owner names, transcribed locally with a speech-to-text model named and pinned in
    Amendment 1 (`lcc.intake.speech` only cleans text afterwards; it does not transcribe).
 
+#### Voice memos (rule written 2026-11-26, before any transcript was screened)
+
+- Source: the owner's folder of 56 Voice Memos (407 min). The owner said some are not prompts.
+- Speech-to-text, pinned by `transcribe_voice.py`: whisper.cpp `whisper-cli` 1.9.5, `ggml-large-v3-turbo`
+  (sha256 `1fc70f77…e2bc69`) with silero v5.1.2 VAD (`29940d98…ea2cf`), language pt, temperature 0, no
+  previous-text context. Transcripts stay in the private folder; scripts print counts only.
+- Unit: one memo is one T candidate, whole. No memo is split or trimmed by the agent.
+- Prompt means: the owner speaking a request meant for an AI assistant (a task, a question to act on, a brief).
+  Not prompts: notes to self, conversations with other people, calls, ambient recordings.
+- Screening: **the owner decides** from a private local list (file name, date, duration, word count, first
+  ~30 words). Jev does not screen, because Jev is a teacher candidate and would tilt T toward texts it handles;
+  memos the owner marks as not prompts are never sent to any model.
+- Bounds, fixed now: 100 to 1,500 words. Longer prompts are counted and reported, not split.
+- Quality flags, fixed now: words per minute outside 60–220 or the top 4-gram above 5% of all 4-grams → the
+  memo is listed as a likely transcription failure and the owner decides on it with that flag shown.
+- Leakage: a memo whose transcript matches a dev, R3 or training-pool message at difflib ratio ≥0.6 is dropped
+  (counts only), since a memo may also have been dictated into an app.
+
 The owner labels top down on a new page (same layout as Part R): click each sentence's category, or skip the
 message with a listed reason ("não foi ditado", "sensível", "não tem um pedido principal"). Target 30 to 45 kept;
 **fewer than 30 kept means the primary test does not run.** No model, teacher or arm output is shown on the page.
@@ -233,6 +251,6 @@ clarity, and the hypotheses below replace the earlier H1 and H2.
 
 - Approved on 2026-11-26: the 10% loss bar. The saving bar and the choice of primary were delegated to the agent;
   see the pilot section.
-- Name the folder with the voice recordings.
+- Mark which voice memos are prompts (the folder was named on 2026-11-26).
 - Label Part R's 22 for the five other categories (dev pilot) and then T: about 30–45 dictations, clicking only
   the sentences that are not `contexto`.
