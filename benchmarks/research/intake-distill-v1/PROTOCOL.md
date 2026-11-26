@@ -106,6 +106,10 @@ Candidates, drawn once and shuffled with a fixed seed:
   memo is listed as a likely transcription failure and the owner decides on it with that flag shown.
 - Leakage: a memo whose transcript matches a dev, R3 or training-pool message at difflib ratio ≥0.6 is dropped
   (counts only), since a memo may also have been dictated into an app.
+- Screening result (owner, 2026-11-26): 32 of 56 memos marked as prompts. Of these, 21 are within 100–1,500
+  words with no quality flag and become T candidates; 9 are over 1,500 words and 2 under 100, both reported and
+  left out. Unmarked rows (`[ ]` or `[]`) count as not prompts. T candidates so far: 24 + 14 + 21 = 59, before
+  leakage and the owner's labelling skips.
 
 The owner labels top down on a new page (same layout as Part R): click each sentence's category, or skip the
 message with a listed reason ("não foi ditado", "sensível", "não tem um pedido principal"). Target 30 to 45 kept;
