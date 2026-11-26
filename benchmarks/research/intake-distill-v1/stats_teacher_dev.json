@@ -1,0 +1,56 @@
+{
+ "n": 22,
+ "owner_counts": {
+  "pedido_principal": 112,
+  "contexto": 977,
+  "pedido_lateral": 22,
+  "entrega": 5,
+  "regra": 13
+ },
+ "jev": {
+  "main_ask_hit1": 12,
+  "loss_messages": 2,
+  "loss_rate": 0.091,
+  "f1": {
+   "pedido_principal": 0.322,
+   "pedido_lateral": 0.125,
+   "contexto": 0.62,
+   "entrega": 0.014,
+   "regra": 0.106,
+   "ruido": 0.0
+  },
+  "macro_f1_6": 0.198,
+  "macro_f1_5_no_ruido": 0.237,
+  "pred_counts": {
+   "contexto": 478,
+   "regra": 194,
+   "pedido_principal": 93,
+   "entrega": 136,
+   "ruido": 106,
+   "pedido_lateral": 122
+  }
+ },
+ "opus": {
+  "main_ask_hit1": 13,
+  "loss_messages": 6,
+  "loss_rate": 0.273,
+  "f1": {
+   "pedido_principal": 0.323,
+   "pedido_lateral": 0.05,
+   "contexto": 0.752,
+   "entrega": 0.038,
+   "regra": 0.197,
+   "ruido": 0.0
+  },
+  "macro_f1_6": 0.227,
+  "macro_f1_5_no_ruido": 0.272,
+  "pred_counts": {
+   "contexto": 670,
+   "regra": 48,
+   "pedido_principal": 55,
+   "ruido": 212,
+   "entrega": 47,
+   "pedido_lateral": 97
+  }
+ }
+}

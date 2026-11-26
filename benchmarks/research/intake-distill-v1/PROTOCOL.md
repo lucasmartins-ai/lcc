@@ -263,8 +263,8 @@ clarity, and the hypotheses below replace the earlier H1 and H2.
 - Approved on 2026-11-26: the 10% loss bar. The saving bar and the choice of primary were delegated to the agent;
   see the pilot section.
 - Done on 2026-11-26: voice memos marked; freeze approved.
-- Label Part R's 22 for the five other categories (dev pilot) and then T: about 30–45 dictations, clicking only
-  the sentences that are not `contexto`.
+- Done on 2026-11-26: Part R's 22 labelled for the five other categories. Nothing else: T is judged blind
+  (Amendment 2).
 
 ## Amendments
 
@@ -302,3 +302,44 @@ pool: 1,581 messages (303 multi-line), 15,020 sentences. Left out on the way: 1,
 review found the leftovers had skipped it; the draw was redone and T came out byte-identical). One deviation: the leakage ratio is computed on lowercased words, not
 characters; character-level difflib on 15,000-character memos ran for over ten minutes without finishing, and the
 written rule does not name the unit.
+
+### Amendment 2 (2026-11-26): dev result, no owner labels on T
+
+Written after the teacher comparison on dev and before any Jev variant, P fit or run on T.
+
+**Dev result** (`teacher_dev.py`, `stats_teacher_dev.json`). The owner labelled the five non-context categories
+on Part R's 22 (1,129 sentences): 112 `pedido_principal`, 22 `pedido_lateral`, 13 `regra`, 5 `entrega`, **0
+`ruido`**; 86.5% `contexto`. The owner confirmed he read every sentence, that some parser sentences were too long
+to mark one part of them, and that several dev texts are typed, not spoken. Against these labels:
+
+| Teacher | main-ask hit@1 | dev loss | κ vs owner | macro-F1 (6) |
+|---|---|---|---|---|
+| Jev (pilot question) | 12 | 2 / 22 (9.1%) | 0.11 | 0.198 |
+| Opus (4 fresh agents) | 13 | 6 / 22 (27.3%) | 0.13 | 0.227 |
+
+Jev and Opus agree with each other (κ 0.44) far more than with the owner: both call 40–58% of sentences
+something other than context. The owner's concept of context is wider than any teacher's.
+
+**Changes.**
+
+1. **No sentence goes to the stash.** The owner marked nothing as `ruido`, and the pilot's two lost main asks
+   came from Jev's `ruido`. A `ruido` prediction joins `<contexto>`; the brief keeps every sentence, verbatim. Loss
+   by dropping can no longer happen; what can go wrong is filing (a request filed under context).
+2. **Teacher eligibility.** Only a teacher with dev loss ≤10% can be chosen (the same bar as H2); this is a
+   clarification made after seeing the numbers. Jev is the teacher.
+3. **Jev variants** (up to 4 more, on dev only), chosen in this order: dev loss ≤10%; then main-ask hit@1; then
+   κ against the owner. One variant adds the owner's concept: most sentences are context; `entrega` and `regra`
+   only when explicit. The ledger and budget rules are unchanged.
+4. **The owner does not label T.** The owner asked not to be given labelling tasks. T's 68 candidates all run;
+   the minimum of 30 is met. Gold on T comes from a blind judge instead: Codex, with the pilot's settings
+   (`codex exec`, read-only, reasoning medium), seeing only the raw message and the two outputs, never an arm's
+   name.
+   - **H1** (primary, unchanged in form): answer from the brief vs answer from the raw message, "invents a
+     requirement", exact McNemar, α 0.05.
+   - **H2** (guard): per message, the judge reads the raw message and P's brief and says whether any request,
+     delivery detail or rule of the raw message is filed only under `<contexto>`. At most 10% of T, Wilson upper
+     bound reported.
+   - **H3**: main ask fully captured, brief vs raw answers, judged against the raw message (no gold).
+   - Main-ask hit@1 of P against A0, and P's macro-F1 against the owner, are reported on dev only.
+   The judge prompt changes only by dropping the owner's gold; it is frozen in Amendment 3 with P.
+5. `label_t.html` is not used.
