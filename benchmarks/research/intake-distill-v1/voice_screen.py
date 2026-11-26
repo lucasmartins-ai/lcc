@@ -20,8 +20,8 @@ LINE = re.compile(r"^- \[([ xX])\] `([0-9a-f]{64})`")
 
 def flags(m: dict) -> list[str]:
     out = []
-    if not 100 <= m["words"] <= 1500:
-        out.append("fora_100_1500")
+    if not 100 <= m["words"] <= 3000:  # 1,500 until the 2026-11-26 change (PROTOCOL)
+        out.append("fora_100_3000")
     if not 60 <= m["wpm"] <= 220 or m["repeat4"] > 0.05:
         out.append("transcricao_suspeita")
     return out
