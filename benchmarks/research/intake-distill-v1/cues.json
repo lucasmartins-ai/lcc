@@ -1,0 +1,38 @@
+{
+ "_doc": "Arm P cue lists, frozen in Amendment 1. A cue is one word or a short phrase, lowercase, accents kept. Matching: the sentence is lowercased and split into words; a one-word cue of 5+ letters hits a word with difflib ratio >= fuzzy_ratio, a shorter one only exactly; a phrase hits when its words appear in order with each word matched the same way. One feature per category: the number of hits, capped at 3.",
+ "fuzzy_ratio": 0.85,
+ "pedido": [
+  "preciso", "quero", "queria", "gostaria", "faz", "faça", "fazer", "cria", "crie", "criar", "corrige", "corrija",
+  "corrigir", "verifica", "verifique", "verificar", "ajusta", "ajuste", "implementa", "implemente", "adiciona",
+  "adicione", "remove", "remova", "muda", "mude", "troca", "troque", "analisa", "analise", "revisa", "revise",
+  "testa", "teste", "roda", "rode", "monta", "monte", "escreve", "escreva", "gera", "gere", "melhora", "melhore",
+  "investiga", "investigue", "procura", "procure", "descobre", "configura", "publica", "atualiza", "atualize",
+  "consegue", "pode", "você pode", "tem como", "seria possível", "me ajuda", "me ajude", "vamos",
+  "please", "can you", "could you", "i need", "i want", "make", "create", "fix", "check", "add", "remove",
+  "update", "build", "write", "run", "review", "implement"
+ ],
+ "regra": [
+  "não", "nunca", "sempre", "sem", "só", "somente", "apenas", "antes de", "depois de", "evita", "evite", "evitar",
+  "cuidado", "proibido", "obrigatório", "tem que", "precisa ser", "deve", "devem", "jamais", "nada de", "mantém",
+  "mantenha", "respeita", "respeite", "limite", "no máximo", "no mínimo", "pelo menos", "exceto", "menos",
+  "never", "always", "only", "without", "must", "don't", "do not", "avoid", "keep", "at most", "at least"
+ ],
+ "entrega": [
+  "arquivo", "pasta", "pr", "pull request", "commit", "formato", "relatório", "documento", "planilha", "tabela",
+  "lista", "resumo", "markdown", "json", "xml", "csv", "pdf", "html", "link", "print", "screenshot", "vídeo",
+  "me manda", "me mande", "me envia", "me envie", "me mostra", "me mostre", "me dá", "me devolve", "salva",
+  "salve", "exporta", "exporte", "entrega", "entregar", "resultado", "em português", "em inglês", "para o cliente",
+  "file", "folder", "report", "format", "send me", "show me", "output", "deliver"
+ ],
+ "contexto": [
+  "eu tô", "estou", "tô", "tava", "estava", "tenho", "tinha", "ontem", "hoje", "semana passada", "porque", "pois",
+  "já fiz", "já tentei", "já tem", "aconteceu", "deu erro", "apareceu", "quando eu", "no momento", "atualmente",
+  "o projeto", "o cliente", "a ideia", "o problema", "a gente", "nós temos", "funciona", "funcionava", "parou",
+  "i am", "i'm", "i have", "yesterday", "because", "currently", "already", "the project", "the problem"
+ ],
+ "ruido": [
+  "tipo", "assim", "né", "então", "enfim", "sei lá", "acho que", "deixa eu ver", "como eu falei", "como eu disse",
+  "de novo", "repetindo", "ou seja", "basicamente", "na verdade", "aí", "beleza", "ok", "tá", "hum", "é isso",
+  "sabe", "entendeu", "whatever", "i mean", "like", "basically", "anyway"
+ ]
+}

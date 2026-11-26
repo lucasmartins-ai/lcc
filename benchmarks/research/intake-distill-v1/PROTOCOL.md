@@ -1,7 +1,7 @@
-# Intake distill v1: can a deterministic pattern model split a long dictation into a structured brief? (DRAFT, not frozen)
+# Intake distill v1: can a deterministic pattern model split a long dictation into a structured brief?
 
-Status: draft for the owner's approval. Nothing below has run. No Jev call, no Claude labelling and no Colab
-runtime happen before the owner approves this file and its hashes are recorded in Amendment 1.
+Status: frozen by Amendment 1 (2026-11-26, owner approved). Only the exploratory dev pilot and the voice-memo
+transcription and screening ran before the freeze; no arm has seen T. Later changes go in new amendments.
 
 ## Why
 
@@ -262,6 +262,35 @@ clarity, and the hypotheses below replace the earlier H1 and H2.
 
 - Approved on 2026-11-26: the 10% loss bar. The saving bar and the choice of primary were delegated to the agent;
   see the pilot section.
-- Mark which voice memos are prompts (the folder was named on 2026-11-26).
+- Done on 2026-11-26: voice memos marked; freeze approved.
 - Label Part R's 22 for the five other categories (dev pilot) and then T: about 30–45 dictations, clicking only
   the sentences that are not `contexto`.
+
+## Amendments
+
+### Amendment 1 (2026-11-26): freeze
+
+Approved by the owner on 2026-11-26. Everything below is fixed for phase 1; `collect` and every later script
+refuse to run if a pinned file's sha256 differs.
+
+| File | sha256 |
+| :--- | :--- |
+| `src/lcc/intake/parser.py` (sentence split, roles) | `91ed1cc255e4bd35bb3e9de5216f2f6461ef6af634977008ccb6339908834346` |
+| `src/lcc/handoff.py` (secret filter: a message is dropped when `mask(text) != text`) | `9a5d5873eac33cff52f1409c02e14939b4cc27ee2adb0e61c6e73a91637c07b3` |
+| `cues.json` (P's cue lists and fuzzy rule) | `f9e3f574057af27c193b4bfde28b7a7bf8993eafe7e4d259eb6af8f583a9f9de` |
+| `pilot_downstream.py` (H1/H3 answerer and judge prompts, `agy` and `codex` settings) | `eac48532b9233a35a53f20a45b7d021234d15610cb789bfea580c315dcce9dda` |
+| `transcribe_voice.py` (speech-to-text, pinned model hashes inside) | `a2aa4adafa2154d5a06769ea19c5afaba4df5c87b0603e14fc7899e970569529` |
+| `voice_screen.py` (screening bounds and flags) | `c73e59cfa3e5ab4bddb325072ad433aa8cb4c4f19b50adc16aa7d09da43df5bf` |
+| `ggml-large-v3-turbo.bin` | `1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69` |
+| `ggml-silero-v5.1.2.bin` | `29940d98d42b91fbd05ce489f3ecf7c72f0a42f027e4875919a28fb4c04ea2cf` |
+
+- **Voice memos in T:** 30, identified by the audio files' sha256; the sorted list hashes to
+  `762f8ba36301296924c917338cd87727a4058b697bc5d26df2a6dfa3c034a52a` (list kept privately).
+- **Seeds:** T order `20261126`; P's 10% held-out slice for L2 `20261127`; the downstream X/Y order keeps the
+  pilot's `20261125`.
+- **Filters:** the training pool's text rule, 20-word floor and sha dedup as in Data; the secret filter above;
+  leakage by sha and by difflib ratio ≥0.6 against dev, R3 and T.
+- **Cue lists:** written from general pt-BR and English usage, without reading T and without tuning on dev. They
+  may be wrong in places; P's learned weights decide how much each one counts.
+- **Not frozen yet, by design:** the Jev question variant and τ (Amendment 2, chosen on dev), P's weights
+  (Amendment 3).
