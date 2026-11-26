@@ -101,7 +101,7 @@ Candidates, drawn once and shuffled with a fixed seed:
 - Screening: **the owner decides** from a private local list (file name, date, duration, word count, first
   ~30 words). Jev does not screen, because Jev is a teacher candidate and would tilt T toward texts it handles;
   memos the owner marks as not prompts are never sent to any model.
-- Bounds, fixed now: 100 to 1,500 words. Longer prompts are counted and reported, not split.
+- Bounds, fixed now: 100 to 1,500 words (upper bound raised to 3,000 below). Longer prompts are counted and reported, not split.
 - Quality flags, fixed now: words per minute outside 60–220 or the top 4-gram above 5% of all 4-grams → the
   memo is listed as a likely transcription failure and the owner decides on it with that flag shown.
 - Leakage: a memo whose transcript matches a dev, R3 or training-pool message at difflib ratio ≥0.6 is dropped
@@ -110,6 +110,13 @@ Candidates, drawn once and shuffled with a fixed seed:
   words with no quality flag and become T candidates; 9 are over 1,500 words and 2 under 100, both reported and
   left out. Unmarked rows (`[ ]` or `[]`) count as not prompts. T candidates so far: 24 + 14 + 21 = 59, before
   leakage and the owner's labelling skips.
+- Change after screening, before freeze and before any arm saw T (2026-11-26): the owner reported that the long
+  memos are book context dictated to an AI as prompts, so they are long by nature. The upper bound becomes 3,000
+  words. The 9 long memos (1,520–2,516 words, all without a quality flag) join T as a declared stratum `longo`
+  (over 1,500 words). H1–H4 run on all of T; each is also reported for `longo` and for the rest separately,
+  descriptive only. On the labelling page the owner clicks only sentences that are not `contexto`, so book
+  context costs no clicks. The lower bound stays: the 2 marked memos under 100 words stay out.
+  T candidates: 24 + 14 + 30 = 68.
 
 The owner labels top down on a new page (same layout as Part R): click each sentence's category, or skip the
 message with a listed reason ("não foi ditado", "sensível", "não tem um pedido principal"). Target 30 to 45 kept;
