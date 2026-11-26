@@ -170,6 +170,7 @@ def _score_one(name: str, items: list[dict[str, Any]], get_rows: Any) -> dict[st
         "dev_loss_messages": ruido_loss,
         "dev_loss_rate": round(loss_rate, 3),
         "kappa_vs_owner": round(kappa, 4),
+        "_kappa_raw": kappa,
         "macro_f1_6": round(sum(f1[c] or 0.0 for c in CATS) / 6, 3),
         "macro_f1_5_no_ruido": round(sum(f1_5) / 5, 3),
         "f1": {c: (round(v, 3) if v is not None else None) for c, v in f1.items()},
@@ -208,16 +209,18 @@ def cmd_score() -> int:
 
         results[name] = _score_one(name, items, _load)
 
-    # Selection order (Amendment 2): dev_loss <= 10%, then main_ask_hit1, then kappa_vs_owner.
+    # Selection order (Amendment 2): dev_loss <= 10%, then main_ask_hit1, then unrounded kappa.
     eligible = [(name, r) for name, r in results.items() if r["eligible_loss_le_10pct"]]
     winner = (
         max(
             eligible,
-            key=lambda kv: (kv[1]["main_ask_hit1"], kv[1]["kappa_vs_owner"]),
+            key=lambda kv: (kv[1]["main_ask_hit1"], kv[1]["_kappa_raw"]),
         )[0]
         if eligible
         else None
     )
+    for r in results.values():
+        r.pop("_kappa_raw", None)
 
     summary = {
         "n_dev": len(items),

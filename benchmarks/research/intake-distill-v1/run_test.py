@@ -169,10 +169,13 @@ def _valid_answers_judge(g: Any) -> dict[str, Any]:
 
 
 def _valid_h2_judge(g: Any) -> dict[str, Any]:
+    misfiled = g.get("misfiled_in_contexto") if isinstance(g, dict) else None
+    kind = g.get("kind") if isinstance(g, dict) else None
     ok = (
         isinstance(g, dict)
-        and isinstance(g.get("misfiled_in_contexto"), bool)
-        and g.get("kind") in ("none", "request", "delivery", "rule", "multiple")
+        and isinstance(misfiled, bool)
+        and kind in ("none", "request", "delivery", "rule", "multiple")
+        and misfiled == (kind != "none")
     )
     if not ok:
         raise RuntimeError("H2 judge reply failed schema check")
@@ -375,8 +378,12 @@ def main() -> int:
     ensure_private_dir(RUN_DIR)
 
     items = _load_t_and_verify()
-    cues = json.loads((HERE / "cues.json").read_text(encoding="utf-8"))
-    model = json.loads((HERE / "p_weights.json").read_text(encoding="utf-8"))
+    cues_bytes = (HERE / "cues.json").read_bytes()
+    weights_bytes = (HERE / "p_weights.json").read_bytes()
+    if hashlib.sha256(weights_bytes).hexdigest() != FROZEN_P_WEIGHTS_SHA256:
+        raise SystemExit("refused: p_weights.json changed after pin check")
+    cues = json.loads(cues_bytes.decode("utf-8"))
+    model = json.loads(weights_bytes.decode("utf-8"))
     tau = float(model["tau"])
     matcher = arm_p.CueMatcher(cues)
 
@@ -387,8 +394,8 @@ def main() -> int:
         preds = arm_p.predict_message(model, it["text"], it["sentences"], matcher)
         brief = arm_p.assemble_brief(it["text"], it["sentences"], preds, tau)
         p_ms = (time.perf_counter() - t0) * 1000.0
-        raw_toks = len(ENC.encode(it["text"]))
-        brief_toks = len(ENC.encode(brief))
+        raw_toks = len(ENC.encode(it["text"], disallowed_special=()))
+        brief_toks = len(ENC.encode(brief, disallowed_special=()))
         write_private_json(
             RUN_DIR / f"{it['id']}.p.json",
             {"id": it["id"], "tau": tau, "p_ms": round(p_ms, 3), "preds": preds},
@@ -429,18 +436,32 @@ def main() -> int:
         it = r["it"]
         a = r["answers"]
         x, y = (a["raw"], a["brief"]) if raw_first else (a["brief"], a["raw"])
+        pair_sha = _sha(f"{x}\0{y}\0{raw_first}")
+        ja_path = RUN_DIR / f"{it['id']}.judge_answers.json"
+        if ja_path.is_file():
+            cached_ja = json.loads(ja_path.read_text(encoding="utf-8"))
+            if cached_ja.get("input_sha") != pair_sha:
+                ja_path.unlink()
         r["judge_answers"] = _valid_answers_judge(
             _cached(
-                RUN_DIR / f"{it['id']}.judge_answers.json",
-                lambda it=it, x=x, y=y, rf=raw_first: (
-                    _judge_pair(it["text"], x, y) | {"x_is_raw": rf}
+                ja_path,
+                lambda it=it, x=x, y=y, rf=raw_first, ps=pair_sha: (
+                    _judge_pair(it["text"], x, y) | {"x_is_raw": rf, "input_sha": ps}
                 ),
             )
         )
+        brief_sha = _sha(r["brief"])
+        h2_path = RUN_DIR / f"{it['id']}.judge_h2.json"
+        if h2_path.is_file():
+            cached_h2 = json.loads(h2_path.read_text(encoding="utf-8"))
+            if cached_h2.get("input_sha") != brief_sha:
+                h2_path.unlink()
         r["judge_h2"] = _valid_h2_judge(
             _cached(
-                RUN_DIR / f"{it['id']}.judge_h2.json",
-                lambda it=it, b=r["brief"]: _judge_h2(it["text"], b),
+                h2_path,
+                lambda it=it, b=r["brief"], bs=brief_sha: (
+                    _judge_h2(it["text"], b) | {"input_sha": bs}
+                ),
             )
         )
         if idx % 10 == 0 or idx == len(rows):
@@ -482,10 +503,16 @@ def main() -> int:
         "by_origin": by_origin,
     }
 
-    # Refuse overwrite atomically via O_CREAT | O_EXCL.
-    fd = os.open(STATS_OUT, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
-    with os.fdopen(fd, "w", encoding="utf-8") as fh:
-        fh.write(json.dumps(out, indent=1) + "\n")
+    # Atomic publish without overwrite: write .tmp completely, link to final path, remove .tmp.
+    tmp_stats = STATS_OUT.with_suffix(f".{os.getpid()}.tmp")
+    tmp_stats.unlink(missing_ok=True)
+    fd = os.open(tmp_stats, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(out, indent=1) + "\n")
+        os.link(tmp_stats, STATS_OUT)
+    finally:
+        tmp_stats.unlink(missing_ok=True)
     print(json.dumps(out, indent=1))
     return 0
 

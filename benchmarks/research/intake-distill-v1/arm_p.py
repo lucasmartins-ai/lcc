@@ -362,7 +362,7 @@ def predict_message(
         out.append(
             {
                 "cat": cats[top_i],
-                "p": round(float(row[top_i]), 4),
+                "p": float(row[top_i]),
                 "probs": {c: round(float(row[j]), 6) for j, c in enumerate(cats)},
             }
         )
@@ -416,6 +416,8 @@ def _load_pool_dataset(
             continue
         X = extract_message_features(it["text"], it["sentences"], matcher)
         Y = np.array([[float(r["probs"][c]) for c in CATS] for r in labels], dtype=np.float64)
+        if not np.isfinite(Y).all() or np.any(Y < 0):
+            raise SystemExit(f"refused: non-finite or negative target on pool {it['id']}")
         row_sums = np.sum(Y, axis=1, keepdims=True)
         if np.any(row_sums <= 0):
             raise SystemExit(f"refused: zero probability sum on pool {it['id']}")
@@ -570,7 +572,10 @@ def _eval_on_dev(model: dict[str, Any], matcher: CueMatcher) -> dict[str, Any]:
                     keep_sents += 1
                     keep_in_ctx += int(k in filed_ctx)
             b = assemble_brief(x["text"], x["spans"], preds, tau)
-            ratios.append(len(_ENC.encode(b)) / max(1, len(_ENC.encode(x["text"]))))
+            ratios.append(
+                len(_ENC.encode(b, disallowed_special=()))
+                / max(1, len(_ENC.encode(x["text"], disallowed_special=())))
+            )
         tau_sweep.append(
             {
                 "tau": tau,
@@ -630,7 +635,10 @@ def cmd_fit(variant: str, tau: float | None, *, single_line_only: bool = False) 
     model["cues_sha256"] = PINS[CUES_PATH]
     model["parser_sha256"] = PINS[REPO / "src/lcc/intake/parser.py"]
 
-    WEIGHTS_PATH.write_text(json.dumps(model, indent=1) + "\n", encoding="utf-8")
+    weights_payload = json.dumps(model, indent=1) + "\n"
+    tmp_weights = WEIGHTS_PATH.with_suffix(".json.tmp")
+    tmp_weights.write_text(weights_payload, encoding="utf-8")
+    tmp_weights.replace(WEIGHTS_PATH)
     weights_sha = hashlib.sha256(WEIGHTS_PATH.read_bytes()).hexdigest()
 
     # Compare against teacher (v1_pilot) macro-F1 on dev for H4 check on dev.

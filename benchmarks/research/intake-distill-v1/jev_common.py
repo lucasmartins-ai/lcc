@@ -205,8 +205,13 @@ def check_pins(extra: dict[Path, str] | None = None) -> None:
 
 
 def ensure_private_dir(path: Path) -> Path:
-    """Verify path stays inside ~/.lcc-private after symlink resolution, create 0700."""
+    """Verify path stays inside ~/.lcc-private (never symlinked into the repo), create 0700."""
+    if PRIV.is_symlink():
+        raise SystemExit("refused: ~/.lcc-private must not be a symlink")
     priv_real = PRIV.resolve()
+    repo_real = REPO.resolve()
+    if priv_real == repo_real or repo_real in priv_real.parents or priv_real in repo_real.parents:
+        raise SystemExit("refused: ~/.lcc-private resolves inside repository tree")
     path.mkdir(parents=True, exist_ok=True, mode=0o700)
     real = path.resolve()
     if real != priv_real and priv_real not in real.parents:
@@ -277,6 +282,8 @@ class BudgetedPrivateJev(JevClient):
 
     def _ledger_append(self, entry: dict[str, Any]) -> None:
         self._count += 1
+        if self.ledger_path is not None and self.ledger_path.is_symlink():
+            raise RuntimeError("refused: Jev ledger path is a symlink")
         try:
             line = _filter_ledger_entry(entry)
         except Exception:  # noqa: BLE001
@@ -374,8 +381,16 @@ def label_message_jev(
     resolved_models: set[str] = set()
     for batch in chunks:
         qs = _build_questions(variant, batch)
-        resp = client.evaluate({"sentences": sents}, qs)
-        resolved_models.add(client.last_resolved_model)
+        try:
+            resp = client.evaluate({"sentences": sents}, qs)
+        except Exception as exc:  # noqa: BLE001
+            if "budget exhausted" in str(exc):
+                raise RuntimeError("refused: Jev budget exhausted") from None
+            raise RuntimeError(
+                f"Jev request failed on {item['id']}: {type(exc).__name__}"
+            ) from None
+        rm = client.last_resolved_model
+        resolved_models.add(rm if isinstance(rm, str) and _MODEL_RE.fullmatch(rm) else "unexpected")
         ans = resp.get("answers")
         if not isinstance(ans, dict):
             raise RuntimeError(f"malformed response on {item['id']}")
