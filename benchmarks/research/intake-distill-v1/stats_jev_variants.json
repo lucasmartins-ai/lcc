@@ -1,0 +1,164 @@
+{
+ "n_dev": 22,
+ "tau": 0.5,
+ "selection_rule": "dev_loss <= 10%, then main_ask_hit1, then kappa_vs_owner",
+ "winner": "v1_pilot",
+ "ledger_requests_total": 185,
+ "variants": {
+  "v1_pilot": {
+   "eligible_loss_le_10pct": true,
+   "main_ask_hit1": 12,
+   "main_ask_hit1_rate": 0.545,
+   "dev_loss_messages": 2,
+   "dev_loss_rate": 0.091,
+   "kappa_vs_owner": 0.1097,
+   "macro_f1_6": 0.198,
+   "macro_f1_5_no_ruido": 0.237,
+   "f1": {
+    "pedido_principal": 0.322,
+    "pedido_lateral": 0.125,
+    "contexto": 0.62,
+    "entrega": 0.014,
+    "regra": 0.106,
+    "ruido": 0.0
+   },
+   "pred_counts": {
+    "contexto": 478,
+    "regra": 194,
+    "pedido_principal": 93,
+    "entrega": 136,
+    "ruido": 106,
+    "pedido_lateral": 122
+   },
+   "main_all_filed_contexto_msgs": 1,
+   "any_keep_filed_contexto_msgs": 14,
+   "requests": 0,
+   "resolved_models": []
+  },
+  "v2_owner_prior_en": {
+   "eligible_loss_le_10pct": true,
+   "main_ask_hit1": 10,
+   "main_ask_hit1_rate": 0.455,
+   "dev_loss_messages": 0,
+   "dev_loss_rate": 0.0,
+   "kappa_vs_owner": 0.2083,
+   "macro_f1_6": 0.268,
+   "macro_f1_5_no_ruido": 0.322,
+   "f1": {
+    "pedido_principal": 0.358,
+    "pedido_lateral": 0.235,
+    "contexto": 0.854,
+    "entrega": 0.022,
+    "regra": 0.138,
+    "ruido": 0.0
+   },
+   "pred_counts": {
+    "regra": 117,
+    "contexto": 850,
+    "ruido": 15,
+    "pedido_principal": 50,
+    "entrega": 85,
+    "pedido_lateral": 12
+   },
+   "main_all_filed_contexto_msgs": 5,
+   "any_keep_filed_contexto_msgs": 17,
+   "requests": 46,
+   "resolved_models": [
+    "jev-1.14.0"
+   ]
+  },
+  "v3_owner_prior_pt": {
+   "eligible_loss_le_10pct": true,
+   "main_ask_hit1": 10,
+   "main_ask_hit1_rate": 0.455,
+   "dev_loss_messages": 0,
+   "dev_loss_rate": 0.0,
+   "kappa_vs_owner": 0.1483,
+   "macro_f1_6": 0.252,
+   "macro_f1_5_no_ruido": 0.303,
+   "f1": {
+    "pedido_principal": 0.313,
+    "pedido_lateral": 0.222,
+    "contexto": 0.816,
+    "entrega": 0.034,
+    "regra": 0.129,
+    "ruido": 0.0
+   },
+   "pred_counts": {
+    "regra": 127,
+    "contexto": 805,
+    "ruido": 76,
+    "pedido_principal": 54,
+    "entrega": 53,
+    "pedido_lateral": 14
+   },
+   "main_all_filed_contexto_msgs": 5,
+   "any_keep_filed_contexto_msgs": 19,
+   "requests": 46,
+   "resolved_models": [
+    "jev-1.14.0"
+   ]
+  },
+  "v4_five_class_en": {
+   "eligible_loss_le_10pct": true,
+   "main_ask_hit1": 11,
+   "main_ask_hit1_rate": 0.5,
+   "dev_loss_messages": 0,
+   "dev_loss_rate": 0.0,
+   "kappa_vs_owner": 0.2242,
+   "macro_f1_6": 0.235,
+   "macro_f1_5_no_ruido": 0.282,
+   "f1": {
+    "pedido_principal": 0.408,
+    "pedido_lateral": 0.0,
+    "contexto": 0.848,
+    "entrega": 0.028,
+    "regra": 0.127,
+    "ruido": null
+   },
+   "pred_counts": {
+    "contexto": 837,
+    "regra": 97,
+    "pedido_principal": 128,
+    "entrega": 67
+   },
+   "main_all_filed_contexto_msgs": 5,
+   "any_keep_filed_contexto_msgs": 15,
+   "requests": 46,
+   "resolved_models": [
+    "jev-1.14.0"
+   ]
+  },
+  "v5_five_class_pt_strict": {
+   "eligible_loss_le_10pct": true,
+   "main_ask_hit1": 9,
+   "main_ask_hit1_rate": 0.409,
+   "dev_loss_messages": 0,
+   "dev_loss_rate": 0.0,
+   "kappa_vs_owner": 0.2711,
+   "macro_f1_6": 0.254,
+   "macro_f1_5_no_ruido": 0.305,
+   "f1": {
+    "pedido_principal": 0.414,
+    "pedido_lateral": 0.08,
+    "contexto": 0.872,
+    "entrega": 0.0,
+    "regra": 0.16,
+    "ruido": null
+   },
+   "pred_counts": {
+    "regra": 87,
+    "contexto": 872,
+    "pedido_principal": 139,
+    "entrega": 28,
+    "pedido_lateral": 3
+   },
+   "main_all_filed_contexto_msgs": 4,
+   "any_keep_filed_contexto_msgs": 16,
+   "requests": 46,
+   "resolved_models": [
+    "jev-1.14.0"
+   ]
+  }
+ }
+}

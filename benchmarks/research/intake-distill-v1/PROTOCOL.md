@@ -343,3 +343,52 @@ something other than context. The owner's concept of context is wider than any t
    - Main-ask hit@1 of P against A0, and P's macro-F1 against the owner, are reported on dev only.
    The judge prompt changes only by dropping the owner's gold; it is frozen in Amendment 3 with P.
 5. `label_t.html` is not used.
+
+### Amendment 3 (2026-11-26): Jev variant freeze, pool labelling, arm P freeze, and blind judge freeze
+
+Written after dev tuning, training-pool labelling, and P fitting, and before any arm reads T.
+
+1. **Frozen Jev variant (`jev_tune.py`, `stats_jev_variants.json`).** Four new variants (v2–v5) ran on Part R's 22
+   against `v1_pilot` (185 Jev requests total including 1 synthetic smoke call, resolved `jev-1.14.0`):
+
+   | Variant | dev loss | main-ask hit@1 | κ vs owner | macro-F1 (5) | all gold main in `<contexto>` |
+   |---|---|---|---|---|---|
+   | `v1_pilot` (frozen) | 2 / 22 (9.1%) | **12 / 22** | 0.110 | 0.237 | 1 / 22 |
+   | `v2_owner_prior_en` | 0 / 22 (0.0%) | 10 / 22 | 0.208 | 0.322 | 5 / 22 |
+   | `v3_owner_prior_pt` | 0 / 22 (0.0%) | 10 / 22 | 0.148 | 0.303 | 5 / 22 |
+   | `v4_five_class_en` | 0 / 22 (0.0%) | 11 / 22 | 0.224 | 0.282 | 5 / 22 |
+   | `v5_five_class_pt_strict` | 0 / 22 (0.0%) | 9 / 22 | 0.271 | 0.305 | 4 / 22 |
+
+   Under Amendment 2's selection order (dev loss ≤10%, then main-ask hit@1, then κ), **`v1_pilot` wins and is
+   frozen**. Adding the "most sentences are context" prior improved κ and macro-F1 at the cost of filing real
+   requests under `<contexto>` (4–5 of 22 messages) and dropping main-ask hit@1.
+
+2. **Training-pool labelling (`label_pool.py`, `stats_pool_labels.json`).** Smoke batch of 20 passed with 0 errors
+   (4.71 req/s). All 1,581 pool messages (15,020 sentences) were labelled with `v1_pilot` (`jev-1.14.0`, 1,821
+   requests; 2,006 total against the 2,500 budget, 0 errors, leakage-checked against dev/R3/T). In the full pool all
+   six categories exceed 1,200 sentences; however, the 303 multi-line messages contribute 10,912 of 15,020
+   sentences (72.6%), heavily skewed toward `entrega` (2,008) and `regra` (2,947).
+
+3. **Arm P freeze (`arm_p.py`, `p_weights.json`, `stats_p_dev.json`).** As flagged in Data (multi-line messages are
+   mostly typed, pasted or generated), P is fitted on the **1,278 single-line training messages (4,108 sentences)**
+   using Jev's 6-class soft probabilities (`L2 = 0.01`, selected on the 10% message-level held-out slice, seed
+   `20261127`). One category has under 200 single-line training sentences (`entrega`: 117) and is reported as
+   required without further feature tuning.
+   - Dev result on Part R's 22: P reaches **14 / 22** main-ask hit@1 (vs A0 12, D 11, Jev 12, Opus 13; full-pool
+     ablation 12 / 22), macro-F1 (6) **0.202** (1.02× teacher), macro-F1 (5, no `ruido`) **0.243** (1.025× teacher),
+     κ **0.0744**, median latency **26.6 ms** (max 176.5 ms), max RSS 309.6 MB.
+   - Threshold **τ = 0.40** (lowest value on the dev grid `[0.20..0.50]` where messages with all gold main-ask
+     sentences filed in `<contexto>` are ≤10%: 1 / 22 = 4.5%, with 40.3% of sentences routed to `<a_confirmar>` and
+     median brief/raw token ratio 1.042). Under Amendment 2, `ruido` joins `<contexto>` and zero sentences are
+     dropped.
+
+4. **Frozen files for the final test run on T (`run_test.py`).** `run_test.py` verifies Amendment 1 pins plus these
+   hashes before reading `t.json`, freezes the H1/H3 judge prompt (pilot prompt minus `<GOLD>`) and H2 filing-audit
+   prompt, keeps `SEED_XY = 20261125`, and refuses to overwrite `stats.json`.
+
+   | File | sha256 |
+   | :--- | :--- |
+   | `arm_p.py` | `a53c4869a16319347ed89728089b4be85016bcb81cb8e2802358887e4167acad` |
+   | `p_weights.json` | `c145a96274b70dcd053287294febb7091e4cd9b2cdde8cc92d444f5065839540` |
+   | `run_test.py` | `02caf707aefb539d7d01aab0443e62d51e923d90f819b8477648efe79effe3f1` |
+   | `jev_common.py` | `6463af95c7c7194ab97c9c4668b2471803820976830373fbbc314aafbf43fd3c` |

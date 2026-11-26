@@ -1,0 +1,103 @@
+{
+ "variant": "v1_pilot",
+ "pool_messages": 1581,
+ "labelled_messages": 1581,
+ "missing_messages": 0,
+ "total_sentences": 15020,
+ "jev_requests_for_pool": 1821,
+ "ledger_requests_total": 2006,
+ "resolved_models": [
+  "jev-1.14.0"
+ ],
+ "counts": {
+  "pedido_principal": 2092,
+  "pedido_lateral": 1248,
+  "contexto": 4644,
+  "entrega": 2125,
+  "regra": 3374,
+  "ruido": 1537
+ },
+ "shares": {
+  "pedido_principal": 0.1393,
+  "pedido_lateral": 0.0831,
+  "contexto": 0.3092,
+  "entrega": 0.1415,
+  "regra": 0.2246,
+  "ruido": 0.1023
+ },
+ "categories_under_200": [],
+ "by_length_band": {
+  "20-49": {
+   "messages": 827,
+   "sentences": 1423,
+   "counts": {
+    "pedido_principal": 481,
+    "pedido_lateral": 188,
+    "contexto": 419,
+    "entrega": 44,
+    "regra": 130,
+    "ruido": 161
+   }
+  },
+  "50-99": {
+   "messages": 324,
+   "sentences": 1343,
+   "counts": {
+    "pedido_principal": 282,
+    "pedido_lateral": 185,
+    "contexto": 463,
+    "entrega": 59,
+    "regra": 166,
+    "ruido": 188
+   }
+  },
+  "100-199": {
+   "messages": 235,
+   "sentences": 1939,
+   "counts": {
+    "pedido_principal": 312,
+    "pedido_lateral": 351,
+    "contexto": 575,
+    "entrega": 150,
+    "regra": 351,
+    "ruido": 200
+   }
+  },
+  "200+": {
+   "messages": 195,
+   "sentences": 10315,
+   "counts": {
+    "pedido_principal": 1017,
+    "pedido_lateral": 524,
+    "contexto": 3187,
+    "entrega": 1872,
+    "regra": 2727,
+    "ruido": 988
+   }
+  }
+ },
+ "by_multiline": {
+  "single_line": {
+   "sentences": 4108,
+   "counts": {
+    "pedido_principal": 976,
+    "pedido_lateral": 663,
+    "contexto": 1382,
+    "entrega": 117,
+    "regra": 427,
+    "ruido": 543
+   }
+  },
+  "multi_line": {
+   "sentences": 10912,
+   "counts": {
+    "pedido_principal": 1116,
+    "pedido_lateral": 585,
+    "contexto": 3262,
+    "entrega": 2008,
+    "regra": 2947,
+    "ruido": 994
+   }
+  }
+ }
+}

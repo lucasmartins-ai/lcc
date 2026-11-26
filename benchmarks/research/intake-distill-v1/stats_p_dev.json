@@ -1,0 +1,151 @@
+{
+ "teacher_variant": "v1_pilot",
+ "single_line_only": true,
+ "weights_sha256": "c145a96274b70dcd053287294febb7091e4cd9b2cdde8cc92d444f5065839540",
+ "tau": 0.4,
+ "cv": {
+  "seed": 20261127,
+  "n_train_msgs_cv": 1150,
+  "n_val_msgs_cv": 128,
+  "n_train_sents_cv": 3745,
+  "n_val_sents_cv": 363,
+  "val_nll_by_l2": {
+   "0.0001": 1.451168,
+   "0.0003": 1.450996,
+   "0.001": 1.450577,
+   "0.003": 1.449934,
+   "0.01": 1.449838,
+   "0.03": 1.454517,
+   "0.1": 1.473254,
+   "0.3": 1.507344,
+   "1.0": 1.559931
+  },
+  "best_l2": 0.01,
+  "best_val_nll": 1.449838
+ },
+ "dev": {
+  "n_dev": 22,
+  "main_ask_hit1": {
+   "P": 14,
+   "A0": 12,
+   "D": 11
+  },
+  "kappa_vs_owner": 0.0744,
+  "macro_f1_6": 0.202,
+  "macro_f1_5_no_ruido": 0.243,
+  "per_class": {
+   "pedido_principal": {
+    "precision": 0.372,
+    "recall": 0.259,
+    "f1": 0.305
+   },
+   "pedido_lateral": {
+    "precision": 0.096,
+    "recall": 0.318,
+    "f1": 0.147
+   },
+   "contexto": {
+    "precision": 0.887,
+    "recall": 0.588,
+    "f1": 0.707
+   },
+   "entrega": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   },
+   "regra": {
+    "precision": 0.042,
+    "recall": 0.077,
+    "f1": 0.054
+   },
+   "ruido": {
+    "precision": 0.0,
+    "recall": null,
+    "f1": 0.0
+   }
+  },
+  "pred_counts": {
+   "contexto": 647,
+   "ruido": 306,
+   "pedido_lateral": 73,
+   "pedido_principal": 78,
+   "regra": 24,
+   "entrega": 1
+  },
+  "latency_ms_median": 26.607,
+  "latency_ms_max": 176.485,
+  "rss_mb_max": 309.6,
+  "tau_sweep": [
+   {
+    "tau": 0.2,
+    "a_confirmar_share": 0.0,
+    "main_all_in_contexto_msgs": 3,
+    "any_keep_in_contexto_msgs": 18,
+    "keep_sents_in_contexto_share": 0.5263,
+    "brief_over_raw_median": 1.0475
+   },
+   {
+    "tau": 0.25,
+    "a_confirmar_share": 0.0124,
+    "main_all_in_contexto_msgs": 3,
+    "any_keep_in_contexto_msgs": 18,
+    "keep_sents_in_contexto_share": 0.5132,
+    "brief_over_raw_median": 1.053
+   },
+   {
+    "tau": 0.3,
+    "a_confirmar_share": 0.0895,
+    "main_all_in_contexto_msgs": 3,
+    "any_keep_in_contexto_msgs": 17,
+    "keep_sents_in_contexto_share": 0.4605,
+    "brief_over_raw_median": 1.0576
+   },
+   {
+    "tau": 0.35,
+    "a_confirmar_share": 0.2188,
+    "main_all_in_contexto_msgs": 3,
+    "any_keep_in_contexto_msgs": 16,
+    "keep_sents_in_contexto_share": 0.3553,
+    "brief_over_raw_median": 1.0434
+   },
+   {
+    "tau": 0.4,
+    "a_confirmar_share": 0.403,
+    "main_all_in_contexto_msgs": 1,
+    "any_keep_in_contexto_msgs": 16,
+    "keep_sents_in_contexto_share": 0.25,
+    "brief_over_raw_median": 1.0416
+   },
+   {
+    "tau": 0.45,
+    "a_confirmar_share": 0.5748,
+    "main_all_in_contexto_msgs": 0,
+    "any_keep_in_contexto_msgs": 11,
+    "keep_sents_in_contexto_share": 0.1579,
+    "brief_over_raw_median": 1.0365
+   },
+   {
+    "tau": 0.5,
+    "a_confirmar_share": 0.6873,
+    "main_all_in_contexto_msgs": 0,
+    "any_keep_in_contexto_msgs": 8,
+    "keep_sents_in_contexto_share": 0.1053,
+    "brief_over_raw_median": 1.0284
+   }
+  ]
+ },
+ "dev_vs_teacher": {
+  "p_over_teacher_macro_f1_6": 1.02,
+  "p_over_teacher_macro_f1_5": 1.025
+ },
+ "ablation_full_pool_with_multiline": {
+  "n_train_messages": 1581,
+  "n_train_sentences": 15020,
+  "best_l2": 0.003,
+  "main_ask_hit1": 12,
+  "kappa_vs_owner": 0.0201,
+  "macro_f1_6": 0.183,
+  "macro_f1_5_no_ruido": 0.22
+ }
+}
