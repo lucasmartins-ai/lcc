@@ -294,3 +294,11 @@ refuse to run if a pinned file's sha256 differs.
   may be wrong in places; P's learned weights decide how much each one counts.
 - **Not frozen yet, by design:** the Jev question variant and τ (Amendment 2, chosen on dev), P's weights
   (Amendment 3).
+
+**`collect` result (2026-11-26, counts only).** T: 68 candidates (R3 24, census 14, voice 30 of which 9 in
+`longo`), shuffled with seed `20261126`; no memo dropped by leakage, none caught by the secret filter. Training
+pool: 1,581 messages (303 multi-line), 15,020 sentences. Left out on the way: 1,241 with markup, 133 duplicates,
+130 already in an earlier pool, 84 typed messages and 57 earlier-pool leftovers by the secret filter (the Codex
+review found the leftovers had skipped it; the draw was redone and T came out byte-identical). One deviation: the leakage ratio is computed on lowercased words, not
+characters; character-level difflib on 15,000-character memos ran for over ten minutes without finishing, and the
+written rule does not name the unit.
