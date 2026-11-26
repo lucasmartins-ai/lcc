@@ -150,15 +150,46 @@ on dev.
 - Descriptive: per-category precision, recall and macro-F1 against the owner (P, J, teacher); P's latency and RSS
   on the M1; class balance of the teacher labels by message-length band.
 
-## Hypotheses and pass criteria (the primary is the owner's choice before the freeze)
+## Exploratory pilot on dev (2026-11-26, not pre-registered)
 
-- **H1 (proposed primary).** On T, P's loss rate is at most 10% (Wilson 95% upper bound reported) **and** its
-  median saving is at least 15% of the tokens. This is what the brief is for.
-- **H2.** P's main-ask hit@1 on T beats A0's: exact two-sided McNemar on the discordant pairs, α = 0.05.
-  - Power line: at n = 30 to 40 this needs a lopsided split such as 8 to 1 or 10 to 2. The best measured arm
-    so far (DJ, 14 against A0's 12 of 22) would not reach that, and P sits at or below its teacher. **The likely
-    reading of H2 is "not shown"**, which is why it is not proposed as the primary.
-- **H3.** P's macro-F1 against the owner is at least 0.8 of the teacher's on T (descriptive bar, no test).
+The owner asked for a downstream check before the freeze, run outside Claude: Part R's 22 dictations (dev only;
+T untouched). Jev labelled every sentence (in requests of 10 questions, since one request per message exceeded
+System One's 32K context). Code built the verbatim XML brief. Antigravity (`agy`, plan mode, empty folder)
+answered each dictation twice, raw and as the brief, without executing anything. Codex (`codex exec`, read-only,
+reasoning effort medium) judged each pair blind, in seeded random order, against the raw message and the owner's
+gold for the main ask. Script: `pilot_downstream.py`; aggregates: `pilot_downstream_stats.json`.
+
+| Measure (n = 22) | Raw | Brief |
+|---|---|---|
+| Main ask fully captured (judge 2/2) | 16 | 19 (discordant 5 to 2, exact p = 0.45) |
+| Answer invents a requirement | 18 | 12 (discordant 2 to 8, exact p = 0.11) |
+| Judge prefers | 12 | 10 (sign p = 0.83) |
+| Tokens, brief / raw (median, max) | — | 1.044, 1.094 |
+
+- Jev labelled 1,129 sentences: 6% `ruido` (68 dropped), 22% under τ = 0.5 (sent to `<a_confirmar>`).
+- Loss: 2 of 22 messages dropped a gold main-ask sentence as `ruido`.
+- Jev's main-ask hit@1: 12 of 22, the same as A0 on Part R.
+
+Reading, with one answerer, one judge and n = 22: **the verbatim brief saves no tokens; it costs 4%.** These
+dictations hold little droppable noise, and the tags add tokens. The only hints of value are in clarity, fewer
+invented requirements and more main asks captured, and neither is significant. A dictation is also about 600
+tokens against a median of about 88K tokens of context per prompt (lcc-judge census, 2026-11-05), so even a 15%
+cut would save about 90 tokens per prompt. Token saving belongs to compaction and the stash, not to intake.
+
+**Decision (by the agent, as the owner delegated):** the token-saving bar is dropped. The brief's purpose becomes
+clarity, and the hypotheses below replace the earlier H1 and H2.
+
+## Hypotheses and pass criteria
+
+- **H1 (primary).** On T, an answerer given P's brief invents a requirement less often than when given the raw
+  message: exact two-sided McNemar on the discordant pairs, α = 0.05. Same answerer, judge and prompts as the
+  pilot, frozen in Amendment 1. The pilot's split (2 to 8) is the planning figure.
+- **H2 (guard, must hold for H1 to count).** P's loss rate on T is at most 10%, with the Wilson 95% upper bound
+  reported.
+- **H3 (secondary).** Main ask fully captured, brief against raw, McNemar. Main-ask hit@1, P against A0, is
+  reported descriptively: the best arm measured so far would not reach significance at this n.
+- **H4 (descriptive).** P's macro-F1 against the owner is at least 0.8 of the teacher's. Brief/raw tokens are
+  reported, with no bar.
 
 ## Leakage controls
 
@@ -200,8 +231,8 @@ on dev.
 
 ## What needs the owner
 
-- Approve or change this draft: categories, test size, the 10% loss bar and the 15% saving bar.
-- Pick the primary: H1 (loss and saving, proposed) or H2 (main-ask hit@1 against A0).
+- Approved on 2026-11-26: the 10% loss bar. The saving bar and the choice of primary were delegated to the agent;
+  see the pilot section.
 - Name the folder with the voice recordings.
 - Label Part R's 22 for the five other categories (dev pilot) and then T: about 30–45 dictations, clicking only
   the sentences that are not `contexto`.

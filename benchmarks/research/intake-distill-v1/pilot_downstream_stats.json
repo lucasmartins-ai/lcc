@@ -1,0 +1,39 @@
+{
+ "n": 22,
+ "tau": 0.5,
+ "answerer": "agy plan mode",
+ "judge": "codex exec",
+ "raw": {
+  "main_ask": 1.727,
+  "side_asks": 1.864,
+  "delivery": 1.727,
+  "rules": 1.5,
+  "invented": 0.818,
+  "main_ask_full": 16
+ },
+ "brief": {
+  "main_ask": 1.864,
+  "side_asks": 1.682,
+  "delivery": 1.636,
+  "rules": 1.591,
+  "invented": 0.545,
+  "main_ask_full": 19
+ },
+ "better": {
+  "brief": 10,
+  "raw": 12,
+  "tie": 0,
+  "sign_p": 0.8318
+ },
+ "tokens": {
+  "raw_median": 616.0,
+  "brief_over_raw_median": 1.044,
+  "brief_over_raw_max": 1.094,
+  "saving_median": -0.044
+ },
+ "loss": {
+  "messages_losing_a_gold_sentence": 2,
+  "sentences_dropped_total": 68,
+  "jev_main_ask_hit1": 12
+ }
+}
