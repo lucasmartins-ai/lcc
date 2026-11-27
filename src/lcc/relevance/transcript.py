@@ -961,18 +961,19 @@ def _specialist_decisions(
     if report.provider_used != SPECIALIST_PROVIDER:
         raise TranscriptError(f"specialist-v3 did not rank the transcript: {report.provider_used}")
     by_id = {decision.id: decision for decision in report.decisions}
+    from bisect import bisect_left
+
     blocks = split_blocks(
         text, min_block_chars=request.min_block_chars, max_block_chars=request.max_block_chars
     )
+    block_starts = [block.character_start for block in blocks]
+    block_ends = [block.character_end for block in blocks]
 
     def verdict(segment: BlockSegment) -> tuple[bool, float | None]:
-        # ponytail: linear scan per segment, O(segments x blocks); bisect if 1k+ blocks get slow.
-        hits = [
-            by_id.get(block.id)
-            for block in blocks
-            if block.character_start < segment.character_end
-            and block.character_end > segment.character_start
-        ]
+        # Blocks are non-overlapping and ordered by character_start, so bisect bounds the slice.
+        lo = bisect_left(block_ends, segment.character_start + 1)
+        hi = bisect_left(block_starts, segment.character_end)
+        hits = [by_id.get(blocks[i].id) for i in range(lo, hi)]
         scores = [hit.score for hit in hits if hit is not None and hit.score is not None]
         gone = bool(hits) and all(hit is not None and hit.decision == "drop" for hit in hits)
         return gone, max(scores) if scores else None

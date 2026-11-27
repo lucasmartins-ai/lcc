@@ -552,19 +552,33 @@ class SpecialistJudge:
         self.n_members = len(self._lr) + len(self._gbdt)
 
     def raw(self, rows: list[list[float]]) -> list[float]:
-        out = [0.0] * len(rows)
+        n = len(rows)
+        out = [0.0] * n
         for mu, sd, beta, b0 in self._lr:
+            inv_sd_beta = tuple(b / s for b, s in zip(beta, sd, strict=True))
             for r, x in enumerate(rows):
-                out[r] += sum((x[j] - mu[j]) / sd[j] * beta[j] for j in range(len(beta))) + b0
+                acc = b0
+                for xj, mj, wj in zip(x, mu, inv_sd_beta, strict=False):
+                    acc += (xj - mj) * wj
+                out[r] += acc
         for base, trees in self._gbdt:
-            scores = [base] * len(rows)
+            scores = [base] * n
             for feats, thrs, leaves, depth in trees:
-                first_leaf = (1 << depth) - 1
-                for r, x in enumerate(rows):
-                    k = 0  # heap order: children of k are 2k+1 (x <= t) and 2k+2 (x > t)
-                    for _ in range(depth):
+                if depth == 4:
+                    f0, t0 = feats[0], thrs[0]
+                    for r, x in enumerate(rows):
+                        k = 1 + (x[f0] > t0)
                         k = 2 * k + 1 + (x[feats[k]] > thrs[k])
-                    scores[r] += leaves[k - first_leaf]
+                        k = 2 * k + 1 + (x[feats[k]] > thrs[k])
+                        k = 2 * k + 1 + (x[feats[k]] > thrs[k])
+                        scores[r] += leaves[k - 15]
+                else:
+                    first_leaf = (1 << depth) - 1
+                    for r, x in enumerate(rows):
+                        k = 0  # heap order: children of k are 2k+1 (x <= t) and 2k+2 (x > t)
+                        for _ in range(depth):
+                            k = 2 * k + 1 + (x[feats[k]] > thrs[k])
+                        scores[r] += leaves[k - first_leaf]
             for r, s in enumerate(scores):
                 out[r] += s
         return [v / self.n_members for v in out]

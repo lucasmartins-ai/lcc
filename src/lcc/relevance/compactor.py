@@ -1402,22 +1402,18 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     # --- sticky decisions (cache alignment): reuse previous outcomes for unchanged blocks
     # v1.1 identity: same content + same policy = reusable; any policy/model/threshold
     # change is a different decision (a cache epoch, fail-safe direction).
+    cache_enabled = request.decisions_cache_path is not None
     cache = DecisionCache(request.decisions_cache_path)
-    cache.load()
-    try:
-        _tokenizer_id = tokenizer_identity_for_count(count_tokens("", request.model))[
-            "tokenizer_id"
-        ]
-    except Exception:
-        _tokenizer_id = "heuristic-v1"
-    # Tokenizer identity for the key should reflect the counting model, not the probe
-    # above (which counted empty text). Recompute cheaply without counting.
-    try:
-        from lcc.token_budget.counters import tokenizer_identity as _tok_ident
+    if cache_enabled:
+        cache.load()
+    _tokenizer_id = "heuristic-v1"
+    if cache_enabled:
+        try:
+            from lcc.token_budget.counters import tokenizer_identity as _tok_ident
 
-        _tokenizer_id = _tok_ident(request.model)["tokenizer_id"]
-    except Exception:
-        pass
+            _tokenizer_id = _tok_ident(request.model)["tokenizer_id"]
+        except Exception:
+            pass
     resolved_trim = (
         None
         if request.trim_head_chars <= 0
@@ -1434,32 +1430,36 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     # CONTRADICTS / SUPERSEDES / DEPENDS_ON edges also bind a neighbourhood
     # fingerprint so a stale semantic decision cannot hit after the graph changed.
     _neighbourhood: dict[str, str | None] = {}
+    _pre_graph = None
     try:
+        _pre_qterms = _lexical_terms(request.question)
         _pre_graph = build_graph(
             [(b.id, b.text) for b in blocks],
-            _lexical_terms(request.question),
+            _pre_qterms,
             min_shared_terms=2,
         )
-        for _b in blocks:
-            _rel_edges = [
-                e
-                for e in _pre_graph.edges_touching(_b.id)
-                if e.type.value
-                in ("QUALIFIES", "CONTRADICTS", "SUPERSEDES", "DEPENDS_ON")
-            ]
-            if not _rel_edges:
-                _neighbourhood[_b.id] = None
-                continue
-            _sig = "|".join(
-                sorted(
-                    f"{e.type.value}:{(e.target if e.source == _b.id else e.source)}"
-                    for e in _rel_edges
+        if cache_enabled:
+            for _b in blocks:
+                _rel_edges = [
+                    e
+                    for e in _pre_graph.edges_touching(_b.id)
+                    if e.type.value
+                    in ("QUALIFIES", "CONTRADICTS", "SUPERSEDES", "DEPENDS_ON")
+                ]
+                if not _rel_edges:
+                    _neighbourhood[_b.id] = None
+                    continue
+                _sig = "|".join(
+                    sorted(
+                        f"{e.type.value}:{(e.target if e.source == _b.id else e.source)}"
+                        for e in _rel_edges
+                    )
                 )
-            )
-            _neighbourhood[_b.id] = hashlib.sha256(_sig.encode("utf-8")).hexdigest()[:16]
+                _neighbourhood[_b.id] = hashlib.sha256(_sig.encode("utf-8")).hexdigest()[:16]
     except Exception as exc:
         # Cache keys fall back to content-only identity; say so instead of hiding it.
         _neighbourhood = {}
+        _pre_graph = None
         warnings.append(f"neighbourhood_fingerprint_failed: {type(exc).__name__}")
 
     def _cache_key_for(block_text: str, block_id: str | None = None) -> str:
@@ -1524,8 +1524,11 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     sticky_decisions: dict[str, tuple[str, str]] = {}
     lexical: set[str] = set()  # reused blocks whose cached decision no judge made
     for block in scoreable:
+        if not cache_enabled:
+            pending.append(block)
+            continue
         key = _cache_key_for(block.text, block.id)
-        cached = cache.get(key) if request.decisions_cache_path is not None else None
+        cached = cache.get(key)
         if cached is not None:
             reused += 1
             sticky_decisions[block.id] = (key, cached.decision)
@@ -2112,10 +2115,13 @@ def compact_context(request: RelevanceCompactionRequest) -> RelevanceCompactionR
     graph_relationships: dict[str, str] = {}
     _graph = None
     try:
-        _qterms = _lexical_terms(request.question)
-        _graph = build_graph(
-            [(b.id, b.text) for b in blocks], _qterms, min_shared_terms=2
-        )
+        if _pre_graph is not None:
+            _graph = _pre_graph
+        else:
+            _qterms = _lexical_terms(request.question)
+            _graph = build_graph(
+                [(b.id, b.text) for b in blocks], _qterms, min_shared_terms=2
+            )
         relationship_edges = len(_graph.edges)
         kept_candidate = {
             d.id for d in decisions.values() if d.decision == "keep"

@@ -156,12 +156,17 @@ _STOPWORDS = frozenset(
 
 def _terms(text: str) -> set[str]:
     # Accent-insensitive, matching the compactor's question terms (``fold_accents``).
-    decomposed = unicodedata.normalize("NFKD", text.lower())
-    folded = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    lowered = text.lower()
+    if lowered.isascii():
+        folded = lowered
+    else:
+        decomposed = unicodedata.normalize("NFKD", lowered)
+        folded = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    stopwords = _STOPWORDS
     out: set[str] = set()
-    for m in _WORD_RE.finditer(folded):
-        t = m.group(0).strip("'")
-        if len(t) >= 4 and t not in _STOPWORDS:
+    for raw in _WORD_RE.findall(folded):
+        t = raw.strip("'")
+        if len(t) >= 4 and t not in stopwords:
             out.add(t)
     return out
 
